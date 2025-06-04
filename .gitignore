@@ -116,3 +116,4 @@ $RECYCLE.BIN/
 /frontend/Linki/yarn-error.log*
 /fronted/json-server/node_modules/
 /frontend/json-server/db.json
+/frontend/json-server/routes.json
