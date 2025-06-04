@@ -49,7 +49,7 @@ const toggleSidebar = () => {
 
 .content {
   width: 100%;
-  height: calc(100vh - 48px - 73px - 60px);
+  min-height: calc(100vh - 48px - 73px - 60px);
   overflow-y: auto;
   background-color: #f5f5f5;
 }

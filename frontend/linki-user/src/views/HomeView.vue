@@ -1,12 +1,12 @@
 <script setup>
 // 홈 페이지 관련 로직
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div class="home-content">
-    <h1>홈 페이지</h1>
-    <p>환영합니다!</p>
-  </div>
+  <main>
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>
