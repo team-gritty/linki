@@ -42,10 +42,11 @@
         </div>
       </div>
     </div>
+    <!-- 페이징 버튼 -->
     <div class="pagination">
-      <button class="page-btn" :class="{ active: page === 1 }">&#60;</button>
-      <button v-for="p in 6" :key="p" class="page-btn" :class="{ active: page === p }">{{ p }}</button>
-      <button class="page-btn">&#62;</button>
+      <button class="page-btn" :class="{ active: page === 1 }" @click="changePage(1)">&#60;</button>
+      <button v-for="p in 6" :key="p" class="page-btn" :class="{ active: page === p }" @click="changePage(p)">{{ p }}</button>
+      <button class="page-btn" @click="changePage(page + 1)">&#62;</button>
     </div>
   </div>
 </template>
@@ -55,17 +56,35 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
+import axios from 'axios'
 
 const router = useRouter()
 const modalOpen = ref(false)
-const page = ref(2)
-const listData = [
-  { id: 1, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '5천만', views: '12319' },
-  { id: 2, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '1만', views: '12319' },
-  { id: 3, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '1900', views: '12319' },
-  { id: 4, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '2만', views: '12319' },
-  { id: 5, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '30만', views: '12319' },
-]
+const page = ref(1) // 현재 페이지 번호
+const itemsPerPage = 5 // 페이지당 보여지는 채널 개수
+const listData = ref([]) //인플루언서 채널 리스트 데이터 
+const error = ref(null)
+
+async function fetchChannels() {
+  try {
+    const response = await axios.get('http://localhost:3001/channels')
+    const allChannels = response.data
+    const startIndex = (page.value - 1) * itemsPerPage // 현재 페이지의 시작 인덱스
+    const endIndex = startIndex + itemsPerPage // 현재 페이지의 끝 인덱스
+    listData.value = allChannels.slice(startIndex, endIndex) // 현재 페이지의 채널 데이터 추출
+  } catch (err) {
+    error.value = err.message
+  }
+}
+
+function changePage(newPage) {
+  page.value = newPage
+  fetchChannels()
+}
+
+onMounted(() => {
+  fetchChannels()
+})
 
 const searchBtnHover = ref(false)
 function handleSearchBtnMouseEnter() { searchBtnHover.value = true }
