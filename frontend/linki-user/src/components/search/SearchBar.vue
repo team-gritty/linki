@@ -1,4 +1,5 @@
 <template>
+  <!-- 인플루언서 채널 목록 페이지에서 사용하는 검색바 컴포넌트 시작-->
   <div class="search-bar">
     <div class="category-dropdown" @click="toggleDropdown">
       <span class="category-label">{{ selectedCategoryLabel }}</span>

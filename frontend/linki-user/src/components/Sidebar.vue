@@ -132,7 +132,8 @@ body, html {
   margin: 0;
 }
 
-.menu-item {
+/* 메뉴 아이템 한개당 텍스트 스타일 */
+.menu-item { 
   font-size: 15px;
   margin-right: 0;
   padding: 0 8px;
@@ -140,8 +141,9 @@ body, html {
   transition: color 0.2s;
 }
 
-.menu-item:hover {
-  color: #8C30F5;
+.menu-item:hover { 
+  /* 메뉴 hover 시 보라색을 변경 */
+  color: #8C30F5; 
 }
 
 .navbar-right {
