@@ -1,6 +1,7 @@
 import HomeView from '@/views/HomeView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
+import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       name: 'influencer-list',
       component: ChannelListPage
     },
+    {
+      path: '/channels/:id',
+      name: 'channel-detail',
+      component: ChannelDetailPage
+    }
   ]
 })
 

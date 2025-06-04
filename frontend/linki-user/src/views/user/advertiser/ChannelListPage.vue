@@ -38,7 +38,7 @@
         <div class="td td-subscribers">{{ item.subscribers }}</div>
         <div class="td td-views">{{ item.views }}</div>
         <div class="td td-analysis">
-          <button class="analysis-btn" @click="goToDetail">상세 분석</button>
+          <button class="analysis-btn" @click="goToDetail(item.id)">상세 분석</button>
         </div>
       </div>
     </div>
@@ -60,11 +60,11 @@ const router = useRouter()
 const modalOpen = ref(false)
 const page = ref(2)
 const listData = [
-  { img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '5천만', views: '12319' },
-  { img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '1만', views: '12319' },
-  { img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '1900', views: '12319' },
-  { img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '2만', views: '12319' },
-  { img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '30만', views: '12319' },
+  { id: 1, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '5천만', views: '12319' },
+  { id: 2, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '1만', views: '12319' },
+  { id: 3, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '1900', views: '12319' },
+  { id: 4, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '2만', views: '12319' },
+  { id: 5, img: 'https://randomuser.me/api/portraits/men/1.jpg', name: 'Channel Name1', category: '엔터테인먼트', genre: '음악', subscribers: '30만', views: '12319' },
 ]
 
 const searchBtnHover = ref(false)
@@ -83,8 +83,8 @@ onMounted(() => {
   if (input) input.addEventListener('keydown', handleSearchInputKeydown)
 })
 
-const goToDetail = () => {
-  router.push('/channel-detail')
+const goToDetail = (id) => {
+  router.push(`/channels/${id}`)
 }
 </script>
 
