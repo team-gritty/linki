@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter() // 메뉴 클릭시 관련 페이지로 이동하기 위해 라우터 인스턴스 생성
 const isMobile = ref(false)
 
 const props = defineProps({
@@ -19,6 +22,13 @@ onUnmounted(() => {
 })
 
 const sidebarElement = ref(null)
+
+function goToInfluencer() {
+  router.push('/channels') // ChannelListPage로 이동 
+  if (props.toggleSidebar) { 
+    props.toggleSidebar() // 모바일 사이드바 닫기
+  }
+}
 
 watch(() => props.openSidebar, (newValue) => {
   if (sidebarElement.value) {
@@ -40,7 +50,7 @@ watch(() => props.openSidebar, (newValue) => {
       <span class="logo">LINKI</span>
       <ul class="menu-list desktop-menu">
         <li class="menu-item">홈</li>
-        <li class="menu-item">인플루언서</li>
+        <li class="menu-item" @click="goToInfluencer">인플루언서</li>
         <li class="menu-item">캠페인</li>
         <li class="menu-item">고객센터</li>
       </ul>
@@ -56,7 +66,7 @@ watch(() => props.openSidebar, (newValue) => {
       <div :class="['mobile-sidebar', { 'is-open': openSidebar }]">
         <ul class="menu-list mobile-menu">
           <li class="menu-item">홈</li>
-          <li class="menu-item">인플루언서</li>
+          <li class="menu-item" @click="goToInfluencer">인플루언서</li>
           <li class="menu-item">캠페인</li>
           <li class="menu-item">고객센터</li>
         </ul>
@@ -126,6 +136,12 @@ body, html {
   font-size: 15px;
   margin-right: 0;
   padding: 0 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.menu-item:hover {
+  color: #8C30F5;
 }
 
 .navbar-right {
