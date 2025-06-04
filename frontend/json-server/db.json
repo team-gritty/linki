@@ -1,0 +1,204 @@
+{
+  "generalUser": [
+      {
+          "userId": 1,
+          "name": "유저1",
+          "email": "user1@test.com",
+          "phone": "010-0001-0001",
+          "enterDate": "2023-01-01",
+          "user_status": "정상"
+      },
+      {
+          "userId": 2,
+          "name": "유저2",
+          "email": "user2@test.com",
+          "phone": "010-0002-0002",
+          "enterDate": "2023-01-02",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 3,
+          "name": "유저3",
+          "email": "user3@test.com",
+          "phone": "010-0003-0003",
+          "enterDate": "2023-01-03",
+          "user_status": "정지"
+      },
+      {
+          "userId": 4,
+          "name": "유저4",
+          "email": "user4@test.com",
+          "phone": "010-0004-0004",
+          "enterDate": "2023-01-04",
+          "user_status": "정상"
+      },
+      {
+          "userId": 5,
+          "name": "유저5",
+          "email": "user5@test.com",
+          "phone": "010-0005-0005",
+          "enterDate": "2023-01-05",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 6,
+          "name": "유저6",
+          "email": "user6@test.com",
+          "phone": "010-0006-0006",
+          "enterDate": "2023-01-06",
+          "user_status": "정지"
+      },
+      {
+          "userId": 7,
+          "name": "유저7",
+          "email": "user7@test.com",
+          "phone": "010-0007-0007",
+          "enterDate": "2023-01-07",
+          "user_status": "정상"
+      },
+      {
+          "userId": 8,
+          "name": "유저8",
+          "email": "user8@test.com",
+          "phone": "010-0008-0008",
+          "enterDate": "2023-01-08",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 9,
+          "name": "유저9",
+          "email": "user9@test.com",
+          "phone": "010-0009-0009",
+          "enterDate": "2023-01-09",
+          "user_status": "정지"
+      },
+      {
+          "userId": 10,
+          "name": "유저10",
+          "email": "user10@test.com",
+          "phone": "010-0010-0010",
+          "enterDate": "2023-01-10",
+          "user_status": "정상"
+      },
+      {
+          "userId": 11,
+          "name": "유저11",
+          "email": "user11@test.com",
+          "phone": "010-0011-0011",
+          "enterDate": "2023-01-11",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 12,
+          "name": "유저12",
+          "email": "user12@test.com",
+          "phone": "010-0012-0012",
+          "enterDate": "2023-01-12",
+          "user_status": "정지"
+      },
+      {
+          "userId": 13,
+          "name": "유저13",
+          "email": "user13@test.com",
+          "phone": "010-0013-0013",
+          "enterDate": "2023-01-13",
+          "user_status": "정상"
+      },
+      {
+          "userId": 14,
+          "name": "유저14",
+          "email": "user14@test.com",
+          "phone": "010-0014-0014",
+          "enterDate": "2023-01-14",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 15,
+          "name": "유저15",
+          "email": "user15@test.com",
+          "phone": "010-0015-0015",
+          "enterDate": "2023-01-15",
+          "user_status": "정지"
+      },
+      {
+          "userId": 16,
+          "name": "유저16",
+          "email": "user16@test.com",
+          "phone": "010-0016-0016",
+          "enterDate": "2023-01-16",
+          "user_status": "정상"
+      },
+      {
+          "userId": 17,
+          "name": "유저17",
+          "email": "user17@test.com",
+          "phone": "010-0017-0017",
+          "enterDate": "2023-01-17",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 18,
+          "name": "유저18",
+          "email": "user18@test.com",
+          "phone": "010-0018-0018",
+          "enterDate": "2023-01-18",
+          "user_status": "정지"
+      },
+      {
+          "userId": 19,
+          "name": "유저19",
+          "email": "user19@test.com",
+          "phone": "010-0019-0019",
+          "enterDate": "2023-01-19",
+          "user_status": "정상"
+      },
+      {
+          "userId": 20,
+          "name": "유저20",
+          "email": "user20@test.com",
+          "phone": "010-0020-0020",
+          "enterDate": "2023-01-20",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 21,
+          "name": "유저21",
+          "email": "user21@test.com",
+          "phone": "010-0021-0021",
+          "enterDate": "2023-01-21",
+          "user_status": "정지"
+      },
+      {
+          "userId": 22,
+          "name": "유저22",
+          "email": "user22@test.com",
+          "phone": "010-0022-0022",
+          "enterDate": "2023-01-22",
+          "user_status": "정상"
+      },
+      {
+          "userId": 23,
+          "name": "유저23",
+          "email": "user23@test.com",
+          "phone": "010-0023-0023",
+          "enterDate": "2023-01-23",
+          "user_status": "탈퇴"
+      },
+      {
+          "userId": 24,
+          "name": "유저24",
+          "email": "user24@test.com",
+          "phone": "010-0024-0024",
+          "enterDate": "2023-01-24",
+          "user_status": "정지"
+      },
+      {
+          "userId": 25,
+          "name": "유저25",
+          "email": "user25@test.com",
+          "phone": "010-0025-0025",
+          "enterDate": "2023-01-25",
+          "user_status": "정상"
+      }
+  ]
+}
