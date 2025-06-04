@@ -29,6 +29,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
+
 const emit = defineEmits(['update:categories'])
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
@@ -47,6 +48,7 @@ const toggleSelectAll = () => {
   if (allSelected.value) selectedCategories.value = []
   else selectedCategories.value = [...categories]
 }
+// 카테고리 드롭다운 닫기 및 선택된 카테고리 전달
 function closeDropdownAndEmit() {
   dropdownOpen.value = false
   emit('update:categories', [...selectedCategories.value])

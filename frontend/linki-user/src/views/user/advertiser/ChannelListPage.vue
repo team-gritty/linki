@@ -7,9 +7,9 @@
         </svg>
         <span>검색 옵션</span>
       </button>
-      <SearchBar />
+      <SearchBar @update:categories="onCategoryChange" />
     </div>
-    <SearchOptionModal v-if="modalOpen" @close="modalOpen = false" />
+    <SearchOptionModal v-if="modalOpen" @close="modalOpen = false" @update:categories="onCategoryChange" />
 
     <div class="channel-list-table">
       <div class="table-header">
@@ -19,7 +19,7 @@
         <div class="th th-views">평균 조회수</div>
         <div class="th th-analysis">분석</div>
       </div>
-      <div v-for="(item, idx) in listData" :key="idx" class="table-row">
+      <div v-for="(item, idx) in pagedListData" :key="idx" class="table-row"> <!-- 페이지당 보여지는 채널 개수만큼 반복 -->
         <div class="td td-num">{{ idx + 1 }}</div>
         <div class="td td-detail">
           <img :src="item.img" class="profile-img" />
@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
@@ -62,32 +62,64 @@ const router = useRouter()
 const modalOpen = ref(false)
 const page = ref(1) // 현재 페이지 번호
 const itemsPerPage = 5 // 페이지당 보여지는 채널 개수
-const listData = ref([]) //인플루언서 채널 리스트 데이터 
+const listData = ref([]) // 전체 채널 데이터 저장할 배열 
 const error = ref(null)
 
-async function fetchChannels() {
+const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
+
+const pagedListData = computed(() => { 
+  const startIndex = (page.value - 1) * itemsPerPage  
+  const endIndex = startIndex + itemsPerPage 
+  return listData.value.slice(startIndex, endIndex)
+})
+
+function onCategoryChange(categories) {
+  selectedCategories.value = categories // 선택된 카테고리를 저장 
+  page.value = 1 // 카테고리 변경 시 페이지 1로 이동
+  if (categories.length === 0) {
+    listData.value = [] // 선택된 카테고리가 없으면 빈 배열로 초기화
+    error.value = '선택된 카테고리에 해당하는 채널이 없습니다'
+  } else {
+    // 선택된 카테고리에 해당하는 채널 데이터 추출
+    fetchChannelsByCategories(categories)
+  }
+}
+
+// 카테고리 필터링 채널 데이터 추출
+async function fetchChannelsByCategories(categories) {
   try {
-    const response = await axios.get('http://localhost:3001/channels')
-    const allChannels = response.data
-    const startIndex = (page.value - 1) * itemsPerPage // 현재 페이지의 시작 인덱스
-    const endIndex = startIndex + itemsPerPage // 현재 페이지의 끝 인덱스
-    listData.value = allChannels.slice(startIndex, endIndex) // 현재 페이지의 채널 데이터 추출
+    const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&') // 카테고리 파라미터 생성
+    const response = await axios.get(`http://localhost:3001/channels?${params}`) // 카테고리 파라미터를 쿼리 파라미터로 추가하여 채널 데이터 추출
+    listData.value = response.data
   } catch (err) {
     error.value = err.message
   }
 }
 
-function changePage(newPage) {
-  page.value = newPage
-  fetchChannels()
+// 전체 채널 데이터 추출
+async function fetchChannels() {
+  try {
+    const response = await axios.get('http://localhost:3001/channels')
+    listData.value = response.data // 전체 채널 데이터를 저장 
+  } catch (err) { // 오류 발생 시 오류 메시지 저장 
+    error.value = err.message 
+  }
 }
 
+// 페이지 번호 변경 시 페이지 번호 업데이트
+function changePage(newPage) {
+  page.value = newPage // 페이지 번호 업데이트
+}
+
+// 페이지가 처음 로드되면 
 onMounted(() => {
+  // 전체 채널 데이터를 axios로 받아와서 listData에 저장 
   fetchChannels()
 })
 
+// 검색 버튼 호버 효과
 const searchBtnHover = ref(false)
-function handleSearchBtnMouseEnter() { searchBtnHover.value = true }
+function handleSearchBtnMouseEnter() { searchBtnHover.value = true } // 검색 버튼 호버 효과
 function handleSearchBtnMouseLeave() { searchBtnHover.value = false }
 
 // 검색바 엔터 입력 시 검색 동작
@@ -97,11 +129,14 @@ function handleSearchInputKeydown(e) {
     alert('검색 기능은 추후 구현 예정입니다.')
   }
 }
+
+// 검색바 엔터 입력 시 검색 동작
 onMounted(() => {
-  const input = document.querySelector('.search-input')
-  if (input) input.addEventListener('keydown', handleSearchInputKeydown)
+  const input = document.querySelector('.search-input') // 검색바 엔터 입력 시 검색 동작
+  if (input) input.addEventListener('keydown', handleSearchInputKeydown) // 검색바 엔터 입력 시 검색 동작
 })
 
+// 채널 상세 페이지로 이동
 const goToDetail = (id) => {
   router.push(`/channels/${id}`)
 }

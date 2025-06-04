@@ -64,7 +64,8 @@
       </div>
       <div class="modal-btn-row">
         <button class="clear-btn" @click="clearAll">전체해제</button>
-        <button class="modal-search-btn" @click="$emit('close')">검색</button>
+<!-- 검색 버튼 클릭 시 선택된 카테고리 전달 -->
+        <button class="modal-search-btn" @click="$emit('update:categories', [...selectedCategories]); $emit('close')">검색</button> 
       </div>
     </div>
   </div>
