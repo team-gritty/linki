@@ -1,137 +1,160 @@
 <template>
   <div class="channel-detail-page">
-    <nav class="breadcrumb">
-      <span>Home</span>
-      <span class="breadcrumb-sep">/</span>
-      <span>About</span>
-    </nav>
-    <div class="banner"></div>
-    <div class="profile-section">
-      <div class="profile-img"></div>
-      <div class="profile-main">
-        <div class="profile-header-row">
-          <h1 class="channel-name">라잌에이 LIKEA</h1>
-          <span class="platform-badge youtube-badge">
-            <svg class="youtube-icon" width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="28" height="20" rx="8" fill="#FF0000"/>
-              <path d="M19.5 10.0001C19.5 10.0001 19.5 7.83341 19.2 6.66675C19.0333 6.00008 18.5333 5.50008 17.8667 5.33341C16.7 5.00008 14 5.00008 14 5.00008C14 5.00008 11.3 5.00008 10.1333 5.33341C9.46667 5.50008 8.96667 6.00008 8.8 6.66675C8.5 7.83341 8.5 10.0001 8.5 10.0001C8.5 10.0001 8.5 12.1667 8.8 13.3334C8.96667 14.0001 9.46667 14.5001 10.1333 14.6667C11.3 15.0001 14 15.0001 14 15.0001C14 15.0001 16.7 15.0001 17.8667 14.6667C18.5333 14.5001 19.0333 14.0001 19.2 13.3334C19.5 12.1667 19.5 10.0001 19.5 10.0001ZM12.5 12.5V7.50008L16.5 10.0001L12.5 12.5Z" fill="white"/>
-            </svg>
-          </span>
-        </div>
-        <div class="profile-meta-row">
-          <button class="ad-btn">광고 제안</button>
-          <span class="category">패션</span>
-          <span class="category">뷰티</span>
-          <span class="star-rating">★ ★ ★ ★ ★</span>
-          <span class="review-count">(150 Reviews)</span>
-        </div>
-        <div class="profile-info-row">
-          <span>구독자 수 <b>5만</b></span>
-          <span>가입일 <b>2024.02.11</b></span>
-          <span>총영상수 <b>65개</b></span>
-          <span>국가 <b>한국</b></span>
-        </div>
-      </div>
-    </div>
-    <div class="video-stats-box">
-      <div class="video-stats-title">최근 90일 영상 통계 데이터</div>
-      <div class="video-stats-list">
-        <div class="video-stat-item">
-          <div class="stat-label">영상 수</div>
-          <div class="stat-value">221</div>
-        </div>
-        <div class="video-stat-item">
-          <div class="stat-label">영상별 평균 조회수</div>
-          <div class="stat-value">7,810만</div>
-        </div>
-        <div class="video-stat-item">
-          <div class="stat-label">평균 댓글수</div>
-          <div class="stat-value">1.72천</div>
-        </div>
-        <div class="video-stat-item">
-          <div class="stat-label">평균 좋아요 수</div>
-          <div class="stat-value">95.23만</div>
-        </div>
-      </div>
-    </div>
-    <div class="video-stats-charts">
-      <div class="video-stats-chart">
-        <div class="video-stats-chart-title">조회수 대비 좋아요 비율</div>
-        <VueApexCharts type="bar" height="260" :options="likeBarOptions" :series="likeBarSeries" />
-      </div>
-      <div class="video-stats-chart">
-        <div class="video-stats-chart-title">조회수 대비 댓글 비율</div>
-        <VueApexCharts type="bar" height="260" :options="commentBarOptions" :series="commentBarSeries" />
-      </div>
-    </div>
-    <div class="subscriber-graph-box">
-      <div class="subscriber-graph-header">
-        <span class="graph-title">채널 구독자 수 변화량</span>
-        <div class="graph-tabs">
-          <button
-            v-for="p in ['30일', '15일']"
-            :key="p"
-            :class="['graph-tab', { active: period === p }]"
-            @click="selectPeriod(p)"
-          >{{ p }}</button>
-        </div>
-      </div>
-      <div class="graph-rate-row">
-        <span class="graph-rate">{{ chartData[period].rate }}</span>
-        <span class="graph-rate-label">상승률</span>
-      </div>
-      <VueApexCharts
-        width="100%"
-        height="320"
-        type="line"
-        :options="chartOptions"
-        :series="series"
-      />
-    </div>
-    
-    <div class="tab-section">
-      <button class="tab" :class="{ active: tab === 'intro' }" @click="tab = 'intro'">채널 소개</button>
-      <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰 ({{ reviews.length }})</button>
-    </div>
-    <div v-if="tab === 'intro'">
-      <div class="intro-section">
-        <h2>소개</h2>
-        <p class="intro-text">
-          안녕하세요, 저는 2030대 여성을 타겟으로 뷰티와 라이프스타일 콘텐츠를 제작하고 있는 유튜버입니다. 솔직한 사용 후기와 자연스러운 생활 속 뷰티 꿀팁으로 유용한 제품을 추천하며, 광고보다는 일상 속 진정성 있는 리뷰를 선호합니다. 평균 조회수는 약 3만5천이며, 뷰티 제품의 경우 시청자 참여율이 높고, 브랜드의 핵심 메시지가 시청자의 언어로 잘 전달되는 데 집중하고 있으며, 구독자와의 신뢰를 바탕으로 한 광고를 진행합니다.
-        </p>
-        <ul class="intro-list">
-          <li>Type Of Packing: Bottle</li>
-          <li>Color: Green, Pink, Powder Blue, Purple</li>
-          <li>Quantity Per Case: 100ml</li>
-          <li>Ethyl Alcohol: 70%</li>
-          <li>Piece In One: Carton</li>
-        </ul>
-      </div>
-    </div>
-    <div v-else class="review-section">
-      <div class="review-list">
-        <div v-for="review in reviews" :key="review.id" class="review-card">
-          <div class="review-header">
-            <div class="review-stars">
-              <span v-for="n in 5" :key="n">
-                <svg v-if="review.score >= n" width="22" height="22" viewBox="0 0 22 22" fill="#FFC107"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
-                <svg v-else-if="review.score >= n-0.5" width="22" height="22" viewBox="0 0 22 22"><defs><linearGradient :id="'half'+review.id+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8" :fill="'url(#half'+review.id+n+')'"/></svg>
-                <svg v-else width="22" height="22" viewBox="0 0 22 22" fill="#eee"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
-              </span>
-              <span class="review-score">{{ review.score.toFixed(1) }}</span>
-            </div>
-            <div class="review-date">계약일시 {{ formatDate(review.startDate) }} ~ {{ formatDate(review.endDate) }}</div>
+    <div v-if="loading">로딩 중...</div>
+    <div v-else-if="error">{{ error }}</div>
+    <template v-else>
+      <nav class="breadcrumb">
+        <span>Home</span>
+        <span class="breadcrumb-sep">/</span>
+        <span>About</span>
+      </nav>
+      <div class="banner"></div>
+      <div class="profile-section">
+        <div class="profile-img"></div>
+        <div class="profile-main">
+          <div class="profile-header-row">
+            <h1 class="channel-name">{{ channel.name }}</h1>
+            <span class="platform-badge youtube-badge">
+              <svg class="youtube-icon" width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="28" height="20" rx="8" fill="#FF0000"/>
+                <path d="M19.5 10.0001C19.5 10.0001 19.5 7.83341 19.2 6.66675C19.0333 6.00008 18.5333 5.50008 17.8667 5.33341C16.7 5.00008 14 5.00008 14 5.00008C14 5.00008 11.3 5.00008 10.1333 5.33341C9.46667 5.50008 8.96667 6.00008 8.8 6.66675C8.5 7.83341 8.5 10.0001 8.5 10.0001C8.5 10.0001 8.5 12.1667 8.8 13.3334C8.96667 14.0001 9.46667 14.5001 10.1333 14.6667C11.3 15.0001 14 15.0001 14 15.0001C14 15.0001 16.7 15.0001 17.8667 14.6667C18.5333 14.5001 19.0333 14.0001 19.2 13.3334C19.5 12.1667 19.5 10.0001 19.5 10.0001ZM12.5 12.5V7.50008L16.5 10.0001L12.5 12.5Z" fill="white"/>
+              </svg>
+            </span>
           </div>
-          <div class="review-text">{{ review.text }}</div>
+          <div class="profile-meta-row">
+            <button class="ad-btn">광고 제안</button>
+            <span class="category">{{ channel.category }}</span>
+            <span class="star-rating">★ ★ ★ ★ ★</span>
+            <span class="review-count">(150 Reviews)</span>
+          </div>
+          <div class="profile-info-row">
+            <span>구독자 수 <b>{{ channel.subscribers }}</b></span>
+            <span>가입일 <b>{{ channel.createdAt }}</b></span>
+            <span>총영상수 <b>{{ channel.videoCount }}개</b></span>
+            <span>국가 <b>{{ channel.country || '한국' }}</b></span>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="video-stats-box">
+        <div class="video-stats-title">최근 90일 영상 통계 데이터</div>
+        <div class="video-stats-list">
+          <div class="video-stat-item">
+            <div class="stat-label">영상 수</div>
+            <div class="stat-value">{{ channel.videoCount }}</div>
+          </div>
+          <div class="video-stat-item">
+            <div class="stat-label">영상별 평균 조회수</div>
+            <div class="stat-value">{{ channel.avgViewCount }}</div>
+          </div>
+          <div class="video-stat-item">
+            <div class="stat-label">평균 댓글수</div>
+            <div class="stat-value">{{ channel.avgCommentCount }}</div>
+          </div>
+          <div class="video-stat-item">
+            <div class="stat-label">평균 좋아요 수</div>
+            <div class="stat-value">{{ channel.avgLikeCount }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="video-stats-charts">
+        <div class="video-stats-chart">
+          <div class="video-stats-chart-title">조회수 대비 좋아요 비율</div>
+          <VueApexCharts type="bar" height="260" :options="likeBarOptions" :series="likeBarSeries" />
+        </div>
+        <div class="video-stats-chart">
+          <div class="video-stats-chart-title">조회수 대비 댓글 비율</div>
+          <VueApexCharts type="bar" height="260" :options="commentBarOptions" :series="commentBarSeries" />
+        </div>
+      </div>
+      <div class="subscriber-graph-box">
+        <div class="subscriber-graph-header">
+          <span class="graph-title">채널 구독자 수 변화량</span>
+          <div class="graph-tabs">
+            <button
+              v-for="p in ['30일', '15일']"
+              :key="p"
+              :class="['graph-tab', { active: period === p }]"
+              @click="selectPeriod(p)"
+            >{{ p }}</button>
+          </div>
+        </div>
+        <div class="graph-rate-row">
+          <span class="graph-rate">{{ chartData[period].rate }}</span>
+          <span class="graph-rate-label">상승률</span>
+        </div>
+        <VueApexCharts
+          width="100%"
+          height="320"
+          type="line"
+          :options="chartOptions"
+          :series="series"
+        />
+      </div>
+      
+      <div class="tab-section">
+        <button class="tab" :class="{ active: tab === 'intro' }" @click="tab = 'intro'">채널 소개</button>
+        <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰 ({{ reviews.length }})</button>
+      </div>
+      <div v-if="tab === 'intro'">
+        <div class="intro-section">
+          <h2>소개</h2>
+          <p class="intro-text">
+            안녕하세요, 저는 2030대 여성을 타겟으로 뷰티와 라이프스타일 콘텐츠를 제작하고 있는 유튜버입니다. 솔직한 사용 후기와 자연스러운 생활 속 뷰티 꿀팁으로 유용한 제품을 추천하며, 광고보다는 일상 속 진정성 있는 리뷰를 선호합니다. 평균 조회수는 약 3만5천이며, 뷰티 제품의 경우 시청자 참여율이 높고, 브랜드의 핵심 메시지가 시청자의 언어로 잘 전달되는 데 집중하고 있으며, 구독자와의 신뢰를 바탕으로 한 광고를 진행합니다.
+          </p>
+          <ul class="intro-list">
+            <li>Type Of Packing: Bottle</li>
+            <li>Color: Green, Pink, Powder Blue, Purple</li>
+            <li>Quantity Per Case: 100ml</li>
+            <li>Ethyl Alcohol: 70%</li>
+            <li>Piece In One: Carton</li>
+          </ul>
+        </div>
+      </div>
+      <div v-else class="review-section">
+        <div class="review-list">
+          <div v-for="review in reviews" :key="review.id" class="review-card">
+            <div class="review-header">
+              <div class="review-stars">
+                <span v-for="n in 5" :key="n">
+                  <svg v-if="review.score >= n" width="22" height="22" viewBox="0 0 22 22" fill="#FFC107"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
+                  <svg v-else-if="review.score >= n-0.5" width="22" height="22" viewBox="0 0 22 22"><defs><linearGradient :id="'half'+review.id+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8" :fill="'url(#half'+review.id+n+')'"/></svg>
+                  <svg v-else width="22" height="22" viewBox="0 0 22 22" fill="#eee"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
+                </span>
+                <span class="review-score">{{ review.score.toFixed(1) }}</span>
+              </div>
+              <div class="review-date">계약일시 {{ formatDate(review.startDate) }} ~ {{ formatDate(review.endDate) }}</div>
+            </div>
+            <div class="review-text">{{ review.text }}</div>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+
+const route = useRoute()
+const channel = ref(null)
+const loading = ref(true)
+const error = ref(null)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const id = route.params.id
+    const response = await axios.get(`http://localhost:3001/channels/${id}`)
+    channel.value = response.data
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+})
 
 const period = ref('30일')
 const chartOptions = ref({
