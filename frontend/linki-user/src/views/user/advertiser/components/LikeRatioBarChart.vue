@@ -64,7 +64,6 @@ const chartOptions = computed(() => ({
   xaxis: { categories: ['내 채널', '전체'] },
   yaxis: {
     min: 0,
-    title: { text: '좋아요/조회수' },
     labels: { formatter: val => val.toFixed(2) }
   },
   colors: ['#6B46C1', '#9F7AEA'],
@@ -75,8 +74,8 @@ const chartOptions = computed(() => ({
   },
   plotOptions: {
     bar: {
-      borderRadius: 4,
-      columnWidth: '60%',
+      borderRadius: 5,
+      columnWidth: '40%',
       distributed: true
     }
   }

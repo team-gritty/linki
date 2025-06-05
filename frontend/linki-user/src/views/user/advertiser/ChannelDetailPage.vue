@@ -57,8 +57,16 @@
         </div>
       </div>
       <div class="like-ratio-bar-chart-box">
-        <h3>조회수 대비 좋아요 비율</h3>
-        <LikeRatioBarChart :channels="channels" :channelId="id" />
+        <div class="bar-charts-row">
+          <div class="bar-chart-item">
+            <h3>조회수 대비 좋아요 비율</h3>
+            <LikeRatioBarChart :channels="channels" :channelId="id" />
+          </div>
+          <div class="bar-chart-item">
+            <h3>조회수 대비 댓글 비율</h3>
+            <CommentRatioBarChart :channels="channels" :channelId="id" />
+          </div>
+        </div>
       </div>
       <div class="subscriber-graph-box">
         <div class="subscriber-graph-header">
@@ -128,6 +136,7 @@ import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
+import CommentRatioBarChart from '@/views/user/advertiser/components/CommentRatioBarChart.vue'
 
 const route = useRoute()
 const channel = ref(null)
@@ -747,10 +756,27 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
-.like-ratio-bar-chart-box h3 {
+.bar-charts-row {
+  display: flex;
+  gap: 32px;
+}
+.bar-chart-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.bar-chart-item h3 {
   font-size: 1.2rem;
   font-weight: 700;
   color: #222;
   margin-bottom: 18px;
+}
+@media (max-width: 900px) {
+  .bar-charts-row {
+    flex-direction: column;
+    gap: 18px;
+  }
 }
 </style> 
