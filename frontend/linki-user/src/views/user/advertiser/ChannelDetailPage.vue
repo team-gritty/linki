@@ -56,15 +56,9 @@
           </div>
         </div>
       </div>
-      <div class="video-stats-charts">
-        <div class="video-stats-chart">
-          <div class="video-stats-chart-title">조회수 대비 좋아요 비율</div>
-          <VueApexCharts type="bar" height="260" :options="likeBarOptions" :series="likeBarSeries" />
-        </div>
-        <div class="video-stats-chart">
-          <div class="video-stats-chart-title">조회수 대비 댓글 비율</div>
-          <VueApexCharts type="bar" height="260" :options="commentBarOptions" :series="commentBarSeries" />
-        </div>
+      <div class="like-ratio-bar-chart-box">
+        <h3>조회수 대비 좋아요 비율</h3>
+        <LikeRatioBarChart :channels="channels" :channelId="id" />
       </div>
       <div class="subscriber-graph-box">
         <div class="subscriber-graph-header">
@@ -82,7 +76,7 @@
           <span class="graph-rate">{{ chartData[period].rate }}</span>
           <span class="graph-rate-label">상승률</span>
         </div>
-        <SubscriberHistoryChart :channelId="channel.id" />
+        <SubscriberHistoryChart :channelId="id" />
       </div>
       
       <div class="tab-section">
@@ -122,6 +116,7 @@
           </div>
         </div>
       </div>
+     
     </template>
   </div>
 </template>
@@ -132,18 +127,26 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
+import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
 
 const route = useRoute()
 const channel = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const channels = ref([])
+
+// 항상 숫자로 변환된 id 사용
+const id = computed(() => Number(route.params.id))
 
 onMounted(async () => {
   loading.value = true
   try {
-    const id = route.params.id
-    const response = await axios.get(`http://localhost:3001/channels/${id}`)
-    channel.value = response.data
+    // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
+    const response = await axios.get('http://localhost:3001/channels')
+    channels.value = response.data
+    // 2. 채널 Id로 해당 채널 데이터 가져오기
+    const channelRes = await axios.get(`http://localhost:3001/channels/${id.value}`)
+    channel.value = channelRes.data
   } catch (err) {
     error.value = err.message
   } finally {
@@ -736,5 +739,18 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
     flex-direction: column;
     gap: 18px;
   }
+}
+.like-ratio-bar-chart-box {
+  margin-top: 32px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.like-ratio-bar-chart-box h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 18px;
 }
 </style> 

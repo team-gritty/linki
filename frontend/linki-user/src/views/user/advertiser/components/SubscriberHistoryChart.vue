@@ -45,6 +45,7 @@
     }
   ])
   
+  
   const chartOptions = computed(() => ({
     chart: {
       id: 'subscriber-history',

@@ -74,10 +74,13 @@ const pagedListData = computed(() => {
 })
 
 function onCategoryChange(categories) {
-  selectedCategories.value = categories // 선택된 카테고리를 저장 
-  page.value = 1 // 카테고리 변경 시 페이지 1로 이동
+  // 선택된 카테고리를 저장
+  selectedCategories.value = categories
+  // 카테고리 변경 시 페이지 1로 이동
+  page.value = 1 
   if (categories.length === 0) {
-    listData.value = [] // 선택된 카테고리가 없으면 빈 배열로 초기화
+    // 선택된 카테고리가 없으면 빈 배열로 초기화
+    listData.value = [] 
     error.value = '선택된 카테고리에 해당하는 채널이 없습니다'
   } else {
     // 선택된 카테고리에 해당하는 채널 데이터 추출
@@ -85,7 +88,7 @@ function onCategoryChange(categories) {
   }
 }
 
-// 카테고리 필터링 채널 데이터 추출
+// 카테고리 필터링 채널 데이터 불러오기
 async function fetchChannelsByCategories(categories) {
   try {
     const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&') // 카테고리 파라미터 생성
