@@ -29,6 +29,8 @@ const router = createRouter({
       path: '/channels/:id',
       name: 'channel-detail',
       component: ChannelDetailPage
+    },
+    {
       path: '/campaigns',
       name: 'campaigns',
       component: () => import('../views/user/influencer/CampaignListView.vue')
@@ -42,6 +44,16 @@ const router = createRouter({
       path: '/campaign/:id/proposal',
       name: 'campaign-proposal',
       component: () => import('../views/user/influencer/CampaignProposalView.vue')
+    },
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: () => import('../views/user/influencer/MyPageView.vue')
+    },
+    {
+      path: '/proposals/:id',
+      name: 'proposal-detail',
+      component: () => import('../views/user/influencer/ProposalDetailView.vue')
     }
   ]
 })

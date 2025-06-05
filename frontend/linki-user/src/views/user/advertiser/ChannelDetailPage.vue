@@ -24,6 +24,7 @@
           <div class="profile-meta-row">
             <button class="ad-btn">광고 제안</button>
             <span class="category">{{ channel.category }}</span>
+            
             <span class="star-rating">
               <template v-if="reviewCount > 0">
                 <span v-for="n in 5" :key="n">
@@ -35,6 +36,7 @@
               </template>
             </span>
             <span class="review-count" v-if="reviewCount > 0">({{ reviewCount }} Reviews)</span>
+
           </div>
           <div class="profile-info-row">
             <span>구독자 수 <b>{{ channel.subscribers }}</b></span>
@@ -99,6 +101,7 @@
       <div class="tab-section">
         <button class="tab" :class="{ active: tab === 'intro' }" @click="tab = 'intro'">채널 소개</button>
         <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰<span v-if="reviewCount"> ({{ reviewCount }})</span></button>
+
       </div>
       <div v-if="tab === 'intro'">
         <div class="intro-section">
@@ -118,6 +121,7 @@
       <div v-else>
         <ReviewTab :channelId="id" @review-stats="onReviewStats" />
       </div>
+
     </template>
   </div>
 </template>
@@ -129,9 +133,11 @@ import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
+
 import CommentRatioBarChart from './components/CommentRatioBarChart.vue'
 import ReviewTab from './components/ReviewTab.vue'
 import { getReviewStats } from './useReviewStats.js'
+
 
 const route = useRoute()
 const channel = ref(null)
@@ -156,6 +162,7 @@ function onReviewStats({ count, avg }) {
   reviewAvg.value = avg
 }
 
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -165,8 +172,10 @@ onMounted(async () => {
     // 2. 채널 Id로 해당 채널 데이터 가져오기
     const channelRes = await axios.get(`http://localhost:3001/channels/${id.value}`)
     channel.value = channelRes.data
+
     // 3. 리뷰 통계도 진입시 바로 fetch
     await fetchReviewStatsOnEnter()
+
   } catch (err) {
     error.value = err.message
   } finally {
@@ -212,6 +221,7 @@ function selectPeriod(p) {
 chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
+
 
 const likeBarOptions = ref({
   chart: { type: 'bar', toolbar: { show: false }, height: 320 },

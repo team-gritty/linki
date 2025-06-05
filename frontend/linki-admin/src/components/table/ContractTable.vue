@@ -12,12 +12,15 @@
   <table class="member-table desktop-view">
     <thead>
       <tr>
-        <th>No</th>
-        <th>사업자번호</th>
-        <th>사업자명</th>
-        <th>이름</th>
-        <th>연락처</th>
-        <th>이메일</th>
+        <th>계약 ID</th>
+        <th>광고 시작일</th>
+        <th>광고 종료일</th>
+        <th>계약 금액</th>
+        <th>결제 방법</th>
+        <th>인플루언서</th>
+        <th>광고주</th>
+        <th>계약 상태</th>
+        <th>계약서 Link</th>
       </tr>
     </thead>
     <tbody>
@@ -27,12 +30,15 @@
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="user in pagedUsers" :key="user.userId">
-        <td>{{ user.userId }}</td>
-        <td>{{ user.businessNumber }}</td>
-        <td>{{ user.businessName }}</td>
-        <td>{{ user.name }}</td>
-        <td>{{ user.phone }}</td>
-        <td>{{ user.email }}</td>
+        <td>{{ user.contractId }}</td>
+        <td>{{ user.adStartDate }}</td>
+        <td>{{ user.adEndDate }}</td>
+        <td>{{ formatNumber(user.contractAmount) }}</td>
+        <td>{{ user.paymentMethod }}</td>
+        <td>{{ user.influencerName }}</td>
+        <td>{{ user.advertiserName }}</td>
+        <td>{{ user.contractStatus }}</td>
+        <td><a :href="user.contractLink" target="_blank">계약서 Link</a></td>
       </tr>
     </tbody>
   </table>
@@ -46,29 +52,41 @@
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
     <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
       <div class="card-header">
-        <span class="user-id">No. {{ user.userId }}</span>
-        <span class="user-status" :class="user.user_status">{{ user.user_status }}</span>
+        <span class="user-id">계약 ID{{ user.contractId }}</span>
+        <span class="user-status" :class="user.contractStatus">{{ user.contractStatus }}</span>
       </div>
       <div class="card-body">
         <div class="info-row">
-          <span class="label">사업자번호</span>
-          <span class="value">{{ user.businessNumber }}</span>
+          <span class="label">광고 시작일</span>
+          <span class="value">{{ user.adStartDate }}</span>
         </div>
         <div class="info-row">
-          <span class="label">사업자명</span>
-          <span class="value">{{ user.businessName }}</span>
+          <span class="label">광고 종료일</span>
+          <span class="value">{{ user.adEndDate }}</span>
         </div>
         <div class="info-row">
-          <span class="label">이름</span>
-          <span class="value">{{ user.name }}</span>
+          <span class="label">계약 금액</span>
+          <span class="value">{{ formatNumber(user.contractAmount) }}</span>
         </div>
         <div class="info-row">
-          <span class="label">이메일</span>
-          <span class="value">{{ user.email }}</span>
+          <span class="label">결제 방법</span>
+          <span class="value">{{ user.paymentMethod }}</span>
         </div>
         <div class="info-row">
-          <span class="label">연락처</span>
-          <span class="value">{{ user.phone }}</span>
+          <span class="label">인플루언서</span>
+          <span class="value">{{ user.influencerName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">광고주</span>
+          <span class="value">{{ user.advertiserName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">계약 상태</span>
+          <span class="value">{{ user.contractStatus }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">계약서 Link</span>
+          <span class="value"><a :href="user.contractLink" target="_blank">계약서 Link</a></span>
         </div>
       </div>
     </div>
@@ -88,7 +106,7 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import { getAdvertiserUserList, searchAdvertiserUser, exportExcel } from '@/js/AdvertiserUser'
+import { getContractList, searchContract, exportExcel } from '@/js/Contract'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
@@ -104,15 +122,12 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'userId', label: '회원번호', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'name', label: '이름', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'email', label: '이메일', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'businessNumber', label: '사업자번호', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'businessName', label: '사업자명', endpoint: '/v1/admin/api/advertiserUsers/search' }
+    { value: 'contractId', label: '계약 ID', endpoint: '/v1/admin/api/contracts/search' },
+    { value: 'influencerName', label: '인플루언서', endpoint: '/v1/admin/api/contracts/search' },
+    { value: 'advertiserName', label: '광고주', endpoint: '/v1/admin/api/contracts/search' }
   ],
   placeholder: '검색어를 입력하세요',
-  endpoint: '/v1/admin/api/advertiserUsers'
+  endpoint: '/v1/admin/api/contracts'
 }
 
 // ----------------------
@@ -120,7 +135,7 @@ const searchConfig = {
 // ----------------------
 const handleSearch = async (searchState) => {
   try {
-    const response = await searchAdvertiserUser(
+    const response = await searchContract(
       searchState.selectedOption,
       searchState.keyword
     )
@@ -152,7 +167,7 @@ const handleExportExcel = async () => {
 // ----------------------
 onMounted(async () => {
   try {
-    const res = await getAdvertiserUserList(1, 10)
+    const res = await getContractList(1, 10)
     users.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
     window.alert('회원 목록을 불러오지 못했습니다.')
@@ -171,6 +186,12 @@ const pagedUsers = computed(() => {
 // 전체 페이지 수 계산
 // ----------------------
 const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
+
+// 숫자 세자리마다 콤마(,) 포맷 함수
+function formatNumber(num) {
+  if (num === null || num === undefined) return ''
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
 </script>
 
 <style scoped>

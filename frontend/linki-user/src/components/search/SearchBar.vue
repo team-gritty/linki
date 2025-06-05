@@ -7,9 +7,11 @@
         <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div v-if="dropdownOpen" class="dropdown-menu custom-category-dropdown" @click.stop>
+
         <div class="category-list">
           <label v-for="cat in categories" :key="cat" class="category-item">
             <input type="radio" name="category-radio-bar" v-model="selectedCategory" :value="cat" />
+
             <span>{{ cat }}</span>
           </label>
         </div>
@@ -33,6 +35,7 @@ const emit = defineEmits(['update:categories'])
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
+
 const selectedCategory = ref('')
 const dropdownOpen = ref(false)
 const selectedCategoryLabel = computed(() => {
@@ -42,6 +45,7 @@ const toggleDropdown = () => { dropdownOpen.value = !dropdownOpen.value }
 function closeDropdownAndEmit() {
   dropdownOpen.value = false
   emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
+
 }
 function onDocumentClick(e) {
   if (dropdownOpen.value) {

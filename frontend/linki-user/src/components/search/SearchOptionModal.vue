@@ -5,6 +5,7 @@
       <div class="modal-section">
         <div class="form-row">
           <div class="form-group">
+
             <label class="section-label">카테고리</label>
             <div class="category-dropdown-modal" @click="toggleCategoryDropdown">
               <span class="category-label-modal">{{ selectedCategoryLabel }}</span>
@@ -15,6 +16,7 @@
                 <div class="category-list">
                   <label v-for="cat in categories" :key="cat" class="category-item">
                     <input type="radio" name="category-radio" v-model="selectedCategory" :value="cat" />
+
                     <span>{{ cat }}</span>
                   </label>
                 </div>
@@ -50,12 +52,14 @@
       <div class="modal-btn-row">
         <button class="clear-btn" @click="clearAll">전체해제</button>
         <button class="modal-search-btn" @click="$emit('update:categories', selectedCategory ? [selectedCategory] : []); $emit('close')">검색</button> 
+
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+
 import { ref, computed, onMounted, onBeforeUnmount, defineEmits, watch } from 'vue'
 const props = defineProps({
   initCategory: String,
@@ -65,12 +69,14 @@ const props = defineProps({
   initViewChecks: Array,
   initViewDirect: String
 })
+
 const subscriberOptions = [
   '전체', '~1천', '1천~5천', '5천~1만', '1만~5만', '5만~10만', '10만~50만', '50만~100만', '100만+'
 ]
 const viewOptions = [
   '전체', '~1천', '1천~1만', '1만~10만', '10만~100만', '100만+'
 ]
+
 const subscriberChecks = ref(props.initSubscriberChecks ? [...props.initSubscriberChecks] : [true, false, false, false, false, false, false, false, false])
 const viewChecks = ref(props.initViewChecks ? [...props.initViewChecks] : [true, false, false, false, false, false])
 const subscriberMin = ref(props.initSubscriberMin || '')
@@ -89,6 +95,7 @@ const toggleCategoryDropdown = () => { categoryDropdownOpen.value = !categoryDro
 function closeDropdownAndEmit() {
   categoryDropdownOpen.value = false
   emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
+
 }
 function onDocumentClick(e) {
   if (categoryDropdownOpen.value) {
@@ -114,6 +121,7 @@ const clearAll = () => {
   subscriberMax.value = ''
   viewDirect.value = ''
 }
+
 const emit = defineEmits(['update:categories', 'search-option-change'])
 watch([selectedCategory, subscriberChecks, subscriberMin, subscriberMax, viewChecks, viewDirect], () => {
   emit('search-option-change', {
@@ -125,6 +133,7 @@ watch([selectedCategory, subscriberChecks, subscriberMin, subscriberMax, viewChe
     viewDirect: viewDirect.value
   })
 }, { deep: true })
+
 </script>
 
 <style scoped>
@@ -152,9 +161,11 @@ watch([selectedCategory, subscriberChecks, subscriberMin, subscriberMax, viewChe
   font-weight: 700;
   margin-bottom: 18px;
 }
+
 .modal-section {
   margin-bottom: 18px;
 }
+
 .form-row {
   display: flex;
   gap: 32px;
