@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
 import HomeView from '@/views/HomeView.vue'
@@ -42,6 +43,18 @@ const router = createRouter({
       path: '/campaign/:id/proposal',
       name: 'campaign-proposal',
       component: () => import('../views/user/influencer/CampaignProposalView.vue')
+
+    },
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: () => import('../views/user/influencer/MyPageView.vue')
+    },
+    {
+      path: '/proposals/:id',
+      name: 'proposal-detail',
+      component: () => import('../views/user/influencer/ProposalDetailView.vue')
+
     }
   ]
 })
