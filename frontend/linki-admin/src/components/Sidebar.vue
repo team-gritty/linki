@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -39,7 +39,7 @@ watch(() => props.openSidebar, (newValue) => {
 const menus = [
   {
     title: '계약관리',
-    subs: ['전체 계약관리', '제품 관리']
+    subs: ['전체 계약관리', '캠페인 관리']
   },
   {
     title: '결제관리',
@@ -68,6 +68,10 @@ function handleMenuClick(menuTitle, subTitle) {
     router.push('/influencerUserList')
   } else if (menuTitle === '고객관리' && subTitle === '구독 회원 조회') {
     router.push('/subscriberUserList')
+  } else if (menuTitle === '계약관리' && subTitle === '전체 계약관리') {
+    router.push('/contractList')
+  } else if (menuTitle === '계약관리' && subTitle === '캠페인 관리') {
+    router.push('/campaignList')
   }
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if (props.openSidebar) {
