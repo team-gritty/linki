@@ -12,7 +12,7 @@ export const campaignAPI = {
 
   // 캠페인 상세 조회
   getCampaignDetail: async (campaignId) => {
-    const response = await httpClient.get(`/campaign-details/${campaignId}`)
+    const response = await httpClient.get('/campaign-details')
     return response.data[campaignId] // campaign-details 객체에서 해당 ID의 데이터 반환
   },
 

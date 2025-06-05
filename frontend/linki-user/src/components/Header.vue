@@ -1,10 +1,16 @@
 <script setup>
 import { defineProps } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const props = defineProps({
   openSidebar: Boolean,
   toggleSidebar: Function
 })
+
+const goToMyPage = () => {
+  router.push('/mypage')
+}
 
 // 헤더 컴포넌트 로직
 </script>
@@ -15,13 +21,20 @@ const props = defineProps({
       <div class="header-left">
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
-      <!-- <span class="header-title">Linki Admin</span> -->
       <div class="header-right">
         <button class="header-button" style="margin-right: 10px;">로그인</button>
         <button class="header-button">회원가입</button>
       </div>
     </div>
   </header>
+  <div class="sub-header">
+    <div class="sub-header-content">
+      <button class="mypage-button" @click="goToMyPage">
+        <i class="fas fa-user"></i>
+        <span>마이페이지</span>
+      </button>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -49,9 +62,65 @@ const props = defineProps({
   justify-content: space-between;
 }
 
-.header-title {
-  font-size: 1.5rem;
-  margin: 0 auto; /* 중앙 정렬 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sub-header {
+  position: fixed;
+  top: 48px;
+  left: 0;
+  width: 100vw;
+  height: 48px;
+  background-color: white;
+  border-bottom: 1px solid #eee;
+  z-index: 1099;
+  box-sizing: border-box;
+}
+
+.sub-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 20px;
+}
+
+.mypage-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #b162c0;
+  color: #b162c0;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 120px;
+  justify-content: center;
+  margin-right: 20px;
+}
+
+.mypage-button:hover {
+  background-color: #b162c0;
+  color: white;
+}
+
+.mypage-button i {
+  font-size: 1rem;
 }
 
 .header-button {
@@ -62,19 +131,21 @@ const props = defineProps({
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: all 0.2s;
 }
 
 .header-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: white;
+  color: black;
 }
 
 .close-sidebar-btn {
-  background: rgba(255, 255, 255, 0.1); /* 연한 흰색 배경 */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* 연한 흰색 테두리 */
-  border-radius: 50%; /* 원형 */
-  color: white; /* 흰색 X */
-  font-size: 1.2rem; /* 아이콘 크기 */
-  width: 28px; /* 버튼 크기 */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: white;
+  font-size: 1.2rem;
+  width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
@@ -86,31 +157,36 @@ const props = defineProps({
 }
 
 .close-sidebar-btn:hover {
-  background: rgba(255, 255, 255, 0.2); /* 호버 시 배경 진하게 */
-  border-color: rgba(255, 255, 255, 0.5); /* 호버 시 테두리 진하게 */
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 @media (min-width: 769px) {
   .close-sidebar-btn {
     display: none;
   }
-  .header-title {
-    margin: 0;
-  }
 }
 
 @media (max-width: 768px) {
   .header {
-    padding: 0;
+    padding: 0 16px;
   }
-  .header-content {
-    padding: 0 8px; /* 내부 컨텐츠의 좌우 패딩 */
+  
+  .mypage-button {
+    margin-right: 16px;
   }
-  .close-sidebar-btn {
-    padding: 0 8px;
+  
+  .mypage-button span {
+    display: none;
   }
-  .header-title {
-    /* 모바일 중앙 정렬은 이미 되어 있음 */
+  
+  .header-button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .sub-header-content {
+    padding: 0 16px;
   }
 }
 </style>
