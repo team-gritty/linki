@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="td td-subscribers">{{ item.subscribers }}</div>
-        <div class="td td-views">{{ item.views }}</div>
+        <div class="td td-views">{{ item.avgViewCount }}</div>
         <div class="td td-analysis">
           <button class="analysis-btn" @click="goToDetail(item.id)">상세 분석</button>
         </div>
