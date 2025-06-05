@@ -6,6 +6,18 @@ const instance = axios.create({
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
+    },
+    paramsSerializer: {
+        serialize: (params) => {
+            // URL 쿼리 파라미터 직렬화
+            const searchParams = new URLSearchParams();
+            for (const key in params) {
+                if (params[key] !== undefined && params[key] !== null) {
+                    searchParams.append(key, params[key]);
+                }
+            }
+            return searchParams.toString();
+        }
     }
 });
 
@@ -55,12 +67,12 @@ const httpClient = {
      * @param {Object} [params] - URL 쿼리 파라미터
      * @returns {Promise} 
      */
-    get(url, params) {
-        const config = generateConfig();
-        if (params) {
-            config.params = params;
-        }
-        return instance.get(url, config);
+    get(url, config = {}) {
+        const finalConfig = {
+            ...generateConfig(),
+            ...config
+        };
+        return instance.get(url, finalConfig);
     },
 
     /**
