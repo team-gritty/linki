@@ -1,43 +1,40 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3000/v1/api';
 
-export const getMyProposals = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/proposals`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch proposals:', error);
-    throw error;
-  }
-};
+export const proposalAPI = {
+  // 내 제안서 목록 조회
+  getMyProposals: async (status) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/influencer/proposals`, {
+        params: { status }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch proposals:', error);
+      throw error;
+    }
+  },
 
-export const submitProposal = async (proposalData) => {
-  try {
-    const response = await axios.post(`${BASE_URL}/proposals`, proposalData);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to submit proposal:', error);
-    throw error;
-  }
-};
+  // 제안서 수정
+  updateProposal: async (proposalId, proposalData) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/influencer/proposals/${proposalId}`, proposalData);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update proposal:', error);
+      throw error;
+    }
+  },
 
-export const updateProposal = async (id, proposalData) => {
-  try {
-    const response = await axios.put(`${BASE_URL}/proposals/${id}`, proposalData);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to update proposal:', error);
-    throw error;
+  // 제안서 삭제
+  deleteProposal: async (proposalId) => {
+    try {
+      const response = await axios.delete(`${BASE_URL}/influencer/proposals/${proposalId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to delete proposal:', error);
+      throw error;
+    }
   }
-};
-
-export const deleteProposal = async (id) => {
-  try {
-    const response = await axios.delete(`${BASE_URL}/proposals/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to delete proposal:', error);
-    throw error;
-  }
-}; 
+} 
