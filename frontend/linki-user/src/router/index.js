@@ -1,7 +1,7 @@
-import HomeView from '@/views/HomeView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
+import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,9 +18,6 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     },
     {
@@ -32,6 +29,19 @@ const router = createRouter({
       path: '/channels/:id',
       name: 'channel-detail',
       component: ChannelDetailPage
+      path: '/campaigns',
+      name: 'campaigns',
+      component: () => import('../views/user/influencer/CampaignListView.vue')
+    },
+    {
+      path: '/campaign/:id',
+      name: 'campaign-detail',
+      component: () => import('../views/user/influencer/CampaignDetailView.vue')
+    },
+    {
+      path: '/campaign/:id/proposal',
+      name: 'campaign-proposal',
+      component: () => import('../views/user/influencer/CampaignProposalView.vue')
     }
   ]
 })
