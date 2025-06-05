@@ -131,6 +131,7 @@ import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
 import CommentRatioBarChart from './components/CommentRatioBarChart.vue'
 import ReviewTab from './components/ReviewTab.vue'
+import { getReviewStats } from './useReviewStats.js'
 
 const route = useRoute()
 const channel = ref(null)
@@ -141,6 +142,20 @@ const channels = ref([])
 // 항상 숫자로 변환된 id 사용
 const id = computed(() => Number(route.params.id))
 
+const reviewCount = ref(0)
+const reviewAvg = ref(0)
+
+async function fetchReviewStatsOnEnter() {
+  const { avg, count } = await getReviewStats(id.value)
+  reviewCount.value = count
+  reviewAvg.value = avg
+}
+
+function onReviewStats({ count, avg }) {
+  reviewCount.value = count
+  reviewAvg.value = avg
+}
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -150,6 +165,8 @@ onMounted(async () => {
     // 2. 채널 Id로 해당 채널 데이터 가져오기
     const channelRes = await axios.get(`http://localhost:3001/channels/${id.value}`)
     channel.value = channelRes.data
+    // 3. 리뷰 통계도 진입시 바로 fetch
+    await fetchReviewStatsOnEnter()
   } catch (err) {
     error.value = err.message
   } finally {
@@ -195,13 +212,6 @@ function selectPeriod(p) {
 chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
-
-const reviewCount = ref(0)
-const reviewAvg = ref(0)
-function onReviewStats({ count, avg }) {
-  reviewCount.value = count
-  reviewAvg.value = avg
-}
 
 const likeBarOptions = ref({
   chart: { type: 'bar', toolbar: { show: false }, height: 320 },
