@@ -2,22 +2,8 @@
   <div class="modal-backdrop" @click="$emit('close')">
     <div class="modal-content" @click.stop>
       <h2 class="modal-title">검색 옵션</h2>
-      <div class="modal-tabs">
-        <div class="tab active">기본</div>
-        <div class="tab">채널</div>
-      </div>
-      <div class="modal-divider"></div>
       <div class="modal-section">
-        <div class="section-title">기본</div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="section-label">국가</label>
-            <select class="form-select">
-              <option>대한민국</option>
-              <option>일본</option>
-              <option>미국</option>
-            </select>
-          </div>
           <div class="form-group">
             <label class="section-label">카테고리</label>
             <div class="category-dropdown-modal" @click="toggleCategoryDropdown">
@@ -26,10 +12,9 @@
                 <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div v-if="categoryDropdownOpen" class="dropdown-menu custom-category-dropdown" @click.stop>
-                <button class="select-all-btn" :class="{ active: allSelected }" @click.stop="toggleSelectAll">전체 선택</button>
                 <div class="category-list">
                   <label v-for="cat in categories" :key="cat" class="category-item">
-                    <input type="checkbox" v-model="selectedCategories" :value="cat" />
+                    <input type="radio" name="category-radio" v-model="selectedCategory" :value="cat" />
                     <span>{{ cat }}</span>
                   </label>
                 </div>
@@ -64,8 +49,7 @@
       </div>
       <div class="modal-btn-row">
         <button class="clear-btn" @click="clearAll">전체해제</button>
-<!-- 검색 버튼 클릭 시 선택된 카테고리 전달 -->
-        <button class="modal-search-btn" @click="$emit('update:categories', [...selectedCategories]); $emit('close')">검색</button> 
+        <button class="modal-search-btn" @click="$emit('update:categories', selectedCategory ? [selectedCategory] : []); $emit('close')">검색</button> 
       </div>
     </div>
   </div>
@@ -87,23 +71,16 @@ const viewDirect = ref('')
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
-const selectedCategories = ref([])
+const selectedCategory = ref('')
 const categoryDropdownOpen = ref(false)
-const allSelected = computed(() => selectedCategories.value.length === categories.length)
+const allSelected = computed(() => selectedCategory.value !== '')
 const selectedCategoryLabel = computed(() => {
-  if (selectedCategories.value.length === 0) return '카테고리'
-  if (selectedCategories.value.length === categories.length) return '전체 선택됨'
-  if (selectedCategories.value.length === 1) return selectedCategories.value[0]
-  return `${selectedCategories.value[0]} 외 ${selectedCategories.value.length - 1}개`
+  return selectedCategory.value || '카테고리'
 })
 const toggleCategoryDropdown = () => { categoryDropdownOpen.value = !categoryDropdownOpen.value }
-const toggleSelectAll = () => {
-  if (allSelected.value) selectedCategories.value = []
-  else selectedCategories.value = [...categories]
-}
 function closeDropdownAndEmit() {
   categoryDropdownOpen.value = false
-  emit('update:categories', [...selectedCategories.value])
+  emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
 }
 function onDocumentClick(e) {
   if (categoryDropdownOpen.value) {
@@ -157,40 +134,8 @@ const emit = defineEmits(['update:categories'])
   font-weight: 700;
   margin-bottom: 18px;
 }
-.modal-tabs {
-  display: flex;
-  gap: 18px;
-  margin-bottom: 8px;
-}
-.tab {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #888;
-  padding: 4px 18px 8px 18px;
-  border-radius: 8px 8px 0 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: color 0.2s, border 0.2s;
-}
-.tab.active {
-  color: #8C30F5;
-  border-bottom: 3px solid #8C30F5;
-  background: #F5F0FF;
-  font-weight: 700;
-}
-.modal-divider {
-  border-bottom: 1.5px solid #eee;
-  margin-bottom: 18px;
-}
 .modal-section {
   margin-bottom: 18px;
-}
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 16px;
 }
 .form-row {
   display: flex;

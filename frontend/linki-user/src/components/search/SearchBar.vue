@@ -7,10 +7,9 @@
         <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div v-if="dropdownOpen" class="dropdown-menu custom-category-dropdown" @click.stop>
-        <button class="select-all-btn" :class="{ active: allSelected }" @click.stop="toggleSelectAll">전체 선택</button>
         <div class="category-list">
           <label v-for="cat in categories" :key="cat" class="category-item">
-            <input type="checkbox" v-model="selectedCategories" :value="cat" />
+            <input type="radio" name="category-radio-bar" v-model="selectedCategory" :value="cat" />
             <span>{{ cat }}</span>
           </label>
         </div>
@@ -34,24 +33,15 @@ const emit = defineEmits(['update:categories'])
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
-const selectedCategories = ref([])
+const selectedCategory = ref('')
 const dropdownOpen = ref(false)
-const allSelected = computed(() => selectedCategories.value.length === categories.length)
 const selectedCategoryLabel = computed(() => {
-  if (selectedCategories.value.length === 0) return '카테고리'
-  if (selectedCategories.value.length === categories.length) return '전체 선택됨'
-  if (selectedCategories.value.length === 1) return selectedCategories.value[0]
-  return `${selectedCategories.value[0]} 외 ${selectedCategories.value.length - 1}개`
+  return selectedCategory.value || '카테고리'
 })
 const toggleDropdown = () => { dropdownOpen.value = !dropdownOpen.value }
-const toggleSelectAll = () => {
-  if (allSelected.value) selectedCategories.value = []
-  else selectedCategories.value = [...categories]
-}
-// 카테고리 드롭다운 닫기 및 선택된 카테고리 전달
 function closeDropdownAndEmit() {
   dropdownOpen.value = false
-  emit('update:categories', [...selectedCategories.value])
+  emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
 }
 function onDocumentClick(e) {
   if (dropdownOpen.value) {
