@@ -24,8 +24,17 @@
           <div class="profile-meta-row">
             <button class="ad-btn">광고 제안</button>
             <span class="category">{{ channel.category }}</span>
-            <span class="star-rating">★ ★ ★ ★ ★</span>
-            <span class="review-count">(150 Reviews)</span>
+            <span class="star-rating">
+              <template v-if="reviewCount > 0">
+                <span v-for="n in 5" :key="n">
+                  <svg v-if="reviewAvg >= n" width="20" height="20" viewBox="0 0 20 20" fill="#FFC107"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
+                  <svg v-else-if="reviewAvg >= n-0.5" width="20" height="20" viewBox="0 0 20 20"><defs><linearGradient :id="'half'+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5" :fill="'url(#half'+n+')'"/></svg>
+                  <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="#eee"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
+                </span>
+                <span class="review-avg">{{ reviewAvg.toFixed(1) }}</span>
+              </template>
+            </span>
+            <span class="review-count" v-if="reviewCount > 0">({{ reviewCount }} Reviews)</span>
           </div>
           <div class="profile-info-row">
             <span>구독자 수 <b>{{ channel.subscribers }}</b></span>
@@ -89,7 +98,7 @@
       
       <div class="tab-section">
         <button class="tab" :class="{ active: tab === 'intro' }" @click="tab = 'intro'">채널 소개</button>
-        <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰</button>
+        <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰<span v-if="reviewCount"> ({{ reviewCount }})</span></button>
       </div>
       <div v-if="tab === 'intro'">
         <div class="intro-section">
@@ -107,7 +116,7 @@
         </div>
       </div>
       <div v-else>
-        <ReviewTab :channelId="id" />
+        <ReviewTab :channelId="id" @review-stats="onReviewStats" />
       </div>
     </template>
   </div>
@@ -187,7 +196,12 @@ chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
 
-
+const reviewCount = ref(0)
+const reviewAvg = ref(0)
+function onReviewStats({ count, avg }) {
+  reviewCount.value = count
+  reviewAvg.value = avg
+}
 
 const likeBarOptions = ref({
   chart: { type: 'bar', toolbar: { show: false }, height: 320 },
