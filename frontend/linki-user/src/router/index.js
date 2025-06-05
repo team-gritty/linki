@@ -1,5 +1,5 @@
-import HomeView from '@/views/HomeView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,17 +21,17 @@ const router = createRouter({
     {
       path: '/campaigns',
       name: 'campaigns',
-      component: () => import('../views/CampaignListView.vue')
+      component: () => import('../views/user/influencer/CampaignListView.vue')
     },
     {
       path: '/campaign/:id',
       name: 'campaign-detail',
-      component: () => import('../views/CampaignDetailView.vue')
+      component: () => import('../views/user/influencer/CampaignDetailView.vue')
     },
     {
       path: '/campaign/:id/proposal',
       name: 'campaign-proposal',
-      component: () => import('../views/CampaignProposalView.vue')
+      component: () => import('../views/user/influencer/CampaignProposalView.vue')
     }
   ]
 })

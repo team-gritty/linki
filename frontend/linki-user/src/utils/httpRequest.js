@@ -2,15 +2,17 @@ import axios from "axios";
 import { useAccountStore } from "@/stores/account";
 
 const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api', // API 기본 URL 설정
-    timeout: 15000, // 타임아웃 설정 (15초)
-    withCredentials: true // 쿠키 포함 설정
+    baseURL: 'http://localhost:3000',  // json-server URL
+    timeout: 15000,
+    headers: {
+        'Content-Type': 'application/json',
+    }
 });
 
 // 요청 인터셉터
 instance.interceptors.request.use(
     (config) => {
-        // 요청 보내기 전 수행할 작업
+        console.log('API Request:', config.method.toUpperCase(), config.url, config.params || config.data)
         return config;
     },
     (error) => {
@@ -21,64 +23,11 @@ instance.interceptors.request.use(
 // 응답 인터셉터
 instance.interceptors.response.use(
     (response) => {
+        console.log('API Response:', response.status, response.data)
         return response;
     },
-    async (error) => {
-        const { response, config } = error;
-
-        if (!response) {
-            window.alert("네트워크 연결을 확인해주세요.");
-            return Promise.reject(error);
-        }
-
-        switch (response.status) {
-            case 400:
-                window.alert("잘못된 요청입니다.");
-                break;
-
-            case 401:
-                if (config.retried) {
-                    window.alert("권한이 없습니다.");
-                    window.location.replace("/");
-                    return Promise.reject(error);
-                }
-
-                try {
-                    // 리프레시 토큰으로 새 액세스 토큰 요청
-                    const res = await axios.get("/v1/api/account/token");
-                    const accessToken = res.data;
-
-                    // 계정 스토어 업데이트
-                    const accountStore = useAccountStore();
-                    accountStore.setAccessToken(accessToken);
-
-                    // 원래 요청 재시도
-                    config.headers.authorization = `Bearer ${accessToken}`;
-                    config.retried = true;
-                    return instance(config);
-                } catch (refreshError) {
-                    window.alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-                    window.location.replace("/login");
-                    return Promise.reject(refreshError);
-                }
-
-            case 403:
-                window.alert("접근 권한이 없습니다.");
-                break;
-
-            case 404:
-                window.alert("요청하신 리소스를 찾을 수 없습니다.");
-                break;
-
-            case 500:
-                window.alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-                break;
-
-            default:
-                window.alert("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-                break;
-        }
-
+    (error) => {
+        console.error('API Error:', error.response?.status, error.response?.data)
         return Promise.reject(error);
     }
 );
@@ -108,7 +57,9 @@ const httpClient = {
      */
     get(url, params) {
         const config = generateConfig();
-        config.params = params;
+        if (params) {
+            config.params = params;
+        }
         return instance.get(url, config);
     },
 
