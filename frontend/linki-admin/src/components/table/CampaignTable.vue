@@ -12,12 +12,14 @@
   <table class="member-table desktop-view">
     <thead>
       <tr>
-        <th>No</th>
-        <th>사업자번호</th>
-        <th>사업자명</th>
-        <th>이름</th>
+        <th>캠페인 ID</th>
+        <th>광고주</th>
+        <th>사업자 번호</th>
         <th>연락처</th>
-        <th>이메일</th>
+        <th>광고 제목</th>
+        <th>등록일</th>
+        <th>신청 마감일</th>
+        <th>광고 링크</th>
       </tr>
     </thead>
     <tbody>
@@ -26,13 +28,15 @@
         <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
-      <tr v-else v-for="user in pagedUsers" :key="user.userId">
-        <td>{{ user.userId }}</td>
+      <tr v-else v-for="user in pagedUsers" :key="user.campaignId">
+        <td>{{ user.campaignId }}</td>
+        <td>{{ user.advertiserName }}</td>
         <td>{{ user.businessNumber }}</td>
-        <td>{{ user.businessName }}</td>
-        <td>{{ user.name }}</td>
         <td>{{ user.phone }}</td>
-        <td>{{ user.email }}</td>
+        <td>{{ user.adTitle }}</td>
+        <td>{{ user.registerDate }}</td>
+        <td>{{ user.applyDeadline }}</td>
+        <td><a :href="user.campaignLink" target="_blank">광고 Link</a></td>
       </tr>
     </tbody>
   </table>
@@ -46,29 +50,37 @@
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
     <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
       <div class="card-header">
-        <span class="user-id">No. {{ user.userId }}</span>
-        <span class="user-status" :class="user.user_status">{{ user.user_status }}</span>
+        <span class="user-id">캠페인 ID {{ user.campaignId }}</span>
+        <span class="user-status" :class="user.campaignStatus">{{ user.campaignStatus }}</span>
       </div>
       <div class="card-body">
         <div class="info-row">
-          <span class="label">사업자번호</span>
+          <span class="label">광고주</span>
+          <span class="value">{{ user.advertiserName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">사업자 번호</span>
           <span class="value">{{ user.businessNumber }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">사업자명</span>
-          <span class="value">{{ user.businessName }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">이름</span>
-          <span class="value">{{ user.name }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">이메일</span>
-          <span class="value">{{ user.email }}</span>
         </div>
         <div class="info-row">
           <span class="label">연락처</span>
           <span class="value">{{ user.phone }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">광고 제목</span>
+          <span class="value">{{ user.adTitle }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">등록일</span>
+          <span class="value">{{ user.registerDate }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">신청 마감일</span>
+          <span class="value">{{ user.applyDeadline }}</span>
+        </div>  
+        <div class="info-row">
+          <span class="label">광고 링크</span>
+          <span class="value"><a :href="user.campaignLink" target="_blank">광고 Link</a></span>
         </div>
       </div>
     </div>
@@ -88,7 +100,7 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import { getAdvertiserUserList, searchAdvertiserUser, exportExcel } from '@/js/AdvertiserUser'
+import { getCampaignList, searchCampaign, exportExcel } from '@/js/Campaign'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
@@ -104,15 +116,14 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'userId', label: '회원번호', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'name', label: '이름', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'email', label: '이메일', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'businessNumber', label: '사업자번호', endpoint: '/v1/admin/api/advertiserUsers/search' },
-    { value: 'businessName', label: '사업자명', endpoint: '/v1/admin/api/advertiserUsers/search' }
+    { value: 'campaignId', label: '캠페인 ID', endpoint: '/v1/admin/api/campaigns/search' },
+    { value: 'advertiserName', label: '광고주', endpoint: '/v1/admin/api/campaigns/search' },
+    { value: 'businessNumber', label: '사업자 번호', endpoint: '/v1/admin/api/campaigns/search' },
+    { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/campaigns/search' },
+    { value: 'adTitle', label: '광고 제목', endpoint: '/v1/admin/api/campaigns/search' }
   ],
   placeholder: '검색어를 입력하세요',
-  endpoint: '/v1/admin/api/advertiserUsers'
+  endpoint: '/v1/admin/api/campaigns'
 }
 
 // ----------------------
@@ -120,7 +131,7 @@ const searchConfig = {
 // ----------------------
 const handleSearch = async (searchState) => {
   try {
-    const response = await searchAdvertiserUser(
+    const response = await searchCampaign(
       searchState.selectedOption,
       searchState.keyword
     )
@@ -152,7 +163,7 @@ const handleExportExcel = async () => {
 // ----------------------
 onMounted(async () => {
   try {
-    const res = await getAdvertiserUserList(1, 10)
+    const res = await getCampaignList(1, 10)
     users.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
     window.alert('회원 목록을 불러오지 못했습니다.')
