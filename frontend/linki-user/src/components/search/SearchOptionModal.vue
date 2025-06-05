@@ -56,22 +56,30 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, defineEmits, watch } from 'vue'
+const props = defineProps({
+  initCategory: String,
+  initSubscriberChecks: Array,
+  initSubscriberMin: String,
+  initSubscriberMax: String,
+  initViewChecks: Array,
+  initViewDirect: String
+})
 const subscriberOptions = [
   '전체', '~1천', '1천~5천', '5천~1만', '1만~5만', '5만~10만', '10만~50만', '50만~100만', '100만+'
 ]
 const viewOptions = [
   '전체', '~1천', '1천~1만', '1만~10만', '10만~100만', '100만+'
 ]
-const subscriberChecks = ref([true, false, false, false, false, false, false, false, false])
-const viewChecks = ref([true, false, false, false, false, false])
-const subscriberMin = ref('')
-const subscriberMax = ref('')
-const viewDirect = ref('')
+const subscriberChecks = ref(props.initSubscriberChecks ? [...props.initSubscriberChecks] : [true, false, false, false, false, false, false, false, false])
+const viewChecks = ref(props.initViewChecks ? [...props.initViewChecks] : [true, false, false, false, false, false])
+const subscriberMin = ref(props.initSubscriberMin || '')
+const subscriberMax = ref(props.initSubscriberMax || '')
+const viewDirect = ref(props.initViewDirect || '')
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
-const selectedCategory = ref('')
+const selectedCategory = ref(props.initCategory || '')
 const categoryDropdownOpen = ref(false)
 const allSelected = computed(() => selectedCategory.value !== '')
 const selectedCategoryLabel = computed(() => {
@@ -106,7 +114,17 @@ const clearAll = () => {
   subscriberMax.value = ''
   viewDirect.value = ''
 }
-const emit = defineEmits(['update:categories'])
+const emit = defineEmits(['update:categories', 'search-option-change'])
+watch([selectedCategory, subscriberChecks, subscriberMin, subscriberMax, viewChecks, viewDirect], () => {
+  emit('search-option-change', {
+    category: selectedCategory.value,
+    subscriberChecks: subscriberChecks.value,
+    subscriberMin: subscriberMin.value,
+    subscriberMax: subscriberMax.value,
+    viewChecks: viewChecks.value,
+    viewDirect: viewDirect.value
+  })
+}, { deep: true })
 </script>
 
 <style scoped>
