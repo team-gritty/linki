@@ -30,8 +30,17 @@
               <span class="genre">{{ item.genre }}</span>
             </div>
             <div class="review-row">
-              <span class="stars">★ ★ ★ ★ ★</span>
-              <span class="review-count">(150 Reviews)</span>
+              <span class="stars">
+                <template v-if="reviewStatsMap[item.id] && reviewStatsMap[item.id].count > 0">
+                  <span v-for="n in 5" :key="n">
+                    <svg v-if="reviewStatsMap[item.id].avg >= n" width="16" height="16" viewBox="0 0 20 20" fill="#FFC107"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
+                    <svg v-else-if="reviewStatsMap[item.id].avg >= n-0.5" width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient :id="'half'+item.id+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5" :fill="'url(#half'+item.id+n+')'"/></svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 20 20" fill="#eee"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
+                  </span>
+                  <span class="review-avg">{{ reviewStatsMap[item.id].avg.toFixed(1) }}</span>
+                </template>
+              </span>
+              <span class="review-count" v-if="reviewStatsMap[item.id] && reviewStatsMap[item.id].count > 0">({{ reviewStatsMap[item.id].count }} Reviews)</span>
             </div>
           </div>
         </div>
@@ -58,6 +67,8 @@ import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
 import axios from 'axios'
 
+import { getReviewStats } from './useReviewStats.js'
+
 const router = useRouter()
 const modalOpen = ref(false)
 const page = ref(1) // 현재 페이지 번호
@@ -72,6 +83,20 @@ const pagedListData = computed(() => {
   const endIndex = startIndex + itemsPerPage 
   return listData.value.slice(startIndex, endIndex)
 })
+
+const reviewStatsMap = ref({}) // { [channelId]: { avg, count } }
+
+async function fetchAllReviewStats(channels) {
+  const statsArr = await Promise.all(
+    channels.map(async c => ({
+      id: c.id,
+      ...(await getReviewStats(c.id))
+    }))
+  )
+  const map = {}
+  statsArr.forEach(s => { map[s.id] = { avg: s.avg, count: s.count } })
+  reviewStatsMap.value = map
+}
 
 function onCategoryChange(categories) {
   // 선택된 카테고리를 저장
@@ -94,6 +119,7 @@ async function fetchChannelsByCategories(categories) {
     const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&') // 카테고리 파라미터 생성
     const response = await axios.get(`http://localhost:3001/channels?${params}`) // 카테고리 파라미터를 쿼리 파라미터로 추가하여 채널 데이터 추출
     listData.value = response.data
+    await fetchAllReviewStats(response.data)
   } catch (err) {
     error.value = err.message
   }
@@ -104,6 +130,7 @@ async function fetchChannels() {
   try {
     const response = await axios.get('http://localhost:3001/channels')
     listData.value = response.data // 전체 채널 데이터를 저장 
+    await fetchAllReviewStats(response.data)
   } catch (err) { // 오류 발생 시 오류 메시지 저장 
     error.value = err.message 
   }
