@@ -82,13 +82,7 @@
           <span class="graph-rate">{{ chartData[period].rate }}</span>
           <span class="graph-rate-label">상승률</span>
         </div>
-        <VueApexCharts
-          width="100%"
-          height="320"
-          type="line"
-          :options="chartOptions"
-          :series="series"
-        />
+        <SubscriberHistoryChart :channelId="channel.id" />
       </div>
       
       <div class="tab-section">
@@ -137,6 +131,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
 
 const route = useRoute()
 const channel = ref(null)
