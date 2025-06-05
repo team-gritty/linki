@@ -89,7 +89,7 @@
       
       <div class="tab-section">
         <button class="tab" :class="{ active: tab === 'intro' }" @click="tab = 'intro'">채널 소개</button>
-        <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰 ({{ reviews.length }})</button>
+        <button class="tab" :class="{ active: tab === 'review' }" @click="tab = 'review'">리뷰</button>
       </div>
       <div v-if="tab === 'intro'">
         <div class="intro-section">
@@ -106,25 +106,9 @@
           </ul>
         </div>
       </div>
-      <div v-else class="review-section">
-        <div class="review-list">
-          <div v-for="review in reviews" :key="review.id" class="review-card">
-            <div class="review-header">
-              <div class="review-stars">
-                <span v-for="n in 5" :key="n">
-                  <svg v-if="review.score >= n" width="22" height="22" viewBox="0 0 22 22" fill="#FFC107"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
-                  <svg v-else-if="review.score >= n-0.5" width="22" height="22" viewBox="0 0 22 22"><defs><linearGradient :id="'half'+review.id+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8" :fill="'url(#half'+review.id+n+')'"/></svg>
-                  <svg v-else width="22" height="22" viewBox="0 0 22 22" fill="#eee"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
-                </span>
-                <span class="review-score">{{ review.score.toFixed(1) }}</span>
-              </div>
-              <div class="review-date">계약일시 {{ formatDate(review.startDate) }} ~ {{ formatDate(review.endDate) }}</div>
-            </div>
-            <div class="review-text">{{ review.text }}</div>
-          </div>
-        </div>
+      <div v-else>
+        <ReviewTab :channelId="id" />
       </div>
-     
     </template>
   </div>
 </template>
@@ -136,7 +120,8 @@ import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
-import CommentRatioBarChart from '@/views/user/advertiser/components/CommentRatioBarChart.vue'
+import CommentRatioBarChart from './components/CommentRatioBarChart.vue'
+import ReviewTab from './components/ReviewTab.vue'
 
 const route = useRoute()
 const channel = ref(null)
@@ -202,38 +187,7 @@ chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
 
-// 리뷰 더미 데이터 생성
-function randomDate(start, end) {
-  const d1 = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-  const d2 = new Date(d1.getTime() + Math.random() * (1000 * 60 * 60 * 24 * 30)) // 최대 30일 계약
-  return [d1, d2]
-}
-function randomScore() {
-  return Math.round((3.5 + Math.random() * 1.5) * 10) / 10
-}
-const reviewTexts = [
-  '협업이 원활했고 결과도 만족스러웠습니다.',
-  '소통이 빠르고 피드백 반영이 잘 됐어요.',
-  '브랜드 메시지를 잘 살려주셨습니다.',
-  '기대 이상으로 콘텐츠 퀄리티가 좋았습니다.',
-  '정확한 일정 준수와 꼼꼼한 진행이 인상적이었습니다.',
-  '다음에도 꼭 다시 협업하고 싶어요!',
-  '리뷰와 콘텐츠 모두 진정성이 느껴졌어요.',
-  '팔로워 반응이 좋아서 캠페인 효과가 컸습니다.',
-  '계약 조건을 잘 지켜주셨고, 결과 보고도 명확했습니다.',
-  '브리핑을 잘 이해하고 창의적으로 표현해주셨습니다.'
-]
-const reviews = Array.from({ length: 10 }).map((_, i) => {
-  const [start, end] = randomDate(new Date(2023, 0, 1), new Date(2024, 5, 1))
-  return {
-    id: i + 1,
-    score: randomScore(),
-    text: reviewTexts[i % reviewTexts.length],
-    startDate: start,
-    endDate: end
-  }
-})
-const formatDate = d => `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`
+
 
 const likeBarOptions = ref({
   chart: { type: 'bar', toolbar: { show: false }, height: 320 },
