@@ -14,10 +14,9 @@ const endingTodayProducts = ref([])
 const banners = ref([])
 
 // 타이머 상태
-const days = ref(3)
-const hours = ref(23)
-const minutes = ref(19)
-const seconds = ref(56)
+const hours = ref(0)
+const minutes = ref(0)
+const seconds = ref(0)
 
 // 데이터 로딩 상태
 const loading = ref({
@@ -38,6 +37,25 @@ const error = ref({
   endingToday: null,
   banners: null
 })
+
+// 내일 자정까지 남은 시간 계산
+const calculateTimeUntilMidnight = () => {
+  const now = new Date()
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  tomorrow.setHours(0, 0, 0, 0)
+  
+  const diff = tomorrow - now
+  
+  hours.value = Math.floor(diff / (1000 * 60 * 60))
+  minutes.value = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  seconds.value = Math.floor((diff % (1000 * 60)) / 1000)
+}
+
+// 시간 형식 변환 함수 (2자리 숫자로 표시)
+const formatTimeUnit = (unit) => {
+  return unit.toString().padStart(2, '0')
+}
 
 // 데이터 불러오기 함수들
 const fetchCategories = async () => {
@@ -153,25 +171,25 @@ onMounted(async () => {
     fetchBanners()
   ])
 
-  // 타이머 시작
+  // 초기 시간 계산
+  calculateTimeUntilMidnight()
+
+  // 타이머 시작 (1초마다 업데이트)
   timerInterval = setInterval(() => {
     if (seconds.value > 0) {
       seconds.value--
     } else {
-      seconds.value = 59
       if (minutes.value > 0) {
         minutes.value--
+        seconds.value = 59
       } else {
-        minutes.value = 59
         if (hours.value > 0) {
           hours.value--
+          minutes.value = 59
+          seconds.value = 59
         } else {
-          hours.value = 23
-          if (days.value > 0) {
-            days.value--
-          } else {
-            clearInterval(timerInterval)
-          }
+          // 자정이 되면 타이머 리셋
+          calculateTimeUntilMidnight()
         }
       }
     }
@@ -268,6 +286,15 @@ onUnmounted(() => {
 const displayedInfluencers = computed(() => {
   return influencers.value.slice(0, 4)
 })
+
+// 별점 표시를 위한 computed 함수들
+const createStarRating = (rating) => {
+  return {
+    full: Math.floor(rating),
+    partial: rating % 1,
+    empty: 5 - Math.ceil(rating)
+  }
+}
 </script>
 
 <template>
@@ -355,22 +382,17 @@ const displayedInfluencers = computed(() => {
                 <h3>캠페인</h3>
                 <div class="timer">
                   <div class="timer-item">
-                    <span class="time">{{ days }}</span>
-                    <span class="label">Days</span>
-                  </div>
-                  <span class="timer-divider">:</span>
-                  <div class="timer-item">
-                    <span class="time">{{ hours }}</span>
+                    <span class="time">{{ formatTimeUnit(hours) }}</span>
                     <span class="label">Hours</span>
                   </div>
                   <span class="timer-divider">:</span>
                   <div class="timer-item">
-                    <span class="time">{{ minutes }}</span>
+                    <span class="time">{{ formatTimeUnit(minutes) }}</span>
                     <span class="label">Minutes</span>
                   </div>
                   <span class="timer-divider">:</span>
                   <div class="timer-item">
-                    <span class="time">{{ seconds }}</span>
+                    <span class="time">{{ formatTimeUnit(seconds) }}</span>
                     <span class="label">Seconds</span>
                   </div>
                 </div>
@@ -399,7 +421,14 @@ const displayedInfluencers = computed(() => {
             <div class="product-info">
               <h4 class="product-name">{{ product.name }}</h4>
               <div class="rating">
-                <div class="stars">★★★★★</div>
+                <div class="stars-container">
+                  <div class="stars-bg">★★★★★</div>
+                  <div 
+                    class="stars-filled" 
+                    :style="{ width: `${(product.rating / 5) * 100}%` }"
+                  >★★★★★</div>
+                </div>
+                <span class="rating-score">{{ product.rating.toFixed(1) }}</span>
                 <span class="review-count">({{ product.reviews }})</span>
               </div>
               <span class="time-remaining">{{ product.timeLeft }}</span>
@@ -434,7 +463,14 @@ const displayedInfluencers = computed(() => {
             <div class="influencer-info">
               <h4 class="influencer-name">{{ influencer.name }}</h4>
               <div class="rating">
-                <div class="stars">★★★★★</div>
+                <div class="stars-container">
+                  <div class="stars-bg">★★★★★</div>
+                  <div 
+                    class="stars-filled" 
+                    :style="{ width: `${(influencer.rating / 5) * 100}%` }"
+                  >★★★★★</div>
+                </div>
+                <span class="rating-score">{{ influencer.rating.toFixed(1) }}</span>
                 <span class="review-count">({{ influencer.reviews }})</span>
               </div>
               <div class="influencer-stats">
@@ -813,7 +849,7 @@ const displayedInfluencers = computed(() => {
 
 .stars {
   color: #FFD700;
-  font-size: 0.9rem;
+  letter-spacing: 1px;
 }
 
 .review-count {
@@ -1034,18 +1070,18 @@ const displayedInfluencers = computed(() => {
 .rating {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: -4px;
+  gap: 4px;
 }
 
-.stars {
-  color: #FFD700;
+.rating-score {
+  font-weight: 600;
+  color: #333;
   font-size: 0.9rem;
 }
 
 .review-count {
   color: #666;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .more-button {
@@ -1114,6 +1150,37 @@ const displayedInfluencers = computed(() => {
   justify-content: center;
   color: #666;
   font-size: 1.1rem;
+}
+
+.stars-container {
+  position: relative;
+  display: inline-block;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.stars-bg {
+  color: #E0E0E0;  /* 배경 별 색상 - 연한 회색 */
+}
+
+.stars-filled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #FFD700;  /* 채워진 별 색상 - 금색 */
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.review-count {
+  color: #666;
+  font-size: 0.8rem;
 }
 </style>
 
