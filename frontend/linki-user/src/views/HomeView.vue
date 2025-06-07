@@ -1,14 +1,19 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-
+import HeadphoneIcon from '../components/icons/headphone.svg'
+import GamingIcon from '../components/icons/gaming.svg'
+import ComputerIcon from '../components/icons/computer.svg'
+import PhoneIcon from '../components/icons/phone.svg'
+import SmartWatchIcon from '../components/icons/smartwatch.svg'
+import CameraIcon from '../components/icons/camera.svg'
 // 카테고리 데이터
 const categories = ref([
-  { id: 1, name: 'Phones', icon: '/icons/phone.svg' },
-  { id: 2, name: 'Computers', icon: '/icons/computer.svg' },
-  { id: 3, name: 'SmartWatch', icon: '/icons/smartwatch.svg' },
-  { id: 4, name: 'Camera', icon: '/icons/camera.svg' },
-  { id: 5, name: 'HeadPhones', icon: '/icons/headphone.svg' },
-  { id: 6, name: 'Gaming', icon: '/icons/gaming.svg' }
+  { id: 1, name: 'Phones', icon: PhoneIcon },
+  { id: 2, name: 'Computers', icon: ComputerIcon },
+  { id: 3, name: 'SmartWatch', icon: SmartWatchIcon },
+  { id: 4, name: 'Camera', icon: CameraIcon },
+  { id: 5, name: 'HeadPhones', icon: HeadphoneIcon },
+  { id: 6, name: 'Gaming', icon: GamingIcon }
 ])
 
 // 타이머 상태
@@ -158,37 +163,8 @@ const prevPage = () => {
   }
 }
 
-// 카테고리 페이지네이션
-const categoriesPerPage = 6
-const categoryPage = ref(0)
-
-// 현재 페이지에 표시될 카테고리들
-const displayedCategories = computed(() => {
-  const start = categoryPage.value * categoriesPerPage
-  return categories.value.slice(start, start + categoriesPerPage)
-})
-
-// 카테고리 페이지 이동 함수
-const nextCategoryPage = () => {
-  if (categoryPage.value < Math.ceil(categories.value.length / categoriesPerPage) - 1) {
-    categoryPage.value++
-  }
-}
-
-const prevCategoryPage = () => {
-  if (categoryPage.value > 0) {
-    categoryPage.value--
-  }
-}
-
-// 더 많은 카테고리 데이터 추가
-categories.value = [
-  ...categories.value,
-  { id: 7, name: 'Speakers', icon: '/icons/speaker.svg' },
-  { id: 8, name: 'Tablets', icon: '/icons/tablet.svg' },
-  { id: 9, name: 'Accessories', icon: '/icons/accessories.svg' },
-  { id: 10, name: 'Storage', icon: '/icons/storage.svg' }
-]
+// 카테고리 섹션에서는 페이지네이션 제거
+const displayedCategories = computed(() => categories.value)
 
 // 오늘 마감하는 캠페인 페이지네이션
 const endingTodayPage = ref(0)
@@ -392,18 +368,6 @@ onUnmounted(() => {
               <span class="vertical-bar"></span>종류별로 보는
             </span>
             <h3>캠페인 카테고리 선택</h3>
-          </div>
-          <div class="navigation-arrows">
-            <button class="nav-arrow" @click="prevCategoryPage" :disabled="categoryPage === 0">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button class="nav-arrow" @click="nextCategoryPage" :disabled="categoryPage >= Math.ceil(categories.length / categoriesPerPage) - 1">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
           </div>
         </div>
         <div class="category-grid">
@@ -922,37 +886,49 @@ onUnmounted(() => {
   color: white;
 }
 
+/* 캠페인 섹션 네비게이션 화살표 스타일 */
 .navigation-arrows {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 .nav-arrow {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: white;
-  border: none;
+  border: 1px solid #E5E7EB;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #666;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #8B5CF6;
 }
 
 .nav-arrow:hover:not(:disabled) {
-  background: #f3f4f6;
-  color: #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: #8B5CF6;
+  color: white;
+  border-color: #8B5CF6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 .nav-arrow:disabled {
-  background: #f3f4f6;
-  color: #ccc;
+  background: #F9FAFB;
+  color: #D1D5DB;
+  border-color: #E5E7EB;
   cursor: not-allowed;
-  box-shadow: none;
+}
+
+.nav-arrow svg {
+  width: 24px;
+  height: 24px;
+  transition: all 0.2s ease;
+}
+
+.nav-arrow:hover:not(:disabled) svg {
+  transform: scale(1.1);
 }
 
 .category-grid,
