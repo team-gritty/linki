@@ -21,13 +21,13 @@
       <button class="go-list-btn" @click="goToList">캠페인 목록 <span class="arrow">→</span></button>
     </div>
     <div class="campaign-tabs">
-      <div class="tab" :class="{active: tab === 'desc'}" @click="tab = 'desc'">캠페인 설명</div>
+      <div class="tab" :class="{active: tab === 'intro'}" @click="tab = 'intro'">캠페인 설명</div>
       <div class="tab" :class="{active: tab === 'proposal'}" @click="tab = 'proposal'">제안서 목록</div>
       <div class="tab" :class="{active: tab === 'chat'}" @click="tab = 'chat'">채팅 목록</div>
       <div class="tab" :class="{active: tab === 'contract'}" @click="tab = 'contract'">계약서 목록</div>
     </div>
     <div class="tab-underline"></div>
-    <div v-if="tab === 'desc'" class="campaign-detail-main">
+    <div v-if="tab === 'intro'" class="campaign-detail-main">
       <div class="detail-img-box">
         <img class="main-img" :src="form.image" alt="제품 메인 이미지" />
       </div>
@@ -87,6 +87,9 @@
         </button>
       </div>
     </div>
+    <div v-else-if="tab === 'proposal'">
+      <ProposalListComponent :campaign-id="id" />
+    </div>
     <div v-if="tab === 'contract'">
       <ContractListComponent />
     </div>
@@ -97,16 +100,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ContractListComponent from './components/ContractListComponent.vue'
+import ProposalListComponent from './components/ProposalListComponent.vue'
 const router = useRouter()
 const route = useRoute()
 
 function goToList() {
   router.push('/mypage/campaign-list')
 }
-
 
 const editMode = ref(false)
 const showToast = ref(false)
@@ -129,7 +132,8 @@ function save() {
   }, 1500)
 }
 
-const tab = ref('desc')
+const tab = ref('intro')
+const id = computed(() => route.params.id)
 </script>
 
 <style scoped>
