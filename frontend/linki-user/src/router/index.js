@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
-import HomeView from '@/views/HomeView.vue'
+import HomeView from '../views/HomeView.vue'
 import CampaignListPage from '@/views/user/advertiser/CampaignListPage.vue'
 import CampaignDetailPage from '@/views/user/advertiser/CampaignDetailPage.vue'
 import CampaignRegisterPage from '@/views/user/advertiser/CampaignRegisterPage.vue'
