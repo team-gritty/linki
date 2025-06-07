@@ -87,7 +87,7 @@ const campaigns = ref([])
 
 onMounted(async () => {
   try {
-    const response = await httpClient.get('http://localhost:3001/campaign-list')
+    const response = await httpClient.get('/campaign-list')
     campaigns.value = response.data.map(item => ({
       id: item.campaign_id,
       name: item.campaign_name,
