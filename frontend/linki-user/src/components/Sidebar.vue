@@ -15,11 +15,17 @@ const props = defineProps({
 const goToMyPage = () => {
   router.push('/mypage')
 }
+const goToHome = () => {
+  router.push('/home')
+}
+
+const goTochannels = () => {
+  router.push('/channels')
+}
 
 const goToCampaigns = () => {
   router.push('/campaigns')
 }
-
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
 }
@@ -59,12 +65,8 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-        <li class="menu-item">
-          <router-link to="/home">홈</router-link>
-        </li>
-        <li class="menu-item">
-          <router-link to="/channels">인플루언서</router-link>
-        </li>
+        <li class="menu-item" @click="goToHome">홈</li>
+        <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
         <li class="menu-item">고객센터</li>
       </ul>

@@ -1,12 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import axios from 'axios'
-import HeadphoneIcon from '../components/icons/headphone.svg'
-import GamingIcon from '../components/icons/gaming.svg'
-import ComputerIcon from '../components/icons/computer.svg'
-import PhoneIcon from '../components/icons/phone.svg'
-import SmartWatchIcon from '../components/icons/smartwatch.svg'
-import CameraIcon from '../components/icons/camera.svg'
 
 // API 기본 URL 설정
 const API_BASE_URL = 'http://localhost:3000'
@@ -17,6 +11,7 @@ const campaignProducts = ref([])
 const influencers = ref([])
 const sidebarCategories = ref([])
 const endingTodayProducts = ref([])
+const banners = ref([])
 
 // 타이머 상태
 const days = ref(3)
@@ -30,7 +25,8 @@ const loading = ref({
   campaigns: false,
   influencers: false,
   sidebarCategories: false,
-  endingToday: false
+  endingToday: false,
+  banners: false
 })
 
 // 에러 상태
@@ -39,7 +35,8 @@ const error = ref({
   campaigns: null,
   influencers: null,
   sidebarCategories: null,
-  endingToday: null
+  endingToday: null,
+  banners: null
 })
 
 // 데이터 불러오기 함수들
@@ -50,7 +47,8 @@ const fetchCategories = async () => {
     console.log('Categories response:', response.data)
     categories.value = response.data.map(category => ({
       ...category,
-      icon: getIconComponent(category.name)
+      icon: getIconComponent(category.name),
+      active: false
     }))
   } catch (err) {
     console.error('카테고리 로딩 실패:', err)
@@ -63,14 +61,14 @@ const fetchCategories = async () => {
 // 아이콘 컴포넌트 매핑 함수
 const getIconComponent = (categoryName) => {
   const iconMap = {
-    'Phones': PhoneIcon,
-    'Computers': ComputerIcon,
-    'SmartWatch': SmartWatchIcon,
-    'Camera': CameraIcon,
-    'HeadPhones': HeadphoneIcon,
-    'Gaming': GamingIcon
+    '뷰티': '💄',
+    '스포츠': '⚽',
+    '음식': '🍽️',
+    '전자기기': '📱',
+    '여행': '✈️',
+    '동물/펫': '🐾'
   }
-  return iconMap[categoryName] || null
+  return iconMap[categoryName] || '📱'
 }
 
 const fetchCampaignProducts = async () => {
@@ -129,6 +127,20 @@ const fetchEndingTodayProducts = async () => {
   }
 }
 
+const fetchBanners = async () => {
+  try {
+    loading.value.banners = true
+    const response = await axios.get(`${API_BASE_URL}/banners`)
+    console.log('Banners response:', response.data)
+    banners.value = response.data
+  } catch (err) {
+    console.error('배너 로딩 실패:', err)
+    error.value.banners = '배너를 불러오는데 실패했습니다.'
+  } finally {
+    loading.value.banners = false
+  }
+}
+
 // 컴포넌트 마운트 시 데이터 로드
 onMounted(async () => {
   // 모든 데이터 동시에 불러오기
@@ -137,7 +149,8 @@ onMounted(async () => {
     fetchCampaignProducts(),
     fetchInfluencers(),
     fetchSidebarCategories(),
-    fetchEndingTodayProducts()
+    fetchEndingTodayProducts(),
+    fetchBanners()
   ])
 
   // 타이머 시작
@@ -281,16 +294,24 @@ const displayedInfluencers = computed(() => {
       <!-- 배너 슬라이더 섹션 -->
       <section class="banner-section">
         <div class="banner-slider">
-          <div class="banner-item">
-            <img src="" alt="Banner" class="banner-image" />
-            <div class="banner-content">
-              <h2>구독하고 한번에 시작하기</h2>
-              <button class="start-button">Start Linki →</button>
+          <div v-if="loading.banners" class="loading">로딩 중...</div>
+          <div v-else-if="error.banners" class="error">{{ error.banners }}</div>
+          <template v-else>
+            <div v-for="banner in banners" :key="banner.id" 
+                 v-show="banner.id === currentSlide + 1"
+                 class="banner-item">
+              <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
+              <div class="banner-content">
+                <h2>{{ banner.title }}</h2>
+                <button class="start-button">Start Linki →</button>
+              </div>
             </div>
-          </div>
-          <div class="slider-dots">
-            <span v-for="i in 5" :key="i" :class="{ active: i === currentSlide + 1 }" class="dot"></span>
-          </div>
+            <div class="slider-dots">
+              <span v-for="i in banners.length" :key="i" 
+                    :class="{ active: i === currentSlide + 1 }" 
+                    class="dot"></span>
+            </div>
+          </template>
         </div>
       </section>
 
@@ -310,7 +331,7 @@ const displayedInfluencers = computed(() => {
           <div v-for="category in categories" :key="category.id" 
                :class="['category-item', { active: category.active }]">
             <div class="category-icon">
-              <img :src="category.icon" :alt="category.name" />
+              {{ category.icon }}
             </div>
             <span class="category-name">{{ category.name }}</span>
           </div>
@@ -668,12 +689,11 @@ const displayedInfluencers = computed(() => {
 
 .category-icon {
   margin-bottom: 12px;
+  font-size: 2rem; /* 이모지 크기 조절 */
 }
 
 .category-icon img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
+  display: none; /* 기존 img 태그 숨김 */
 }
 
 .category-name {
@@ -1084,6 +1104,16 @@ const displayedInfluencers = computed(() => {
 
 .influencer-card:hover {
   transform: translateY(-5px);
+}
+
+.loading, .error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1.1rem;
 }
 </style>
 
