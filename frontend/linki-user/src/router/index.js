@@ -12,7 +12,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/home',
+      redirect: '/home'
     },
     {
       path: '/home',
@@ -32,7 +32,8 @@ const router = createRouter({
     {
       path: '/channels/:id',
       name: 'channel-detail',
-      component: ChannelDetailPage
+      component: ChannelDetailPage,
+      props: true
     },
     {
       path: '/campaigns',
@@ -42,12 +43,14 @@ const router = createRouter({
     {
       path: '/campaign/:id',
       name: 'campaign-detail',
-      component: () => import('../views/user/influencer/CampaignDetailView.vue')
+      component: () => import('../views/user/influencer/CampaignDetailView.vue'),
+      props: true
     },
     {
       path: '/campaign/:id/proposal',
       name: 'campaign-proposal',
-      component: () => import('../views/user/influencer/CampaignProposalView.vue')
+      component: () => import('../views/user/influencer/CampaignProposalView.vue'),
+      props: true
     },
     {
       path: '/mypage',
@@ -57,8 +60,9 @@ const router = createRouter({
     {
       path: '/proposals/:id',
       name: 'proposal-detail',
-      component: () => import('../views/user/influencer/ProposalDetailView.vue')
-    }, 
+      component: () => import('../views/user/influencer/ProposalDetailView.vue'),
+      props: true
+    },
     {
       path: '/mypage/campaign-list',
       name: 'campaign-list',
@@ -84,7 +88,14 @@ const router = createRouter({
       name: 'ContractList',
       component: ContractListPage
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
 export default router

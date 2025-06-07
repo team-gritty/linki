@@ -250,6 +250,11 @@ onUnmounted(() => {
     clearInterval(autoSlideInterval.value)
   }
 })
+
+// 상위 4개 인플루언서만 표시
+const displayedInfluencers = computed(() => {
+  return influencers.value.slice(0, 4)
+})
 </script>
 
 <template>
@@ -371,15 +376,12 @@ onUnmounted(() => {
               <img :src="product.image" :alt="product.name" @error="handleImageError" />
             </div>
             <div class="product-info">
-              <div class="name-and-time">
-                <h4 class="product-name">{{ product.name }}</h4>
-                <span class="time-remaining">{{ product.timeLeft }}</span>
-              </div>
+              <h4 class="product-name">{{ product.name }}</h4>
               <div class="rating">
                 <div class="stars">★★★★★</div>
                 <span class="review-count">({{ product.reviews }})</span>
               </div>
-              <button class="detail-button">상세보기</button>
+              <span class="time-remaining">{{ product.timeLeft }}</span>
             </div>
           </div>
         </div>
@@ -390,20 +392,23 @@ onUnmounted(() => {
       <!-- 인플루언서 섹션 -->
       <section class="influencer-section">
         <div class="section-header">
-          <div class="title-content">
-            <div class="title-wrapper">
-              <span class="small-title highlight">
-                <span class="vertical-bar"></span>이번 달 주목할
-              </span>
-              <h3>인플루언서</h3>
-            </div>
+          <div class="title-wrapper">
+            <span class="small-title highlight">
+              <span class="vertical-bar"></span>이번 달 주목할
+            </span>
+            <h3>인플루언서</h3>
           </div>
-          <button class="more-button">전체보기</button>
+          <button class="more-button" @click="$router.push({ name: 'influencer-list' })">전체보기</button>
         </div>
         <div class="influencer-grid">
-          <div v-for="influencer in influencers" :key="influencer.id" class="influencer-card">
+          <router-link 
+            v-for="influencer in displayedInfluencers" 
+            :key="influencer.id" 
+            :to="{ name: 'channel-detail', params: { id: influencer.id }}"
+            class="influencer-card"
+          >
             <div class="influencer-image">
-              <img :src="influencer.image" :alt="influencer.name" @error="handleImageError">
+              <img :src="influencer.image" :alt="influencer.name" @error="handleImageError" />
             </div>
             <div class="influencer-info">
               <h4 class="influencer-name">{{ influencer.name }}</h4>
@@ -411,9 +416,12 @@ onUnmounted(() => {
                 <div class="stars">★★★★★</div>
                 <span class="review-count">({{ influencer.reviews }})</span>
               </div>
-              <button class="detail-button">상세보기</button>
+              <div class="influencer-stats">
+                <span class="subscribers">구독자 {{ influencer.subscribers.toLocaleString() }}명</span>
+                <span class="category">{{ influencer.category }}</span>
+              </div>
             </div>
-          </div>
+          </router-link>
         </div>
       </section>
     </div>
@@ -693,128 +701,104 @@ onUnmounted(() => {
 }
 
 .product-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
+  text-decoration: none;
+  border-radius: 12px;
   overflow: hidden;
   background: white;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  border-color: #8B5CF6;
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
 }
 
 .product-image {
-  position: relative;
   width: 100%;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 8px;
-  margin-bottom: 12px;
+  padding-top: 100%;
+  position: relative;
 }
 
 .product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.product-img {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.product-img.error {
-  object-fit: contain;
-  padding: 1rem;
-}
-
-.image-placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.image-placeholder span {
-  padding: 1rem;
-  text-align: center;
-}
-
-.time-left-badge {
-  display: none;
 }
 
 .product-info {
   padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-}
-
-.name-and-time {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
 }
 
 .product-name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
   color: #333;
   line-height: 1.4;
-  flex: 1;
-}
-
-.time-remaining {
-  background: #8B5CF6;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  white-space: nowrap;
+  margin-bottom: 4px;
 }
 
 .rating {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+}
+
+.time-remaining {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: white;
+  background-color: #8B5CF6;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.campaign-status {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  width: 100%;
+}
+
+.status-badge {
+  background: #8B5CF6;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: -4px;
 }
 
 .stars {
   color: #FFD700;
+  font-size: 0.9rem;
 }
 
 .review-count {
   color: #666;
-  font-size: 0.9rem;
-}
-
-.detail-button {
-  margin-top: auto;
-  padding: 8px;
-  background: white;
-  border: 1px solid #8B5CF6;
-  color: #8B5CF6;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.detail-button:hover {
-  background: #8B5CF6;
-  color: white;
+  font-size: 0.85rem;
 }
 
 /* 캠페인 섹션 네비게이션 화살표 스타일 */
@@ -950,12 +934,22 @@ onUnmounted(() => {
 }
 
 .influencer-card {
+  text-decoration: none;
+  color: inherit;
   border: 1px solid #eee;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   background: white;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.influencer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
+  border-color: #8B5CF6;
 }
 
 .influencer-image {
@@ -973,10 +967,15 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.influencer-card:hover .influencer-image img {
+  transform: scale(1.05);
 }
 
 .influencer-info {
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -984,41 +983,49 @@ onUnmounted(() => {
 
 .influencer-name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
   color: #333;
   line-height: 1.4;
+}
+
+.influencer-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subscribers {
+  font-size: 0.9rem;
+  color: #8B5CF6;
+  font-weight: 500;
+}
+
+.category {
+  font-size: 0.85rem;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .rating {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  margin-top: -4px;
 }
 
 .stars {
   color: #FFD700;
+  font-size: 0.9rem;
 }
 
 .review-count {
   color: #666;
-  font-size: 0.9rem;
-}
-
-.detail-button {
-  margin-top: auto;
-  padding: 8px;
-  background: white;
-  border: 1px solid #8B5CF6;
-  color: #8B5CF6;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.detail-button:hover {
-  background: #8B5CF6;
-  color: white;
+  font-size: 0.85rem;
 }
 
 .more-button {
@@ -1067,6 +1074,16 @@ onUnmounted(() => {
 
 .product-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.influencer-card {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.influencer-card:hover {
+  transform: translateY(-5px);
 }
 </style>
 
