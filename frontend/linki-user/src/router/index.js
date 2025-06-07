@@ -6,6 +6,7 @@ import HomeView from '@/views/HomeView.vue'
 import CampaignListPage from '@/views/user/advertiser/CampaignListPage.vue'
 import CampaignDetailPage from '@/views/user/advertiser/CampaignDetailPage.vue'
 import CampaignRegisterPage from '@/views/user/advertiser/CampaignRegisterPage.vue'
+import ContractListPage from '@/views/user/advertiser/ContractListPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,16 +65,26 @@ const router = createRouter({
       name: 'campaign-list',
       component: CampaignListPage
     },
-    {
+    { // 광고주 - 캠페인 상세 페이지 
       path: '/mypage/campaign-detail/:id',
       name: 'campaign-detail',
       component: CampaignDetailPage
+    },
+    { // 광고주 - 캠페인 등록 페이지 
+      path: '/mypage/campaign-register',
+      name: 'campaign-register',
+      component: CampaignRegisterPage
     },
     {
       path: '/mypage/campaign-register',
       name: 'campaign-register',
       component: CampaignRegisterPage
     },
+    { // 광고주 - 마이페이지에서 계약서 목록 페이지 
+      path: '/mypage/contract-list',
+      name: 'ContractList',
+      component: ContractListPage
+    }
   ]
 })
 
