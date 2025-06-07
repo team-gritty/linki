@@ -64,7 +64,7 @@ export default {
     async fetchReviews() {
       try {
         this.loading = true
-        const response = await axios.get(`http://localhost:3001/influencer-reviews?influencer_id=${this.channelId}`)
+        const response = await axios.get(`/v1/api/influencer-reviews?influencer_id=${this.channelId}`)
         this.reviews = response.data
         this.calcStats()
       } catch (err) {
