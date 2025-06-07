@@ -2,7 +2,11 @@
   "devDependencies": {
     "json-server": "0.17.4"
   },
-  "scripts": {
-    "start:json": "json-server --watch db.json --routes routes.json --port 3000"
-  }
+  
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview",
+      "json-server": "json-server --watch db.json --port 3000"
+    }
 }

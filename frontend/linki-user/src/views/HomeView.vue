@@ -1,20 +1,22 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import axios from 'axios'
 import HeadphoneIcon from '../components/icons/headphone.svg'
 import GamingIcon from '../components/icons/gaming.svg'
 import ComputerIcon from '../components/icons/computer.svg'
 import PhoneIcon from '../components/icons/phone.svg'
 import SmartWatchIcon from '../components/icons/smartwatch.svg'
 import CameraIcon from '../components/icons/camera.svg'
-// 카테고리 데이터
-const categories = ref([
-  { id: 1, name: 'Phones', icon: PhoneIcon },
-  { id: 2, name: 'Computers', icon: ComputerIcon },
-  { id: 3, name: 'SmartWatch', icon: SmartWatchIcon },
-  { id: 4, name: 'Camera', icon: CameraIcon },
-  { id: 5, name: 'HeadPhones', icon: HeadphoneIcon },
-  { id: 6, name: 'Gaming', icon: GamingIcon }
-])
+
+// API 기본 URL 설정
+const API_BASE_URL = 'http://localhost:3000'
+
+// 데이터 상태
+const categories = ref([])
+const campaignProducts = ref([])
+const influencers = ref([])
+const sidebarCategories = ref([])
+const endingTodayProducts = ref([])
 
 // 타이머 상태
 const days = ref(3)
@@ -22,90 +24,123 @@ const hours = ref(23)
 const minutes = ref(19)
 const seconds = ref(56)
 
-// 캠페인 상품 데이터
-const campaignProducts = ref([
-  {
-    id: 1,
-    name: 'HAVIT HV-G92 Gamepad',
-    currentPrice: 100,
-    originalPrice: 160,
-    timeLeft: '2일 남음',
-    reviews: 88,
-    image: '/images/gamepad.jpg'
-  },
-  {
-    id: 2,
-    name: 'AK-900 Wired Keyboard',
-    currentPrice: 960,
-    originalPrice: 1160,
-    timeLeft: '3일 남음',
-    reviews: 75,
-    image: '/images/keyboard.jpg'
-  },
-  {
-    id: 3,
-    name: 'IPS LCD Gaming Monitor',
-    currentPrice: 370,
-    originalPrice: 400,
-    timeLeft: '5일 남음',
-    reviews: 99,
-    image: '/images/monitor.jpg'
-  },
-  {
-    id: 4,
-    name: 'S-Series Comfort Chair',
-    currentPrice: 375,
-    originalPrice: 400,
-    timeLeft: '8일 남음',
-    reviews: 99,
-    image: '/images/chair.jpg'
+// 데이터 로딩 상태
+const loading = ref({
+  categories: false,
+  campaigns: false,
+  influencers: false,
+  sidebarCategories: false,
+  endingToday: false
+})
+
+// 에러 상태
+const error = ref({
+  categories: null,
+  campaigns: null,
+  influencers: null,
+  sidebarCategories: null,
+  endingToday: null
+})
+
+// 데이터 불러오기 함수들
+const fetchCategories = async () => {
+  try {
+    loading.value.categories = true
+    const response = await axios.get(`${API_BASE_URL}/categories`)
+    console.log('Categories response:', response.data)
+    categories.value = response.data.map(category => ({
+      ...category,
+      icon: getIconComponent(category.name)
+    }))
+  } catch (err) {
+    console.error('카테고리 로딩 실패:', err)
+    error.value.categories = '카테고리를 불러오는데 실패했습니다.'
+  } finally {
+    loading.value.categories = false
   }
-])
+}
 
-// 인플루언서 데이터
-const influencers = ref([
-  {
-    id: 1,
-    name: 'The north coat',
-    image: '/images/north-coat.jpg',
-    reviews: 65
-  },
-  {
-    id: 2,
-    name: 'Gucci duffle bag',
-    image: '/images/gucci-bag.jpg',
-    reviews: 65
-  },
-  {
-    id: 3,
-    name: 'RGB liquid CPU Cooler',
-    image: '/images/cpu-cooler.jpg',
-    reviews: 65
-  },
-  {
-    id: 4,
-    name: 'Small BookSelf',
-    image: '/images/bookshelf.jpg',
-    reviews: 65
+// 아이콘 컴포넌트 매핑 함수
+const getIconComponent = (categoryName) => {
+  const iconMap = {
+    'Phones': PhoneIcon,
+    'Computers': ComputerIcon,
+    'SmartWatch': SmartWatchIcon,
+    'Camera': CameraIcon,
+    'HeadPhones': HeadphoneIcon,
+    'Gaming': GamingIcon
   }
-])
+  return iconMap[categoryName] || null
+}
 
-// 사이드바 카테고리 데이터
-const sidebarCategories = ref([
-  { id: 1, name: '패션', active: false },
-  { id: 2, name: '뷰티', active: false },
-  { id: 3, name: '푸드/방송', active: false },
-  { id: 4, name: '엔터테이너/방송', active: false },
-  { id: 5, name: '라이프/여행', active: false },
-  { id: 6, name: 'Vlog/일상', active: false },
-  { id: 7, name: '여행', active: false },
-  { id: 8, name: 'ASMR', active: false },
-  { id: 9, name: '게임', active: false }
-])
+const fetchCampaignProducts = async () => {
+  try {
+    loading.value.campaigns = true
+    const response = await axios.get(`${API_BASE_URL}/campaignProducts`)
+    console.log('Campaign products response:', response.data)
+    campaignProducts.value = response.data
+  } catch (err) {
+    console.error('캠페인 상품 로딩 실패:', err)
+    error.value.campaigns = '캠페인 상품을 불러오는데 실패했습니다.'
+  } finally {
+    loading.value.campaigns = false
+  }
+}
 
-// 타이머 로직
-let timerInterval
-onMounted(() => {
+const fetchInfluencers = async () => {
+  try {
+    loading.value.influencers = true
+    const response = await axios.get(`${API_BASE_URL}/influencers`)
+    console.log('Influencers response:', response.data)
+    influencers.value = response.data
+  } catch (err) {
+    console.error('인플루언서 로딩 실패:', err)
+    error.value.influencers = '인플루언서 정보를 불러오는데 실패했습니다.'
+  } finally {
+    loading.value.influencers = false
+  }
+}
+
+const fetchSidebarCategories = async () => {
+  try {
+    loading.value.sidebarCategories = true
+    const response = await axios.get(`${API_BASE_URL}/sidebarCategories`)
+    console.log('Sidebar categories response:', response.data)
+    sidebarCategories.value = response.data
+  } catch (err) {
+    console.error('사이드바 카테고리 로딩 실패:', err)
+    error.value.sidebarCategories = '사이드바 카테고리를 불러오는데 실패했습니다.'
+  } finally {
+    loading.value.sidebarCategories = false
+  }
+}
+
+const fetchEndingTodayProducts = async () => {
+  try {
+    loading.value.endingToday = true
+    const response = await axios.get(`${API_BASE_URL}/endingTodayProducts`)
+    console.log('Ending today products response:', response.data)
+    endingTodayProducts.value = response.data
+  } catch (err) {
+    console.error('오늘 마감 상품 로딩 실패:', err)
+    error.value.endingToday = '오늘 마감 상품을 불러오는데 실패했습니다.'
+  } finally {
+    loading.value.endingToday = false
+  }
+}
+
+// 컴포넌트 마운트 시 데이터 로드
+onMounted(async () => {
+  // 모든 데이터 동시에 불러오기
+  await Promise.all([
+    fetchCategories(),
+    fetchCampaignProducts(),
+    fetchInfluencers(),
+    fetchSidebarCategories(),
+    fetchEndingTodayProducts()
+  ])
+
+  // 타이머 시작
   timerInterval = setInterval(() => {
     if (seconds.value > 0) {
       seconds.value--
@@ -163,9 +198,6 @@ const prevPage = () => {
   }
 }
 
-// 카테고리 섹션에서는 페이지네이션 제거
-const displayedCategories = computed(() => categories.value)
-
 // 오늘 마감하는 캠페인 페이지네이션
 const endingTodayPage = ref(0)
 const endingTodayItemsPerPage = 4
@@ -186,107 +218,6 @@ const nextEndingTodayPage = () => {
     endingTodayPage.value++
   }
 }
-
-// 오늘 마감하는 캠페인 데이터
-const endingTodayProducts = ref([
-  {
-    id: 1,
-    name: '무선 게이밍 마우스',
-    timeLeft: '3시간 남음',
-    reviews: 28,
-    image: '/images/mouse.jpg'
-  },
-  {
-    id: 2,
-    name: '기계식 키보드',
-    timeLeft: '5시간 남음',
-    reviews: 42,
-    image: '/images/keyboard.jpg'
-  },
-  {
-    id: 3,
-    name: '게이밍 헤드셋',
-    timeLeft: '2시간 남음',
-    reviews: 35,
-    image: '/images/headset.jpg'
-  },
-  {
-    id: 4,
-    name: '울트라와이드 모니터',
-    timeLeft: '1시간 남음',
-    reviews: 56,
-    image: '/images/monitor.jpg'
-  },
-  {
-    id: 5,
-    name: '게이밍 의자',
-    timeLeft: '4시간 남음',
-    reviews: 31,
-    image: '/images/chair.jpg'
-  },
-  {
-    id: 6,
-    name: '웹캠',
-    timeLeft: '6시간 남음',
-    reviews: 24,
-    image: '/images/webcam.jpg'
-  },
-  {
-    id: 7,
-    name: '마이크',
-    timeLeft: '2시간 남음',
-    reviews: 45,
-    image: '/images/mic.jpg'
-  },
-  {
-    id: 8,
-    name: '스피커',
-    timeLeft: '7시간 남음',
-    reviews: 38,
-    image: '/images/speaker.jpg'
-  }
-])
-
-// 더 많은 테스트 데이터 추가
-campaignProducts.value = [
-  ...campaignProducts.value,
-  {
-    id: 5,
-    name: 'Wireless Gaming Mouse',
-    currentPrice: 80,
-    originalPrice: 100,
-    timeLeft: '4일 남음',
-    reviews: 45,
-    image: '/images/mouse.jpg'
-  },
-  {
-    id: 6,
-    name: 'Gaming Headset Pro',
-    currentPrice: 150,
-    originalPrice: 200,
-    timeLeft: '6일 남음',
-    reviews: 32,
-    image: '/images/headset.jpg'
-  },
-  {
-    id: 7,
-    name: 'Mechanical Keyboard',
-    currentPrice: 120,
-    originalPrice: 150,
-    timeLeft: '3일 남음',
-    reviews: 56,
-    image: '/images/keyboard.jpg'
-  },
-  {
-    id: 8,
-    name: 'Ultra-wide Monitor',
-    currentPrice: 450,
-    originalPrice: 500,
-    timeLeft: '7일 남음',
-    reviews: 28,
-    image: '/images/monitor-wide.jpg'
-  }
-]
 
 // 슬라이더 관련 상태
 const currentSlide = ref(0)
@@ -371,7 +302,7 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="category-grid">
-          <div v-for="category in displayedCategories" :key="category.id" 
+          <div v-for="category in categories" :key="category.id" 
                :class="['category-item', { active: category.active }]">
             <div class="category-icon">
               <img :src="category.icon" :alt="category.name" />
