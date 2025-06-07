@@ -63,7 +63,6 @@ watch(() => props.openSidebar, (newValue) => {
         <li class="menu-item" @click="router.push('/home')">홈</li>
         <li class="menu-item">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-
         <li class="menu-item">고객센터</li>
       </ul>
     </div>
@@ -77,11 +76,9 @@ watch(() => props.openSidebar, (newValue) => {
     <div :class="['mobile-sidebar-overlay', { 'is-open': openSidebar }]" @click.self="toggleSidebar">
       <div :class="['mobile-sidebar', { 'is-open': openSidebar }]">
         <ul class="menu-list mobile-menu">
-
           <li class="menu-item" @click="router.push('/home')">홈</li>
           <li class="menu-item">인플루언서</li>
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
-
           <li class="menu-item">고객센터</li>
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
         </ul>
@@ -159,6 +156,7 @@ body, html {
 
 .menu-item:hover {
   color: #b162c0;
+
 
 }
 
