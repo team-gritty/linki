@@ -263,7 +263,7 @@ const displayedInfluencers = computed(() => {
       <h3 class="sidebar-title">인플루언서</h3>
       <ul class="category-menu">
         <li class="menu-item">
-          <button class="view-all-button">
+          <button class="view-all-button"  @click="$router.push({ name: 'influencer-list' })">
             전체보기
           </button>
         </li>
@@ -316,7 +316,7 @@ const displayedInfluencers = computed(() => {
           </div>
         </div>
         <div class="center-button-wrapper">
-          <button class="more-button">전체보기</button>
+          <button class="more-button"  @click="$router.push({ name: 'campaigns' })">전체보기</button>
         </div>
       </section>
 
