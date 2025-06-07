@@ -7,7 +7,7 @@ import axios from 'axios'
  */
 export async function getReviewStats(channelId) {
   try {
-    const res = await axios.get(`http://localhost:3001/influencer-reviews?influencer_id=${channelId}`)
+    const res = await axios.get(`/v1/api/influencer-reviews?influencer_id=${channelId}`)
     const reviews = res.data
     const count = reviews.length
     const avg = count > 0 ? (reviews.reduce((sum, r) => sum + (r.influencer_review_score || 0), 0) / count) : 0

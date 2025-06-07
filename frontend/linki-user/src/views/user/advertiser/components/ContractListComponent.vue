@@ -1,8 +1,6 @@
 <template>
   <div class="contract-list-layout">
-    <MyPageSideBar />
     <main class="contract-list-content">
-      <h1 class="contract-list-title">나의 계약서</h1>
       <div class="contract-list-header">
         <!-- 상태 토글은 카드별로 구현 -->
       </div>
@@ -12,35 +10,33 @@
           :key="item.id"
           class="contract-card"
         >
-          <button class="delete-btn" @click="openDeleteModal(idx)" title="삭제"
-            @mouseenter="handleDeleteBtnMouseEnter(idx)" @mouseleave="handleDeleteBtnMouseLeave">
-            <svg class="trash-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="5" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-              <rect x="9.25" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-              <rect x="13" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-              <rect x="4" y="5" width="12" height="2" rx="1" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-              <rect x="7" y="2" width="6" height="2" rx="1" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-              <rect x="2" y="7" width="16" height="1.5" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-            </svg>
-          </button>
           <img :src="item.image" class="contract-thumb" alt="썸네일" />
           <div class="contract-info">
-            <div class="contract-name">계약명: {{ item.name }}</div>
-          </div>
-          <div class="contract-meta">
-            <div class="contract-status-toggle">
-              <button
-                :class="['status-btn', item.status === '서명 대기중' ? 'active' : '']"
-                @click="openStatusModal(idx, '서명 대기중')"
-                type="button"
-              >서명 대기중</button>
-              <button
-                :class="['status-btn', item.status === '계약완료' ? 'inactive' : '']"
-                @click="openStatusModal(idx, '계약완료')"
-                type="button"
-              >계약완료</button>
+            <div class="contract-name">{{ item.name }}</div>
+            <div class="contract-meta">
+              <span>마감일: {{ item.due }}</span>
+              <div class="contract-status-toggle">
+                <button
+                  :class="['status-btn', item.status === '서명 대기중' ? 'active' : '']"
+                  @click="openStatusModal(idx, '서명 대기중')"
+                  type="button"
+                >서명 대기중</button>
+                <button
+                  :class="['status-btn', item.status === '계약완료' ? 'inactive' : '']"
+                  @click="openStatusModal(idx, '계약완료')"
+                  type="button"
+                >계약완료</button>
+              </div>
             </div>
-            <button class="detail-btn">상세 조회</button>
+          </div>
+          <div class="card-actions">
+            <button class="detail-btn">상세</button>
+            <button class="delete-btn" @click="openDeleteModal(idx)" title="삭제"
+              @mouseenter="handleDeleteBtnMouseEnter(idx)" @mouseleave="handleDeleteBtnMouseLeave">
+              <svg class="trash-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </button>
           </div>
         </div>
         <div v-if="contracts.length === 0" class="empty-msg">
@@ -77,7 +73,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import httpClient from '@/utils/httpRequest'
-import MyPageSideBar from './MyPageSideBar.vue'
+
 
 const route = useRoute()
 const contracts = ref([])
@@ -90,8 +86,14 @@ onMounted(async () => {
     console.log('디버깅: campaignId', campaignId)
     const response = await httpClient.get('/contracts')
     console.log('디버깅: contracts API 응답', response.data)
-    contracts.value = response.data.filter(item => item.campaignId === campaignId)
-    console.log('디버깅: 필터링된 contracts', contracts.value)
+    contracts.value = response.data
+      .filter(item => item.campaign_id === campaignId)
+      .map(item => ({
+        ...item,
+        image: item.thumbnail_url || 'https://via.placeholder.com/80x60?text=썸네일',
+        due: item.due || '',
+      }))
+    console.log('디버깅: 필터링+매핑된 contracts', contracts.value)
   } catch (e) {
     contracts.value = []
     console.error('디버깅: contracts 불러오기 실패', e)
@@ -187,34 +189,6 @@ function confirmStatusChange() {
 .contract-card:hover {
   box-shadow: 0 4px 16px rgba(140,48,245,0.08);
 }
-.delete-btn {
-  background: #eee;
-  border: none;
-  color: #888;
-  font-size: 1.2rem;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(255,59,59,0.08);
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
-  padding: 0;
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translate(-40%, -40%);
-}
-.delete-btn:hover {
-  background: #ff3b3b;
-  color: #fff;
-}
-.trash-icon {
-  display: block;
-}
 .contract-thumb {
   width: 80px;
   height: 60px;
@@ -236,17 +210,48 @@ function confirmStatusChange() {
 }
 .contract-meta {
   display: flex;
-  align-items: center;
-  gap: 24px;
-}
-.contract-status {
+  gap: 32px;
   font-size: 1rem;
-  color: #888;
-  font-weight: 500;
+  color: #666;
+  align-items: center;
 }
-.detail-btn {
+.contract-status-toggle {
+  display: flex;
+  gap: 8px;
+}
+.status-btn {
+  border: none;
+  border-radius: 16px;
+  padding: 4px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #f2eaff;
+  color: #bbb;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.status-btn.active {
   background: #9B51E0;
   color: #fff;
+}
+.status-btn.inactive {
+  background: #eee;
+  color: #888;
+}
+.status-btn:not(.active):hover, .status-btn:not(.inactive):hover {
+  background: #e1cfff;
+  color: #9B51E0;
+}
+.card-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+.detail-btn {
+  background: #E1CFFF;
+  color: #9B51E0;
   border: none;
   border-radius: 8px;
   padding: 10px 32px;
@@ -255,8 +260,43 @@ function confirmStatusChange() {
   cursor: pointer;
   transition: background 0.2s;
 }
-.detail-btn:hover {
-  background: #7B21E8;
+.detail-btn.active {
+  background: #9B51E0;
+  color: #fff;
+}
+.detail-btn:disabled {
+  background: #f2eaff;
+  color: #bbb;
+  cursor: not-allowed;
+}
+.delete-btn {
+  background: #eee;
+  border: none;
+  color: #888;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255,59,59,0.08);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+  margin-left: 8px;
+  position: static;
+  transform: none;
+}
+.delete-btn:hover {
+  background: #ff3b3b;
+  color: #fff;
+}
+.trash-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 .empty-msg {
   text-align: center;
@@ -319,32 +359,5 @@ function confirmStatusChange() {
 }
 .modal-delete:hover {
   background: #d60000;
-}
-.contract-status-toggle {
-  display: flex;
-  gap: 8px;
-}
-.status-btn {
-  border: none;
-  border-radius: 16px;
-  padding: 4px 18px;
-  font-size: 1rem;
-  font-weight: 600;
-  background: #f2eaff;
-  color: #bbb;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.status-btn.active {
-  background: #9B51E0;
-  color: #fff;
-}
-.status-btn.inactive {
-  background: #eee;
-  color: #888;
-}
-.status-btn:not(.active):hover, .status-btn:not(.inactive):hover {
-  background: #e1cfff;
-  color: #9B51E0;
 }
 </style> 

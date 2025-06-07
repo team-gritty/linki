@@ -21,13 +21,13 @@
       <button class="go-list-btn" @click="goToList">캠페인 목록 <span class="arrow">→</span></button>
     </div>
     <div class="campaign-tabs">
-      <div class="tab" :class="{active: tab === 'desc'}" @click="tab = 'desc'">캠페인 설명</div>
+      <div class="tab" :class="{active: tab === 'intro'}" @click="tab = 'intro'">캠페인 설명</div>
       <div class="tab" :class="{active: tab === 'proposal'}" @click="tab = 'proposal'">제안서 목록</div>
       <div class="tab" :class="{active: tab === 'chat'}" @click="tab = 'chat'">채팅 목록</div>
       <div class="tab" :class="{active: tab === 'contract'}" @click="tab = 'contract'">계약서 목록</div>
     </div>
     <div class="tab-underline"></div>
-    <div v-if="tab === 'desc'" class="campaign-detail-main">
+    <div v-if="tab === 'intro'" class="campaign-detail-main">
       <div class="detail-img-box">
         <img class="main-img" :src="form.image" alt="제품 메인 이미지" />
       </div>
@@ -87,46 +87,11 @@
         </button>
       </div>
     </div>
-    <div v-else-if="tab === 'contract'" class="contract-list-box contract-list-box-in-detail">
-      <div
-        v-for="(item, idx) in filteredContracts"
-        :key="item.id"
-        class="contract-card"
-      >
-        <button class="delete-btn" @click="openDeleteModal(idx)" title="삭제"
-          @mouseenter="handleDeleteBtnMouseEnter(idx)" @mouseleave="handleDeleteBtnMouseLeave">
-          <svg class="trash-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-            <rect x="9.25" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-            <rect x="13" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-            <rect x="4" y="5" width="12" height="2" rx="1" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-            <rect x="7" y="2" width="6" height="2" rx="1" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-            <rect x="2" y="7" width="16" height="1.5" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-          </svg>
-        </button>
-        <img :src="item.image" class="contract-thumb" alt="썸네일" />
-        <div class="contract-info">
-          <div class="contract-name">계약명: {{ item.name }}</div>
-        </div>
-        <div class="contract-meta">
-          <span class="contract-status">상태: {{ item.status }}</span>
-          <button class="detail-btn">상세 조회</button>
-        </div>
-      </div>
-      <div v-if="filteredContracts.length === 0" class="empty-msg">
-        연관된 계약서가 없습니다.
-      </div>
-      <div v-if="deleteModalOpen" class="modal-backdrop">
-        <div class="modal-box">
-          <div class="modal-message">
-            정말 이 계약서를 삭제하시겠습니까?
-          </div>
-          <div class="modal-actions">
-            <button class="modal-cancel" @click="deleteModalOpen = false">취소</button>
-            <button class="modal-delete" @click="confirmDelete">삭제</button>
-          </div>
-        </div>
-      </div>
+    <div v-else-if="tab === 'proposal'">
+      <ProposalListComponent :campaign-id="id" />
+    </div>
+    <div v-if="tab === 'contract'">
+      <ContractListComponent />
     </div>
     <div v-if="showToast" class="toast-success">
       정상적으로 수정되었습니다.
@@ -137,6 +102,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import ContractListComponent from './components/ContractListComponent.vue'
+import ProposalListComponent from './components/ProposalListComponent.vue'
 const router = useRouter()
 const route = useRoute()
 
@@ -165,27 +132,8 @@ function save() {
   }, 1500)
 }
 
-const tab = ref('desc')
-
-// 더미 계약서 데이터 (실제 서비스에서는 API로 대체)
-const allContracts = ref([
-  { id: 1, campaignId: '1', name: '베러비티_소윤TV_20240501', image: 'https://via.placeholder.com/80x60?text=LCD', status: '서명 대기' },
-  { id: 2, campaignId: '1', name: '베러비티_소윤TV_20240501', image: 'https://via.placeholder.com/80x60?text=LCD', status: '서명 대기' },
-  { id: 3, campaignId: '2', name: '다른캠페인_계약서', image: 'https://via.placeholder.com/80x60?text=LCD', status: '계약완료' }
-])
-const filteredContracts = computed(() => allContracts.value.filter(c => c.campaignId === route.params.id))
-
-// 삭제 모달 및 버튼 hover
-const deleteModalOpen = ref(false)
-const deleteIdx = ref(null)
-const deleteBtnHoverIdx = ref(null)
-function openDeleteModal(idx) { deleteIdx.value = idx; deleteModalOpen.value = true }
-function confirmDelete() {
-  if (deleteIdx.value !== null) allContracts.value.splice(deleteIdx.value, 1)
-  deleteModalOpen.value = false; deleteIdx.value = null
-}
-function handleDeleteBtnMouseEnter(idx) { deleteBtnHoverIdx.value = idx }
-function handleDeleteBtnMouseLeave() { deleteBtnHoverIdx.value = null }
+const tab = ref('intro')
+const id = computed(() => route.params.id)
 </script>
 
 <style scoped>
@@ -411,117 +359,5 @@ function handleDeleteBtnMouseLeave() { deleteBtnHoverIdx.value = null }
 @keyframes toast-fadeout {
   from { opacity: 1; }
   to { opacity: 0; }
-}
-.contract-list-box {
-  margin-top: 48px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(140,48,245,0.06);
-}
-.contract-card {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 16px;
-  border-bottom: 1px solid #f2f2f2;
-}
-.contract-card:last-child {
-  border-bottom: none;
-}
-.delete-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-.trash-icon {
-  width: 18px;
-  height: 18px;
-}
-.contract-thumb {
-  width: 80px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.contract-info {
-  flex: 1;
-}
-.contract-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #222;
-}
-.contract-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-.contract-status {
-  font-size: 0.9rem;
-  color: #888;
-}
-.detail-btn {
-  background: #9B51E0;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 16px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.detail-btn:hover {
-  background: #7B21E8;
-}
-.empty-msg {
-  text-align: center;
-  padding: 16px;
-  color: #888;
-}
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-box {
-  background: #fff;
-  padding: 32px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(140,48,245,0.10);
-}
-.modal-message {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 16px;
-}
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-.modal-cancel, .modal-delete {
-  background: #9B51E0;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.modal-cancel:hover, .modal-delete:hover {
-  background: #7B21E8;
 }
 </style> 

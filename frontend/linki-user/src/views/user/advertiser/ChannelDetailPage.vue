@@ -167,15 +167,13 @@ onMounted(async () => {
   loading.value = true
   try {
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
-    const response = await axios.get('http://localhost:3001/channels')
+    const response = await axios.get('/v1/api/channels')
     channels.value = response.data
     // 2. 채널 Id로 해당 채널 데이터 가져오기
-    const channelRes = await axios.get(`http://localhost:3001/channels/${id.value}`)
+    const channelRes = await axios.get(`/v1/api/channels/${id.value}`)
     channel.value = channelRes.data
-
     // 3. 리뷰 통계도 진입시 바로 fetch
     await fetchReviewStatsOnEnter()
-
   } catch (err) {
     error.value = err.message
   } finally {

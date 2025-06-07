@@ -116,8 +116,8 @@ function onCategoryChange(categories) {
 // 카테고리 필터링 채널 데이터 불러오기
 async function fetchChannelsByCategories(categories) {
   try {
-    const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&') // 카테고리 파라미터 생성
-    const response = await axios.get(`http://localhost:3001/channels?${params}`) // 카테고리 파라미터를 쿼리 파라미터로 추가하여 채널 데이터 추출
+    const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&')
+    const response = await axios.get(`/v1/api/channels?${params}`)
     listData.value = response.data
     await fetchAllReviewStats(response.data)
   } catch (err) {
@@ -128,11 +128,11 @@ async function fetchChannelsByCategories(categories) {
 // 전체 채널 데이터 추출
 async function fetchChannels() {
   try {
-    const response = await axios.get('http://localhost:3001/channels')
-    listData.value = response.data // 전체 채널 데이터를 저장 
+    const response = await axios.get('/v1/api/channels')
+    listData.value = response.data
     await fetchAllReviewStats(response.data)
-  } catch (err) { // 오류 발생 시 오류 메시지 저장 
-    error.value = err.message 
+  } catch (err) {
+    error.value = err.message
   }
 }
 
