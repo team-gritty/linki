@@ -6,7 +6,7 @@ export const homeAPI = {
     try {
       const response = await httpClient.get('/v1/api/home/campaigns')
       return response.data.map(campaign => ({
-        id: campaign.id || campaign.productId,
+        productId: campaign.productId,
         productName: campaign.productName,
         productImg: campaign.productImg,
         productCategory: campaign.productCategory,

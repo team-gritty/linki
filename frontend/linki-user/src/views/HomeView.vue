@@ -106,7 +106,7 @@ const fetchCampaigns = async () => {
     console.log('Campaign response:', data)
     campaignProducts.value = data.map(campaign => {
       return {
-        id: campaign.id,
+        id: campaign.productId,
         name: campaign.productName,
         image: campaign.productImg,
         category: campaign.productCategory,
@@ -114,9 +114,12 @@ const fetchCampaigns = async () => {
         rating: 4.5,
         timeLeft: calculateTimeLeft(campaign.productDeadline),
         status: campaign.productPublishStatus,
-        advertiser: campaign.companyName
+        advertiser: campaign.companyName,
+        description: campaign.productDesc,
+        condition: campaign.productCondition
       }
     })
+    console.log('Mapped campaigns:', campaignProducts.value)
   } catch (err) {
     console.error('캠페인 상품 로딩 실패:', err)
     error.value.campaigns = '캠페인 상품을 불러오는데 실패했습니다.'
@@ -506,7 +509,11 @@ const createStarRating = (rating) => {
         </div>
 
         <div class="product-grid">
-          <div v-for="product in displayedProducts" :key="product.id" class="product-card">
+          <div v-for="product in displayedProducts" 
+               :key="product.id" 
+               class="product-card"
+               @click="router.push(`/campaign/${product.id}`)"
+               style="cursor: pointer;">
             <div class="product-image">
               <img :src="product.image" :alt="product.name" @error="handleImageError" />
             </div>
