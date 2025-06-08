@@ -43,7 +43,7 @@ const menus = [
   },
   {
     title: '결제관리',
-    subs: ['광고비 지급 관리', '정산 관리', '구독 결제 관리']
+    subs: [ '정산 관리', '구독 결제 관리']
   },
   {
     title: '고객관리',
@@ -72,6 +72,10 @@ function handleMenuClick(menuTitle, subTitle) {
     router.push('/contractList')
   } else if (menuTitle === '계약관리' && subTitle === '캠페인 관리') {
     router.push('/campaignList')
+  } else if (menuTitle === '결제관리' && subTitle === '정산 관리') {
+    router.push('/settlement')
+  } else if (menuTitle === '결제관리' && subTitle === '구독 결제 관리') {
+    router.push('/subscriptionPayment')
   }
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if (props.openSidebar) {

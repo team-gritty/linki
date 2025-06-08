@@ -42,6 +42,16 @@ const router = createRouter({
       path: '/campaignList',
       name: 'campaignList',
       component: () => import('../views/admin/CampaignView.vue')
+    },
+    {
+      path: '/settlement',
+      name: 'settlement',
+      component: () => import('../views/admin/SettlementView.vue')
+    },
+    {
+      path: '/subscriptionPayment',
+      name: 'subscriptionPayment',
+      component: () => import('../views/admin/SubscriptionPaymentView.vue')
     }
   ]
 })
