@@ -77,9 +77,9 @@
         </div>
       </div>
 
-      <!-- 제품설명서 탭 -->
+      <!-- 캠페인내용 탭 -->
       <div v-if="currentTab === 'campaign'" class="campaign-content">
-        <!-- 기존 제품설명서 내용 -->
+        <p class="coming-soon">캠페인 내용 기능 준비중입니다.</p>
       </div>
 
       <!-- 채팅 탭 -->
@@ -115,7 +115,7 @@ export default {
     const editingContent = ref('');
 
     const tabs = [
-      { id: 'campaign', name: '제품설명서' },
+      { id: 'campaign', name: '캠페인내용' },
       { id: 'proposal', name: '제안서' },
       { id: 'chat', name: '채팅' },
       { id: 'contract', name: '계약서' }
