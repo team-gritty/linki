@@ -15,11 +15,17 @@ const props = defineProps({
 const goToMyPage = () => {
   router.push('/mypage')
 }
+const goToHome = () => {
+  router.push('/home')
+}
+
+const goTochannels = () => {
+  router.push('/channels')
+}
 
 const goToCampaigns = () => {
   router.push('/campaigns')
 }
-
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
 }
@@ -57,11 +63,10 @@ watch(() => props.openSidebar, (newValue) => {
       <button class="hamburger" @click="toggleSidebar">
         ☰
       </button>
-      <span class="logo">LINKI</span>
+      <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-
-        <li class="menu-item" @click="router.push('/home')">홈</li>
-        <li class="menu-item">인플루언서</li>
+        <li class="menu-item" @click="goToHome">홈</li>
+        <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
         <li class="menu-item">고객센터</li>
       </ul>
@@ -76,8 +81,12 @@ watch(() => props.openSidebar, (newValue) => {
     <div :class="['mobile-sidebar-overlay', { 'is-open': openSidebar }]" @click.self="toggleSidebar">
       <div :class="['mobile-sidebar', { 'is-open': openSidebar }]">
         <ul class="menu-list mobile-menu">
-          <li class="menu-item" @click="router.push('/home')">홈</li>
-          <li class="menu-item">인플루언서</li>
+          <li class="menu-item">
+            <router-link to="/home">홈</router-link>
+          </li>
+          <li class="menu-item">
+            <router-link to="/channels">인플루언서</router-link>
+          </li>
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
           <li class="menu-item">고객센터</li>
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
@@ -122,11 +131,16 @@ body, html {
 }
 
 .logo {
-  color: #b162c0;
+  color: #7B21E8;
   font-size: 24px;
   font-weight: bold;
   margin-right: 6em;
   transition: all 0.2s;
+  text-decoration: none;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .menu-list.desktop-menu {
@@ -153,11 +167,13 @@ body, html {
   transition: color 0.2s;
 }
 
+.menu-item a {
+  text-decoration: none;
+  color: inherit;
+}
 
-.menu-item:hover {
-  color: #b162c0;
-
-
+.menu-item:hover a {
+  color: #7B21E8;
 }
 
 .navbar-right {
@@ -171,8 +187,8 @@ body, html {
   align-items: center;
   gap: 8px;
   background: none;
-  border: 1px solid #b162c0;
-  color: #b162c0;
+  border: 1px solid #7B21E8;
+  color: #7B21E8;
   padding: 8px 20px;
   border-radius: 4px;
   cursor: pointer;
@@ -184,7 +200,7 @@ body, html {
 }
 
 .mypage-button:hover {
-  background-color: #b162c0;
+  background-color: #7B21E8;
   color: white;
 }
 

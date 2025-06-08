@@ -3,12 +3,23 @@ import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const openSidebar = ref(false)
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value
 }
+
+// 라우터 변경 감지
+watch(
+  () => router.currentRoute.value,
+  () => {
+    // 페이지 변경 시 스크롤을 맨 위로
+    window.scrollTo(0, 0)
+  }
+)
 </script>
 
 <template>
@@ -16,9 +27,10 @@ const toggleSidebar = () => {
     <Header :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
     <Sidebar :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
     <div class="main-container">
-      
       <main class="content">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <component :is="Component" :key="$route.fullPath" />
+        </RouterView>
       </main>
     </div>
     <Footer />

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
-import HomeView from '@/views/HomeView.vue'
+import HomeView from '../views/HomeView.vue'
 import CampaignListPage from '@/views/user/advertiser/CampaignListPage.vue'
 import CampaignDetailPage from '@/views/user/advertiser/CampaignDetailPage.vue'
 import CampaignRegisterPage from '@/views/user/advertiser/CampaignRegisterPage.vue'
@@ -12,7 +12,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/home',
+      redirect: '/home'
     },
     {
       path: '/home',
@@ -32,7 +32,8 @@ const router = createRouter({
     {
       path: '/channels/:id',
       name: 'channel-detail',
-      component: ChannelDetailPage
+      component: ChannelDetailPage,
+      props: true
     },
     {
       path: '/campaigns',
@@ -41,13 +42,15 @@ const router = createRouter({
     },
     {
       path: '/campaign/:id',
-      name: 'campaign-detail',
-      component: () => import('../views/user/influencer/CampaignDetailView.vue')
+      name: 'influencer-campaign-detail',
+      component: () => import('../views/user/influencer/CampaignDetailView.vue'),
+      props: true
     },
     {
       path: '/campaign/:id/proposal',
       name: 'campaign-proposal',
-      component: () => import('../views/user/influencer/CampaignProposalView.vue')
+      component: () => import('../views/user/influencer/CampaignProposalView.vue'),
+      props: true
     },
     {
       path: '/mypage',
@@ -57,34 +60,37 @@ const router = createRouter({
     {
       path: '/proposals/:id',
       name: 'proposal-detail',
-      component: () => import('../views/user/influencer/ProposalDetailView.vue')
-    }, 
+      component: () => import('../views/user/influencer/ProposalDetailView.vue'),
+      props: true
+    },
     {
       path: '/mypage/campaign-list',
-      name: 'campaign-list',
+      name: 'advertiser-campaign-list',
       component: CampaignListPage
     },
-    { // 광고주 - 캠페인 상세 페이지 
+    {
       path: '/mypage/campaign-detail/:id',
-      name: 'campaign-detail',
+      name: 'advertiser-campaign-detail',
       component: CampaignDetailPage
-    },
-    { // 광고주 - 캠페인 등록 페이지 
-      path: '/mypage/campaign-register',
-      name: 'campaign-register',
-      component: CampaignRegisterPage
     },
     {
       path: '/mypage/campaign-register',
       name: 'campaign-register',
       component: CampaignRegisterPage
     },
-    { // 광고주 - 마이페이지에서 계약서 목록 페이지 
+    {
       path: '/mypage/contract-list',
       name: 'ContractList',
       component: ContractListPage
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
 export default router
