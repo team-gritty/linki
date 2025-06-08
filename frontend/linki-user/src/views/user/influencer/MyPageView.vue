@@ -215,7 +215,7 @@ export default {
     };
     
     const viewDetail = (proposalId) => {
-      router.push(`/proposals/${proposalId}`);
+      router.push(`/proposal/${proposalId}`);
     };
     
     onMounted(() => {

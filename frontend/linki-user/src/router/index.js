@@ -58,7 +58,7 @@ const router = createRouter({
       component: () => import('../views/user/influencer/MyPageView.vue')
     },
     {
-      path: '/proposals/:id',
+      path: '/proposal/:id',
       name: 'proposal-detail',
       component: () => import('../views/user/influencer/ProposalDetailView.vue'),
       props: true
