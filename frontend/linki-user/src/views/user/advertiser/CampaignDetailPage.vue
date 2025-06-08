@@ -90,6 +90,9 @@
     <div v-else-if="tab === 'proposal'">
       <ProposalListComponent :campaign-id="id" />
     </div>
+    <div v-else-if="tab === 'chat'">
+      <AdvertiserChat :campaign-id="id" />
+    </div>
     <div v-if="tab === 'contract'">
       <ContractListComponent />
     </div>
@@ -104,6 +107,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ContractListComponent from './components/ContractListComponent.vue'
 import ProposalListComponent from './components/ProposalListComponent.vue'
+import AdvertiserChat from './components/advertiserChat.vue'
 const router = useRouter()
 const route = useRoute()
 
