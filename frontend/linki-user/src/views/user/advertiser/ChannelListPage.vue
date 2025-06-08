@@ -22,7 +22,7 @@
       <div v-for="(item, idx) in pagedListData" :key="idx" class="table-row"> <!-- 페이지당 보여지는 채널 개수만큼 반복 -->
         <div class="td td-num">{{ idx + 1 }}</div>
         <div class="td td-detail">
-          <img :src="item.img" class="profile-img" />
+          <img :src="item.profileImage" class="profile-img" />
           <div class="channel-info">
             <div class="channel-name">{{ item.name }}</div>
             <div class="channel-meta">

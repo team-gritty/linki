@@ -1,6 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { homeAPI } from '@/api/home'
+import { useRouter } from 'vue-router'
+
+// 라우터 설정
+const router = useRouter()
 
 // API 기본 URL 설정
 const API_BASE_URL = 'http://localhost:3000'
@@ -144,7 +148,7 @@ const fetchInfluencers = async () => {
     influencers.value = data.map(influencer => ({
       id: influencer.id,
       name: influencer.name,
-      image: influencer.profileImage,
+      profileImage: influencer.profileImage,
       category: influencer.category,
       subscribers: typeof influencer.subscribers === 'string' ? 
         influencer.subscribers : 
@@ -248,6 +252,11 @@ const nextCategorySlide = () => {
   if (categorySlideIndex.value < Math.ceil(categories.value.length / categoriesPerSlide) - 1) {
     categorySlideIndex.value++
   }
+}
+
+// 인플루언서 카드 클릭 핸들러
+const handleInfluencerClick = (influencerId) => {
+  router.push(`/channels/${influencerId}`)
 }
 
 onMounted(async () => {
@@ -539,9 +548,10 @@ const createStarRating = (rating) => {
             :key="influencer.id" 
             :to="{ name: 'channel-detail', params: { id: influencer.id }}"
             class="influencer-card"
+            @click="handleInfluencerClick(influencer.id)"
           >
             <div class="influencer-image">
-              <img :src="influencer.image" :alt="influencer.name" @error="handleImageError" />
+              <img :src="influencer.profileImage" :alt="influencer.name" @error="handleImageError" />
             </div>
             <div class="influencer-info">
               <h4 class="influencer-name">{{ influencer.name }}</h4>
