@@ -1,213 +1,559 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 const props = defineProps({
   campaignId: {
-    type: String,
+    type: [String, Number],
     required: true
   }
 })
 
-// 채팅 관련 상태
-const messages = ref([])
+const searchQuery = ref('')
+const selectedChatId = ref(null)
 const newMessage = ref('')
 const loading = ref(false)
 const error = ref(null)
+const currentUserId = 'advertiser1'
+const chatList = ref([])
+const chatMessages = ref([])
+const chatProfiles = ref([])
 
-// 채팅 메시지 불러오기
-const fetchMessages = async () => {
+// API base URL 설정
+const baseURL = 'http://localhost:3000'
+
+// 채팅 목록 필터링
+const filteredChats = computed(() => {
+  // 먼저 안 읽은 메시지 순으로 정렬
+  const sortedChats = [...chatList.value].sort((a, b) => {
+    // 안 읽은 메시지가 있는 채팅방을 위로
+    if (a.isNew && !b.isNew) return -1
+    if (!a.isNew && b.isNew) return 1
+    // 같은 상태면 최신 메시지 순으로
+    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+  })
+
+  if (!searchQuery.value) return sortedChats
+  const query = searchQuery.value.toLowerCase()
+  return sortedChats.filter(chat => 
+    chat.opponentName.toLowerCase().includes(query) ||
+    chat.lastMessage.toLowerCase().includes(query)
+  )
+})
+
+// 선택된 채팅방
+const selectedChat = computed(() => 
+  chatList.value.find(chat => chat.chatId === selectedChatId.value)
+)
+
+// 선택된 채팅방의 메시지
+const selectedChatMessages = computed(() => {
+  if (!selectedChatId.value) return []
+  console.log('Current messages:', chatMessages.value) // 디버깅용 로그 추가
+  return chatMessages.value
+    .filter(msg => msg.chatId === selectedChatId.value)
+    .sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+})
+
+// 채팅 프로필 가져오기
+const getChatProfile = (userId) => {
+  const profile = chatProfiles.value.find(profile => profile.userId === userId)
+  console.log('Getting profile for userId:', userId, 'Found:', profile) // 디버깅용 로그 추가
+  return profile
+}
+
+// 시간 포맷 함수
+const formatTime = (dateString) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) {
+    return date.toLocaleTimeString('ko-KR', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    })
+  } else if (diffDays === 1) {
+    return '어제'
+  } else if (diffDays < 7) {
+    return date.toLocaleDateString('ko-KR', { weekday: 'long' })
+  } else {
+    return date.toLocaleDateString('ko-KR', { 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+}
+
+// 채팅방 선택
+const selectChat = async (chatId) => {
+  console.log('Selecting chat:', chatId) // 디버깅용 로그 추가
+  selectedChatId.value = chatId
+  
+  // 선택한 채팅방의 안 읽은 메시지 상태 업데이트
+  const chatIndex = chatList.value.findIndex(chat => chat.chatId === chatId)
+  if (chatIndex !== -1 && chatList.value[chatIndex].isNew) {
+    chatList.value[chatIndex] = {
+      ...chatList.value[chatIndex],
+      isNew: false
+    }
+  }
+  
+  // 메시지 로드
+  await loadMessages(chatId)
+}
+
+// 메시지 로드
+const loadMessages = async (chatId) => {
+  loading.value = true
+  error.value = null
+  chatMessages.value = [] // 메시지 초기화
+
   try {
-    loading.value = true
-    error.value = null
-    // TODO: API 연동
-    const response = await fetch(`/v1/api/chats?campaign_id=${props.campaignId}`)
-    const data = await response.json()
-    messages.value = data
+    // chatId로 필터링된 메시지만 가져오기
+    const response = await fetch(`${baseURL}/chatMessages?chatId=${chatId}`)
+    if (!response.ok) throw new Error('메시지 로드 실패')
+    const messages = await response.json()
+    console.log('Loaded messages for chatId:', chatId, messages) // 디버깅용 로그 추가
+    
+    chatMessages.value = messages
   } catch (err) {
-    error.value = '채팅 내역을 불러오는데 실패했습니다.'
-    console.error('Failed to fetch messages:', err)
+    error.value = '메시지를 불러오는데 실패했습니다.'
+    console.error('Error loading messages:', err)
   } finally {
     loading.value = false
   }
 }
 
-// 새 메시지 전송
+// 메시지 전송
 const sendMessage = async () => {
-  if (!newMessage.value.trim()) return
-  
+  if (!newMessage.value.trim() || !selectedChatId.value) return
+
+  const messageObj = {
+    messageId: `msg${Date.now()}`,
+    chatId: selectedChatId.value,
+    senderId: currentUserId,
+    content: newMessage.value,
+    messageDate: new Date().toISOString(),
+    messageRead: false
+  }
+
   try {
-    // TODO: API 연동
-    await fetch('/v1/api/chats', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        campaign_id: props.campaignId,
-        message: newMessage.value,
-        timestamp: new Date().toISOString()
-      })
-    })
+    chatMessages.value.push(messageObj)
     
-    // 메시지 전송 후 목록 새로고침
-    await fetchMessages()
+    // 채팅 목록의 마지막 메시지 업데이트
+    const chatIndex = chatList.value.findIndex(chat => chat.chatId === selectedChatId.value)
+    if (chatIndex !== -1) {
+      const updatedChat = {
+        ...chatList.value[chatIndex],
+        lastMessage: messageObj.content,
+        lastMessageTime: messageObj.messageDate,
+        isNew: false
+      }
+      chatList.value.splice(chatIndex, 1)
+      chatList.value.unshift(updatedChat)
+    }
+
     newMessage.value = ''
+    
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 0)
   } catch (err) {
     error.value = '메시지 전송에 실패했습니다.'
-    console.error('Failed to send message:', err)
+    console.error('Error sending message:', err)
+  }
+}
+
+// 초기 데이터 로드
+const loadInitialData = async () => {
+  try {
+    // 채팅 목록 로드
+    const chatListResponse = await fetch(`${baseURL}/chatList`)
+    if (!chatListResponse.ok) throw new Error('채팅 목록 로드 실패')
+    const chatListData = await chatListResponse.json()
+    chatList.value = chatListData
+
+    // 프로필 정보 로드
+    const profilesResponse = await fetch(`${baseURL}/chatProfiles`)
+    if (!profilesResponse.ok) throw new Error('프로필 정보 로드 실패')
+    const profilesData = await profilesResponse.json()
+    chatProfiles.value = profilesData
+  } catch (err) {
+    error.value = '데이터를 불러오는데 실패했습니다.'
+    console.error('Error loading initial data:', err)
   }
 }
 
 onMounted(() => {
-  fetchMessages()
+  loadInitialData()
+})
+
+// 메시지 자동 스크롤
+const messagesContainer = ref(null)
+watch(selectedChatMessages, () => {
+  setTimeout(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  }, 0)
 })
 </script>
 
 <template>
   <div class="chat-container">
-    <h2 class="chat-title">채팅</h2>
-    
-    <!-- 로딩 상태 -->
-    <div v-if="loading" class="chat-loading">
-      메시지를 불러오는 중...
-    </div>
-    
-    <!-- 에러 상태 -->
-    <div v-else-if="error" class="chat-error">
-      {{ error }}
-    </div>
-    
     <!-- 채팅 목록 -->
-    <div v-else class="chat-messages">
-      <div v-for="message in messages" :key="message.id" class="message">
-        <img :src="message.sender.avatar" :alt="message.sender.name" class="message-avatar">
-        <div class="message-content">
-          <div class="message-header">
-            <span class="message-sender">{{ message.sender.name }}</span>
-            <span class="message-time">{{ new Date(message.timestamp).toLocaleString() }}</span>
+    <div class="chat-list">
+      <div class="search-box">
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="채팅방 검색..."
+          class="search-input"
+        >
+      </div>
+      <div class="chat-items">
+        <div 
+          v-for="chat in filteredChats" 
+          :key="chat.chatId"
+          :class="['chat-item', { active: chat.chatId === selectedChatId }]"
+          @click="selectChat(chat.chatId)"
+        >
+          <div class="chat-profile">
+            <img 
+              :src="getChatProfile(chat.opponentId)?.profileImage" 
+              :alt="chat.opponentName"
+              class="profile-image"
+            >
           </div>
-          <p class="message-text">{{ message.text }}</p>
+          <div class="chat-item-content">
+            <div class="chat-item-header">
+              <span class="chat-name">{{ chat.opponentName }}</span>
+              <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
+            </div>
+            <div class="chat-preview">{{ chat.lastMessage }}</div>
+          </div>
+          <div v-if="chat.isNew" class="new-message-badge"></div>
         </div>
       </div>
     </div>
-    
-    <!-- 메시지 입력 -->
-    <div class="chat-input">
-      <input 
-        v-model="newMessage"
-        type="text"
-        placeholder="메시지를 입력하세요..."
-        @keyup.enter="sendMessage"
-      >
-      <button @click="sendMessage" :disabled="!newMessage.trim()">전송</button>
+
+    <!-- 채팅 메시지 영역 -->
+    <div class="chat-messages" v-if="selectedChatId">
+      <!-- 채팅방 헤더 -->
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-profile">
+            <img 
+              :src="getChatProfile(selectedChat?.opponentId)?.profileImage" 
+              :alt="selectedChat?.opponentName"
+              class="profile-image"
+            >
+          </div>
+          <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span>
+        </div>
+        <div class="chat-header-actions">
+          <span :class="['status-badge', `status-${selectedChat?.chatStatus}`]">
+            {{ selectedChat?.chatStatus }}
+          </span>
+          <button class="primary-button">제안서 보기</button>
+          <button class="primary-button">계약서 보기</button>
+        </div>
+      </div>
+
+      <!-- 메시지 목록 -->
+      <div class="messages-container" ref="messagesContainer">
+        <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
+        <div v-else-if="error" class="error">{{ error }}</div>
+        <template v-else>
+          <div 
+            v-for="message in selectedChatMessages" 
+            :key="message.messageId"
+            :class="['message', { 'my-message': message.senderId === currentUserId }]"
+          >
+            <div class="message-content">{{ message.content }}</div>
+            <div class="message-time">{{ formatTime(message.messageDate) }}</div>
+          </div>
+        </template>
+      </div>
+
+      <!-- 메시지 입력 -->
+      <div class="message-input-container">
+        <input 
+          type="text" 
+          v-model="newMessage"
+          @keyup.enter="sendMessage"
+          placeholder="메시지를 입력하세요..."
+          class="message-input"
+        >
+        <button @click="sendMessage" class="send-button">전송</button>
+      </div>
+    </div>
+
+    <!-- 채팅방 미선택 시 -->
+    <div v-else class="no-chat-selected">
+      채팅방을 선택해주세요
     </div>
   </div>
 </template>
 
 <style scoped>
 .chat-container {
-  padding: 20px;
-  background: white;
+  display: flex;
+  height: 100%;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 32px;
 }
 
-.chat-title {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: #333;
+.chat-list {
+  width: 300px;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
 }
 
-.chat-loading, .chat-error {
-  text-align: center;
-  padding: 20px;
-  color: #666;
+.search-box {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.chat-error {
-  color: #dc2626;
-  background: #fee2e2;
+.search-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
 }
 
-.chat-messages {
-  height: 400px;
+.chat-items {
+  flex: 1;
   overflow-y: auto;
-  padding: 10px;
-  background: #f9fafb;
-  border-radius: 8px;
-  margin-bottom: 20px;
 }
 
-.message {
+.chat-item {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  align-items: center;
 }
 
-.message-avatar {
+.chat-item:hover {
+  background-color: #f8f9fa;
+}
+
+.chat-item.active {
+  background-color: #f0f0f0;
+}
+
+.chat-item-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chat-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  min-width: 0;
+}
+
+.chat-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-time {
+  font-size: 0.8em;
+  color: #666;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.chat-preview {
+  color: #666;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 180px;
+}
+
+.chat-profile {
+  margin-right: 12px;
+}
+
+.profile-image {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.message-content {
+.chat-messages {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.message-header {
+.chat-header {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
 }
 
-.message-sender {
+.chat-partner-name {
   font-weight: 600;
-  color: #333;
+  font-size: 1.1em;
 }
 
-.message-time {
-  font-size: 0.8rem;
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9em;
+}
+
+.status-대기 {
+  background-color: #f0f0f0;
   color: #666;
 }
 
-.message-text {
-  margin: 0;
-  color: #444;
-  line-height: 1.4;
+.status-협의중 {
+  background-color: #FFF8E6;
+  color: #FFA800;
 }
 
-.chat-input {
-  display: flex;
-  gap: 8px;
+.status-계약체결 {
+  background-color: #e0f2e9;
+  color: #0ca678;
 }
 
-.chat-input input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.chat-input button {
+.primary-button {
   padding: 8px 16px;
-  background: #7c3aed;
+  background-color: #8C30F5;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
+  font-size: 0.9em;
 }
 
-.chat-input button:disabled {
-  background: #d1d5db;
-  cursor: not-allowed;
+.primary-button:hover {
+  background-color: #7B2BF9;
 }
 
-.chat-input button:not(:disabled):hover {
-  background: #6d28d9;
+.messages-container {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin: 4px 0;
+}
+
+.message-content {
+  margin-bottom: 4px;
+}
+
+.message-time {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.my-message {
+  background-color: #8C30F5;
+  color: white;
+  align-self: flex-end;
+}
+
+.my-message .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message:not(.my-message) {
+  background-color: #f0f0f0;
+  color: #333;
+  align-self: flex-start;
+}
+
+.message-input-container {
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 8px;
+}
+
+.message-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.send-button {
+  padding: 8px 16px;
+  background-color: #8C30F5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.send-button:hover {
+  background-color: #7B2BF9;
+}
+
+.no-chat-selected {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 16px;
+  color: #666;
+}
+
+.error {
+  color: #ff4444;
+}
+
+.new-message-badge {
+  width: 8px;
+  height: 8px;
+  background-color: #8C30F5;
+  border-radius: 50%;
+  margin-left: 8px;
 }
 </style>
+
+
