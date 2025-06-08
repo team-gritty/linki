@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import axios from 'axios'
+import { homeAPI } from '@/api/home'
 
 // API 기본 URL 설정
 const API_BASE_URL = 'http://localhost:3000'
@@ -17,6 +17,7 @@ const banners = ref([])
 const hours = ref(0)
 const minutes = ref(0)
 const seconds = ref(0)
+const timerInterval = ref(null)
 
 // 데이터 로딩 상태
 const loading = ref({
@@ -24,7 +25,7 @@ const loading = ref({
   campaigns: false,
   influencers: false,
   sidebarCategories: false,
-  endingToday: false,
+  endingTodayProducts: false,
   banners: false
 })
 
@@ -34,7 +35,7 @@ const error = ref({
   campaigns: null,
   influencers: null,
   sidebarCategories: null,
-  endingToday: null,
+  endingTodayProducts: null,
   banners: null
 })
 
@@ -61,9 +62,9 @@ const formatTimeUnit = (unit) => {
 const fetchCategories = async () => {
   try {
     loading.value.categories = true
-    const response = await axios.get(`${API_BASE_URL}/categories`)
-    console.log('Categories response:', response.data)
-    categories.value = response.data.map(category => ({
+    const data = await homeAPI.getCategories()
+    console.log('Categories response:', data)
+    categories.value = data.map(category => ({
       ...category,
       icon: getIconComponent(category.name),
       active: false
@@ -79,22 +80,39 @@ const fetchCategories = async () => {
 // 아이콘 컴포넌트 매핑 함수
 const getIconComponent = (categoryName) => {
   const iconMap = {
+    '패션': '👗',
     '뷰티': '💄',
-    '스포츠': '⚽',
-    '음식': '🍽️',
-    '전자기기': '📱',
+    '푸드/먹방': '🍽️',
+    '엔터테인먼트': '🎮',
     '여행': '✈️',
-    '동물/펫': '🐾'
+    '음악': '🎵',
+    '전자기기': '📱',
+    'Vlog/라이프스타일': '🎥',
+    '교육': '📚',
+    '동물/펫': '🐾',
+    '스포츠': '⚽'
   }
   return iconMap[categoryName] || '📱'
 }
 
-const fetchCampaignProducts = async () => {
+const fetchCampaigns = async () => {
   try {
     loading.value.campaigns = true
-    const response = await axios.get(`${API_BASE_URL}/campaignProducts`)
-    console.log('Campaign products response:', response.data)
-    campaignProducts.value = response.data
+    const data = await homeAPI.getCampaigns()
+    console.log('Campaign response:', data)
+    campaignProducts.value = data.map(campaign => {
+      return {
+        id: campaign.id,
+        name: campaign.productName,
+        image: campaign.productImg,
+        category: campaign.productCategory,
+        reviews: 0,
+        rating: 4.5,
+        timeLeft: calculateTimeLeft(campaign.productDeadline),
+        status: campaign.productPublishStatus,
+        advertiser: campaign.companyName
+      }
+    })
   } catch (err) {
     console.error('캠페인 상품 로딩 실패:', err)
     error.value.campaigns = '캠페인 상품을 불러오는데 실패했습니다.'
@@ -103,12 +121,39 @@ const fetchCampaignProducts = async () => {
   }
 }
 
+// 시간 계산 유틸리티 함수 추가
+const calculateTimeLeft = (deadline) => {
+  const now = new Date()
+  const deadlineDate = new Date(deadline)
+  const diff = deadlineDate - now
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days > 0) {
+    return `${days}일 남음`
+  }
+  
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  return `${hours}시간 남음`
+}
+
 const fetchInfluencers = async () => {
   try {
     loading.value.influencers = true
-    const response = await axios.get(`${API_BASE_URL}/influencers`)
-    console.log('Influencers response:', response.data)
-    influencers.value = response.data
+    const data = await homeAPI.getInfluencers()
+    console.log('Influencers response:', data)
+    influencers.value = data.map(influencer => ({
+      id: influencer.id,
+      name: influencer.name,
+      image: influencer.profileImage,
+      category: influencer.category,
+      subscribers: typeof influencer.subscribers === 'string' ? 
+        influencer.subscribers : 
+        influencer.subscribers.toLocaleString(),
+      reviews: influencer.avgCommentCount || 0,
+      rating: 4.5,
+      platform: 'YouTube',
+      averageViews: influencer.avgViewCount
+    }))
   } catch (err) {
     console.error('인플루언서 로딩 실패:', err)
     error.value.influencers = '인플루언서 정보를 불러오는데 실패했습니다.'
@@ -120,9 +165,9 @@ const fetchInfluencers = async () => {
 const fetchSidebarCategories = async () => {
   try {
     loading.value.sidebarCategories = true
-    const response = await axios.get(`${API_BASE_URL}/sidebarCategories`)
-    console.log('Sidebar categories response:', response.data)
-    sidebarCategories.value = response.data
+    const data = await homeAPI.getSidebarCategories()
+    console.log('Sidebar categories response:', data)
+    sidebarCategories.value = data
   } catch (err) {
     console.error('사이드바 카테고리 로딩 실패:', err)
     error.value.sidebarCategories = '사이드바 카테고리를 불러오는데 실패했습니다.'
@@ -133,24 +178,24 @@ const fetchSidebarCategories = async () => {
 
 const fetchEndingTodayProducts = async () => {
   try {
-    loading.value.endingToday = true
-    const response = await axios.get(`${API_BASE_URL}/endingTodayProducts`)
-    console.log('Ending today products response:', response.data)
-    endingTodayProducts.value = response.data
+    loading.value.endingTodayProducts = true
+    const data = await homeAPI.getEndingTodayProducts()
+    console.log('Ending today products response:', data)
+    endingTodayProducts.value = data
   } catch (err) {
     console.error('오늘 마감 상품 로딩 실패:', err)
-    error.value.endingToday = '오늘 마감 상품을 불러오는데 실패했습니다.'
+    error.value.endingTodayProducts = '오늘 마감 상품을 불러오는데 실패했습니다.'
   } finally {
-    loading.value.endingToday = false
+    loading.value.endingTodayProducts = false
   }
 }
 
 const fetchBanners = async () => {
   try {
     loading.value.banners = true
-    const response = await axios.get(`${API_BASE_URL}/banners`)
-    console.log('Banners response:', response.data)
-    banners.value = response.data
+    const data = await homeAPI.getBanners()
+    console.log('Banners response:', data)
+    banners.value = data.filter(banner => banner.active)
   } catch (err) {
     console.error('배너 로딩 실패:', err)
     error.value.banners = '배너를 불러오는데 실패했습니다.'
@@ -159,23 +204,73 @@ const fetchBanners = async () => {
   }
 }
 
-// 컴포넌트 마운트 시 데이터 로드
+// 슬라이더 관련 상태
+const currentSlide = ref(0)
+const autoSlideInterval = ref(null)
+
+const nextSlide = () => {
+  if (!banners.value || banners.value.length === 0) return
+  currentSlide.value = (currentSlide.value + 1) % banners.value.length
+}
+
+const prevSlide = () => {
+  if (!banners.value || banners.value.length === 0) return
+  currentSlide.value = currentSlide.value === 0 
+    ? banners.value.length - 1 
+    : currentSlide.value - 1
+}
+
+const startAutoSlide = () => {
+  if (autoSlideInterval.value) {
+    clearInterval(autoSlideInterval.value)
+  }
+  autoSlideInterval.value = setInterval(() => {
+    nextSlide()
+  }, 5000)
+}
+
+// 카테고리 슬라이더 관련 상태 추가
+const categorySlideIndex = ref(0)
+const categoriesPerSlide = 6
+
+const displayedCategories = computed(() => {
+  const start = categorySlideIndex.value * categoriesPerSlide
+  return categories.value.slice(start, start + categoriesPerSlide)
+})
+
+const prevCategorySlide = () => {
+  if (categorySlideIndex.value > 0) {
+    categorySlideIndex.value--
+  }
+}
+
+const nextCategorySlide = () => {
+  if (categorySlideIndex.value < Math.ceil(categories.value.length / categoriesPerSlide) - 1) {
+    categorySlideIndex.value++
+  }
+}
+
 onMounted(async () => {
   // 모든 데이터 동시에 불러오기
   await Promise.all([
     fetchCategories(),
-    fetchCampaignProducts(),
+    fetchCampaigns(),
     fetchInfluencers(),
     fetchSidebarCategories(),
     fetchEndingTodayProducts(),
     fetchBanners()
   ])
 
+  // 배너 데이터가 로드되면 자동 슬라이드 시작
+  if (banners.value && banners.value.length > 0) {
+    startAutoSlide()
+  }
+
   // 초기 시간 계산
   calculateTimeUntilMidnight()
 
   // 타이머 시작 (1초마다 업데이트)
-  timerInterval = setInterval(() => {
+  timerInterval.value = setInterval(() => {
     if (seconds.value > 0) {
       seconds.value--
     } else {
@@ -197,7 +292,12 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  clearInterval(timerInterval)
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+  }
+  if (autoSlideInterval.value) {
+    clearInterval(autoSlideInterval.value)
+  }
 })
 
 // 이미지 에러 처리
@@ -250,38 +350,6 @@ const nextEndingTodayPage = () => {
   }
 }
 
-// 슬라이더 관련 상태
-const currentSlide = ref(0)
-const autoSlideInterval = ref(null)
-
-const nextSlide = () => {
-  currentSlide.value = (currentSlide.value + 1) % 5
-}
-
-const prevSlide = () => {
-  currentSlide.value = currentSlide.value === 0 
-    ? 4 
-    : currentSlide.value - 1
-}
-
-onMounted(() => {
-  // 기존 타이머 코드...
-
-  // 자동 슬라이드 시작
-  autoSlideInterval.value = setInterval(() => {
-    nextSlide()
-  }, 5000) // 5초마다 다음 슬라이드로
-})
-
-onUnmounted(() => {
-  // 기존 타이머 정리 코드...
-  
-  // 자동 슬라이드 정리
-  if (autoSlideInterval.value) {
-    clearInterval(autoSlideInterval.value)
-  }
-})
-
 // 상위 4개 인플루언서만 표시
 const displayedInfluencers = computed(() => {
   return influencers.value.slice(0, 4)
@@ -324,19 +392,19 @@ const createStarRating = (rating) => {
           <div v-if="loading.banners" class="loading">로딩 중...</div>
           <div v-else-if="error.banners" class="error">{{ error.banners }}</div>
           <template v-else>
-            <div v-for="banner in banners" :key="banner.id" 
-                 v-show="banner.id === currentSlide + 1"
-                 class="banner-item">
+            <div v-for="(banner, index) in banners" :key="banner.id" 
+                 :class="['banner-item', { active: index === currentSlide }]">
               <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
               <div class="banner-content">
                 <h2>{{ banner.title }}</h2>
+                <p>{{ banner.description }}</p>
                 <button class="start-button">Start Linki →</button>
               </div>
             </div>
             <div class="slider-dots">
-              <span v-for="i in banners.length" :key="i" 
-                    :class="{ active: i === currentSlide + 1 }" 
-                    class="dot"></span>
+              <span v-for="(_, index) in banners" :key="index" 
+                    :class="['dot', { active: index === currentSlide }]"
+                    @click="currentSlide = index"></span>
             </div>
           </template>
         </div>
@@ -353,18 +421,33 @@ const createStarRating = (rating) => {
             </span>
             <h3>캠페인 카테고리 선택</h3>
           </div>
+          <div class="navigation-arrows">
+            <button class="nav-arrow" @click="prevCategorySlide" :disabled="categorySlideIndex === 0">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button class="nav-arrow" @click="nextCategorySlide" 
+                    :disabled="categorySlideIndex >= Math.ceil(categories.length / categoriesPerSlide) - 1">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
         </div>
-        <div class="category-grid">
-          <div v-for="category in categories" :key="category.id" 
-               :class="['category-item', { active: category.active }]">
-            <div class="category-icon">
-              {{ category.icon }}
+        <div class="category-slider">
+          <div class="category-grid">
+            <div v-for="category in displayedCategories" :key="category.id" 
+                 :class="['category-item', { active: category.active }]">
+              <div class="category-icon">
+                {{ category.icon }}
+              </div>
+              <span class="category-name">{{ category.name }}</span>
             </div>
-            <span class="category-name">{{ category.name }}</span>
           </div>
         </div>
         <div class="center-button-wrapper">
-          <button class="more-button"  @click="$router.push({ name: 'campaigns' })">전체보기</button>
+          <button class="more-button" @click="$router.push({ name: 'campaigns' })">전체보기</button>
         </div>
       </section>
 
@@ -625,11 +708,15 @@ const createStarRating = (rating) => {
 }
 
 .banner-item {
-  position: relative;
+  position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to right, #8B5CF6, #6366F1);
-  padding: 0 40px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.banner-item.active {
+  opacity: 1;
 }
 
 .banner-image {
@@ -641,32 +728,52 @@ const createStarRating = (rating) => {
 .banner-content {
   position: absolute;
   top: 50%;
-  left: 40px;
+  left: 8%;
   transform: translateY(-50%);
   color: white;
+  text-align: left;
+  width: 60%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
 }
 
 .banner-content h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.banner-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+  max-width: 100%;
 }
 
 .start-button {
-  padding: 12px 24px;
-  background: white;
-  color: #8B5CF6;
+  background-color: #8B5CF6;
+  color: white;
   border: none;
+  padding: 1rem 2rem;
   border-radius: 8px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  margin-top: auto;
+  width: fit-content;
 }
 
 .start-button:hover {
+  background-color: #7C3AED;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .slider-dots {
@@ -694,58 +801,88 @@ const createStarRating = (rating) => {
 
 /* 카테고리 섹션 스타일 */
 .category-section {
-  margin-bottom: 48px;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.category-slider {
+  overflow: hidden;
+  position: relative;
+  margin: 0 -1rem;
+  padding: 0 1rem;
 }
 
 .category-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 24px;
-  margin: 24px 0;
+  display: flex;
+  gap: 1rem;
+  transition: transform 0.3s ease;
 }
 
 .category-item {
+  flex: 0 0 calc(16.666% - 1rem);
+  min-width: 120px;
+  aspect-ratio: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  border: 1px solid #eee;
-  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .category-item:hover {
-  background-color: #8B5CF6;
-  color: white;
-  border-color: #8B5CF6;
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .category-icon {
-  margin-bottom: 12px;
-  font-size: 2rem; /* 이모지 크기 조절 */
-}
-
-.category-icon img {
-  display: none; /* 기존 img 태그 숨김 */
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .category-name {
   font-size: 0.9rem;
-  color: inherit;
+  text-align: center;
+  color: #333;
 }
 
-.center-button-wrapper {
+.navigation-arrows {
   display: flex;
-  justify-content: center;
-  margin-top: 32px;
-  margin-bottom: 8px;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-.category-section .more-button {
-  margin: 0;
+.nav-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-arrow:hover {
+  background: #f5f5f5;
+}
+
+.nav-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 /* 상품 그리드 스타일 */
@@ -1181,6 +1318,47 @@ const createStarRating = (rating) => {
 .review-count {
   color: #666;
   font-size: 0.8rem;
+}
+
+.center-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+  text-align: center;
+}
+
+.category-section .more-button {
+  margin: 0 auto;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  background-color: #8B5CF6;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-section .more-button:hover {
+  background-color: #7C3AED;
+  transform: translateY(-2px);
+}
+
+.influencer-section .more-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #8B5CF6;
+  border: 1px solid #8B5CF6;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.influencer-section .more-button:hover {
+  background-color: #8B5CF6;
+  color: white;
 }
 </style>
 
