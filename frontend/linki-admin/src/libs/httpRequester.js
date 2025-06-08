@@ -64,6 +64,9 @@ export default {
     delete(url) {
         return instance.delete(url);
     },
+    patch(url, params) {
+        return instance.patch(url, params);
+    }
 };
 
 
