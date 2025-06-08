@@ -59,7 +59,7 @@ export const campaignAPI = {
   // 제안서 제출
   submitProposal: async (productId, contents) => {
     try {
-      const response = await httpClient.post(`/api/proposals`, {
+      const response = await httpClient.post(`/v1/api/influencer/campaigns/${productId}/proposals`, {
         contents: contents,
         product_id: String(productId),
         status: 'PENDING',
