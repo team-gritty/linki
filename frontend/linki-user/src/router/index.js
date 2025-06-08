@@ -42,7 +42,7 @@ const router = createRouter({
     },
     {
       path: '/campaign/:id',
-      name: 'campaign-detail',
+      name: 'influencer-campaign-detail',
       component: () => import('../views/user/influencer/CampaignDetailView.vue'),
       props: true
     },
@@ -65,25 +65,20 @@ const router = createRouter({
     },
     {
       path: '/mypage/campaign-list',
-      name: 'campaign-list',
+      name: 'advertiser-campaign-list',
       component: CampaignListPage
     },
-    { // 광고주 - 캠페인 상세 페이지 
+    {
       path: '/mypage/campaign-detail/:id',
-      name: 'campaign-detail',
+      name: 'advertiser-campaign-detail',
       component: CampaignDetailPage
-    },
-    { // 광고주 - 캠페인 등록 페이지 
-      path: '/mypage/campaign-register',
-      name: 'campaign-register',
-      component: CampaignRegisterPage
     },
     {
       path: '/mypage/campaign-register',
       name: 'campaign-register',
       component: CampaignRegisterPage
     },
-    { // 광고주 - 마이페이지에서 계약서 목록 페이지 
+    {
       path: '/mypage/contract-list',
       name: 'ContractList',
       component: ContractListPage

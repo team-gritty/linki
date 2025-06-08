@@ -4,7 +4,7 @@ export const campaignAPI = {
   // 캠페인 목록 조회
   getCampaigns: async (params = {}) => {
     try {
-      const response = await httpClient.get('/api/campaigns', {
+      const response = await httpClient.get('/v1/api/campaigns', {
         params: {
           _page: params._page || 1,
           _limit: params._limit || 10,
@@ -29,8 +29,10 @@ export const campaignAPI = {
   // 캠페인 상세 정보 조회
   getCampaignDetail: async (campaignId) => {
     try {
-      const response = await httpClient.get(`/api/campaigns/${campaignId}`)
-      return response.data
+      const response = await httpClient.get(`/v1/api/campaigns/${campaignId}`)
+      const campaigns = response.data;
+      // 단일 캠페인 반환
+      return Array.isArray(campaigns) ? campaigns[0] : campaigns;
     } catch (error) {
       console.error('Error fetching campaign detail:', error)
       throw error
@@ -40,7 +42,7 @@ export const campaignAPI = {
   // 광고주 리뷰 조회
   getAdvertiserReviews: async (productId) => {
     try {
-      const response = await httpClient.get(`/api/advertiser-reviews`, {
+      const response = await httpClient.get(`/v1/api/influencer/reviews/advertiser`, {
         params: {
           productId: String(productId),
           _sort: 'advertiserReviewCreatedAt',
