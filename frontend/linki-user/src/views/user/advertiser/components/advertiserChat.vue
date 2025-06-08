@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { chatApi } from '@/api/chat'
 
 const props = defineProps({
   campaignId: {
@@ -17,9 +18,6 @@ const currentUserId = 'advertiser1'
 const chatList = ref([])
 const chatMessages = ref([])
 const chatProfiles = ref([])
-
-// API base URL 설정
-const baseURL = 'http://localhost:3000'
 
 // 채팅 목록 필터링
 const filteredChats = computed(() => {
@@ -110,13 +108,9 @@ const loadMessages = async (chatId) => {
   chatMessages.value = [] // 메시지 초기화
 
   try {
-    // chatId로 필터링된 메시지만 가져오기
-    const response = await fetch(`${baseURL}/chatMessages?chatId=${chatId}`)
-    if (!response.ok) throw new Error('메시지 로드 실패')
-    const messages = await response.json()
-    console.log('Loaded messages for chatId:', chatId, messages) // 디버깅용 로그 추가
-    
-    chatMessages.value = messages
+    const response = await chatApi.getMessages(chatId)
+    console.log('Loaded messages for chatId:', chatId, response.data)
+    chatMessages.value = response.data
   } catch (err) {
     error.value = '메시지를 불러오는데 실패했습니다.'
     console.error('Error loading messages:', err)
@@ -171,16 +165,12 @@ const sendMessage = async () => {
 const loadInitialData = async () => {
   try {
     // 채팅 목록 로드
-    const chatListResponse = await fetch(`${baseURL}/chatList`)
-    if (!chatListResponse.ok) throw new Error('채팅 목록 로드 실패')
-    const chatListData = await chatListResponse.json()
-    chatList.value = chatListData
+    const chatListResponse = await chatApi.getChatList()
+    chatList.value = chatListResponse.data
 
     // 프로필 정보 로드
-    const profilesResponse = await fetch(`${baseURL}/chatProfiles`)
-    if (!profilesResponse.ok) throw new Error('프로필 정보 로드 실패')
-    const profilesData = await profilesResponse.json()
-    chatProfiles.value = profilesData
+    const profilesResponse = await chatApi.getProfiles()
+    chatProfiles.value = profilesResponse.data
   } catch (err) {
     error.value = '데이터를 불러오는데 실패했습니다.'
     console.error('Error loading initial data:', err)
