@@ -77,9 +77,9 @@
         </div>
       </div>
 
-      <!-- 제품설명서 탭 -->
+      <!-- 캠페인내용 탭 -->
       <div v-if="currentTab === 'campaign'" class="campaign-content">
-        <!-- 기존 제품설명서 내용 -->
+        <p class="coming-soon">캠페인 내용 기능 준비중입니다.</p>
       </div>
 
       <!-- 채팅 탭 -->
@@ -115,7 +115,7 @@ export default {
     const editingContent = ref('');
 
     const tabs = [
-      { id: 'campaign', name: '제품설명서' },
+      { id: 'campaign', name: '캠페인내용' },
       { id: 'proposal', name: '제안서' },
       { id: 'chat', name: '채팅' },
       { id: 'contract', name: '계약서' }
@@ -125,23 +125,29 @@ export default {
       try {
         const proposalId = route.params.id;
         // 제안서 정보 가져오기
-        const proposalRes = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`);
+        const proposalRes = await axios.get(`/v1/api/proposals?proposal_id=${proposalId}`);
         if (proposalRes.data && proposalRes.data.length > 0) {
           proposal.value = proposalRes.data[0];
           
           // campaigns에서 캠페인 정보 가져오기
-          const campaignRes = await axios.get(`${BASE_URL}/campaigns?productId=${proposal.value.product_id}`);
+          const campaignId = proposal.value.product_id || proposal.value.campaign_id;
+          if (!campaignId) {
+            throw new Error('캠페인 ID를 찾을 수 없습니다.');
+          }
+          
+          const campaignRes = await axios.get(`/v1/api/campaigns/product/${campaignId}`);
           if (campaignRes.data && campaignRes.data.length > 0) {
             campaignDetail.value = campaignRes.data[0];
           } else {
             console.warn('캠페인 정보를 찾을 수 없습니다.');
+            throw new Error('캠페인 정보를 찾을 수 없습니다.');
           }
         } else {
           throw new Error('제안서를 찾을 수 없습니다.');
         }
       } catch (error) {
         console.error('Failed to fetch data:', error);
-        alert('데이터를 불러오는데 실패했습니다.');
+        alert(error.message || '데이터를 불러오는데 실패했습니다.');
         router.push('/mypage');
       }
     };
@@ -164,10 +170,10 @@ export default {
         }
 
         // 먼저 proposal_id로 해당 제안서를 찾습니다
-        const response = await axios.get(`${BASE_URL}/proposals`);
-        const proposalData = response.data.find(p => p.proposal_id === proposalId);
-        
-        if (proposalData) {
+        const response = await axios.get(`/v1/api/proposals?proposal_id=${proposalId}`);
+        if (response.data && response.data.length > 0) {
+          const proposalData = response.data[0];
+          
           // 제안서 수정 - contents만 업데이트하고 나머지는 유지
           const updatedData = {
             ...proposalData,  // 기존 데이터 유지
@@ -176,7 +182,7 @@ export default {
           };
 
           // json-server의 숫자 id를 사용하여 업데이트
-          await axios.put(`${BASE_URL}/proposals/${proposalData.id}`, updatedData);
+          await axios.put(`/v1/api/proposals/${proposalData.id}`, updatedData);
           
           // 수정 성공 후 데이터 다시 불러오기
           await fetchData();
@@ -201,19 +207,19 @@ export default {
         }
 
         // 먼저 proposal_id로 해당 제안서를 찾습니다
-        const response = await axios.get(`${BASE_URL}/proposals`);
-        const proposalData = response.data.find(p => p.proposal_id === proposalId);
-        
-        if (proposalData) {
+        const response = await axios.get(`/v1/api/proposals?proposal_id=${proposalId}`);
+        if (response.data && response.data.length > 0) {
+          const proposalData = response.data[0];
+          
           // json-server의 숫자 id를 사용하여 삭제
-          await axios.delete(`${BASE_URL}/proposals/${proposalData.id}`);
+          await axios.delete(`/v1/api/proposals/${proposalData.id}`);
           router.push('/mypage');
         } else {
           throw new Error('제안서를 찾을 수 없습니다.');
         }
       } catch (error) {
         console.error('Failed to delete proposal:', error);
-        alert('제안서 삭제에 실패했습니다.');
+        alert(error.message || '제안서 삭제에 실패했습니다.');
       }
     };
 
@@ -317,7 +323,7 @@ export default {
 }
 
 .detail-button {
-  background: #b162c0;
+  background: #7B21E8;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -329,8 +335,8 @@ export default {
 
 .list-button {
   background: white;
-  color: #b162c0;
-  border: 1px solid #b162c0;
+  color: #7B21E8;
+  border: 1px solid #7B21E8;
   padding: 12px 24px;
   border-radius: 4px;
   cursor: pointer;
@@ -339,11 +345,11 @@ export default {
 }
 
 .detail-button:hover {
-  background: #9a4ca9;
+  background: #7B21E8;
 }
 
 .list-button:hover {
-  background: #f9f0fa;
+  background: #f8f5ff;
 }
 
 .tab-container {
@@ -369,7 +375,7 @@ export default {
   border: none;
   cursor: pointer;
   font-size: 0.95rem;
-  color: #999;
+  color: #7B21E8;
   transition: all 0.2s;
   position: relative;
 }
@@ -386,16 +392,16 @@ export default {
 }
 
 .tab-button.active {
-  color: #b162c0;
+  color: #7B21E8;
   font-weight: 400;
 }
 
 .tab-button.active::after {
-  background-color: #b162c0;
+  background-color: #7B21E8;
 }
 
 .tab-button:hover {
-  color: #b162c0;
+  color: #7B21E8;
 }
 
 .content-wrapper {
@@ -473,13 +479,13 @@ export default {
 }
 
 .submit-button {
-  background: #b162c0;
+  background: #7B21E8;
   color: white;
   border: none;
 }
 
 .submit-button:hover {
-  background: #9a4ca9;
+  background: #7B21E8;
 }
 
 .delete-button {
@@ -493,13 +499,18 @@ export default {
 }
 
 .cancel-button {
+  color: #7B21E8;
+  border: 1px solid #7B21E8;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
   background: white;
-  color: #666;
-  border: 1px solid #ddd;
 }
 
 .cancel-button:hover {
-  background: #f8f8f8;
+  background: #7B21E8;
+  color: white;
 }
 
 .coming-soon {
