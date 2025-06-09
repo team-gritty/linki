@@ -106,7 +106,7 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import { getAdvertisersReviewsList, searchAdvertisersReviews, exportExcel, toggleReviewVisibility } from '@/js/AdvertisersReviews'
+import { getAdvertisersReviewsList, searchAdvertisersReviews, exportExcel, toggleReviewVisibility } from '@/js/operations/AdvertisersReviews.js'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
