@@ -100,8 +100,26 @@ export const campaignAPI = {
   // 마이페이지 - 캠페인 상세 정보 조회
   getMyCampaignDetail: async (campaignId) => {
     try {
-      const response = await httpClient.get(`/v1/api/mypage/campaign-detail/${campaignId}`)
-      return response.data
+      console.log('API: Fetching campaign detail for ID:', campaignId)
+      // campaign-list에서 데이터 가져오기
+      const response = await httpClient.get(`/campaign-list?campaign_id=${campaignId}`)
+      console.log('API: Raw response:', response)
+      
+      if (!response.data || response.data.length === 0) {
+        throw new Error('Campaign not found')
+      }
+
+      // 응답 데이터 변환
+      const campaign = response.data[0]
+      return {
+        productImg: campaign.campaign_img,
+        productName: campaign.campaign_name,
+        companyName: campaign.campaign_brand,
+        productDesc: campaign.campaign_desc,
+        productDeadline: campaign.campaign_deadline,
+        productCondition: campaign.campaign_condition,
+        productCategory: campaign.campaign_category
+      }
     } catch (error) {
       console.error('Error fetching my campaign detail:', error)
       throw error
