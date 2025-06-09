@@ -12,11 +12,13 @@
   <table class="member-table desktop-view">
     <thead>
       <tr>
-        <th>관리자 이름</th>
-        <th>관리자 이메일</th>
-        <th>관리자 연락처</th>
-        <th>관리자 상태</th>
-        <th>관리자 가입 승인</th>
+        <th>계약 ID</th>
+        <th>광고주명</th>
+        <th>인플루언서명</th>
+        <th>광고 시작일</th>
+        <th>광고 종료일</th>
+        <th>광고비</th>
+        <th>정산 상태</th>
       </tr>
     </thead>
     <tbody>
@@ -26,22 +28,21 @@
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="user in pagedUsers" :key="user.userId">
-        <td>{{ user.adminName }}</td>
-        <td>{{ user.adminEmail }}</td>
-        <td>{{ user.adminPhone }}</td>
-        <td>{{ user.adminStatus }}</td>
+        <td>{{ user.contractId }}</td>
+        <td>{{ user.advertiserName }}</td>
+        <td>{{ user.influencerName }}</td>
+        <td>{{ user.adStartDate }}</td>
+        <td>{{ user.adEndDate }}</td>
+        <td>{{ user.adAmount.toLocaleString() }}원</td>
         <td>
           <button 
-            v-if="user.adminStatus === 'PENDING'" 
-            class="approve-btn"
-            @click="handleApprove(user.adminSignUpId)"
-          >승인</button>
-          <button 
-            v-if="user.adminStatus === 'PENDING'" 
-            class="reject-btn"
-            @click="handleReject(user.adminSignUpId)"
-          >거절</button>
-          <span v-else class="status completed">가입 승인</span>
+            v-if="!user.isSettled" 
+            class="process-btn" 
+            @click="handleProcessSettlement(user.contractId)"
+          >
+            정산 처리
+          </button>
+          <span v-else class="status completed">정산완료</span>
         </td>
       </tr>
     </tbody>
@@ -54,37 +55,43 @@
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
-    <div v-else v-for="user in pagedUsers" :key="user.adminSignUpId" class="member-card">
+    <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
       <div class="card-header">
-        <span class="user-id">{{ user.adminName }}</span>
-        <span class="user-status" :class="user.adminStatus">{{ user.adminStatus }}</span>
+        <span class="user-id">계약 ID {{ user.contractId }}</span>
+        <span class="user-status" :class="user.isSettled">{{ user.isSettled }}</span>
       </div>
       <div class="card-body">
         <div class="info-row">
-          <span class="label">관리자 이메일</span>
-          <span class="value">{{ user.adminEmail }}</span>
+          <span class="label">광고주명</span>
+          <span class="value">{{ user.advertiserName }}</span>
         </div>
         <div class="info-row">
-          <span class="label">관리자 연락처</span>
-          <span class="value">{{ user.adminPhone }}</span>
+          <span class="label">인플루언서명</span>
+          <span class="value">{{ user.influencerName }}</span>
         </div>
         <div class="info-row">
-          <span class="label">관리자 상태</span>
-          <span class="value">{{ user.adminStatus }}</span>
+          <span class="label">광고 시작일</span>
+          <span class="value">{{ user.adStartDate }}</span>
         </div>
         <div class="info-row">
+          <span class="label">광고 종료일</span>
+          <span class="value">{{ user.adEndDate }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">광고비</span>
+          <span class="value">{{ user.adAmount.toLocaleString() }}원</span>
+        </div>  
+        <div class="info-row">
+          <span class="label">정산 상태</span>
           <span class="value">
             <button 
-              v-if="user.adminStatus === 'PENDING'" 
-              class="approve-btn mobile" 
-              @click="handleApprove(user.adminSignUpId)"
-            >승인</button>
-            <button 
-              v-if="user.adminStatus === 'PENDING'" 
-              class="reject-btn mobile" 
-              @click="handleReject(user.adminSignUpId)"
-            >거절</button>
-            <span v-else class="status completed">가입 승인</span>
+              v-if="!user.isSettled" 
+              class="process-btn mobile" 
+              @click="handleProcessSettlement(user.contractId)"
+            >
+              정산 처리
+            </button>
+            <span v-else class="status completed">정산완료</span>
           </span>
         </div>
       </div>
@@ -105,8 +112,8 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import httpRequester from '@/libs/httpRequester'
-import { getAdminSignUpList, searchAdminSignUp, exportExcel, approveAdmin, rejectAdmin } from '@/js/operations/AdminSignUp.js'
+import httpRequester from '@/libs/httpRequester.js'
+import { getSettlementList, searchSettlement, exportExcel, processSettlement } from '@/js/payment/Settlement.js'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 import { useRouter } from 'vue-router'
@@ -123,9 +130,10 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'adminName', label: '관리자 이름', endpoint: '/v1/admin/api/adminSignUp/search' },
-    { value: 'adminEmail', label: '관리자 이메일', endpoint: '/v1/admin/api/adminSignUp/search' },
-    { value: 'adminPhone', label: '관리자 연락처', endpoint: '/v1/admin/api/adminSignUp/search' }
+    { value: 'advertiserName', label: '광고주명', endpoint: '/v1/admin/api/settlements/search' },
+    { value: 'influencerName', label: '인플루언서명', endpoint: '/v1/admin/api/settlements/search' },
+    { value: 'adStartDate', label: '광고 시작일', endpoint: '/v1/admin/api/settlements/search' },
+    { value: 'adEndDate', label: '광고 종료일', endpoint: '/v1/admin/api/settlements/search' }
   ],
   placeholder: '검색어를 입력하세요',
   endpoint: '/v1/admin/api/settlements'
@@ -136,7 +144,7 @@ const searchConfig = {
 // ----------------------
 const handleSearch = async (searchState) => {
   try {
-    const response = await searchAdminSignUp(
+    const response = await searchSettlement(
       searchState.selectedOption,
       searchState.keyword
     )
@@ -168,10 +176,10 @@ const handleExportExcel = async () => {
 // ----------------------
 onMounted(async () => {
   try {
-    const res = await getAdminSignUpList()
+    const res = await getSettlementList(1, 10)
     users.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
-    window.alert('가입 신청 관리자 목록을 불러오지 못했습니다.')
+    window.alert('회원 목록을 불러오지 못했습니다.')
   }
 })
 
@@ -209,31 +217,6 @@ const handleProcessSettlement = async (contractId) => {
       data: error.response?.data
     });
     window.alert('정산 처리 중 오류가 발생했습니다.');
-  }
-}
-
-// ----------------------
-// approve/reject 핸들러 추가
-// ----------------------
-const handleApprove = async (adminSignUpId) => {
-  try {
-    await approveAdmin(adminSignUpId)
-    window.alert('승인되었습니다.')
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('승인 처리에 실패했습니다.')
-  }
-}
-
-const handleReject = async (adminSignUpId) => {
-  try {
-    await rejectAdmin(adminSignUpId)
-    window.alert('거절되었습니다.')
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('거절 처리에 실패했습니다.')
   }
 }
 
@@ -450,31 +433,5 @@ tr:last-child td {
   width: 100%;
   padding: 8px 12px;
   margin-top: 4px;
-}
-
-/* 버튼 스타일 */
-.approve-btn {
-  background: #2e7d32;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 16px;
-  margin-right: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.approve-btn:hover { background: #256025; }
-.reject-btn {
-  background: #fff;
-  color: #d32f2f;
-  border: 1.5px solid #d32f2f;
-  border-radius: 6px;
-  padding: 6px 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.reject-btn:hover {
-  background: #d32f2f;
-  color: #fff;
 }
 </style> 

@@ -176,6 +176,11 @@ const handleMyPageClick = () => {
               </li>
             </ul>
           </li>
+          <li class="mobile-menu-item">
+            <div class="mobile-menu-title" @click="handleMyPageClick">
+              마이페이지
+            </div>
+          </li>
         </ul>
       </div>
     </div>

@@ -12,37 +12,27 @@
   <table class="member-table desktop-view">
     <thead>
       <tr>
-        <th>관리자 이름</th>
-        <th>관리자 이메일</th>
-        <th>관리자 연락처</th>
-        <th>관리자 상태</th>
-        <th>관리자 가입 승인</th>
+        <th>No</th>
+        <th>이름</th>
+        <th>이메일</th>
+        <th>연락처</th>
+        <th>가입일</th>
+        <th>회원상태(탈퇴/정지)</th>
       </tr>
     </thead>
     <tbody>
       <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
       <tr v-if="users.length === 0">
-        <td colspan="7" class="no-result">해당 정보가 없습니다.</td>
+        <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="user in pagedUsers" :key="user.userId">
-        <td>{{ user.adminName }}</td>
-        <td>{{ user.adminEmail }}</td>
-        <td>{{ user.adminPhone }}</td>
-        <td>{{ user.adminStatus }}</td>
-        <td>
-          <button 
-            v-if="user.adminStatus === 'PENDING'" 
-            class="approve-btn"
-            @click="handleApprove(user.adminSignUpId)"
-          >승인</button>
-          <button 
-            v-if="user.adminStatus === 'PENDING'" 
-            class="reject-btn"
-            @click="handleReject(user.adminSignUpId)"
-          >거절</button>
-          <span v-else class="status completed">가입 승인</span>
-        </td>
+        <td>{{ user.userId }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.phone }}</td>
+        <td>{{ user.enterDate }}</td>
+        <td>{{ user.user_status }}</td>
       </tr>
     </tbody>
   </table>
@@ -54,38 +44,27 @@
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
-    <div v-else v-for="user in pagedUsers" :key="user.adminSignUpId" class="member-card">
+    <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
       <div class="card-header">
-        <span class="user-id">{{ user.adminName }}</span>
-        <span class="user-status" :class="user.adminStatus">{{ user.adminStatus }}</span>
+        <span class="user-id">No. {{ user.userId }}</span>
+        <span class="user-status" :class="user.user_status">{{ user.user_status }}</span>
       </div>
       <div class="card-body">
         <div class="info-row">
-          <span class="label">관리자 이메일</span>
-          <span class="value">{{ user.adminEmail }}</span>
+          <span class="label">이름</span>
+          <span class="value">{{ user.name }}</span>
         </div>
         <div class="info-row">
-          <span class="label">관리자 연락처</span>
-          <span class="value">{{ user.adminPhone }}</span>
+          <span class="label">이메일</span>
+          <span class="value">{{ user.email }}</span>
         </div>
         <div class="info-row">
-          <span class="label">관리자 상태</span>
-          <span class="value">{{ user.adminStatus }}</span>
+          <span class="label">연락처</span>
+          <span class="value">{{ user.phone }}</span>
         </div>
         <div class="info-row">
-          <span class="value">
-            <button 
-              v-if="user.adminStatus === 'PENDING'" 
-              class="approve-btn mobile" 
-              @click="handleApprove(user.adminSignUpId)"
-            >승인</button>
-            <button 
-              v-if="user.adminStatus === 'PENDING'" 
-              class="reject-btn mobile" 
-              @click="handleReject(user.adminSignUpId)"
-            >거절</button>
-            <span v-else class="status completed">가입 승인</span>
-          </span>
+          <span class="label">가입일</span>
+          <span class="value">{{ user.enterDate }}</span>
         </div>
       </div>
     </div>
@@ -105,11 +84,10 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import httpRequester from '@/libs/httpRequester'
-import { getAdminSignUpList, searchAdminSignUp, exportExcel, approveAdmin, rejectAdmin } from '@/js/operations/AdminSignUp.js'
+import httpRequester from '@/libs/httpRequester.js'
+import { getGeneralUserList, searchGeneralUser, exportExcel } from '@/js/user/GeneralUser.js'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
-import { useRouter } from 'vue-router'
 
 // 회원 데이터 배열
 const users = ref([])
@@ -123,12 +101,12 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'adminName', label: '관리자 이름', endpoint: '/v1/admin/api/adminSignUp/search' },
-    { value: 'adminEmail', label: '관리자 이메일', endpoint: '/v1/admin/api/adminSignUp/search' },
-    { value: 'adminPhone', label: '관리자 연락처', endpoint: '/v1/admin/api/adminSignUp/search' }
+    { value: 'name', label: '이름', endpoint: '/v1/admin/api/generalUser/search' },
+    { value: 'email', label: '이메일', endpoint: '/v1/admin/api/generalUser/search' },
+    { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/generalUser/search' }
   ],
   placeholder: '검색어를 입력하세요',
-  endpoint: '/v1/admin/api/settlements'
+  endpoint: '/v1/admin/api/generalUser'
 }
 
 // ----------------------
@@ -136,7 +114,7 @@ const searchConfig = {
 // ----------------------
 const handleSearch = async (searchState) => {
   try {
-    const response = await searchAdminSignUp(
+    const response = await searchGeneralUser(
       searchState.selectedOption,
       searchState.keyword
     )
@@ -168,10 +146,10 @@ const handleExportExcel = async () => {
 // ----------------------
 onMounted(async () => {
   try {
-    const res = await getAdminSignUpList()
+    const res = await getGeneralUserList(1, 10)
     users.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
-    window.alert('가입 신청 관리자 목록을 불러오지 못했습니다.')
+    window.alert('회원 목록을 불러오지 못했습니다.')
   }
 })
 
@@ -187,56 +165,6 @@ const pagedUsers = computed(() => {
 // 전체 페이지 수 계산
 // ----------------------
 const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
-
-// ----------------------
-// 정산 처리 버튼 클릭 시 실행되는 함수
-// ----------------------
-const handleProcessSettlement = async (contractId) => {
-  try {
-    console.log('정산 처리 시작:', contractId);
-    const response = await processSettlement(contractId);
-    console.log('정산 처리 응답:', response);
-    window.alert('정산 처리가 완료되었습니다.');
-    // 정산 처리 후 목록 새로고침
-    const res = await getSettlementList(1, 10);
-    users.value = Array.isArray(res.data) ? res.data : [];
-  } catch (error) {
-    console.error('정산 처리 중 오류 발생:', error);
-    console.error('에러 상세:', {
-      message: error.message,
-      response: error.response,
-      status: error.response?.status,
-      data: error.response?.data
-    });
-    window.alert('정산 처리 중 오류가 발생했습니다.');
-  }
-}
-
-// ----------------------
-// approve/reject 핸들러 추가
-// ----------------------
-const handleApprove = async (adminSignUpId) => {
-  try {
-    await approveAdmin(adminSignUpId)
-    window.alert('승인되었습니다.')
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('승인 처리에 실패했습니다.')
-  }
-}
-
-const handleReject = async (adminSignUpId) => {
-  try {
-    await rejectAdmin(adminSignUpId)
-    window.alert('거절되었습니다.')
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('거절 처리에 실패했습니다.')
-  }
-}
-
 </script>
 
 <style scoped>
@@ -418,63 +346,5 @@ tr:last-child td {
 
 .export-excel-btn:hover {
   background: #256025;
-}
-
-.process-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.process-btn:hover {
-  background: #0056b3;
-}
-
-.status {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.status.completed {
-  background: #d4edda;
-  color: #155724;
-}
-
-.process-btn.mobile {
-  width: 100%;
-  padding: 8px 12px;
-  margin-top: 4px;
-}
-
-/* 버튼 스타일 */
-.approve-btn {
-  background: #2e7d32;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 16px;
-  margin-right: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.approve-btn:hover { background: #256025; }
-.reject-btn {
-  background: #fff;
-  color: #d32f2f;
-  border: 1.5px solid #d32f2f;
-  border-radius: 6px;
-  padding: 6px 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.reject-btn:hover {
-  background: #d32f2f;
-  color: #fff;
 }
 </style> 
