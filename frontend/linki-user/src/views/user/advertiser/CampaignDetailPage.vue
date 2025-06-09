@@ -107,7 +107,9 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ContractListComponent from './components/ContractListComponent.vue'
 import ProposalListComponent from './components/ProposalListComponent.vue'
-import AdvertiserChat from './components/advertiserChat.vue'
+
+import AdvertiserChat from '../../../components/user/advertiser/advertiserChat.vue'
+
 const router = useRouter()
 const route = useRoute()
 
