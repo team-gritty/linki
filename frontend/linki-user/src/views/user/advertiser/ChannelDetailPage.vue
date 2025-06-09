@@ -134,7 +134,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
 
-import CommentRatioBarChart from './components/CommentRatioBarChart.vue'
+import CommentRatioBarChart from '../../../components/user/advertiser/CommentRatioBarChart.vue'
 import ReviewTab from './components/ReviewTab.vue'
 import { getReviewStats } from './useReviewStats.js'
 

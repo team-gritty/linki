@@ -53,7 +53,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/mypage',
+      path: '/mypage/influencer',
       name: 'mypage',
       component: () => import('../views/user/influencer/MyPageView.vue')
     },
@@ -61,6 +61,11 @@ const router = createRouter({
       path: '/mypage/advertiser',
       name: 'advertiser-mypage',
       component: CampaignListPage
+    },
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: () => import('../views/user/common/MyPage.vue')
     },
     {
       path: '/proposal/:id',
