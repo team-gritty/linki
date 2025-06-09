@@ -90,9 +90,4 @@ onMounted(() => {
 <style scoped>
 @import '@/assets/css/detail.css';
 
-.detail-header {
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  padding: 24px;
-}
 </style> 

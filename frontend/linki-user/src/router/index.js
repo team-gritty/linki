@@ -4,7 +4,7 @@ import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
 import HomeView from '../views/HomeView.vue'
 import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
 import DetailPage from '@/views/user/advertiser/DetailPage.vue'
-import influencerMypage from '@/views/user/influencer/MyPageView.vue'
+import influencerMypage from '@/views/user/influencer/MyPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,7 +64,7 @@ const router = createRouter({
     {
       path: '/proposal/:id',
       name: 'proposal-detail',
-      component: () => import('../views/user/influencer/ProposalDetailView.vue'),
+      component: () => import('../views/user/influencer/Detail.vue'),
       props: true
     },
     {

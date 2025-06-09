@@ -49,12 +49,4 @@ const currentTab = ref('campaign.info')
 <style>
 @import '@/assets/css/detail.css';
 
-.detail-page {
-  min-height: 100vh;
-  background: #f8f8f8;
-}
-
-.content-area {
-  padding: 24px;
-}
 </style> 
