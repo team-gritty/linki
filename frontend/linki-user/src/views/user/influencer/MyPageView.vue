@@ -2,7 +2,7 @@
   <div class="my-page">
     <MyPageSideBar v-model:currentMenu="currentMenu" />
       
-    <div class="content-area">
+      <div class="content-area">
       <!-- 내 정보 -->
       <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
       <MyPageChannelInfo v-if="currentMenu === 'profile.channel'" />
@@ -18,7 +18,7 @@
       <MyPageOngoingContracts v-if="currentMenu === 'contract.ongoing'" />
       <MyPageCompletedContracts v-if="currentMenu === 'contract.completed'" />
       <MyPageSettlement v-if="currentMenu === 'contract.settlement'" />
-      
+        
       <!-- 구독 관리 -->
       <MyPageSubscriptionApply v-if="currentMenu === 'subscription.apply'" />
       <MyPageSubscriptionManage v-if="currentMenu === 'subscription.manage'" />
@@ -70,5 +70,5 @@ export default {
 </script>
 
 <style>
-@import '@/css/mypage.css';
+@import '@/assets/css/mypage.css';
 </style> 
