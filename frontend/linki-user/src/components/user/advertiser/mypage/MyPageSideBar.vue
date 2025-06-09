@@ -41,5 +41,5 @@ const route = useRoute()
 </script>
 
 <style>
-@import '@/css/mypage-sidebar.css';
+@import '@/assets/css/mypage-sidebar.css';
 </style> 
