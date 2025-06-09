@@ -20,7 +20,7 @@
       </div>
       <div class="proposal-detail-btns">
         <div class="proposal-detail-btn-wrapper">
-          <button class="proposal-detail-btn reject">거절</button>
+          <button class="proposal-detail-btn reject" @click="handleRejectClick">거절</button>
         </div>
         <div class="proposal-detail-btn-wrapper">
           <button class="proposal-detail-btn accept">승낙</button>
@@ -28,11 +28,20 @@
         </div>
       </div>
     </div>
+    <div v-if="rejectModalOpen" class="modal-backdrop">
+      <div class="modal-box">
+        <div class="modal-message">제안서를 거절하시겠습니까?</div>
+        <div class="modal-actions">
+          <button class="modal-cancel" @click="handleRejectCancel">취소</button>
+          <button class="modal-confirm" @click="handleRejectConfirm">확인</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   proposal: {
@@ -40,6 +49,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['close', 'reject'])
 
 const statusText = computed(() => {
   const statusMap = {
@@ -57,6 +68,18 @@ const statusClass = computed(() => {
   const status = props.proposal.status?.toLowerCase() || 'pending'
   return status
 })
+
+const rejectModalOpen = ref(false)
+function handleRejectClick() {
+  rejectModalOpen.value = true
+}
+function handleRejectCancel() {
+  rejectModalOpen.value = false
+}
+function handleRejectConfirm() {
+  emit('reject', props.proposal.id)
+  rejectModalOpen.value = false
+}
 </script>
 
 <style scoped>
@@ -227,5 +250,70 @@ const statusClass = computed(() => {
   font-size: 0.9em;
   color: #666;
   margin-top: 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.modal-box {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 0 0.5px rgba(123, 33, 232, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.modal-message {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.modal-cancel, .modal-confirm {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-cancel {
+  background-color: white;
+  border: 1px solid #DC3545;
+  color: #DC3545;
+}
+
+.modal-cancel:hover {
+  background-color: #DC3545;
+  color: white;
+}
+
+.modal-confirm {
+  background-color: #7B21E8;
+  color: white;
+}
+
+.modal-confirm:hover {
+  background-color: #5B10B8;
 }
 </style> 

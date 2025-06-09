@@ -19,7 +19,7 @@
         </div>
       </div>
     </template>
-    <DetailProposal v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" />
+    <DetailProposal v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" @reject="handleRejectProposal" />
   </div>
 </template>
 
@@ -73,8 +73,18 @@ async function fetchProposals() {
 function showDetail(proposal) {
   selectedProposal.value = proposal
 }
+
 function closeDetail() {
   selectedProposal.value = null
+}
+
+function handleRejectProposal(proposalId) {
+  // Find and update the proposal status
+  const idx = proposals.value.findIndex(p => p.id === proposalId)
+  if (idx !== -1) {
+    proposals.value[idx].status = 'REJECTED'
+  }
+  closeDetail()
 }
 
 watch(() => props.campaignId, fetchProposals, { immediate: true })
