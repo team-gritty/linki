@@ -56,6 +56,11 @@ const router = createRouter({
       component: () => import('../views/user/influencer/MyPageView.vue')
     },
     {
+      path: '/mypage/influencer/review/write',
+      name: 'influencer-review-write',
+      component: () => import('@/components/user/influencer/mypage/MyPageWriteReview.vue')
+    },
+    {
       path: '/mypage/advertiser',
       name: 'advertiser-profile',
       component: advertiserMypage

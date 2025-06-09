@@ -13,6 +13,7 @@
       <!-- 리뷰 관리 -->
       <MyPageReceivedReviews v-if="currentMenu === 'review.received'" />
       <MyPageWrittenReviews v-if="currentMenu === 'review.written'" />
+      <MyPageWriteReview v-if="currentMenu === 'review.write'" />
       
       <!-- 계약 관리 -->
       <MyPageOngoingContracts v-if="currentMenu === 'contract.ongoing'" />
@@ -35,6 +36,7 @@ import MyPageBasicInfo from '@/components/user/influencer/mypage/MyPageBasicInfo
 import MyPageChannelInfo from '@/components/user/influencer/mypage/MyPageChannelInfo.vue';
 import MyPageReceivedReviews from '@/components/user/influencer/mypage/MyPageReceivedReviews.vue';
 import MyPageWrittenReviews from '@/components/user/influencer/mypage/MyPageWrittenReviews.vue';
+import MyPageWriteReview from '@/components/user/influencer/mypage/MyPageWriteReview.vue';
 import MyPageOngoingContracts from '@/components/user/influencer/mypage/MyPageOngoingContracts.vue';
 import MyPageCompletedContracts from '@/components/user/influencer/mypage/MyPageCompletedContracts.vue';
 import MyPageSettlement from '@/components/user/influencer/mypage/MyPageSettlement.vue';
@@ -51,6 +53,7 @@ export default {
     MyPageChannelInfo,
     MyPageReceivedReviews,
     MyPageWrittenReviews,
+    MyPageWriteReview,
     MyPageOngoingContracts,
     MyPageCompletedContracts,
     MyPageSettlement,
