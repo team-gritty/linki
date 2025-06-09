@@ -1,0 +1,18 @@
+<template>
+  <div class="subscription-refund-content">
+    <h1 class="content-title">환불 신청</h1>
+    <div class="content-box">
+      <!-- 환불 신청 내용 추가 예정 -->
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'MyPageSubscriptionRefund'
+}
+</script>
+
+<style>
+@import '@/css/mypage.css';
+</style> 

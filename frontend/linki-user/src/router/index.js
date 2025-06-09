@@ -2,10 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
 import HomeView from '../views/HomeView.vue'
-import CampaignListPage from '@/views/user/advertiser/CampaignListPage.vue'
+import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
 import CampaignDetailPage from '@/views/user/advertiser/CampaignDetailPage.vue'
-import CampaignRegisterPage from '@/views/user/advertiser/CampaignRegisterPage.vue'
-import ContractListPage from '@/views/user/advertiser/ContractListPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,13 +57,8 @@ const router = createRouter({
     },
     {
       path: '/mypage/advertiser',
-      name: 'advertiser-mypage',
-      component: CampaignListPage
-    },
-    {
-      path: '/mypage',
-      name: 'mypage',
-      component: () => import('../views/user/common/MyPage.vue')
+      name: 'advertiser-profile',
+      component: advertiserMypage
     },
     {
       path: '/proposal/:id',
@@ -76,7 +69,7 @@ const router = createRouter({
     {
       path: '/mypage/campaign-list',
       name: 'advertiser-campaign-list',
-      component: CampaignListPage
+      component: advertiserMypage
     },
     {
       path: '/mypage/campaign-detail/:id',
@@ -86,12 +79,12 @@ const router = createRouter({
     {
       path: '/mypage/campaign-register',
       name: 'campaign-register',
-      component: CampaignRegisterPage
+      component: advertiserMypage
     },
     {
       path: '/mypage/contract-list',
       name: 'ContractList',
-      component: ContractListPage
+      component: advertiserMypage
     }
   ],
   scrollBehavior(to, from, savedPosition) {
