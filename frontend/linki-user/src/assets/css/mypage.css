@@ -13,10 +13,11 @@
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
+
 .list-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #9B51E0;
+  color: #7B21E8;
   margin-bottom: 40px;
 }
 
@@ -60,7 +61,7 @@
 .register-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #9B51E0;
+  color: #7B21E8;
   margin-bottom: 40px;
 }
 
@@ -179,7 +180,7 @@
 
 .category-item:hover {
   background: #F5F0FF;
-  color: #8C30F5;
+  color: #7B21E8;
 }
 
 .form-actions {
@@ -200,7 +201,7 @@
 
 .submit-btn {
   background: #E1CFFF;
-  color: #9B51E0;
+  color: #7B21E8;
   border: none;
   border-radius: 8px;
   padding: 12px 40px;
@@ -304,7 +305,7 @@
 /* Button Styles */
 .detail-btn {
   background: #E1CFFF;
-  color: #9B51E0;
+  color: #7B21E8;
   border: none;
   border-radius: 8px;
   padding: 10px 32px;
@@ -316,7 +317,7 @@
 
 .detail-btn:hover,
 .detail-btn.active {
-  background: #9B51E0;
+  background: #7B21E8;
   color: #fff;
 }
 
@@ -357,7 +358,7 @@
 .status-btn:not(.active):hover,
 .status-btn:not(.inactive):hover {
   background: #e1cfff;
-  color: #9B51E0;
+  color: #7B21E8;
 }
 
 .card-actions {
@@ -446,11 +447,11 @@
 
 .modal-cancel:hover {
   background: #e1cfff;
-  color: #9B51E0;
+  color: #7B21E8;
 }
 
 .modal-confirm {
-  background: #9B51E0;
+  background: #7B21E8;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -528,7 +529,7 @@
 .contract-list-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #9B51E0;
+  color: #7B21E8;
   margin-bottom: 24px;
 }
 
@@ -641,7 +642,7 @@
 }
 
 .detail-btn {
-  background: #9B51E0;
+  background: #7B21E8;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -702,7 +703,7 @@
 
 .modal-cancel:hover {
   background: #e1cfff;
-  color: #9B51E0;
+  color: #7B21E8;
 }
 
 .modal-delete {
@@ -722,7 +723,7 @@
 }
 
 .modal-confirm {
-  background: #9B51E0;
+  background: #7B21E8;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -749,7 +750,7 @@
 .profile-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #9B51E0;
+  color: #7B21E8;
   margin-bottom: 40px;
 }
 
@@ -848,7 +849,7 @@
 }
 
 .status-pending {
-  background-color: #6c5ce7;
+  background-color: #7B21E8;
 }
 
 .status-active {
@@ -893,12 +894,12 @@
 
 .amount {
   font-weight: 600;
-  color: #6c5ce7;
+  color: #7B21E8;
 }
 
 .detail-btn {
   padding: 8px 24px;
-  background: #6c5ce7;
+  background: #7B21E8;
   color: white;
   border: none;
   border-radius: 8px;
@@ -911,7 +912,7 @@
 }
 
 .detail-btn:hover {
-  background: #5f4dd0;
+  background: #7B21E8;
 }
 
 .completed-contracts-content {
@@ -980,7 +981,7 @@
 }
 
 .status-pending {
-  background-color: #6c5ce7;
+  background-color: #7B21E8;
 }
 
 .status-active {
@@ -1025,12 +1026,12 @@
 
 .amount {
   font-weight: 600;
-  color: #6c5ce7;
+  color: #7B21E8;
 }
 
 .detail-btn {
   padding: 8px 24px;
-  background: #6c5ce7;
+  background: #7B21E8;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1043,7 +1044,7 @@
 }
 
 .detail-btn:hover {
-  background: #5f4dd0;
+  background: #7B21E8;
 }
 
 .settlement-content {
@@ -1115,7 +1116,7 @@
 }
 
 .status-pending {
-  background-color: #6c5ce7;
+  background-color: #7B21E8;
 }
 
 .settlement-details {
@@ -1149,16 +1150,16 @@
 
 .amount {
   font-weight: 600;
-  color: #6c5ce7;
+  color: #7B21E8;
 }
 
+/*마이페이지 사이드바*/
 .mypage-sidebar {
   width: 260px;
   padding: 48px 0 0 60px;
   background: #fff;
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
   border-right: 1px solid #eee;
-  height: 100vh;
 }
 
 .mypage-sidebar .sidebar-title {
@@ -1166,7 +1167,6 @@
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 40px;
-  white-space: nowrap;
 }
 
 .mypage-sidebar .sidebar-title .divider {
@@ -1189,7 +1189,6 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
-  white-space: nowrap;
 }
 
 .mypage-sidebar .sidebar-section ul {
@@ -1206,12 +1205,11 @@
   cursor: pointer;
   transition: color 0.2s;
   padding-left: 12px;
-  white-space: nowrap;
 }
 
 .mypage-sidebar .sidebar-section li.active,
 .mypage-sidebar .sidebar-section li:hover {
-  color: #9B51E0;
+  color: #7B21E8;
   font-weight: 600;
 }
 
@@ -1220,11 +1218,114 @@
   color: inherit;
   text-decoration: none;
   transition: color 0.2s;
-  display: block;
-  white-space: nowrap;
 }
 
 /* 추가된 호버 효과 */
 .mypage-sidebar .sidebar-section li:hover > a {
-  color: #9B51E0;
+  color: #7B21E8;
+}
+.settlement-content {
+  padding: 24px;
+}
+
+.content-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #1a1a1a;
+}
+
+.content-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.no-settlements {
+  text-align: center;
+  padding: 48px 0;
+  color: #666;
+}
+
+.settlements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settlement-item {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.settlement-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.settlement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settlement-id {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.status-completed {
+  background-color: #00b894;
+}
+
+.status-pending {
+  background-color: #7B21E8;
+}
+
+.settlement-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.label {
+  color: #666;
+  font-size: 14px;
+  min-width: 70px;
+}
+
+.value {
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+.amount {
+  font-weight: 600;
+  color: #7B21E8;
 }

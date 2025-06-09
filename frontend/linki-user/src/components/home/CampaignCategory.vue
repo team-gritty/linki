@@ -110,7 +110,8 @@ onMounted(async () => {
   </section>
 </template>
 
-<style>
-@import '@/assets/css/home.css';
-
+<style scoped>
+.more-button:hover {
+  background-color: #6618c4;
+}
 </style> 

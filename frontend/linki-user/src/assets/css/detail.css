@@ -47,7 +47,7 @@
     left: 0;
     width: 100%;
     height: 200px;
-    background: #8C30F5;
+    background: #7B21E8;
     border-radius: 48px 48px 0 0;
     z-index: 1;
   }
@@ -120,7 +120,7 @@
     margin-bottom: 4px;
   }
   .ad-btn {
-    background: #8C30F5;
+    background: #7B21E8;
     color: #fff;
     font-weight: 700;
     border: none;
@@ -132,7 +132,7 @@
   }
   .category {
     background: #f5f0ff;
-    color: #8C30F5;
+    color: #7B21E8;
     font-weight: 700;
     border-radius: 8px;
     padding: 4px 14px;

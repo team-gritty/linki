@@ -86,7 +86,7 @@
   }
   
   .start-button {
-    background-color: #8B5CF6;
+    background-color: #7B21E8;
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -100,7 +100,7 @@
   }
   
   .start-button:hover {
-    background-color: #7C3AED;
+    background-color: #7B21E8;
     transform: translateY(-2px);
   }
   
@@ -202,7 +202,7 @@
   }
   
   .start-button {
-    background-color: #8B5CF6;
+    background-color: #7B21E8;
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -216,7 +216,7 @@
   }
   
   .start-button:hover {
-    background-color: #7C3AED;
+    background-color: #7B21E8;
     transform: translateY(-2px);
   }
   
@@ -277,7 +277,7 @@
   display: inline-block;
   width: 4px;
   height: 16px;
-  background-color: #8B5CF6;
+  background-color: #7B21E8;
   margin-right: 8px;
   border-radius: 2px;
 }
@@ -290,7 +290,7 @@
 }
 
 .highlight {
-  color: #8B5CF6;
+  color: #7B21E8;
 }
 
 .section-header h3 {
@@ -376,26 +376,22 @@
 .center-button-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
-  width: 100%;
-  text-align: center;
+  margin-top: 32px;
 }
 
 .more-button {
-  margin: 0 auto;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  background-color: #8B5CF6;
+  background-color: #7B21E8;
   color: white;
   border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s;
 }
 
 .more-button:hover {
-  background-color: #7C3AED;
-  transform: translateY(-2px);
+  background-color: #6618c4;
 }
 /*캠페인 섹션 */
 
@@ -420,7 +416,7 @@
     display: inline-block;
     width: 4px;
     height: 16px;
-    background-color: #8B5CF6;
+    background-color: #7B21E8;
     margin-right: 8px;
     border-radius: 2px;
   }
@@ -433,7 +429,7 @@
   }
   
   .highlight {
-    color: #8B5CF6;
+    color: #7B21E8;
   }
   
   .campaign-title {
@@ -499,15 +495,15 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: #8B5CF6;
+    color: #7B21E8;
   }
   
   .nav-arrow:hover:not(:disabled) {
-    background: #8B5CF6;
+    background: #7B21E8;
     color: white;
-    border-color: #8B5CF6;
+    border-color: #7B21E8;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 4px 12px rgba(123, 33, 232, 0.2);
   }
   
   .nav-arrow:disabled {
@@ -538,8 +534,8 @@
   
   .product-card:hover {
     transform: translateY(-5px);
-    border-color: #8B5CF6;
-    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
+    border-color: #7B21E8;
+    box-shadow: 0 8px 16px rgba(123, 33, 232, 0.15);
   }
   
   .product-image {
@@ -612,7 +608,7 @@
     margin-top: 8px;
     font-size: 0.9rem;
     color: white;
-    background-color: #8B5CF6;
+    background-color: #7B21E8;
     padding: 6px 12px;
     border-radius: 6px;
     font-weight: 500;
@@ -629,7 +625,7 @@
     font-size: 1.1rem;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #8B5CF6;
+    color: #7B21E8;
     text-align: left;
   }
   
@@ -674,8 +670,8 @@
     width: 100%;
     padding: 6px 12px;
     background-color: white;
-    color: #8B5CF6;
-    border: 1px solid #8B5CF6;
+    color: #7B21E8;
+    border: 1px solid #7B21E8;
     border-radius: 5px;
     font-size: 0.95rem;
     cursor: pointer;
@@ -684,7 +680,7 @@
   }
   
   .view-all-button:hover {
-    background-color: #8B5CF6;
+    background-color: #7B21E8;
     color: white;
   }
 
@@ -711,7 +707,7 @@
     display: inline-block;
     width: 4px;
     height: 16px;
-    background-color: #8B5CF6;
+    background-color: #7B21E8;
     margin-right: 8px;
     border-radius: 2px;
   }
@@ -724,7 +720,7 @@
   }
   
   .highlight {
-    color: #8B5CF6;
+    color: #7B21E8;
   }
   
   .section-header h3 {
@@ -736,10 +732,10 @@
   
   .more-button {
     padding: 8px 24px;
-    border: 1px solid #8B5CF6;
+    border: 1px solid #7B21E8;
     border-radius: 4px;
     background: white;
-    color: #8B5CF6;
+    color: #7B21E8;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
@@ -747,7 +743,7 @@
   }
   
   .more-button:hover {
-    background: #8B5CF6;
+    background: #7B21E8;
     color: white;
   }
   
@@ -772,8 +768,8 @@
   
   .influencer-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
-    border-color: #8B5CF6;
+    box-shadow: 0 8px 16px rgba(123, 33, 232, 0.15);
+    border-color: #7B21E8;
   }
   
   .influencer-image {
@@ -799,10 +795,10 @@
   }
   
   .influencer-info {
-    padding: 20px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
   
   .influencer-name {
@@ -853,21 +849,26 @@
   .influencer-stats {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    text-align: left;
+    padding: 0;
+    margin-left: -4px;
   }
   
   .subscribers {
     font-size: 0.9rem;
-    color: #8B5CF6;
+    color: #7B21E8;
     font-weight: 500;
   }
   
   .category {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: #666;
+    padding: 4px 12px;
     background-color: #f5f5f5;
-    padding: 4px 8px;
     border-radius: 4px;
     display: inline-block;
     width: fit-content;
+    text-align: left;
+    margin-top: 4px;
   }
