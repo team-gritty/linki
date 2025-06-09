@@ -1,0 +1,116 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { homeAPI } from '@/api/home'
+
+const router = useRouter()
+const categories = ref([])
+const loading = ref(false)
+const error = ref(null)
+
+// 카테고리 슬라이더 관련 상태
+const categorySlideIndex = ref(0)
+const categoriesPerSlide = 6
+
+const displayedCategories = computed(() => {
+  const start = categorySlideIndex.value * categoriesPerSlide
+  return categories.value.slice(start, start + categoriesPerSlide)
+})
+
+const prevCategorySlide = () => {
+  if (categorySlideIndex.value > 0) {
+    categorySlideIndex.value--
+  }
+}
+
+const nextCategorySlide = () => {
+  if (categorySlideIndex.value < Math.ceil(categories.value.length / categoriesPerSlide) - 1) {
+    categorySlideIndex.value++
+  }
+}
+
+const fetchCategories = async () => {
+  try {
+    loading.value = true
+    const data = await homeAPI.getCategories()
+    console.log('Categories response:', data)
+    categories.value = data.map(category => ({
+      ...category,
+      icon: getIconComponent(category.name),
+      active: false
+    }))
+  } catch (err) {
+    console.error('카테고리 로딩 실패:', err)
+    error.value = '카테고리를 불러오는데 실패했습니다.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// 아이콘 컴포넌트 매핑 함수
+const getIconComponent = (categoryName) => {
+  const iconMap = {
+    '패션': '👗',
+    '뷰티': '💄',
+    '푸드/먹방': '🍽️',
+    '엔터테인먼트': '🎮',
+    '여행': '✈️',
+    '음악': '🎵',
+    '전자기기': '📱',
+    'Vlog/라이프스타일': '🎥',
+    '교육': '📚',
+    '동물/펫': '🐾',
+    '스포츠': '⚽'
+  }
+  return iconMap[categoryName] || '📱'
+}
+
+onMounted(async () => {
+  await fetchCategories()
+})
+</script>
+
+<template>
+  <section class="category-section">
+    <div class="section-header">
+      <div class="title-wrapper">
+        <span class="small-title highlight">
+          <span class="vertical-bar"></span>종류별로 보는
+        </span>
+        <h3>캠페인 카테고리 선택</h3>
+      </div>
+      <div class="navigation-arrows">
+        <button class="nav-arrow" @click="prevCategorySlide" :disabled="categorySlideIndex === 0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="nav-arrow" @click="nextCategorySlide" 
+                :disabled="categorySlideIndex >= Math.ceil(categories.length / categoriesPerSlide) - 1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="category-slider">
+      <div class="category-grid">
+        <div v-for="category in displayedCategories" :key="category.id" 
+             :class="['category-item', { active: category.active }]">
+          <div class="category-icon">
+            {{ category.icon }}
+          </div>
+          <span class="category-name">{{ category.name }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="center-button-wrapper">
+      <button class="more-button" @click="$router.push({ name: 'campaigns' })">전체보기</button>
+    </div>
+  </section>
+</template>
+
+<style>
+@import '@/assets/css/home.css';
+
+</style> 

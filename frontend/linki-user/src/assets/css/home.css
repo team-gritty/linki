@@ -1,0 +1,873 @@
+/* 레이아웃 */
+.home {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .main-content {
+    flex: 1;
+    max-width: 900px;
+    padding-top: 15px;
+  }
+  
+  .section-divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 48px 0;
+    width: 100%;
+  }
+  
+  /* 배너 */
+.banner-section {
+    width: 100%;
+    margin-bottom: 40px;
+    margin-top: 45px;
+  }
+  
+  .banner-slider {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .banner-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  
+  .banner-item.active {
+    opacity: 1;
+  }
+  
+  .banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .banner-content {
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    transform: translateY(-50%);
+    color: white;
+    text-align: left;
+    width: 60%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+  }
+  
+  .banner-content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .banner-content p {
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    max-width: 100%;
+  }
+  
+  .start-button {
+    background-color: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: auto;
+    width: fit-content;
+  }
+  
+  .start-button:hover {
+    background-color: #7C3AED;
+    transform: translateY(-2px);
+  }
+  
+  .slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .dot.active {
+    background: white;
+    transform: scale(1.2);
+  }
+  
+  .loading, .error {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 1.1rem;
+  }
+  
+.banner-section {
+    width: 100%;
+    margin-bottom: 40px;
+    margin-top: 45px;
+  }
+  
+  .banner-slider {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .banner-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  
+  .banner-item.active {
+    opacity: 1;
+  }
+  
+  .banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .banner-content {
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    transform: translateY(-50%);
+    color: white;
+    text-align: left;
+    width: 60%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem;
+  }
+  
+  .banner-content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .banner-content p {
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    max-width: 100%;
+  }
+  
+  .start-button {
+    background-color: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: auto;
+    width: fit-content;
+  }
+  
+  .start-button:hover {
+    background-color: #7C3AED;
+    transform: translateY(-2px);
+  }
+  
+  .slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .dot.active {
+    background: white;
+    transform: scale(1.2);
+  }
+  
+  .loading, .error {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 1.1rem;
+  }
+
+
+/* 캠페인 카테고리 섹션 */
+.category-section {
+  margin: 2rem 0;
+  position: relative;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vertical-bar {
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background-color: #8B5CF6;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+
+.small-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.highlight {
+  color: #8B5CF6;
+}
+
+.section-header h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.category-slider {
+  overflow: hidden;
+  position: relative;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+.category-grid {
+  display: flex;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.category-item {
+  flex: 0 0 calc(16.666% - 1rem);
+  min-width: 120px;
+  aspect-ratio: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.category-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.category-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.category-name {
+  font-size: 0.9rem;
+  text-align: center;
+  color: #333;
+}
+
+.navigation-arrows {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nav-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-arrow:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.nav-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.center-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+  text-align: center;
+}
+
+.more-button {
+  margin: 0 auto;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  background-color: #8B5CF6;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.more-button:hover {
+  background-color: #7C3AED;
+  transform: translateY(-2px);
+}
+/*캠페인 섹션 */
+
+.campaign-section {
+    margin: 2rem 0;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .vertical-bar {
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background-color: #8B5CF6;
+    margin-right: 8px;
+    border-radius: 2px;
+  }
+  
+  .small-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+  
+  .highlight {
+    color: #8B5CF6;
+  }
+  
+  .campaign-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .campaign-title h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+  
+  .timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 20px;
+    margin-top: 4px;
+  }
+  
+  .timer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .timer .time {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .timer .label {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+  }
+  
+  .timer-divider {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: -8px;
+  }
+  
+  .navigation-arrows {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .nav-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #8B5CF6;
+  }
+  
+  .nav-arrow:hover:not(:disabled) {
+    background: #8B5CF6;
+    color: white;
+    border-color: #8B5CF6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+  }
+  
+  .nav-arrow:disabled {
+    background: #F9FAFB;
+    color: #D1D5DB;
+    border-color: #E5E7EB;
+    cursor: not-allowed;
+  }
+  
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 24px;
+  }
+  
+  .product-card {
+    text-decoration: none;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid transparent;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+    border-color: #8B5CF6;
+    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
+  }
+  
+  .product-image {
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+  }
+  
+  .product-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .product-info {
+    padding: 16px;
+  }
+  
+  .product-name {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .stars-container {
+    position: relative;
+    display: inline-block;
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+  
+  .stars-bg {
+    color: #E0E0E0;
+  }
+  
+  .stars-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #FFD700;
+  }
+  
+  .rating-score {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+  }
+  
+  .review-count {
+    color: #666;
+    font-size: 0.8rem;
+  }
+  
+  .time-remaining {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: white;
+    background-color: #8B5CF6;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  /*인플루언서 카테고리 */
+  
+.sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    padding-top: 15px;
+  }
+  
+  .sidebar-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #8B5CF6;
+    text-align: left;
+  }
+  
+  .category-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .menu-item {
+    margin: 0;
+  }
+  
+  .menu-item a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    color: #666;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    letter-spacing: -0.3px;
+  }
+  
+  .menu-item a:hover {
+    background: #f5f5f5;
+  }
+  
+  .menu-item a.active {
+    color: #666;
+  }
+  
+  .arrow {
+    color: #666;
+    font-size: 1.2rem;
+    font-weight: 300;
+  }
+  
+  .view-all-button {
+    width: 100%;
+    padding: 6px 12px;
+    background-color: white;
+    color: #8B5CF6;
+    border: 1px solid #8B5CF6;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+  }
+  
+  .view-all-button:hover {
+    background-color: #8B5CF6;
+    color: white;
+  }
+
+  /* 인플루언서 섹션 */
+  
+.influencer-section {
+    margin-top: 24px;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .vertical-bar {
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background-color: #8B5CF6;
+    margin-right: 8px;
+    border-radius: 2px;
+  }
+  
+  .small-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+  
+  .highlight {
+    color: #8B5CF6;
+  }
+  
+  .section-header h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+  
+  .more-button {
+    padding: 8px 24px;
+    border: 1px solid #8B5CF6;
+    border-radius: 4px;
+    background: white;
+    color: #8B5CF6;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .more-button:hover {
+    background: #8B5CF6;
+    color: white;
+  }
+  
+  .influencer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  
+  .influencer-card {
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .influencer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
+    border-color: #8B5CF6;
+  }
+  
+  .influencer-image {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    background: #f5f5f5;
+    overflow: hidden;
+  }
+  
+  .influencer-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .influencer-card:hover .influencer-image img {
+    transform: scale(1.05);
+  }
+  
+  .influencer-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .influencer-name {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+  }
+  
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .stars-container {
+    position: relative;
+    display: inline-block;
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+  
+  .stars-bg {
+    color: #E0E0E0;
+  }
+  
+  .stars-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #FFD700;
+  }
+  
+  .rating-score {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+  }
+  
+  .review-count {
+    color: #666;
+    font-size: 0.8rem;
+  }
+  
+  .influencer-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .subscribers {
+    font-size: 0.9rem;
+    color: #8B5CF6;
+    font-weight: 500;
+  }
+  
+  .category {
+    font-size: 0.85rem;
+    color: #666;
+    background-color: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+  }
