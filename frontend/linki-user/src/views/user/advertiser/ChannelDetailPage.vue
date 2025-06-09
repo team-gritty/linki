@@ -131,13 +131,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
-import SubscriberHistoryChart from './components/SubscriberHistoryChart.vue'
-import LikeRatioBarChart from './components/LikeRatioBarChart.vue'
-
-import CommentRatioBarChart from '../../../components/user/advertiser/CommentRatioBarChart.vue'
-import ReviewTab from './components/ReviewTab.vue'
+import SubscriberHistoryChart from '@/components/user/advertiser/SubscriberHistoryChart.vue'
+import LikeRatioBarChart from '@/components/user/advertiser/LikeRatioBarChart.vue'
+import CommentRatioBarChart from '@/components/user/advertiser/CommentRatioBarChart.vue'
+import ReviewTab from '@/components/user/advertiser/ReviewTab.vue'
 import { getReviewStats } from './useReviewStats.js'
-
 
 const route = useRoute()
 const channel = ref(null)
