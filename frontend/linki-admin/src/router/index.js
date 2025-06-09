@@ -59,9 +59,9 @@ const router = createRouter({
       component: () => import('../views/admin/operations/influencerReviews.vue')
     },
     {
-      path: '/adminReviews',
-      name: 'adminReviews',
-      component: () => import('../views/admin/operations/AdminReviews.vue')
+      path: '/advertisersReviews',
+      name: 'advertisersReviews',
+      component: () => import('../views/admin/operations/AdvertisersReviews.vue')
     },
     {
       path: '/adminSignUp',
