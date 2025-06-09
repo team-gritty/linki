@@ -49,6 +49,8 @@ dependencies {
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	// --- AI 관련 (실제 사용 시 주석 해제) ---
 	// implementation 'org.springframework.ai:spring-ai-starter-model-openai' // OpenAI 연동
