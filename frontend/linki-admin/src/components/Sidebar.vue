@@ -51,7 +51,7 @@ const menus = [
   },
   {
     title: '운영관리',
-    subs: ['공지사항', 'Q&A', 'FAQ']
+    subs: ['인플루언서 리뷰', '광고주 리뷰', '관리자 가입']
   }
 ]
 const openIdx = ref(null)
@@ -76,6 +76,12 @@ function handleMenuClick(menuTitle, subTitle) {
     router.push('/settlement')
   } else if (menuTitle === '결제관리' && subTitle === '구독 결제 관리') {
     router.push('/subscriptionPayment')
+  } else if (menuTitle === '운영관리' && subTitle === '인플루언서 리뷰') {
+    router.push('/influencerReviews')
+  } else if (menuTitle === '운영관리' && subTitle === '광고주 리뷰') {
+    router.push('/adminReviews')
+  } else if (menuTitle === '운영관리' && subTitle === '관리자 가입') {
+    router.push('/adminSignUp')
   }
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if (props.openSidebar) {
@@ -90,8 +96,12 @@ function toggleMobileSubmenu(idx) {
   openMobileSubmenu.value = openMobileSubmenu.value === idx ? null : idx
 }
 
-function handleLogoClick() {
+const handleLogoClick = () => {
   router.push('/home')
+}
+
+const handleMyPageClick = () => {
+  router.push('/mypage')
 }
 </script>
 
@@ -133,6 +143,12 @@ function handleLogoClick() {
           </div>
         </div>
       </div>
+    </div>
+    <div class="navbar-right">
+      <button class="mypage-btn" @click="handleMyPageClick">
+        <i class="fas fa-user"></i>
+        <span>마이페이지</span>
+      </button>
     </div>
     <!-- <div class="navbar-right" v-show="!isMobile">
       <div class="search-box">
@@ -304,6 +320,33 @@ body, html {
   gap: 24px;
   min-width: 200px;
   justify-content: flex-end;
+  margin-left: auto;
+}
+
+.mypage-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #503cbc;
+  color: #503cbc;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.mypage-btn:hover {
+  background-color: #503cbc;
+  color: white;
+}
+
+.mypage-btn i {
+  font-size: 1rem;
 }
 
 .search-box {
@@ -334,7 +377,7 @@ body, html {
   align-items: center;
   gap: 12px;
 }
-.login-btn, .mypage-btn {
+.login-btn {
   background: none;
   border: none;
   color: #222;
@@ -344,7 +387,7 @@ body, html {
   border-radius: 4px;
   transition: background 0.2s;
 }
-.login-btn:hover, .mypage-btn:hover {
+.login-btn:hover {
   background: #f0f0f0;
 }
 
@@ -522,6 +565,10 @@ body, html {
   .mobile-sidebar.is-open {
     left: 0;
   }
+
+  .navbar-right {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -662,6 +709,16 @@ body, html {
   }
   .menu-list {
     gap: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mypage-btn {
+    min-width: unset;
+    padding: 8px;
+  }
+  .mypage-btn span {
+    display: none;
   }
 }
 </style>
