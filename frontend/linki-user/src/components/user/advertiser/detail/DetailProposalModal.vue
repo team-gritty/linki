@@ -18,7 +18,7 @@
         <div class="proposal-detail-content-title">내용</div>
         <div class="proposal-detail-content-text">{{ proposal.content }}</div>
       </div>
-      <div class="proposal-detail-btns">
+      <div class="proposal-detail-btns" v-if="proposal.status !== 'REJECTED' && proposal.status !== 'rejected'">
         <div class="proposal-detail-btn-wrapper">
           <button class="proposal-detail-btn reject" @click="handleRejectClick">거절</button>
         </div>
