@@ -71,5 +71,75 @@ export const campaignAPI = {
       console.error('Error submitting proposal:', error)
       throw error
     }
+  },
+
+  // 마이페이지 - 캠페인 목록 조회
+  getMyCampaigns: async (params = {}) => {
+    try {
+      const response = await httpClient.get('/v1/api/mypage/campaign-list', {
+        params: {
+          _page: params._page || 1,
+          _limit: params._limit || 10,
+          _sort: params._sort || 'createdAt',
+          _order: params._order || 'desc'
+        }
+      })
+      return {
+        campaigns: response.data,
+        totalItems: parseInt(response.headers['x-total-count'] || '0')
+      }
+    } catch (error) {
+      console.error('Error fetching my campaigns:', error)
+      return {
+        campaigns: [],
+        totalItems: 0
+      }
+    }
+  },
+
+  // 마이페이지 - 캠페인 상세 정보 조회
+  getMyCampaignDetail: async (campaignId) => {
+    try {
+      const response = await httpClient.get(`/v1/api/mypage/campaign-detail/${campaignId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching my campaign detail:', error)
+      throw error
+    }
+  },
+
+  // 마이페이지 - 캠페인 등록
+  registerCampaign: async (campaignData) => {
+    try {
+      const response = await httpClient.post('/v1/api/mypage/campaign-register', campaignData)
+      return response.data
+    } catch (error) {
+      console.error('Error registering campaign:', error)
+      throw error
+    }
+  },
+
+  // 마이페이지 - 계약서 목록 조회
+  getContractList: async (params = {}) => {
+    try {
+      const response = await httpClient.get('/v1/api/mypage/contract-list', {
+        params: {
+          _page: params._page || 1,
+          _limit: params._limit || 10,
+          _sort: params._sort || 'createdAt',
+          _order: params._order || 'desc'
+        }
+      })
+      return {
+        contracts: response.data,
+        totalItems: parseInt(response.headers['x-total-count'] || '0')
+      }
+    } catch (error) {
+      console.error('Error fetching contract list:', error)
+      return {
+        contracts: [],
+        totalItems: 0
+      }
+    }
   }
 } 
