@@ -16,52 +16,52 @@ const router = createRouter({
     {
       path: '/memberList',
       name: 'memberList',
-      component: () => import('../views/admin/GeneralUserListView.vue')
+      component: () => import('../views/admin/user/GeneralUserListView.vue')
     },
     {
       path: '/advertiserUserList',
       name: 'advertiserUserList',
-      component: () => import('../views/admin/AdvertiserUserListView.vue')
+      component: () => import('../views/admin/user/AdvertiserUserListView.vue')
     },
     {
       path: '/influencerUserList',
       name: 'influencerUserList',
-      component: () => import('../views/admin/InfluencerUserListView.vue')
+      component: () => import('../views/admin/user/InfluencerUserListView.vue')
     },
     {
       path: '/subscriberUserList',
       name: 'subscriberUserList',
-      component: () => import('../views/admin/SubscriberUserListView.vue')
+      component: () => import('../views/admin/user/SubscriberUserListView.vue')
     },
     {
       path: '/contractList',
       name: 'contractList',
-      component: () => import('../views/admin/ContractListView.vue')
+      component: () => import('../views/admin/contract/ContractListView.vue')
     },
     {
       path: '/campaignList',
       name: 'campaignList',
-      component: () => import('../views/admin/CampaignView.vue')
+      component: () => import('../views/admin/contract/CampaignView.vue')
     },
     {
       path: '/settlement',
       name: 'settlement',
-      component: () => import('../views/admin/SettlementView.vue')
+      component: () => import('../views/admin/payment/SettlementView.vue')
     },
     {
       path: '/subscriptionPayment',
       name: 'subscriptionPayment',
-      component: () => import('../views/admin/SubscriptionPaymentView.vue')
+      component: () => import('../views/admin/payment/SubscriptionPaymentView.vue')
     },
     {
       path: '/influencerReviews',
       name: 'influencerReviews',
-      component: () => import('../views/admin/operations/influencerReviews.vue')
+      component: () => import('../views/admin/operations/InfluencerReviews.vue')
     },
     {
-      path: '/adminReviews',
-      name: 'adminReviews',
-      component: () => import('../views/admin/operations/AdminReviews.vue')
+      path: '/advertisersReviews',
+      name: 'advertisersReviews',
+      component: () => import('../views/admin/operations/AdvertisersReviews.vue')
     },
     {
       path: '/adminSignUp',

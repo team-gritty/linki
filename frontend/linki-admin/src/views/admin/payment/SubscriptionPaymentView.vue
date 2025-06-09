@@ -1,15 +1,14 @@
 <template>
   <div class="member-list-view">
-    <h2 class="page-title">관리자 가입 신청 조회</h2>
+    <h2 class="page-title">구독 결제 관리</h2>
     <!-- <SearchBar /> -->
-    <AdminSignUpTable />
+    <SubscriptionPaymentTable />
   </div>
 </template>
 
 <script setup>
-import AdminSignUpTable from '@/components/table/operations/AdminSignUpTable.vue'
+import SubscriptionPaymentTable from '@/components/table/payment/SubscriptionPaymentTable.vue'
 </script>
-
 
 <style scoped>
 .member-list-view {

@@ -1,15 +1,14 @@
 <template>
   <div class="member-list-view">
-    <h2 class="page-title">관리자 가입 신청 조회</h2>
+    <h2 class="page-title">정산 관리</h2>
     <!-- <SearchBar /> -->
-    <AdminSignUpTable />
+    <SettlementTable />
   </div>
 </template>
 
 <script setup>
-import AdminSignUpTable from '@/components/table/operations/AdminSignUpTable.vue'
+import SettlementTable from '@/components/table/payment/SettlementTable.vue'
 </script>
-
 
 <style scoped>
 .member-list-view {

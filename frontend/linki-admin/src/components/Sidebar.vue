@@ -79,7 +79,7 @@ function handleMenuClick(menuTitle, subTitle) {
   } else if (menuTitle === '운영관리' && subTitle === '인플루언서 리뷰') {
     router.push('/influencerReviews')
   } else if (menuTitle === '운영관리' && subTitle === '광고주 리뷰') {
-    router.push('/adminReviews')
+    router.push('/advertisersReviews')
   } else if (menuTitle === '운영관리' && subTitle === '관리자 가입') {
     router.push('/adminSignUp')
   }
@@ -175,6 +175,11 @@ const handleMyPageClick = () => {
                 {{ sub }}
               </li>
             </ul>
+          </li>
+          <li class="mobile-menu-item">
+            <div class="mobile-menu-title" @click="handleMyPageClick">
+              마이페이지
+            </div>
           </li>
         </ul>
       </div>

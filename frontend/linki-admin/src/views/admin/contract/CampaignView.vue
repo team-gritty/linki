@@ -1,15 +1,14 @@
 <template>
   <div class="member-list-view">
-    <h2 class="page-title">관리자 가입 신청 조회</h2>
+    <h2 class="page-title">캠페인 조회</h2>
     <!-- <SearchBar /> -->
-    <AdminSignUpTable />
+    <CampaignTable />
   </div>
 </template>
 
 <script setup>
-import AdminSignUpTable from '@/components/table/operations/AdminSignUpTable.vue'
+import CampaignTable from '@/components/table/contract/CampaignTable.vue'
 </script>
-
 
 <style scoped>
 .member-list-view {

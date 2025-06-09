@@ -1,13 +1,13 @@
 <template>
   <div class="member-list-view">
-    <h2 class="page-title">관리자 가입 신청 조회</h2>
+    <h2 class="page-title">인플루언서 리뷰 조회</h2>
     <!-- <SearchBar /> -->
-    <AdminSignUpTable />
+    <InfluencerReviewsTable />
   </div>
 </template>
 
 <script setup>
-import AdminSignUpTable from '@/components/table/operations/AdminSignUpTable.vue'
+import InfluencerReviewsTable from '@/components/table/operations/InfluencerReviewsTable.vue'
 </script>
 
 
