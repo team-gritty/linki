@@ -43,7 +43,7 @@ import { contractApi } from '@/api/contract';
 
 export default {
   name: 'MyPageSettlement',
-  
+
   setup() {
     const settlements = ref([]);
 
@@ -95,110 +95,6 @@ export default {
 };
 </script>
 
-<style scoped>
-.settlement-content {
-  padding: 24px;
-}
-
-.content-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  color: #1a1a1a;
-}
-
-.content-box {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.no-settlements {
-  text-align: center;
-  padding: 48px 0;
-  color: #666;
-}
-
-.settlements-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.settlement-item {
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.settlement-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.settlement-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.settlement-id {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-}
-
-.status-completed {
-  background-color: #00b894;
-}
-
-.status-pending {
-  background-color: #6c5ce7;
-}
-
-.settlement-details {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.detail-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.detail-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.label {
-  color: #666;
-  font-size: 14px;
-  min-width: 70px;
-}
-
-.value {
-  color: #1a1a1a;
-  font-size: 14px;
-}
-
-.amount {
-  font-weight: 600;
-  color: #6c5ce7;
-}
+<style>
+@import '@/assets/css/mypage.css';
 </style> 

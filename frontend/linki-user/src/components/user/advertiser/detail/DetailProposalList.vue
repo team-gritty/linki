@@ -13,20 +13,20 @@
             <span class="proposal-date">신청일: {{ proposal.created_at }}</span>
           </div>
           <div class="proposal-row-right">
-            <span class="proposal-status">{{ proposal.status }}</span>
-            <button class="proposal-detail-btn" @click="showDetail(proposal)">자세히 보기</button>
+            <span class="status-badge" :class="getStatusClass(proposal.status)">{{ getStatusText(proposal.status) }}</span>
+            <button class="proposal-detail-btn" @click="showDetail(proposal)">상세보기</button>
           </div>
         </div>
       </div>
     </template>
-    <ProposalDetailComponent v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" />
+    <DetailProposal v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" />
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
-import ProposalDetailComponent from './ProposalDetailComponent.vue'
+import DetailProposal from './DetailProposalModal.vue'
 
 const props = defineProps({
   campaignId: {
@@ -39,6 +39,23 @@ const proposals = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedProposal = ref(null)
+
+const getStatusText = (status) => {
+  const statusMap = {
+    'PENDING': '검토중',
+    'ACCEPTED': '수락됨',
+    'REJECTED': '거절됨',
+    'pending': '검토중',
+    'accepted': '수락됨',
+    'rejected': '거절됨'
+  }
+  return statusMap[status] || '검토중'
+}
+
+const getStatusClass = (status) => {
+  const statusLower = status?.toLowerCase() || 'pending'
+  return statusLower
+}
 
 async function fetchProposals() {
   loading.value = true
@@ -65,92 +82,110 @@ watch(() => props.campaignId, fetchProposals, { immediate: true })
 
 <style scoped>
 .proposal-list-box {
-  margin: 32px 0 0 0;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(140,48,245,0.06);
-  padding: 0 40px 36px 40px;
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .proposal-list-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #8C30F5;
-  margin-bottom: 24px;
-  padding-top: 32px;
+  margin: 0 0 20px;
+  font-size: 1.2em;
+  font-weight: bold;
 }
+
 .proposal-list-loading,
 .proposal-list-error,
 .proposal-list-empty {
   text-align: center;
-  color: #888;
-  font-size: 1.1rem;
-  padding: 32px 0;
+  padding: 20px;
+  color: #666;
 }
+
+.proposal-list-error {
+  color: #dc3545;
+}
+
 .proposal-list-table {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 15px;
 }
+
 .proposal-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background: #fafaff;
-  border-radius: 12px;
-  padding: 18px 32px;
-  box-shadow: 0 1px 4px rgba(140,48,245,0.04);
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
 }
+
 .proposal-row-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 15px;
 }
+
 .proposal-profile-img {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
+
 .proposal-user {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #23262F;
-  margin-right: 12px;
+  font-weight: 500;
 }
+
 .proposal-date {
-  font-size: 1rem;
-  color: #888;
-  margin-right: 12px;
+  color: #666;
+  font-size: 0.9em;
 }
+
 .proposal-row-right {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin-left: auto;
+  gap: 15px;
+  white-space: nowrap;
 }
-.proposal-status {
-  font-size: 1rem;
-  color: #8C30F5;
-  font-weight: 700;
-  margin-right: 0;
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 500;
+  min-width: 65px;
+  text-align: center;
 }
+
+.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.accepted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
 .proposal-detail-btn {
-  background: #8C30F5;
-  color: #fff;
-  font-weight: 700;
+  padding: 8px 16px;
   border: none;
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-size: 15px;
+  border-radius: 4px;
+  background: #7B21E8;
+  color: white;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
+
 .proposal-detail-btn:hover {
-  background: #6B21E8;
+  background: #5B10B8;
 }
 </style>

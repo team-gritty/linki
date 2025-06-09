@@ -3,7 +3,8 @@ import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
 import HomeView from '../views/HomeView.vue'
 import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
-import CampaignDetailPage from '@/views/user/advertiser/CampaignDetailPage.vue'
+import DetailPage from '@/views/user/advertiser/DetailPage.vue'
+import influencerMypage from '@/views/user/influencer/MyPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,8 +53,8 @@ const router = createRouter({
     },
     {
       path: '/mypage/influencer',
-      name: 'mypage',
-      component: () => import('../views/user/influencer/MyPageView.vue')
+      name: 'influencer-mypage',
+      component: influencerMypage
     },
     {
       path: '/mypage/advertiser',
@@ -63,7 +64,7 @@ const router = createRouter({
     {
       path: '/proposal/:id',
       name: 'proposal-detail',
-      component: () => import('../views/user/influencer/ProposalDetailView.vue'),
+      component: () => import('../views/user/influencer/Detail.vue'),
       props: true
     },
     {
@@ -74,7 +75,8 @@ const router = createRouter({
     {
       path: '/mypage/campaign-detail/:id',
       name: 'advertiser-campaign-detail',
-      component: CampaignDetailPage
+      component: DetailPage,
+      props: true
     },
     {
       path: '/mypage/campaign-register',

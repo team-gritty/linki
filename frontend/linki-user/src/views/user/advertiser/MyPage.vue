@@ -28,5 +28,5 @@ import MyPageSubscription from '@/components/user/advertiser/mypage/MyPageSubscr
 </script>
 
 <style>
-@import '@/css/mypage.css';
+@import '@/assets/css/mypage.css';
 </style> 

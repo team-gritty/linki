@@ -1,0 +1,21 @@
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.accepted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+} 
