@@ -85,5 +85,5 @@ export default {
 </script>
 
 <style>
-@import '@/css/mypage-sidebar.css';
+@import '@/assets/css/mypage-sidebar.css';
 </style> 

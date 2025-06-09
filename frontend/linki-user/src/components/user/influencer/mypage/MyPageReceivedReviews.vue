@@ -49,7 +49,7 @@ import { reviewApi } from '@/api/review';
 
 export default {
   name: 'MyPageReceivedReviews',
-  
+
   setup() {
     const reviews = ref([]);
 

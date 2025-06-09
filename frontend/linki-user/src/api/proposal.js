@@ -1,17 +1,38 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:3000/v1/api';
+import httpClient from '@/utils/httpRequest'
 
 export const proposalAPI = {
   // 내 제안서 목록 조회
-  getMyProposals: async (status) => {
+  getMyProposals: async (params = {}) => {
     try {
-      const response = await axios.get(`${BASE_URL}/influencer/proposals`, {
-        params: { status }
+      const response = await httpClient.get('/v1/api/influencer/proposals', {
+        params: {
+          status: params.status,
+          _page: params._page || 1,
+          _limit: params._limit || 10,
+          _sort: params._sort || 'createdAt',
+          _order: params._order || 'desc'
+        }
       });
-      return response.data;
+      return {
+        proposals: response.data,
+        totalItems: parseInt(response.headers['x-total-count'] || '0')
+      };
     } catch (error) {
       console.error('Failed to fetch proposals:', error);
+      return {
+        proposals: [],
+        totalItems: 0
+      };
+    }
+  },
+
+  // 제안서 상세 조회
+  getProposalDetail: async (proposalId) => {
+    try {
+      const response = await httpClient.get(`/v1/api/proposals/${proposalId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch proposal detail:', error);
       throw error;
     }
   },
@@ -19,7 +40,7 @@ export const proposalAPI = {
   // 제안서 수정
   updateProposal: async (proposalId, proposalData) => {
     try {
-      const response = await axios.put(`${BASE_URL}/influencer/proposals/${proposalId}`, proposalData);
+      const response = await httpClient.put(`/v1/api/influencer/proposals/${proposalId}`, proposalData);
       return response.data;
     } catch (error) {
       console.error('Failed to update proposal:', error);
@@ -30,11 +51,35 @@ export const proposalAPI = {
   // 제안서 삭제
   deleteProposal: async (proposalId) => {
     try {
-      const response = await axios.delete(`${BASE_URL}/influencer/proposals/${proposalId}`);
+      const response = await httpClient.delete(`/v1/api/influencer/proposals/${proposalId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to delete proposal:', error);
       throw error;
+    }
+  },
+
+  // 캠페인별 제안서 목록 조회
+  getCampaignProposals: async (campaignId, params = {}) => {
+    try {
+      const response = await httpClient.get(`/v1/api/influencer/campaigns/${campaignId}/proposals`, {
+        params: {
+          _page: params._page || 1,
+          _limit: params._limit || 10,
+          _sort: params._sort || 'createdAt',
+          _order: params._order || 'desc'
+        }
+      });
+      return {
+        proposals: response.data,
+        totalItems: parseInt(response.headers['x-total-count'] || '0')
+      };
+    } catch (error) {
+      console.error('Failed to fetch campaign proposals:', error);
+      return {
+        proposals: [],
+        totalItems: 0
+      };
     }
   }
 } 

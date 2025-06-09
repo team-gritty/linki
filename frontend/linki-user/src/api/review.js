@@ -17,4 +17,4 @@ export const reviewApi = {
   submitAdvertiserReview(reviewData) {
     return axios.post(`${BASE_URL}/influencer-reviews`, reviewData);
   }
-}; 
+};

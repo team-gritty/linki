@@ -140,5 +140,5 @@
   </script>
   
   <style>
-  @import '@/css/mypage.css';
+  @import '@/assets/css/mypage.css';
   </style> 

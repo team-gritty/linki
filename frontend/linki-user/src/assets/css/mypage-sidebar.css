@@ -4,6 +4,7 @@
   background: #fff;
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
   border-right: 1px solid #eee;
+  height: 100vh;
 }
 
 .mypage-sidebar .sidebar-title {
@@ -11,6 +12,7 @@
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 40px;
+  white-space: nowrap;
 }
 
 .mypage-sidebar .sidebar-title .divider {
@@ -33,6 +35,7 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
+  white-space: nowrap;
 }
 
 .mypage-sidebar .sidebar-section ul {
@@ -49,6 +52,7 @@
   cursor: pointer;
   transition: color 0.2s;
   padding-left: 12px;
+  white-space: nowrap;
 }
 
 .mypage-sidebar .sidebar-section li.active,
@@ -62,6 +66,8 @@
   color: inherit;
   text-decoration: none;
   transition: color 0.2s;
+  display: block;
+  white-space: nowrap;
 }
 
 /* 추가된 호버 효과 */

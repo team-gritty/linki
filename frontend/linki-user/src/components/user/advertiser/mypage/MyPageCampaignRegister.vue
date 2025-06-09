@@ -156,5 +156,5 @@ async function submitForm() {
 </script>
 
 <style>
-@import '@/css/mypage.css';
+@import '@/assets/css/mypage.css';
 </style> 
