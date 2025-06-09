@@ -52,6 +52,37 @@ const router = createRouter({
       path: '/subscriptionPayment',
       name: 'subscriptionPayment',
       component: () => import('../views/admin/SubscriptionPaymentView.vue')
+    },
+    {
+      path: '/influencerReviews',
+      name: 'influencerReviews',
+      component: () => import('../views/admin/operations/influencerReviews.vue')
+    },
+    {
+      path: '/adminReviews',
+      name: 'adminReviews',
+      component: () => import('../views/admin/operations/AdminReviews.vue')
+    },
+    {
+      path: '/adminSignUp',
+      name: 'adminSignUp',
+      component: () => import('../views/admin/operations/AdminSignUp.vue')
+    },
+    {
+      path: '/mypage',
+      component: () => import('@/views/admin/mypage/MyPage.vue'),
+      children: [
+        {
+          path: '',
+          name: 'MyPageProfile',
+          component: () => import('@/views/admin/mypage/MyPageProfileView.vue')
+        },
+        {
+          path: 'password',
+          name: 'MyPagePassword',
+          component: () => import('@/views/admin/mypage/MyPagePasswordView.vue')
+        }
+      ]
     }
   ]
 })
