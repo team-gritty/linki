@@ -2,7 +2,7 @@
   <div class="my-page">
     <MyPageSideBar v-model:currentMenu="currentMenu" />
       
-      <div class="content-area">
+    <div class="content-area">
       <!-- 내 정보 -->
       <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
       <MyPageChannelInfo v-if="currentMenu === 'profile.channel'" />
@@ -29,7 +29,8 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import MyPageSideBar from '@/components/user/influencer/mypage/MyPageSideBar.vue';
 import MyPageProposalList from '@/components/user/influencer/mypage/MyPageProposalList.vue';
 import MyPageBasicInfo from '@/components/user/influencer/mypage/MyPageBasicInfo.vue';
@@ -63,7 +64,25 @@ export default {
   },
   
   setup() {
+    const route = useRoute();
     const currentMenu = ref('profile.basic');
+    
+    const updateMenuFromQuery = () => {
+      const queryMenu = route.query.currentMenu;
+      if (queryMenu) {
+        currentMenu.value = queryMenu.toString();
+      }
+    };
+
+    onMounted(() => {
+      updateMenuFromQuery();
+    });
+
+    watch(() => route.query.currentMenu, (newVal) => {
+      if (newVal) {
+        currentMenu.value = newVal.toString();
+      }
+    });
     
     return {
       currentMenu

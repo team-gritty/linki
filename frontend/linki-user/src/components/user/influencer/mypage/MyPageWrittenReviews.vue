@@ -82,6 +82,8 @@ export default {
 <style scoped>
 .written-reviews-content {
   padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .content-title {
@@ -94,7 +96,7 @@ export default {
 .content-box {
   background: #fff;
   border-radius: 12px;
-  padding: 24px;
+  padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -107,15 +109,16 @@ export default {
 .reviews-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .review-item {
-  padding: 20px;
+  padding: 24px;
   background: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
   transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
 }
 
 .review-item:hover {
@@ -124,23 +127,39 @@ export default {
 }
 
 .review-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
 }
 
 .review-info {
   display: flex;
-  gap: 16px;
-  color: #666;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contract-id {
+  font-size: 15px;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.review-date {
   font-size: 14px;
+  color: #666;
 }
 
 .review-score {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
 }
 
 .score-label {
@@ -176,24 +195,28 @@ export default {
 }
 
 .review-content {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  padding: 0 8px;
 }
 
 .review-comment {
   color: #1a1a1a;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 .review-visibility {
   display: flex;
   justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
 }
 
 .visibility-badge {
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -205,5 +228,15 @@ export default {
 .hidden {
   background-color: #f3f4f6;
   color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .review-header {
+    grid-template-columns: 1fr;
+  }
+  
+  .review-score {
+    justify-content: flex-start;
+  }
 }
 </style> 
