@@ -7,7 +7,7 @@
 
 <script setup>
  // reactive 상태 관리, watch는 props.adExecuted 변화를 감지
-import { ref, watch, toRefs } from 'vue'
+import { ref, watch } from 'vue'
  // HTTP 요청을 위해 axios
 import axios from 'axios'
 
@@ -39,12 +39,19 @@ watch(() => props.adExecuted, (val) => {
 async function executeAd() {
   if (executed.value) return
   try {
-    const res = await axios.patch(`/v1/api/contracts/${props.contractId}`, { ad_executed: 'yes' })
+    // 1. contracts 전체 조회
+    const res = await axios.get('http://localhost:3000/contracts')
+    const contract = res.data.find(c => c.contractId === props.contractId)
+    if (!contract) {
+      alert('계약서를 찾을 수 없습니다.')
+      return
+    }
+    // 2. contractId(문자열)로 PATCH 요청
+    await axios.patch(`http://localhost:3000/contracts/${contract.contractId}`, { ad_executed: 'yes' })
     executed.value = true
     console.log('[ContractExecutionButton] PATCH 성공:', {
       contractId: props.contractId,
-      ad_executed: 'yes',
-      response: res.data
+      ad_executed: 'yes'
     })
   } catch (e) {
     alert('광고 이행 처리에 실패했습니다.')
