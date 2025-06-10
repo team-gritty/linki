@@ -37,7 +37,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation' // Bean Validation (@Valid 등)
 	implementation 'org.springframework.boot:spring-boot-starter-mail' // 이메일 발송
 
-//	// --- Data Access (ORM & Mapper) ---
+	// --- Data Access (ORM & Mapper) ---
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA + Hibernate
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4' // MyBatis Mapper 연동
 	implementation("mysql:mysql-connector-java:8.0.17") // MySQL 드라이버
