@@ -16,7 +16,7 @@
               </div>
               <div class="detail-item">
                 <span class="label">계약 금액</span>
-                <span class="value">{{ formatCurrency(contract.contractAmount) }}원</span>
+                <span class="value">{{ formatAmount(contract.contractAmount) }}원</span>
               </div>
               <div class="detail-item">
                 <span class="label">정산 상태</span>
@@ -73,162 +73,104 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-export default {
-  name: 'MyPageWriteReview',
-  
-  setup() {
-    const completedContracts = ref([]);
-    const showModal = ref(false);
-    const selectedContract = ref(null);
-    const tempScore = ref(0);
-    
-    const review = ref({
-      score: '',
-      comment: '',
-      visibility: true
-    });
+const completedContracts = ref([]);
+const showModal = ref(false);
+const selectedContract = ref(null);
+const review = ref({
+  score: '',
+  comment: '',
+  visibility: true
+});
 
-    const validateScore = () => {
-      let value = review.value.score;
-      // 숫자와 소수점만 허용
-      value = value.replace(/[^\d.]/g, '');
-      
-      // 소수점이 하나만 있도록
-      const parts = value.split('.');
-      if (parts.length > 2) {
-        value = parts[0] + '.' + parts.slice(1).join('');
-      }
-      
-      // 소수점 한자리로 제한
-      if (parts[1]?.length > 1) {
-        value = parts[0] + '.' + parts[1].slice(0, 1);
-      }
-      
-      // 숫자 범위 제한 (0-5)
-      let numValue = parseFloat(value);
-      if (!isNaN(numValue)) {
-        if (numValue > 5) value = '5';
-        if (numValue < 0) value = '0';
-      }
-      
-      review.value.score = value;
-    };
+const validateScore = () => {
+  let value = review.value.score;
+  value = value.replace(/[^\d.]/g, '');
+  const parts = value.split('.');
+  if (parts.length > 2) {
+    value = parts[0] + '.' + parts.slice(1).join('');
+  }
+  if (parts[1]?.length > 1) {
+    value = parts[0] + '.' + parts[1].slice(0, 1);
+  }
+  let numValue = parseFloat(value);
+  if (!isNaN(numValue)) {
+    if (numValue > 5) value = '5';
+    if (numValue < 0) value = '0';
+  }
+  review.value.score = value;
+};
 
-    const setTempScore = (score) => {
-      tempScore.value = score;
-    };
-
-    const setScore = (score) => {
-      review.value.score = score;
-      tempScore.value = score;
-    };
-
-    const fetchCompletedContracts = async () => {
-      try {
-        // 계약 목록 가져오기
-        const contractsResponse = await axios.get('http://localhost:3000/influencer-contracts');
-        const contracts = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
-
-        // 정산 정보 가져오기
-        const settlementsResponse = await axios.get('http://localhost:3000/settlements');
-        const settlements = Array.isArray(settlementsResponse.data) ? settlementsResponse.data : [];
-
-        // 정산이 완료된 계약만 필터링
-        completedContracts.value = contracts
-          .filter(contract => {
-            const settlement = settlements.find(s => s.contractId === contract.contractId);
-            return contract.contractStatus === 'COMPLETED' && settlement?.settlementStatus === 'COMPLETED';
-          });
-
-        console.log('Fetched contracts:', contracts);
-        console.log('Fetched settlements:', settlements);
-        console.log('Filtered contracts:', completedContracts.value);
-
-      } catch (error) {
-        console.error('Error fetching contracts:', error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-        }
-        completedContracts.value = [];
-      }
-    };
-
-    const openReviewModal = (contract) => {
-      selectedContract.value = contract;
-      review.value = {
-        score: '',
-        comment: '',
-        visibility: true
-      };
-      showModal.value = true;
-    };
-
-    const closeModal = () => {
-      showModal.value = false;
-      selectedContract.value = null;
-    };
-
-    const submitReview = async () => {
-      if (!selectedContract.value) return;
-
-      try {
-        const reviewData = {
-          influencerReviewId: `IR${Date.now()}`,
-          influencerReviewScore: parseFloat(review.value.score) || 0,
-          influencerReviewComment: review.value.comment,
-          createdAt: new Date().toISOString(),
-          contractId: selectedContract.value.contractId,
-          visibility: review.value.visibility
-        };
-
-        try {
-          await axios.post('http://localhost:3000/influencer-reviews', reviewData);
-        } catch (error) {
-          console.log('리뷰 저장은 실패했지만 계속 진행합니다:', reviewData);
-        }
-        
-        alert('리뷰가 저장되었습니다.');
-        closeModal();
-        fetchCompletedContracts();
-      } catch (error) {
-        console.error('Error in review submission process:', error);
-        alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
-      }
-    };
-
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString('ko-KR');
-    };
-
-    const formatCurrency = (amount) => {
-      return amount.toLocaleString('ko-KR');
-    };
-
-    onMounted(() => {
-      fetchCompletedContracts();
-    });
-
-    return {
-      completedContracts,
-      showModal,
-      review,
-      tempScore,
-      setTempScore,
-      setScore,
-      openReviewModal,
-      closeModal,
-      submitReview,
-      formatDate,
-      formatCurrency,
-      validateScore
-    };
+const fetchCompletedContracts = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/contracts');
+    let contractList = Array.isArray(response.data) ? response.data : [];
+    completedContracts.value = contractList
+      .filter(contract => contract.status === 'COMPLETED')
+      .map(contract => ({
+        contractId: contract.id,
+        contractTitle: contract.name || '계약서',
+        contractStatus: contract.status || 'COMPLETED',
+        contractStartDate: contract.start_date || '-',
+        contractEndDate: contract.end_date || '-',
+        contractAmount: contract.amount || 0,
+        ...contract
+      }));
+  } catch (error) {
+    completedContracts.value = [];
   }
 };
+
+const openReviewModal = (contract) => {
+  selectedContract.value = contract;
+  review.value = {
+    score: '',
+    comment: '',
+    visibility: true
+  };
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  selectedContract.value = null;
+};
+
+const submitReview = async () => {
+  if (!selectedContract.value) return;
+  try {
+    const reviewData = {
+      advertiserReviewId: `AR${Date.now()}`,
+      advertiserReviewScore: parseFloat(review.value.score) || 0,
+      advertiserReviewComment: review.value.comment,
+      advertiserReviewCreatedAt: new Date().toISOString(),
+      contractId: selectedContract.value.contractId,
+      visibility: review.value.visibility
+    };
+    await axios.post('http://localhost:3000/advertiser-reviews', reviewData);
+    alert('리뷰가 저장되었습니다.');
+    closeModal();
+    fetchCompletedContracts();
+  } catch (error) {
+    alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
+  }
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+};
+
+const formatAmount = (amount) => {
+  return new Intl.NumberFormat('ko-KR').format(amount);
+};
+
+onMounted(() => {
+  fetchCompletedContracts();
+});
 </script>
 
 <style scoped>

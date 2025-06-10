@@ -34,6 +34,7 @@
       <!-- 리뷰 관리 -->
       <MyPageWrittenReviews v-if="currentMenu === 'review.written'" />
       <MyPageReceivedReviews v-if="currentMenu === 'review.received'" />
+      <MyPageWriteReview v-if="currentMenu === 'review.write'" />
     </main>
   </div>
 </template>
@@ -52,6 +53,7 @@ import MyPageWrittenReviews from '@/components/user/advertiser/mypage/MyPageWrit
 import MyPageReceivedReviews from '@/components/user/advertiser/mypage/MyPageReceivedReviews.vue'
 import MyPageSubscription from '@/components/user/advertiser/mypage/MyPageSubscription.vue'
 import DetailContract from '@/components/user/advertiser/detail/DetailContract.vue'
+import MyPageWriteReview from '@/components/user/advertiser/mypage/MyPageWriteReview.vue'
 
 const route = useRoute()
 

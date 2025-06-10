@@ -58,7 +58,8 @@ const menuItems = [
     name: '리뷰 관리',
     children: [
       { id: 'review.written', name: '작성한 리뷰' },
-      { id: 'review.received', name: '받은 리뷰' }
+      { id: 'review.received', name: '받은 리뷰' },
+      { id: 'review.write', name: '리뷰 작성' }
     ]
   },
   {
