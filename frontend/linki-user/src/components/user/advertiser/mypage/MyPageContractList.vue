@@ -10,17 +10,6 @@
         :key="item.id"
         class="contract-card"
       >
-        <button class="delete-btn" @click="openDeleteModal(idx)" title="삭제"
-          @mouseenter="handleDeleteBtnMouseEnter(idx)" @mouseleave="handleDeleteBtnMouseLeave">
-          <svg class="trash-icon" width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-            <rect x="9.25" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-            <rect x="13" y="8" width="1.5" height="6" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" />
-            <rect x="4" y="5" width="12" height="2" rx="1" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-            <rect x="7" y="2" width="6" height="2" rx="1" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-            <rect x="2" y="7" width="16" height="1.5" rx="0.75" :fill="deleteBtnHoverIdx === idx ? '#fff' : '#bbb'" />
-          </svg>
-        </button>
         <img :src="item.image" class="contract-thumb" alt="썸네일" />
         <div class="contract-info">
           <div class="contract-name">계약명: {{ item.name }}</div>
@@ -38,7 +27,13 @@
               type="button"
             >계약완료</button>
           </div>
-          <button class="detail-btn">상세 조회</button>
+          <button class="detail-btn">상세</button>
+          <button class="delete-btn" @click="openDeleteModal(idx)" title="삭제"
+            @mouseenter="handleDeleteBtnMouseEnter(idx)" @mouseleave="handleDeleteBtnMouseLeave">
+            <svg class="trash-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+          </button>
         </div>
       </div>
       <div v-if="contracts.length === 0" class="empty-msg">

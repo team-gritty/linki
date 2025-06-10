@@ -911,7 +911,7 @@
   .refresh-button i {
     font-size: 1.2rem;
   }
-  
+
   .chat-items {
     flex: 1;
     overflow-y: auto;
@@ -945,7 +945,7 @@
     align-items: flex-start;
     margin-bottom: 4px;
   }
-  
+
   .chat-info {
     flex: 1;
     min-width: 0;
@@ -963,14 +963,14 @@
     color: #666;
     font-size: 13px;
   }
-  
+
   .chat-time {
     font-size: 12px;
     color: #999;
     min-width: 45px;
     text-align: right;
   }
-  
+
   .chat-preview-wrapper {
     display: flex;
     align-items: center;
@@ -982,11 +982,12 @@
     flex: 1;
     font-size: 14px;
     color: #666;
+    font-size: 0.9em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   .new-message-badge {
     width: 8px;
     height: 8px;
@@ -1049,14 +1050,17 @@
   
   .status-대기 {
     background-color: #f0f0f0;
+    color: #666;
   }
   
   .status-협의중 {
     background-color: #FFF8E6;
+    color: #FFA800;
   }
   
   .status-계약체결 {
     background-color: #e0f2e9;
+    color: #0ca678;
   }
   
   .primary-button {
@@ -1099,7 +1103,7 @@
     font-size: 0.8em;
     color: #999;
   }
-  
+
   .message:not(.my-message) {
     background-color: #F3EEFF;
     color: #333;
@@ -1161,7 +1165,7 @@
   .error {
     color: #ff4444;
   }
-  
+
 .contract-list-layout {
     display: flex;
     min-height: 100vh;
@@ -1797,6 +1801,27 @@
   font-size: 1rem;
   margin-top: 8px;
   text-align: center;
+}
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.accepted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .date-separator {

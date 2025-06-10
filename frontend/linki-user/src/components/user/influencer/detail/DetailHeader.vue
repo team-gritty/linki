@@ -1,6 +1,18 @@
 <template>
   <div class="header-container">
-    <div class="campaign-summary-box" v-if="campaignDetail">
+    <div class="campaign-summary-box" v-if="currentTab === 'contract'">
+      <div class="summary-left">
+        <div class="summary-info">
+          <h2 class="summary-title">{{ getContractTitle }}</h2>
+        </div>
+      </div>
+      <div class="header-buttons">
+        <button class="go-list-btn" @click="goToContractList">
+          계약서 목록
+        </button>
+      </div>
+    </div>
+    <div class="campaign-summary-box" v-else-if="campaignDetail">
       <div class="summary-left">
         <img :src="campaignDetail.campaign_img" :alt="campaignDetail.campaign_name" class="summary-thumb">
         <div class="summary-info">
@@ -12,8 +24,8 @@
         <button class="go-list-btn" @click="goToProposalList">
           제안서 목록
         </button>
-        <button class="go-list-btn" @click="goToCampaigns">
-          캠페인 목록
+        <button class="go-list-btn" @click="goToCampaignDetail">
+          캠페인 확인 →
         </button>
       </div>
     </div>
@@ -45,7 +57,8 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
   name: 'DetailHeader',
@@ -70,21 +83,38 @@ export default {
       ]
     }
   },
-  setup() {
-    const router = useRouter()
+  setup(props) {
+    const route = useRoute();
+    const router = useRouter();
 
-    const goToCampaigns = () => {
-      router.push('/campaigns')
-    }
+    const getContractTitle = computed(() => {
+      if (route.query.contractTitle) {
+        return decodeURIComponent(route.query.contractTitle);
+      }
+      return '계약 정보';
+    });
+
+    const goToContractList = () => {
+      router.push({
+        name: 'influencer-mypage',
+        query: { currentMenu: 'contract.ongoing' }
+      });
+    };
+
+    const goToProposalList = () => {
+      router.push('/mypage');
+    };
+
+    const goToCampaignDetail = () => {
+      router.push(`/campaign/${props.campaignDetail?.campaign_id}`);
+    };
 
     return {
-      goToCampaigns
-    }
-  },
-  methods: {
-    goToProposalList() {
-      this.$emit('go-to-proposal-list');
-    }
+      getContractTitle,
+      goToContractList,
+      goToProposalList,
+      goToCampaignDetail
+    };
   }
 }
 </script> 

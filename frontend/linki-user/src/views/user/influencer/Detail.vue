@@ -34,14 +34,13 @@
       <!-- 계약서 -->
       <DetailContract 
         v-if="currentTab === 'contract'"
-        :campaign-id="campaignId"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -58,6 +57,7 @@ const router = useRouter()
 const currentTab = ref('proposal')
 const proposal = ref(null)
 const campaignDetail = ref(null)
+const contractId = ref(null)
 const campaignId = computed(() => proposal.value?.campaign_id || proposal.value?.product_id)
 
 const tabs = [
@@ -67,32 +67,73 @@ const tabs = [
   { id: 'contract', name: '계약서' }
 ]
 
-const fetchData = async () => {
-  try {
-    const proposalId = route.params.id
-    const proposalRes = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`)
-    
-    if (proposalRes.data?.length > 0) {
-      proposal.value = proposalRes.data[0]
-      
-      const campaignId = proposal.value.product_id || proposal.value.campaign_id
-      if (!campaignId) throw new Error('캠페인 ID를 찾을 수 없습니다.')
-      
-      const campaignRes = await axios.get(`${BASE_URL}/campaign-list?campaign_id=${campaignId}`)
-      if (campaignRes.data?.length > 0) {
-        campaignDetail.value = campaignRes.data[0]
-      } else {
-        throw new Error('캠페인 정보를 찾을 수 없습니다.')
-      }
-    } else {
-      throw new Error('제안서를 찾을 수 없습니다.')
-    }
-  } catch (error) {
-    console.error('Failed to fetch data:', error)
-    alert(error.message || '데이터를 불러오는데 실패했습니다.')
-    router.push('/mypage')
+// URL의 query parameter에서 tab 정보 가져오기
+const initializeTab = () => {
+  const tabFromQuery = route.query.tab
+  if (tabFromQuery && tabs.some(tab => tab.id === tabFromQuery)) {
+    currentTab.value = tabFromQuery
   }
 }
+
+const fetchData = async () => {
+  try {
+    const id = route.params.id;
+    
+    // 계약서 탭이고 query에 계약 정보가 있는 경우
+    if (route.query.tab === 'contract' && route.query.contractId) {
+      // URL query에서 계약 정보 가져오기
+      contractId.value = route.query.contractId;
+      
+      // 계약 정보로 임시 proposal 객체 생성
+      proposal.value = {
+        id: id,
+        contractId: route.query.contractId,
+        contractTitle: route.query.contractTitle,
+        contractStartDate: route.query.contractStartDate,
+        contractEndDate: route.query.contractEndDate,
+        contractAmount: route.query.contractAmount,
+        contractStatus: route.query.contractStatus
+      };
+      
+      return; // 여기서 함수 종료
+    }
+
+    // 기존 제안서 조회 로직
+    const proposalRes = await axios.get(`${BASE_URL}/proposals?proposal_id=${id}`);
+    
+    if (proposalRes.data?.length > 0) {
+      proposal.value = proposalRes.data[0];
+      
+      const campaignId = proposal.value.product_id || proposal.value.campaign_id;
+      if (!campaignId) throw new Error('캠페인 ID를 찾을 수 없습니다.');
+      
+      // 캠페인 정보 조회
+      const campaignRes = await axios.get(`${BASE_URL}/campaign-list?campaign_id=${campaignId}`);
+      if (campaignRes.data?.length > 0) {
+        campaignDetail.value = campaignRes.data[0];
+        
+        // 계약 정보 조회
+        const contractRes = await axios.get(`${BASE_URL}/influencer-contracts?campaignId=${campaignId}`);
+        if (contractRes.data?.length > 0) {
+          contractId.value = contractRes.data[0].contractId;
+        }
+      } else {
+        throw new Error('캠페인 정보를 찾을 수 없습니다.');
+      }
+    } else if (!route.query.contractId) { // 제안서도 없고 계약 정보도 없는 경우에만 에러
+      throw new Error('제안서를 찾을 수 없습니다.');
+    }
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+    if (!route.query.contractId) { // 계약 정보가 없는 경우에만 에러 메시지 표시
+      alert(error.message || '데이터를 불러오는데 실패했습니다.');
+      router.push('/mypage');
+    }
+  }
+};
+
+// route.query가 변경될 때마다 tab 초기화
+watch(() => route.query, initializeTab)
 
 const saveProposal = async (newContent) => {
   try {
@@ -152,5 +193,8 @@ const goToProposalList = () => {
   router.push('/mypage')
 }
 
-onMounted(fetchData)
+onMounted(() => {
+  fetchData()
+  initializeTab()
+})
 </script> 

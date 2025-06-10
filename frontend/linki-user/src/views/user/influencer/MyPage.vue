@@ -2,7 +2,7 @@
   <div class="my-page">
     <MyPageSideBar v-model:currentMenu="currentMenu" />
       
-      <div class="content-area">
+    <div class="content-area">
       <!-- 내 정보 -->
       <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
       <MyPageChannelInfo v-if="currentMenu === 'profile.channel'" />
@@ -13,6 +13,7 @@
       <!-- 리뷰 관리 -->
       <MyPageReceivedReviews v-if="currentMenu === 'review.received'" />
       <MyPageWrittenReviews v-if="currentMenu === 'review.written'" />
+      <MyPageWriteReview v-if="currentMenu === 'review.write'" />
       
       <!-- 계약 관리 -->
       <MyPageOngoingContracts v-if="currentMenu === 'contract.ongoing'" />
@@ -28,13 +29,15 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import MyPageSideBar from '@/components/user/influencer/mypage/MyPageSideBar.vue';
 import MyPageProposalList from '@/components/user/influencer/mypage/MyPageProposalList.vue';
 import MyPageBasicInfo from '@/components/user/influencer/mypage/MyPageBasicInfo.vue';
 import MyPageChannelInfo from '@/components/user/influencer/mypage/MyPageChannelInfo.vue';
 import MyPageReceivedReviews from '@/components/user/influencer/mypage/MyPageReceivedReviews.vue';
 import MyPageWrittenReviews from '@/components/user/influencer/mypage/MyPageWrittenReviews.vue';
+import MyPageWriteReview from '@/components/user/influencer/mypage/MyPageWriteReview.vue';
 import MyPageOngoingContracts from '@/components/user/influencer/mypage/MyPageOngoingContracts.vue';
 import MyPageCompletedContracts from '@/components/user/influencer/mypage/MyPageCompletedContracts.vue';
 import MyPageSettlement from '@/components/user/influencer/mypage/MyPageSettlement.vue';
@@ -51,6 +54,7 @@ export default {
     MyPageChannelInfo,
     MyPageReceivedReviews,
     MyPageWrittenReviews,
+    MyPageWriteReview,
     MyPageOngoingContracts,
     MyPageCompletedContracts,
     MyPageSettlement,
@@ -60,7 +64,25 @@ export default {
   },
   
   setup() {
+    const route = useRoute();
     const currentMenu = ref('profile.basic');
+    
+    const updateMenuFromQuery = () => {
+      const queryMenu = route.query.currentMenu;
+      if (queryMenu) {
+        currentMenu.value = queryMenu.toString();
+      }
+    };
+
+    onMounted(() => {
+      updateMenuFromQuery();
+    });
+
+    watch(() => route.query.currentMenu, (newVal) => {
+      if (newVal) {
+        currentMenu.value = newVal.toString();
+      }
+    });
     
     return {
       currentMenu
