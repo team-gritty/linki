@@ -1,44 +1,32 @@
 <template>
   <div class="header-container">
-    <div class="campaign-summary-box" v-if="currentTab === 'contract'">
+    <div class="campaign-summary-box">
       <div class="summary-left">
-        <div class="summary-info">
-          <h2 class="summary-title">{{ getContractTitle }}</h2>
-        </div>
-      </div>
-      <div class="header-buttons">
-        <button class="go-list-btn" @click="goToContractList">
-          계약서 목록
-        </button>
-      </div>
-    </div>
-    <div class="campaign-summary-box" v-else-if="campaignDetail">
-      <div class="summary-left">
-        <img :src="campaignDetail.campaign_img" :alt="campaignDetail.campaign_name" class="summary-thumb">
-        <div class="summary-info">
-          <h2 class="summary-title">{{ campaignDetail.campaign_name }}</h2>
-          <p class="summary-sub">{{ campaignDetail.campaign_desc }}</p>
-        </div>
-      </div>
-      <div class="header-buttons">
-        <button class="go-list-btn" @click="goToProposalList">
-          제안서 목록
-        </button>
-        <button class="go-list-btn" @click="goToCampaignDetail">
-          캠페인 확인 →
-        </button>
-      </div>
-    </div>
-    <div v-else class="campaign-summary-box">
-      <div class="summary-left">
-        <div class="summary-info">
+        <template v-if="campaignDetail">
+          <img :src="campaignDetail.campaign_img" :alt="campaignDetail.campaign_name" class="summary-thumb">
+          <div class="summary-info">
+            <h2 class="summary-title">{{ campaignDetail.campaign_name }}</h2>
+            <p class="summary-sub">{{ campaignDetail.campaign_desc }}</p>
+          </div>
+        </template>
+        <div v-else class="summary-info">
           <h2 class="summary-title">데이터 로딩중...</h2>
         </div>
       </div>
       <div class="header-buttons">
-        <button class="go-list-btn" @click="goToProposalList">
-          제안서 목록
-        </button>
+        <template v-if="currentTab === 'contract'">
+          <button class="go-list-btn" @click="goToContractList">
+            계약서 목록
+          </button>
+        </template>
+        <template v-else>
+          <button class="go-list-btn" @click="goToProposalList">
+            제안서 목록
+          </button>
+          <button class="go-list-btn" @click="goToCampaignDetail">
+            캠페인 확인 →
+          </button>
+        </template>
       </div>
     </div>
 

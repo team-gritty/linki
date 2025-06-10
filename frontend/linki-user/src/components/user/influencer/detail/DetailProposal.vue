@@ -1,28 +1,28 @@
 <template>
   <div class="proposal-detail-content">
-    <div v-if="!proposal" class="no-proposal">
+    <div v-if="loading" class="loading">
+      <p>데이터 로딩중...</p>
+    </div>
+    <div v-else-if="!proposalData" class="no-proposal">
       <p>제안서 정보가 없습니다.</p>
     </div>
     <div v-else>
-      <div class="proposal-detail" v-if="isLoading">
-        <div class="loading">Loading...</div>
-      </div>
-      <div class="proposal-detail" v-else-if="proposal">
+      <div class="proposal-detail">
         <div class="proposal-header">
           <div class="header-content">
             <h2>제안서 상세</h2>
             <div class="status-section">
               <span class="status-badge" :class="statusClass">
-                {{ getStatusText(proposal.status) }}
+                {{ getStatusText(proposalData.status) }}
               </span>
-              <p class="submission-date">제출일: {{ formatDate(proposal.submitted_at) }}</p>
+              <p class="submission-date">제출일: {{ formatDate(proposalData.submitted_at) }}</p>
             </div>
           </div>
         </div>
 
         <div class="proposal-content">
           <div class="proposal-text" v-if="!isEditing">
-            {{ proposal.content }}
+            {{ proposalData.content }}
           </div>
           <textarea
             v-else
@@ -41,7 +41,7 @@
             </div>
             <div class="info-item">
               <label>광고 조건</label>
-              <p>팔로워 수 2만 명 이상</p>
+              <p>{{ campaignDetail.productCondition }}</p>
             </div>
             <div class="info-item">
               <label>카테고리</label>
@@ -54,7 +54,7 @@
           </div>
         </div>
 
-        <div class="action-buttons" v-if="proposal.status === 'PENDING'">
+        <div class="action-buttons" v-if="proposalData.status === 'PENDING'">
           <button v-if="!isEditing" class="submit-button" @click="startEdit">수정</button>
           <button v-if="!isEditing" class="delete-button" @click="deleteProposal">삭제</button>
           <button v-if="isEditing" class="submit-button" @click="saveProposal">저장</button>
@@ -66,28 +66,62 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 export default {
   name: 'DetailProposal',
   props: {
-    proposal: {
-      type: Object,
-      default: null
-    },
     campaignDetail: {
       type: Object,
       default: null
     }
   },
   setup(props) {
-    const isLoading = ref(false)
+    const route = useRoute()
+    const loading = ref(true)
     const isEditing = ref(false)
     const editingContent = ref('')
+    const proposalData = ref(null)
+    const BASE_URL = 'http://localhost:3000'
+
+    const fetchProposal = async () => {
+      try {
+        loading.value = true
+        const proposalId = route.params.id // URL에서 proposal id를 가져옴 (예: p3)
+        if (!proposalId) {
+          throw new Error('제안서 ID가 없습니다.')
+        }
+
+        // 1. proposal_id로 제안서 조회
+        const proposalResponse = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`)
+        if (proposalResponse.data && proposalResponse.data.length > 0) {
+          proposalData.value = proposalResponse.data[0]
+          
+          // 2. 계약 정보가 있다면 조회
+          if (proposalData.value.contractId) {
+            const contractResponse = await axios.get(`${BASE_URL}/contracts/${proposalData.value.contractId}`)
+            if (contractResponse.data) {
+              // 계약 정보 처리
+              proposalData.value.contract = contractResponse.data
+            }
+          }
+          return
+        }
+
+        throw new Error('제안서 정보를 찾을 수 없습니다.')
+      } catch (error) {
+        console.error('Failed to fetch proposal:', error)
+        proposalData.value = null
+      } finally {
+        loading.value = false
+      }
+    }
 
     const statusClass = computed(() => {
-      if (!props.proposal?.status) return ''
-      return props.proposal.status.toLowerCase()
+      if (!proposalData.value?.status) return ''
+      return proposalData.value.status.toLowerCase()
     })
 
     const getStatusText = (status) => {
@@ -95,7 +129,8 @@ export default {
       const statusMap = {
         'PENDING': '검토중',
         'ACCEPTED': '수락됨',
-        'REJECTED': '거절됨'
+        'REJECTED': '거절됨',
+        'COMPLETED': '완료'
       }
       return statusMap[status] || status
     }
@@ -111,7 +146,7 @@ export default {
     }
 
     const startEdit = () => {
-      editingContent.value = props.proposal.content
+      editingContent.value = proposalData.value.content
       isEditing.value = true
     }
 
@@ -122,24 +157,41 @@ export default {
 
     const saveProposal = async () => {
       try {
-        // API 호출 로직 추가 필요
+        if (!proposalData.value?.id) return
+        
+        await axios.patch(`${BASE_URL}/proposals/${proposalData.value.id}`, {
+          content: editingContent.value,
+          submitted_at: new Date().toISOString()
+        })
+        
+        await fetchProposal()
         isEditing.value = false
       } catch (error) {
         console.error('Failed to save proposal:', error)
+        alert('제안서 저장에 실패했습니다.')
       }
     }
 
     const deleteProposal = async () => {
       if (!confirm('정말로 제안서를 삭제하시겠습니까?')) return
       try {
-        // API 호출 로직 추가 필요
+        if (!proposalData.value?.id) return
+        
+        await axios.delete(`${BASE_URL}/proposals/${proposalData.value.id}`)
+        proposalData.value = null
       } catch (error) {
         console.error('Failed to delete proposal:', error)
+        alert('제안서 삭제에 실패했습니다.')
       }
     }
 
+    onMounted(() => {
+      fetchProposal()
+    })
+
     return {
-      isLoading,
+      loading,
+      proposalData,
       isEditing,
       editingContent,
       statusClass,
@@ -155,10 +207,14 @@ export default {
 </script>
 
 <style scoped>
-.proposal-detail-content {
-  padding: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
+@import '@/assets/css/detail.css';
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: #666;
 }
 
 .no-proposal {
@@ -191,9 +247,9 @@ export default {
   align-items: center;
 }
 
-.header-content h3 {
+.header-content h2 {
   margin: 0;
-  font-size: 1.2em;
+  font-size: 1.5em;
   color: #333;
 }
 
@@ -231,14 +287,13 @@ export default {
   color: #721c24;
 }
 
-.proposal-content {
-  margin: 24px 0;
+.completed {
+  background-color: #e2e8f0;
+  color: #4a5568;
 }
 
-.proposal-content h3 {
-  margin-bottom: 16px;
-  font-size: 1.2em;
-  color: #333;
+.proposal-content {
+  margin: 24px 0;
 }
 
 .proposal-text {
@@ -339,17 +394,5 @@ export default {
 
 .cancel-button:hover {
   background: #f5f5f5;
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.error {
-  color: #721c24;
-  background-color: #f8d7da;
-  border-radius: 4px;
 }
 </style> 

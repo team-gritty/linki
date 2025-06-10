@@ -129,8 +129,7 @@ export default {
 
     const fetchCompletedContracts = async () => {
       try {
-        // 계약 목록 가져오기
-        const contractsResponse = await axios.get('http://localhost:3000/influencer-contracts');
+        const contractsResponse = await axios.get('http://localhost:3000/contracts');
         const contracts = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
 
         // 정산 정보 가져오기
