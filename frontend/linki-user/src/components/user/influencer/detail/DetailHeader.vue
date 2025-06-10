@@ -12,8 +12,8 @@
         <button class="go-list-btn" @click="goToProposalList">
           제안서 목록
         </button>
-        <button class="go-list-btn" @click="goToCampaignDetail">
-          캠페인 확인 →
+        <button class="go-list-btn" @click="goToCampaigns">
+          캠페인 목록
         </button>
       </div>
     </div>
@@ -45,6 +45,8 @@
 </template>
 
 <script>
+import { useRouter } from 'vue-router'
+
 export default {
   name: 'DetailHeader',
   props: {
@@ -68,12 +70,20 @@ export default {
       ]
     }
   },
+  setup() {
+    const router = useRouter()
+
+    const goToCampaigns = () => {
+      router.push('/campaigns')
+    }
+
+    return {
+      goToCampaigns
+    }
+  },
   methods: {
     goToProposalList() {
       this.$emit('go-to-proposal-list');
-    },
-    goToCampaignDetail() {
-      this.$emit('go-to-campaign-detail');
     }
   }
 }
