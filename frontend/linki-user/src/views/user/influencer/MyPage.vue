@@ -6,6 +6,7 @@
       <!-- 내 정보 -->
       <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
       <MyPageChannelInfo v-if="currentMenu === 'profile.channel'" />
+      <MyPagePassword v-if="currentMenu === 'profile.password'" />
       
       <!-- 캠페인 관리 -->
       <MyPageProposalList v-if="currentMenu === 'campaign.proposals'" />
@@ -35,6 +36,7 @@ import MyPageSideBar from '@/components/user/influencer/mypage/MyPageSideBar.vue
 import MyPageProposalList from '@/components/user/influencer/mypage/MyPageProposalList.vue';
 import MyPageBasicInfo from '@/components/user/influencer/mypage/MyPageBasicInfo.vue';
 import MyPageChannelInfo from '@/components/user/influencer/mypage/MyPageChannelInfo.vue';
+import MyPagePassword from '@/components/user/influencer/mypage/MyPagePassword.vue';
 import MyPageReceivedReviews from '@/components/user/influencer/mypage/MyPageReceivedReviews.vue';
 import MyPageWrittenReviews from '@/components/user/influencer/mypage/MyPageWrittenReviews.vue';
 import MyPageWriteReview from '@/components/user/influencer/mypage/MyPageWriteReview.vue';
@@ -52,6 +54,7 @@ export default {
     MyPageProposalList,
     MyPageBasicInfo,
     MyPageChannelInfo,
+    MyPagePassword,
     MyPageReceivedReviews,
     MyPageWrittenReviews,
     MyPageWriteReview,
