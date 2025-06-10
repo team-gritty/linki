@@ -109,14 +109,14 @@ const fetchCompletedContracts = async () => {
     const response = await axios.get('http://localhost:3000/contracts');
     let contractList = Array.isArray(response.data) ? response.data : [];
     completedContracts.value = contractList
-      .filter(contract => contract.status === 'COMPLETED')
+      .filter(contract => contract.contractStatus === 'COMPLETED')
       .map(contract => ({
-        contractId: contract.id,
-        contractTitle: contract.name || '계약서',
-        contractStatus: contract.status || 'COMPLETED',
-        contractStartDate: contract.start_date || '-',
-        contractEndDate: contract.end_date || '-',
-        contractAmount: contract.amount || 0,
+        contractId: contract.contractId,
+        contractTitle: contract.contractTitle,
+        contractStatus: contract.contractStatus,
+        contractStartDate: contract.contractStartDate,
+        contractEndDate: contract.contractEndDate,
+        contractAmount: contract.contractAmount,
         ...contract
       }));
   } catch (error) {
