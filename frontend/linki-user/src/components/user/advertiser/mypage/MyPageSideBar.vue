@@ -49,7 +49,8 @@ const menuItems = [
     name: '계약서 관리',
     children: [
       { id: 'contract.list', name: '계약서 목록' },
-      { id: 'contract.ongoing', name: '진행중인 계약' }
+      { id: 'contract.ongoing', name: '진행중인 계약' },
+      { id: 'contract.completed', name: '완료된 계약' }
     ]
   },
   {

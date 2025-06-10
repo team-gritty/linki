@@ -15,6 +15,7 @@
         <MyPageContractList v-else :contracts="contracts" @show-detail="handleShowDetail" />
       </template>
       <MyPageOngoingContracts v-if="currentMenu === 'contract.ongoing'" />
+      <MyPageCompletedContracts v-if="currentMenu === 'contract.completed'" />
       
       <!-- 구독 관리 -->
       <MyPageSubscription v-if="currentMenu === 'subscription.status'" />
@@ -35,6 +36,7 @@ import MyPageCampaignRegister from '@/components/user/advertiser/mypage/MyPageCa
 import MyPageCampaignList from '@/components/user/advertiser/mypage/MyPageCampaignList.vue'
 import MyPageContractList from '@/components/user/advertiser/mypage/MyPageContractList.vue'
 import MyPageOngoingContracts from '@/components/user/advertiser/mypage/MyPageOngoingContracts.vue'
+import MyPageCompletedContracts from '@/components/user/advertiser/mypage/MyPageCompletedContracts.vue'
 import MyPageWrittenReviews from '@/components/user/advertiser/mypage/MyPageWrittenReviews.vue'
 import MyPageReceivedReviews from '@/components/user/advertiser/mypage/MyPageReceivedReviews.vue'
 import MyPageSubscription from '@/components/user/advertiser/mypage/MyPageSubscription.vue'
