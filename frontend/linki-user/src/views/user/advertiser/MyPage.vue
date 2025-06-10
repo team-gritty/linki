@@ -14,8 +14,19 @@
         <DetailContract v-if="selectedContract" :contract="selectedContract" @back="handleBackToList" />
         <MyPageContractList v-else :contracts="contracts" @show-detail="handleShowDetail" />
       </template>
-      <MyPageOngoingContracts v-if="currentMenu === 'contract.ongoing'" />
-      <MyPageCompletedContracts v-if="currentMenu === 'contract.completed'" />
+      <MyPageOngoingContracts
+        v-if="currentMenu === 'contract.ongoing' && !selectedContract"
+        @show-detail="handleShowDetail"
+      />
+      <MyPageCompletedContracts
+        v-if="currentMenu === 'contract.completed' && !selectedContract"
+        @show-detail="handleShowDetail"
+      />
+      <DetailContract
+        v-if="selectedContract && (currentMenu === 'contract.ongoing' || currentMenu === 'contract.completed')"
+        :contract="selectedContract"
+        @back="handleBackToList"
+      />
       
       <!-- 구독 관리 -->
       <MyPageSubscription v-if="currentMenu === 'subscription.status'" />
@@ -80,6 +91,7 @@ watch(() => route.name, (val) => {
 })
 
 watch(currentMenu, (val) => {
+  selectedContract.value = null;
   console.log('[MyPage] currentMenu changed:', val)
 })
 </script>

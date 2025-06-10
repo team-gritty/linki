@@ -33,24 +33,35 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, defineEmits } from 'vue';
   import { contractApi } from '@/api/advertiser/advertiser-contract';
   
   const contracts = ref([]);
   const hovered = ref(null);
+  const emit = defineEmits(['show-detail']);
   
   const fetchContracts = async () => {
     try {
       const response = await contractApi.getMyContracts();
-      contracts.value = response.data.filter(contract => contract.contractStatus === 'COMPLETED');
+      console.log('contracts API 응답', response.data);
+      let contractList = [];
+      if (Array.isArray(response.data)) {
+        contractList = response.data;
+      } else if (response.data && Array.isArray(response.data.contracts)) {
+        contractList = response.data.contracts;
+      }
+      console.log('필터 전 contracts', contractList);
+      contracts.value = Array.isArray(contractList)
+        ? contractList.filter(contract =>
+            contract.contractStatus === 'COMPLETED' || contract.contractStatus === '완료')
+        : [];
     } catch (error) {
       console.error('계약 목록 조회 실패:', error);
     }
   };
   
   function viewContractDetail(contract) {
-    // emit event for parent to handle detail view
-    // or use router if needed
+    emit('show-detail', contract);
   }
   
   function formatDate(dateString) {
