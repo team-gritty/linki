@@ -34,7 +34,7 @@
   
   <script setup>
   import { ref, onMounted, defineEmits } from 'vue';
-  import { contractApi } from '@/api/advertiser/advertiser-contract';
+  import axios from 'axios';
   
   const contracts = ref([]);
   const hovered = ref(null);
@@ -42,30 +42,21 @@
   
   const fetchContracts = async () => {
     try {
-      const response = await contractApi.getMyContracts();
-      console.log('contracts API 응답', response.data);
-      let contractList = [];
-      if (Array.isArray(response.data)) {
-        contractList = response.data;
-      } else if (response.data && Array.isArray(response.data.contracts)) {
-        contractList = response.data.contracts;
-      }
-      console.log('필터 전 contracts', contractList);
-      contracts.value = Array.isArray(contractList)
-        ? contractList
-            .filter(contract => contract.status === 'COMPLETED')
-            .map(contract => ({
-              contractId: contract.id,
-              contractTitle: contract.name || '계약서',
-              contractStatus: contract.status || 'COMPLETED',
-              contractStartDate: contract.start_date || '-',
-              contractEndDate: contract.end_date || '-',
-              contractAmount: contract.amount || 0,
-              ...contract
-            }))
-        : [];
+      const response = await axios.get('http://localhost:3000/contracts');
+      let contractList = Array.isArray(response.data) ? response.data : [];
+      contracts.value = contractList
+        .filter(contract => contract.contractStatus === 'COMPLETED')
+        .map(contract => ({
+          contractId: contract.contractId,
+          contractTitle: contract.contractTitle,
+          contractStatus: contract.contractStatus,
+          contractStartDate: contract.contractStartDate,
+          contractEndDate: contract.contractEndDate,
+          contractAmount: contract.contractAmount,
+          ...contract
+        }));
     } catch (error) {
-      console.error('계약 목록 조회 실패:', error);
+      contracts.value = [];
     }
   };
   
