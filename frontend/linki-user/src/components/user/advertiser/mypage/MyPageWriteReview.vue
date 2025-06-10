@@ -106,6 +106,7 @@ const validateScore = () => {
 
 const fetchCompletedContracts = async () => {
   try {
+    // 리뷰 저장할때 부르는 post 요청 
     const response = await axios.get('http://localhost:3000/contracts');
     let contractList = Array.isArray(response.data) ? response.data : [];
     completedContracts.value = contractList
@@ -142,7 +143,9 @@ const closeModal = () => {
 const submitReview = async () => {
   if (!selectedContract.value) return;
   try {
+    // json-server POST 안정성을 위해 id 필드 추가 (이유: json-server는 id 필드가 있으면 POST/PUT이 더 안정적으로 동작함)
     const reviewData = {
+      id: `AR${Date.now()}`,
       advertiserReviewId: `AR${Date.now()}`,
       advertiserReviewScore: parseFloat(review.value.score) || 0,
       advertiserReviewComment: review.value.comment,
@@ -155,6 +158,12 @@ const submitReview = async () => {
     closeModal();
     fetchCompletedContracts();
   } catch (error) {
+    // 에러 발생 시 상세 로그 출력 (이유: 원인 파악을 쉽게 하기 위함)
+    if (error.response) {
+      console.error('리뷰 저장 실패:', error.response.data, error.response.status);
+    } else {
+      console.error('리뷰 저장 실패:', error);
+    }
     alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
   }
 };
