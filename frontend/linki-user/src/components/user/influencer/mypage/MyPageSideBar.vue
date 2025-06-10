@@ -33,7 +33,8 @@ export default {
         name: '내 정보',
         children: [
           { id: 'profile.basic', name: '기본 정보' },
-          { id: 'profile.channel', name: '채널 등록' }
+          { id: 'profile.channel', name: '채널 등록' },
+          { id: 'profile.password', name: '비밀번호 변경' }
         ]
       },
       {
