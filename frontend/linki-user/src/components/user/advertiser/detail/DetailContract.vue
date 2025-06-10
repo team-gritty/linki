@@ -52,6 +52,14 @@
           전자 서명
         </button>
       </div>
+
+      <!-- 광고 이행 확인 버튼: UI/UX를 고려해 하단에 배치 -->
+      <div class="ad-execution-section">
+        <ContractExecutionButton
+          :contract-id="contract.contractId"
+          :ad-executed="contract.adExecuted || contract.ad_executed || 'no'"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -59,6 +67,7 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue'
 import { contractApi } from '@/api/advertiser/advertiser-contract'
+import ContractExecutionButton from '../ContractExecutionButton.vue'
 
 const emit = defineEmits(['back'])
 const props = defineProps({
@@ -259,6 +268,12 @@ async function signContract() {
 .status-completed {
   background-color: #f3f4f6;
   color: #6b7280;
+}
+
+.ad-execution-section {
+  margin-top: 32px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 @media (max-width: 768px) {
