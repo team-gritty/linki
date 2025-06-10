@@ -52,8 +52,17 @@ const fetchContracts = async () => {
     }
     console.log('필터 전 contracts', contractList);
     contracts.value = Array.isArray(contractList)
-      ? contractList.filter(contract =>
-          contract.contractStatus === 'PENDING' || contract.contractStatus === '진행중')
+      ? contractList
+          .filter(contract => contract.status === 'PENDING')
+          .map(contract => ({
+            contractId: contract.id,
+            contractTitle: contract.name || '계약서',
+            contractStatus: contract.status || 'PENDING',
+            contractStartDate: contract.start_date || '-',
+            contractEndDate: contract.end_date || '-',
+            contractAmount: contract.amount || 0,
+            ...contract
+          }))
       : [];
   } catch (error) {
     console.error('계약 목록 조회 실패:', error);
