@@ -22,8 +22,8 @@ const goToMyPage = () => {
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
       <div class="header-right">
-        <button class="header-button" style="margin-right: 10px;">로그인</button>
-        <button class="header-button">회원가입</button>
+        <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
+        <router-link to="/signup" class="header-button">회원가입</router-link>
       </div>
     </div>
   </header>
