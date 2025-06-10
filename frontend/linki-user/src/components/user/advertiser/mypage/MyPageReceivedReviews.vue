@@ -45,7 +45,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { reviewAPI } from '@/api/review';
+import { reviewApi } from '@/api/review';
 
 
 export default {
