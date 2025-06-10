@@ -54,6 +54,11 @@ dependencies {
 
 	// --- AI 관련 (실제 사용 시 주석 해제) ---
 	// implementation 'org.springframework.ai:spring-ai-starter-model-openai' // OpenAI 연동
+
+	// --- Google API Client & YouTube Data API ---
+	implementation 'com.google.api-client:google-api-client:2.2.0'
+	implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
+	implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
 }
 
 dependencyManagement {
