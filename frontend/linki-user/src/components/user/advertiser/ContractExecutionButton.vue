@@ -46,8 +46,8 @@ async function executeAd() {
       alert('계약서를 찾을 수 없습니다.')
       return
     }
-    // 2. contractId(문자열)로 PATCH 요청
-    await axios.patch(`http://localhost:3000/contracts/${contract.contractId}`, { ad_executed: 'yes' })
+    // 2. id(숫자)로 PATCH 요청
+    await axios.patch(`http://localhost:3000/contracts/${contract.id}`, { ad_executed: 'yes' })
     executed.value = true
     console.log('[ContractExecutionButton] PATCH 성공:', {
       contractId: props.contractId,
