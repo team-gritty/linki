@@ -1,13 +1,13 @@
 <template>
   <div class="contract-detail-content">
-    <div v-if="loading" class="loading-state">
-      <p>데이터 로딩중...</p>
+    <div v-if="!contract">
+      <p>계약 정보가 없습니다.</p>
     </div>
     <div v-else>
       <div class="page-header">
         <div class="header-content">
           <h2>{{ contract.contractTitle }}</h2>
-          <button class="back-button" @click="goToContractList">
+          <button class="back-button" @click="$emit('back')">
             계약서 목록
           </button>
         </div>
@@ -56,144 +56,55 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { contractApi } from '@/api/contract';
+<script setup>
+import { defineProps, defineEmits } from 'vue'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
 
-export default {
-  name: 'DetailContract',
-
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const contract = ref({});
-    const loading = ref(true);
-    const error = ref(null);
-
-    const fetchContractDetail = async () => {
-      try {
-        loading.value = true;
-        error.value = null;
-        
-        // URL에서 계약 정보 가져오기
-        const contractId = route.query.contractId || route.params.id; // route.params.id는 URL의 CTR001 부분
-        
-        if (contractId) {
-          try {
-            // 먼저 API에서 계약 정보 조회 시도
-            const response = await contractApi.getContractDetail(contractId);
-            console.log('API Response:', response);
-            
-            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-              contract.value = { ...response.data[0] };
-            } else {
-              // API에서 데이터를 찾지 못한 경우 URL 쿼리 파라미터 사용
-              contract.value = {
-                contractId: contractId,
-                contractTitle: route.query.contractTitle ? decodeURIComponent(route.query.contractTitle) : '계약 정보',
-                contractStartDate: route.query.contractStartDate,
-                contractEndDate: route.query.contractEndDate,
-                contractAmount: Number(route.query.contractAmount || 0),
-                contractStatus: route.query.contractStatus || 'PENDING'
-              };
-            }
-            console.log('Final contract data:', contract.value);
-          } catch (apiError) {
-            console.error('API call failed, using query params:', apiError);
-            // API 호출 실패시 쿼리 파라미터 사용
-            contract.value = {
-              contractId: contractId,
-              contractTitle: route.query.contractTitle ? decodeURIComponent(route.query.contractTitle) : '계약 정보',
-              contractStartDate: route.query.contractStartDate,
-              contractEndDate: route.query.contractEndDate,
-              contractAmount: Number(route.query.contractAmount || 0),
-              contractStatus: route.query.contractStatus || 'PENDING'
-            };
-          }
-        } else {
-          error.value = '계약 ID를 찾을 수 없습니다.';
-        }
-      } catch (err) {
-        console.error('계약 상세 조회 실패:', err);
-        error.value = '계약 정보를 불러오는데 실패했습니다.';
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(() => {
-      fetchContractDetail();
-    });
-
-    const goToContractList = () => {
-      // 현재 URL이 /proposal/로 시작하므로, 제안서 목록으로 이동
-      router.push({
-        path: '/mypage',
-        query: { tab: 'contracts' }  // 마이페이지의 계약서 탭으로 이동
-      });
-    };
-
-    const viewContractDocument = async () => {
-      try {
-        const response = await contractApi.getContractDocument(contract.value.contractId);
-        window.location.href = response.data.documentUrl;
-      } catch (error) {
-        console.error('계약서 조회 실패:', error);
-      }
-    };
-
-    const signContract = async () => {
-      try {
-        const response = await contractApi.signContract(contract.value.contractId);
-        window.location.href = response.data.signUrl;
-      } catch (error) {
-        console.error('전자서명 실패:', error);
-      }
-    };
-
-    const formatDate = (dateString) => {
-      if (!dateString) return '';
-      const date = new Date(dateString);
-      return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-    };
-
-    const formatAmount = (amount) => {
-      if (!amount) return '0';
-      return new Intl.NumberFormat('ko-KR').format(amount);
-    };
-
-    const getStatusClass = (status) => {
-      return {
-        'status-pending': status === 'PENDING',
-        'status-active': status === 'ACTIVE',
-        'status-completed': status === 'COMPLETED'
-      };
-    };
-
-    const getStatusText = (status) => {
-      const statusMap = {
-        'PENDING': '진행중',
-        'ACTIVE': '활성',
-        'COMPLETED': '완료'
-      };
-      return statusMap[status] || status;
-    };
-
-    return {
-      contract,
-      loading,
-      error,
-      viewContractDocument,
-      signContract,
-      formatDate,
-      formatAmount,
-      getStatusClass,
-      getStatusText,
-      goToContractList
-    };
+const emit = defineEmits(['back'])
+const props = defineProps({
+  contract: {
+    type: Object,
+    required: true
   }
-};
+})
+
+function formatDate(dateString) {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+}
+
+function formatAmount(amount) {
+  if (!amount) return '0'
+  return new Intl.NumberFormat('ko-KR').format(amount)
+}
+
+function getStatusClass(status) {
+  return {
+    'status-pending': status === 'PENDING',
+    'status-active': status === 'ACTIVE',
+    'status-completed': status === 'COMPLETED'
+  }
+}
+
+function getStatusText(status) {
+  const statusMap = {
+    'PENDING': '진행중',
+    'ACTIVE': '활성',
+    'COMPLETED': '완료'
+  }
+  return statusMap[status] || status
+}
+
+async function viewContractDocument() {
+  // 실제 API 연동 필요시 contractApi.getContractDocument(props.contract.contractId)
+  alert('계약서 조회 기능은 추후 구현 예정입니다.')
+}
+
+async function signContract() {
+  // 실제 API 연동 필요시 contractApi.signContract(props.contract.contractId)
+  alert('전자 서명 기능은 추후 구현 예정입니다.')
+}
 </script>
 
 <style scoped>
@@ -237,17 +148,6 @@ export default {
 
 .back-button:hover {
   background-color: #e5e7eb;
-}
-
-.loading-state,
-.error-state {
-  text-align: center;
-  padding: 48px;
-  color: #666;
-}
-
-.error-state {
-  color: #ef4444;
 }
 
 .contract-info-section {
