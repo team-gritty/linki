@@ -13,26 +13,30 @@
             <div class="campaign-status-toggle">
               <button
                 :class="['status-btn', item.status === '모집중' ? 'active' : '']"
-                @click="openStatusModal(idx, '모집중')"
+                @click="item.status !== '모집중' && openStatusModal(idx, '모집중')"
+                :disabled="item.status === '모집중'"
                 type="button"
               >모집중</button>
               <button
-                :class="['status-btn', item.status === '비공개' ? 'inactive' : '']"
+                :class="['status-btn', item.status === '비공개' ? 'inactive private-active' : '']"
                 @click="openStatusModal(idx, '비공개')"
+                :disabled="item.status === '비공개'"
                 type="button"
               >비공개</button>
             </div>
           </div>
         </div>
         <div class="card-actions">
-          <button class="detail-btn" @click="goToDetail(item.id)">상세보기</button>
+          <button class="detail-btn" @click="goToDetail(item.id)">상세</button>
           <button 
             class="delete-btn"
             @click="openDeleteModal(idx)"
             @mouseenter="handleDeleteBtnMouseEnter(idx)"
             @mouseleave="handleDeleteBtnMouseLeave"
           >
-            <span class="trash-icon">×</span>
+            <svg class="trash-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path :fill="deleteBtnHoverIdx === idx ? '#fff' : '#888'" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
           </button>
         </div>
       </div>

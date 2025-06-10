@@ -48,7 +48,8 @@ export default {
         name: '리뷰 관리',
         children: [
           { id: 'review.received', name: '받은 리뷰' },
-          { id: 'review.written', name: '작성한 리뷰' }
+          { id: 'review.written', name: '작성한 리뷰' },
+          { id: 'review.write', name: '리뷰 작성' }
         ]
       },
       {
@@ -84,5 +85,5 @@ export default {
 </script>
 
 <style>
-@import '@/assets/css/mypage-sidebar.css';
+  @import '@/assets/css/mypage.css';
 </style> 
