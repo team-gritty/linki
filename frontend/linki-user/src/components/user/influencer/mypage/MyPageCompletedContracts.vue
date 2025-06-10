@@ -24,7 +24,7 @@
                 <span class="value amount">{{ formatAmount(contract.contractAmount) }}원</span>
               </div>
             </div>
-            <button class="detail-btn" @click="viewContractDetail(contract.contractId)">
+            <button class="detail-btn" @click="viewContractDetail(contract)">
               상세조회
             </button>
           </div>
@@ -37,12 +37,14 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { contractApi } from '@/api/contract';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'MyPageCompletedContracts',
 
   setup() {
     const contracts = ref([]);
+    const router = useRouter();
 
     const fetchContracts = async () => {
       try {
@@ -54,12 +56,27 @@ export default {
       }
     };
 
-    const viewContractDetail = async (contractId) => {
+    const viewContractDetail = async (contract) => {
       try {
-        const response = await contractApi.getContractDetail(contractId);
-        console.log('계약 상세:', response.data);
+        // 제안서 상세 페이지로 이동하면서 계약 탭으로 설정
+        router.push({
+          name: 'proposal-detail',
+          // 계약 ID를 params로 전달
+          params: { id: contract.contractId },
+          // 계약서 탭으로 설정
+          query: { 
+            tab: 'contract',
+            // 계약 정보도 함께 전달
+            contractId: contract.contractId,
+            contractTitle: contract.contractTitle,
+            contractStartDate: contract.contractStartDate,
+            contractEndDate: contract.contractEndDate,
+            contractAmount: contract.contractAmount,
+            contractStatus: contract.contractStatus
+          }
+        });
       } catch (error) {
-        console.error('계약 상세 조회 실패:', error);
+        console.error('페이지 이동 실패:', error);
       }
     };
 

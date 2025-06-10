@@ -1,63 +1,67 @@
 <template>
-  <div class="proposal-detail" v-if="isLoading">
-    <div class="loading">Loading...</div>
-  </div>
-  <div class="proposal-detail" v-else-if="proposal">
-    <div class="proposal-header">
-      <div class="header-content">
-        <h2>제안서 상세</h2>
-        <div class="status-section">
-          <span class="status-badge" :class="statusClass">
-            {{ getStatusText(proposal.status) }}
-          </span>
-          <p class="submission-date">제출일: {{ formatDate(proposal.submitted_at) }}</p>
-        </div>
-      </div>
+  <div class="proposal-detail-content">
+    <div v-if="!proposal" class="no-proposal">
+      <p>제안서 정보가 없습니다.</p>
     </div>
+    <div v-else>
+      <div class="proposal-detail" v-if="isLoading">
+        <div class="loading">Loading...</div>
+      </div>
+      <div class="proposal-detail" v-else-if="proposal">
+        <div class="proposal-header">
+          <div class="header-content">
+            <h2>제안서 상세</h2>
+            <div class="status-section">
+              <span class="status-badge" :class="statusClass">
+                {{ getStatusText(proposal.status) }}
+              </span>
+              <p class="submission-date">제출일: {{ formatDate(proposal.submitted_at) }}</p>
+            </div>
+          </div>
+        </div>
 
-    <div class="proposal-content">
-      <div class="proposal-text" v-if="!isEditing">
-        {{ proposal.content }}
-      </div>
-      <textarea
-        v-else
-        v-model="editingContent"
-        class="proposal-edit-textarea"
-        placeholder="제안서 내용을 입력해주세요"
-      ></textarea>
-    </div>
-    
-    <div class="campaign-info" v-if="campaignDetail">
-      <h4>캠페인 정보</h4>
-      <div class="info-grid">
-        <div class="info-item">
-          <label>광고 선택 마감일</label>
-          <p>{{ formatDate(campaignDetail.productDeadline) }}</p>
+        <div class="proposal-content">
+          <div class="proposal-text" v-if="!isEditing">
+            {{ proposal.content }}
+          </div>
+          <textarea
+            v-else
+            v-model="editingContent"
+            class="proposal-edit-textarea"
+            placeholder="제안서 내용을 입력해주세요"
+          ></textarea>
         </div>
-        <div class="info-item">
-          <label>광고 조건</label>
-          <p>팔로워 수 2만 명 이상</p>
+        
+        <div class="campaign-info" v-if="campaignDetail">
+          <h4>캠페인 정보</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>광고 선택 마감일</label>
+              <p>{{ formatDate(campaignDetail.productDeadline) }}</p>
+            </div>
+            <div class="info-item">
+              <label>광고 조건</label>
+              <p>팔로워 수 2만 명 이상</p>
+            </div>
+            <div class="info-item">
+              <label>카테고리</label>
+              <p>{{ campaignDetail.productCategory }}</p>
+            </div>
+            <div class="info-item">
+              <label>브랜드</label>
+              <p>{{ campaignDetail.companyName }}</p>
+            </div>
+          </div>
         </div>
-        <div class="info-item">
-          <label>카테고리</label>
-          <p>{{ campaignDetail.productCategory }}</p>
-        </div>
-        <div class="info-item">
-          <label>브랜드</label>
-          <p>{{ campaignDetail.companyName }}</p>
-        </div>
-      </div>
-    </div>
 
-    <div class="action-buttons" v-if="proposal.status === 'PENDING'">
-      <button v-if="!isEditing" class="submit-button" @click="startEdit">수정</button>
-      <button v-if="!isEditing" class="delete-button" @click="deleteProposal">삭제</button>
-      <button v-if="isEditing" class="submit-button" @click="saveProposal">저장</button>
-      <button v-if="isEditing" class="cancel-button" @click="cancelEdit">취소</button>
+        <div class="action-buttons" v-if="proposal.status === 'PENDING'">
+          <button v-if="!isEditing" class="submit-button" @click="startEdit">수정</button>
+          <button v-if="!isEditing" class="delete-button" @click="deleteProposal">삭제</button>
+          <button v-if="isEditing" class="submit-button" @click="saveProposal">저장</button>
+          <button v-if="isEditing" class="cancel-button" @click="cancelEdit">취소</button>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="proposal-detail" v-else>
-    <div class="error">제안서를 찾을 수 없습니다.</div>
   </div>
 </template>
 
@@ -151,6 +155,25 @@ export default {
 </script>
 
 <style scoped>
+.proposal-detail-content {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.no-proposal {
+  text-align: center;
+  padding: 48px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.no-proposal p {
+  color: #666;
+  font-size: 16px;
+}
+
 .proposal-detail {
   padding: 20px;
   background: white;

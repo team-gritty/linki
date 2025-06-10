@@ -49,7 +49,7 @@ export default {
 
     const fetchSettlements = async () => {
       try {
-        const response = await contractApi.getSettlements();
+        const response = await contractApi.getAllSettlements();
         settlements.value = response.data;
       } catch (error) {
         console.error('정산 내역 조회 실패:', error);
