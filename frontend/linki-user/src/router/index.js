@@ -57,11 +57,7 @@ const router = createRouter({
       name: 'influencer-mypage',
       component: influencerMypage
     },
-    {
-      path: '/mypage/advertiser',
-      name: 'advertiser-profile',
-      component: advertiserMypage
-    },
+
     {
       path: '/proposal/:id',
       name: 'proposal-detail',
@@ -69,7 +65,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/mypage/campaign-list',
+      path: '/mypage/advertiser/campaign-list',
       name: 'advertiser-campaign-list',
       component: advertiserMypage
     },
@@ -80,16 +76,16 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/mypage/campaign-register',
+      path: '/mypage/advertiser/campaign-register',
       name: 'campaign-register',
       component: advertiserMypage
     },
     {
-      path: '/mypage/contract-list',
+      path: '/mypage/advertiser/contract-list',
       name: 'ContractList',
       component: advertiserMypage
     },
-    {
+    {  // 광고주 마이페이지 
       path: '/mypage/advertiser',
       name: 'AdvertiserMypage',
       component: MyPage
