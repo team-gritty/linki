@@ -1,58 +1,78 @@
 <template>
-  <aside class="mypage-sidebar">
+  <div class="mypage-sidebar">
     <div class="sidebar-title">Advertiser<span class="divider">/</span> <span class="mypage">My Page</span></div>
     <nav class="sidebar-nav">
-      <div class="sidebar-section">내 정보 관리
+      <div v-for="(menu, index) in menuItems" :key="index" class="sidebar-section">
+        {{ menu.name }}
         <ul>
-          <li :class="{ active: $route.name === 'advertiser-profile' }">
-            <router-link to="/mypage/advertiser">기본 정보</router-link>
+          <li v-for="(submenu, subIndex) in menu.children"
+              :key="subIndex"
+              :class="{ active: currentMenu === submenu.id }"
+              @click="selectMenu(submenu.id)">
+            {{ submenu.name }}
           </li>
-        </ul>
-      </div>
-      <div class="sidebar-section">캠페인 관리
-        <ul>
-          <li :class="{ active: $route.name === 'advertiser-campaign-list' }">
-            <router-link to="/mypage/advertiser/campaign-list">캠페인 목록</router-link>
-          </li>
-          <li :class="{ active: $route.name === 'campaign-register' }">
-            <router-link to="/mypage/advertiser/campaign-register">캠페인 등록</router-link>
-          </li>
-      
-        </ul>
-      </div>
-      <div class="sidebar-section">계약서 관리
-        <ul>
-          <li :class="{ active: $route.name === 'ContractList' }">
-            <router-link to="/mypage/advertiser/contract-list">계약서 목록</router-link>
-          </li>
-        </ul>
-      </div>
-
-      <div class="sidebar-section">리뷰 관리
-        <ul>
-          <li :class="{ active: $route.name === 'WrittenReviews' }">
-            <router-link to="/mypage/advertiser/written-reviews">작성한 리뷰</router-link>
-          </li>
-          <li :class="{ active: $route.name === 'RecievedReviews' }">
-            <router-link to="/mypage/advertiser/received-reviews">받은 리뷰</router-link>
-          </li>
-        </ul>
-      </div>
-
-      <div class="sidebar-section">구독 관리
-        <ul>
-          <li>구독 신청</li>
-          <li>나의 구독 관리</li>
-          <li>환불 신청</li>
         </ul>
       </div>
     </nav>
-  </aside>
+  </div>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
-const route = useRoute()
+import { defineProps, defineEmits } from 'vue'
+const props = defineProps({
+  currentMenu: {
+    type: String,
+    required: true
+  }
+})
+const emit = defineEmits(['update:currentMenu'])
+
+const menuItems = [
+  {
+    id: 'profile',
+    name: '내 정보 관리',
+    children: [
+      { id: 'profile.basic', name: '기본 정보' }
+    ]
+  },
+  {
+    id: 'campaign',
+    name: '캠페인 관리',
+    children: [
+      { id: 'campaign.list', name: '캠페인 목록' },
+      { id: 'campaign.register', name: '캠페인 등록' }
+    ]
+  },
+  {
+    id: 'contract',
+    name: '계약서 관리',
+    children: [
+      { id: 'contract.list', name: '계약서 목록' },
+      { id: 'contract.ongoing', name: '진행중인 계약' }
+    ]
+  },
+  {
+    id: 'review',
+    name: '리뷰 관리',
+    children: [
+      { id: 'review.written', name: '작성한 리뷰' },
+      { id: 'review.received', name: '받은 리뷰' }
+    ]
+  },
+  {
+    id: 'subscription',
+    name: '구독 관리',
+    children: [
+      { id: 'subscription.apply', name: '구독 신청' },
+      { id: 'subscription.manage', name: '나의 구독 관리' },
+      { id: 'subscription.refund', name: '환불 신청' }
+    ]
+  }
+]
+
+function selectMenu(menuId) {
+  emit('update:currentMenu', menuId)
+}
 </script>
 
 <style>
