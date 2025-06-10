@@ -140,7 +140,7 @@ export const campaignAPI = {
   // 마이페이지 - 계약서 목록 조회
   getContractList: async (params = {}) => {
     try {
-      const response = await httpClient.get('/v1/api/mypage/contract-list', {
+      const response = await httpClient.get('/v1/api/contracts', {
         params: {
           _page: params._page || 1,
           _limit: params._limit || 10,
@@ -158,6 +158,17 @@ export const campaignAPI = {
         contracts: [],
         totalItems: 0
       }
+    }
+  },
+
+  // 계약서 상세 조회
+  getContract: async (contractId) => {
+    try {
+      const response = await httpClient.get(`/v1/api/contracts/${contractId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching contract:', error)
+      throw error
     }
   }
 } 
