@@ -52,8 +52,17 @@
       }
       console.log('필터 전 contracts', contractList);
       contracts.value = Array.isArray(contractList)
-        ? contractList.filter(contract =>
-            contract.contractStatus === 'COMPLETED' || contract.contractStatus === '완료')
+        ? contractList
+            .filter(contract => contract.status === 'COMPLETED')
+            .map(contract => ({
+              contractId: contract.id,
+              contractTitle: contract.name || '계약서',
+              contractStatus: contract.status || 'COMPLETED',
+              contractStartDate: contract.start_date || '-',
+              contractEndDate: contract.end_date || '-',
+              contractAmount: contract.amount || 0,
+              ...contract
+            }))
         : [];
     } catch (error) {
       console.error('계약 목록 조회 실패:', error);
