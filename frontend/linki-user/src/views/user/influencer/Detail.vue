@@ -113,7 +113,7 @@ const fetchData = async () => {
         campaignDetail.value = campaignRes.data[0];
         
         // 계약 정보 조회
-        const contractRes = await axios.get(`${BASE_URL}/influencer-contracts?campaignId=${campaignId}`);
+        const contractRes = await axios.get(`${BASE_URL}/contracts?campaignId=${campaignId}`);
         if (contractRes.data?.length > 0) {
           contractId.value = contractRes.data[0].contractId;
         }

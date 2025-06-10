@@ -4,7 +4,7 @@
       <p>데이터 로딩중...</p>
     </div>
     <div v-else>
-      <div class="page-header">
+      <!-- <div class="page-header">
         <div class="header-content">
           <h2>{{ contract.contractTitle }}</h2>
           <button class="back-button" @click="goToContractList">
@@ -13,8 +13,8 @@
         </div>
         <div v-if="contract.contractStatus" class="status-badge" :class="getStatusClass(contract.contractStatus)">
           {{ getStatusText(contract.contractStatus) }}
-        </div>
-      </div>
+        </div> -->
+      <!-- </div>  -->
 
       <div class="contract-info-section">
         <h2 class="section-title">계약 정보</h2>
@@ -60,6 +60,9 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { contractApi } from '@/api/contract';
+import axios from 'axios';
+
+const BASE_URL = 'http://localhost:3000';
 
 export default {
   name: 'DetailContract',
@@ -76,47 +79,36 @@ export default {
         loading.value = true;
         error.value = null;
         
-        // URL에서 계약 정보 가져오기
-        const contractId = route.query.contractId || route.params.id; // route.params.id는 URL의 CTR001 부분
-        
-        if (contractId) {
-          try {
-            // 먼저 API에서 계약 정보 조회 시도
-            const response = await contractApi.getContractDetail(contractId);
-            console.log('API Response:', response);
-            
-            if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-              contract.value = { ...response.data[0] };
-            } else {
-              // API에서 데이터를 찾지 못한 경우 URL 쿼리 파라미터 사용
-              contract.value = {
-                contractId: contractId,
-                contractTitle: route.query.contractTitle ? decodeURIComponent(route.query.contractTitle) : '계약 정보',
-                contractStartDate: route.query.contractStartDate,
-                contractEndDate: route.query.contractEndDate,
-                contractAmount: Number(route.query.contractAmount || 0),
-                contractStatus: route.query.contractStatus || 'PENDING'
-              };
-            }
-            console.log('Final contract data:', contract.value);
-          } catch (apiError) {
-            console.error('API call failed, using query params:', apiError);
-            // API 호출 실패시 쿼리 파라미터 사용
-            contract.value = {
-              contractId: contractId,
-              contractTitle: route.query.contractTitle ? decodeURIComponent(route.query.contractTitle) : '계약 정보',
-              contractStartDate: route.query.contractStartDate,
-              contractEndDate: route.query.contractEndDate,
-              contractAmount: Number(route.query.contractAmount || 0),
-              contractStatus: route.query.contractStatus || 'PENDING'
-            };
-          }
-        } else {
-          error.value = '계약 ID를 찾을 수 없습니다.';
+        // 1. 제안서 ID로 제안서 정보 조회
+        const proposalId = route.params.id;
+        if (!proposalId) {
+          throw new Error('제안서 ID를 찾을 수 없습니다.');
         }
+
+        const proposalResponse = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`);
+        if (!proposalResponse.data || proposalResponse.data.length === 0) {
+          throw new Error('제안서 정보를 찾을 수 없습니다.');
+        }
+
+        // 2. 제안서에서 캠페인 ID 추출
+        const proposal = proposalResponse.data[0];
+        const campaignId = proposal.campaign_id || proposal.product_id;
+        if (!campaignId) {
+          throw new Error('캠페인 정보를 찾을 수 없습니다.');
+        }
+
+        // 3. 캠페인 ID로 계약 정보 조회
+        const contractResponse = await axios.get(`${BASE_URL}/contracts?campaignId=${campaignId}`);
+        if (contractResponse.data && contractResponse.data.length > 0) {
+          contract.value = contractResponse.data[0];
+          console.log('Found contract:', contract.value);
+        } else {
+          throw new Error('이 캠페인에 대한 계약 정보를 찾을 수 없습니다.');
+        }
+
       } catch (err) {
         console.error('계약 상세 조회 실패:', err);
-        error.value = '계약 정보를 불러오는데 실패했습니다.';
+        error.value = err.message || '계약 정보를 불러오는데 실패했습니다.';
       } finally {
         loading.value = false;
       }
