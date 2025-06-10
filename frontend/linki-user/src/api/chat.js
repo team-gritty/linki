@@ -102,5 +102,19 @@ export const chatApi = {
       console.error('Error getting profiles:', error)
       throw error
     }
+  },
+
+  // 제안서 상세 조회
+  getProposal: async (proposalId) => {
+    try {
+      const response = await axios.get(`/v1/api/chat/proposal/${proposalId}`)
+      // 응답이 배열인 경우 첫 번째 항목 반환
+      return {
+        data: Array.isArray(response.data) ? response.data[0] : response.data
+      }
+    } catch (error) {
+      console.error('Error getting proposal details:', error)
+      throw error
+    }
   }
 } 
