@@ -5,6 +5,7 @@ import HomeView from '../views/HomeView.vue'
 import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
 import DetailPage from '@/views/user/advertiser/DetailPage.vue'
 import influencerMypage from '@/views/user/influencer/MyPage.vue'
+import MyPage from '@/views/user/advertiser/MyPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -87,6 +88,11 @@ const router = createRouter({
       path: '/mypage/contract-list',
       name: 'ContractList',
       component: advertiserMypage
+    },
+    {
+      path: '/mypage/advertiser',
+      name: 'AdvertiserMypage',
+      component: MyPage
     }
   ],
   scrollBehavior(to, from, savedPosition) {

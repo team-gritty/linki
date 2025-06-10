@@ -10,7 +10,7 @@
       <MyPageCampaignList v-if="$route.name === 'advertiser-campaign-list'" />
       
       <!-- 계약서 관리 -->
-      <MyPageContractList v-if="$route.name === 'ContractList'" />
+      <MyPageContractList v-if="$route.name === 'Contracts'" />
       
       <!-- 구독 관리 -->
       <MyPageSubscription v-if="$route.name === 'subscription-status'" />
