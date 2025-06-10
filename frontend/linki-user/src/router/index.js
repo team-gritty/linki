@@ -5,6 +5,7 @@ import HomeView from '../views/HomeView.vue'
 import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
 import DetailPage from '@/views/user/advertiser/DetailPage.vue'
 import influencerMypage from '@/views/user/influencer/MyPage.vue'
+import DetailContract from '@/components/user/influencer/detail/DetailContract.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,7 +44,15 @@ const router = createRouter({
       path: '/campaign/:id',
       name: 'influencer-campaign-detail',
       component: () => import('../views/user/influencer/CampaignDetailView.vue'),
-      props: true
+      props: true,
+      children: [
+        {
+          path: 'contract/:contractId',
+          name: 'campaign-contract-detail',
+          component: DetailContract,
+          props: true
+        }
+      ]
     },
     {
       path: '/campaign/:id/proposal',
@@ -87,6 +96,12 @@ const router = createRouter({
       path: '/mypage/contract-list',
       name: 'ContractList',
       component: advertiserMypage
+    },
+    {
+      path: '/contract/:contractId',
+      name: 'contract-detail',
+      component: DetailContract,
+      props: true
     }
   ],
   scrollBehavior(to, from, savedPosition) {
