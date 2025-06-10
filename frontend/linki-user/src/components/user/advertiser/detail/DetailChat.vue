@@ -60,19 +60,18 @@ const getChatProfile = (userId) => {
   return profile
 }
 
-// 시간 포맷 함수
+// 채팅 목록 시간 포맷 함수 (원래 버전으로 복구)
 const formatTime = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
   
-  // 현재 시간과 메시지 시간이 같은 연도가 아니면 날짜 표시
   if (date.getFullYear() !== now.getFullYear()) {
     const formatted = date.toLocaleDateString('ko-KR', { 
       year: 'numeric',
       month: 'numeric',
       day: 'numeric'
     })
-    return formatted.replace(/\.$/, '') // 마지막 점 제거
+    return formatted.replace(/\.$/, '')
   }
 
   const diffMs = now - date
@@ -81,13 +80,12 @@ const formatTime = (dateString) => {
   const diffHour = Math.floor(diffMin / 60)
   const diffDay = Math.floor(diffHour / 24)
 
-  // 30일이 넘어가면 날짜로 표시
   if (diffDay > 30) {
     const formatted = date.toLocaleDateString('ko-KR', { 
       month: 'numeric',
       day: 'numeric'
     })
-    return formatted.replace(/\.$/, '') // 마지막 점 제거
+    return formatted.replace(/\.$/, '')
   }
 
   if (diffSec < 10) {
@@ -99,6 +97,45 @@ const formatTime = (dateString) => {
   } else {
     return `${diffDay}d`
   }
+}
+
+// 메시지 시간 포맷 함수
+const formatMessageTime = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('ko-KR', { 
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }).replace('오전 ', 'AM ').replace('오후 ', 'PM ')
+}
+
+// 날짜 포맷 함수
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  if (date.toDateString() === today.toDateString()) {
+    return '오늘'
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return '어제'
+  } else {
+    return date.toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric'
+    }).replace('월 ', '월 ')
+  }
+}
+
+// 날짜 구분선 표시 여부 확인
+const shouldShowDateSeparator = (currentMessage, index, messages) => {
+  if (index === 0) return true
+
+  const currentDate = new Date(currentMessage.messageDate).toDateString()
+  const prevDate = new Date(messages[index - 1].messageDate).toDateString()
+  
+  return currentDate !== prevDate
 }
 
 // 채팅 목록 정렬 함수
@@ -249,20 +286,17 @@ watch(selectedChatId, (newValue) => {
 
 // 제안서 모달 열기
 const openProposalModal = async () => {
-  console.log('Selected Chat:', selectedChat.value) // 선택된 채팅방 정보 출력
-  
   if (!selectedChat.value?.proposalId) {
     alert('제안서 정보가 없습니다.')
     return
   }
   
   try {
-    // API 호출하여 제안서 상세 정보 가져오기
     const response = await chatApi.getProposal(selectedChat.value.proposalId)
     selectedProposal.value = response.data
     showProposalModal.value = true
-  } catch (err) {
-    console.error('Error loading proposal:', err)
+  } catch (error) {
+    console.error('제안서 로딩 실패:', error)
     alert('제안서를 불러오는데 실패했습니다.')
   }
 }
@@ -271,6 +305,15 @@ const openProposalModal = async () => {
 const closeProposalModal = () => {
   showProposalModal.value = false
   selectedProposal.value = null
+}
+
+// 계약서 보기
+const openContractModal = () => {
+  if (!selectedChat.value?.proposalId) {
+    alert('계약서 정보가 없습니다.')
+    return
+  }
+  // 계약서 관련 로직 추가
 }
 
 // 인플루언서 상세 페이지로 이동
@@ -321,9 +364,11 @@ const goToInfluencerDetail = (influencerId) => {
               </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
-            <div class="chat-preview">{{ chat.lastMessage }}</div>
+            <div class="chat-preview-wrapper">
+              <div class="chat-preview">{{ chat.lastMessage }}</div>
+              <div v-if="chat.isNew" class="new-message-badge"></div>
+            </div>
           </div>
-          <div v-if="chat.isNew" class="new-message-badge"></div>
         </div>
       </div>
     </div>
@@ -351,7 +396,7 @@ const goToInfluencerDetail = (influencerId) => {
             {{ selectedChat?.chatStatus }}
           </span>
           <button class="primary-button" @click="openProposalModal">제안서 보기</button>
-          <button class="primary-button">계약서 보기</button>
+          <button class="primary-button" @click="openContractModal">계약서 보기</button>
         </div>
       </div>
 
@@ -360,14 +405,16 @@ const goToInfluencerDetail = (influencerId) => {
         <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
         <template v-else>
-          <div 
-            v-for="message in selectedChatMessages" 
-            :key="message.messageId"
-            :class="['message', { 'my-message': message.senderId === currentUserId }]"
-          >
-            <div class="message-content">{{ message.content }}</div>
-            <div class="message-time">{{ formatTime(message.messageDate) }}</div>
-          </div>
+          <template v-for="(message, index) in selectedChatMessages" :key="message.messageId">
+            <!-- 날짜 구분선 -->
+            <div v-if="shouldShowDateSeparator(message, index, selectedChatMessages)" class="date-separator">
+              <span>{{ formatDate(message.messageDate) }}</span>
+            </div>
+            <div :class="['message', { 'my-message': message.senderId === currentUserId }]">
+              <div class="message-content">{{ message.content }}</div>
+              <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
+            </div>
+          </template>
         </template>
       </div>
 
