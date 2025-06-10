@@ -12,7 +12,7 @@
       >
         <img :src="item.image" class="contract-thumb" alt="썸네일" />
         <div class="contract-info">
-          <div class="contract-name">계약명: {{ item.name }}</div>
+          <div class="contract-name">계약명: {{ item.contractTitle }}</div>
         </div>
         <div class="contract-meta">
           <div class="contract-status-toggle">
@@ -27,7 +27,7 @@
               type="button"
             >계약완료</button>
           </div>
-          <button class="detail-btn">상세</button>
+          <button class="detail-btn" @click="showDetail(item)">상세</button>
           <button class="delete-btn" @click="openDeleteModal(idx)" title="삭제"
             @mouseenter="handleDeleteBtnMouseEnter(idx)" @mouseleave="handleDeleteBtnMouseLeave">
             <svg class="trash-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -69,6 +69,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import httpClient from '@/utils/httpRequest'
+
+const emit = defineEmits(['show-detail'])
 
 const route = useRoute()
 const contracts = ref([])
@@ -124,6 +126,9 @@ function confirmStatusChange() {
   }
   modalOpen.value = false
   targetIdx.value = null
+}
+function showDetail(item) {
+  emit('show-detail', item)
 }
 </script>
 

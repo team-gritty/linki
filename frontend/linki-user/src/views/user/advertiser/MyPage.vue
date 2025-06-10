@@ -1,6 +1,6 @@
 <template>
   <div class="list-layout">
-    <MyPageSideBar v-model:currentMenu="currentMenu" />
+    <MyPageSideBar v-model:currentMenu="currentMenu" @contractsLoaded="onContractsLoaded" />
     <main class="list-content">
       <!-- 프로필/비밀번호 변경 -->
       <MyPageProfile v-if="currentMenu === 'profile.basic'" />
@@ -10,7 +10,10 @@
       <MyPageCampaignRegister v-if="currentMenu === 'campaign.register'" />
       
       <!-- 계약서 관리 -->
-      <MyPageContractList v-if="currentMenu === 'contract.list'" />
+      <template v-if="currentMenu === 'contract.list'">
+        <DetailContract v-if="selectedContract" :contract="selectedContract" @back="handleBackToList" />
+        <MyPageContractList v-else :contracts="contracts" @show-detail="handleShowDetail" />
+      </template>
       <MyPageOngoingContracts v-if="currentMenu === 'contract.ongoing'" />
       
       <!-- 구독 관리 -->
@@ -35,6 +38,7 @@ import MyPageOngoingContracts from '@/components/user/advertiser/mypage/MyPageOn
 import MyPageWrittenReviews from '@/components/user/advertiser/mypage/MyPageWrittenReviews.vue'
 import MyPageReceivedReviews from '@/components/user/advertiser/mypage/MyPageReceivedReviews.vue'
 import MyPageSubscription from '@/components/user/advertiser/mypage/MyPageSubscription.vue'
+import DetailContract from '@/components/user/advertiser/detail/DetailContract.vue'
 
 const route = useRoute()
 
@@ -53,6 +57,20 @@ function getMenuFromRoute(routeName) {
 }
 
 const currentMenu = ref(getMenuFromRoute(route.name))
+const contracts = ref([])
+const selectedContract = ref(null)
+
+function onContractsLoaded(data) {
+  contracts.value = data
+}
+
+function handleShowDetail(contract) {
+  selectedContract.value = contract
+}
+
+function handleBackToList() {
+  selectedContract.value = null
+}
 
 watch(() => route.name, (val) => {
   currentMenu.value = getMenuFromRoute(val)
