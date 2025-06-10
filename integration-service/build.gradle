@@ -24,7 +24,9 @@ repositories {
 }
 
 ext {
+
 	springCloudVersion = '2024.0.1'
+
 	set('springAiVersion', "1.0.0-RC1")
 }
 
@@ -59,8 +61,10 @@ dependencies {
 	// --- AI 관련 (실제 사용 시 주석 해제) ---
 	implementation("org.springframework.ai:spring-ai-client-chat:1.0.0")
 
+
 	// --- MSA 관련 eurekaClient ---
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
 
 	// --- Google API Client & YouTube Data API ---
 	implementation 'com.google.api-client:google-api-client:2.2.0'
@@ -71,7 +75,9 @@ dependencies {
 dependencyManagement {
 	imports {
 		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+
 	}
 }
 
