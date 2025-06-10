@@ -859,11 +859,12 @@
   
 .chat-container {
     display: flex;
-    height: 100%;
+    height: 600px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 32px;
+    background: #fff;
   }
   
   .chat-list {
@@ -871,18 +872,44 @@
     border-right: 1px solid #e0e0e0;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    background: #fff;
   }
   
   .search-box {
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   
   .search-input {
-    width: 100%;
+    flex: 1;
     padding: 8px;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
+  }
+
+  .refresh-button {
+    background: none;
+    border: none;
+    color: #8C30F5;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .refresh-button:hover {
+    background: #f5f0ff;
+  }
+
+  .refresh-button i {
+    font-size: 1.2rem;
   }
   
   .chat-items {
@@ -957,6 +984,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    height: 100%;
   }
   
   .chat-header {
@@ -965,6 +993,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #fff;
   }
   
   .chat-header-info {
@@ -987,21 +1016,21 @@
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 0.9em;
+    color: #818080 !important;
+    font-weight: 500 !important;
+    ;
   }
   
   .status-대기 {
     background-color: #f0f0f0;
-    color: #666;
   }
   
   .status-협의중 {
     background-color: #FFF8E6;
-    color: #FFA800;
   }
   
   .status-계약체결 {
     background-color: #e0f2e9;
-    color: #0ca678;
   }
   
   .primary-button {
@@ -1025,6 +1054,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    height: calc(100% - 140px); /* 헤더와 입력창 높이를 제외한 높이 */
+    background: #fff;
   }
   
   .message {
@@ -1064,6 +1095,7 @@
     border-top: 1px solid #e0e0e0;
     display: flex;
     gap: 8px;
+    background: #fff;
   }
   
   .message-input {

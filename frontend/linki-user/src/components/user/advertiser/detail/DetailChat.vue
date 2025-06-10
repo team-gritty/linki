@@ -1,6 +1,10 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { chatApi } from '@/api/chat'
+import DetailProposalModal from './DetailProposalModal.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
   campaignId: {
@@ -18,21 +22,18 @@ const currentUserId = 'advertiser1'
 const chatList = ref([])
 const chatMessages = ref([])
 const chatProfiles = ref([])
+const sortedChatList = ref([]) // 정렬된 채팅 목록 상태 저장
+const showProposalModal = ref(false)
+const selectedProposal = ref(null)
 
 // 채팅 목록 필터링
 const filteredChats = computed(() => {
-  // 먼저 안 읽은 메시지 순으로 정렬
-  const sortedChats = [...chatList.value].sort((a, b) => {
-    // 안 읽은 메시지가 있는 채팅방을 위로
-    if (a.isNew && !b.isNew) return -1
-    if (!a.isNew && b.isNew) return 1
-    // 같은 상태면 최신 메시지 순으로
-    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
-  })
-
-  if (!searchQuery.value) return sortedChats
+  // 검색어가 없을 때는 정렬된 목록 반환
+  if (!searchQuery.value) return sortedChatList.value
+  
+  // 검색어가 있을 때는 현재 정렬된 목록에서 필터링
   const query = searchQuery.value.toLowerCase()
-  return sortedChats.filter(chat => 
+  return sortedChatList.value.filter(chat => 
     chat.opponentName.toLowerCase().includes(query) ||
     chat.lastMessage.toLowerCase().includes(query)
   )
@@ -63,29 +64,64 @@ const getChatProfile = (userId) => {
 const formatTime = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
-  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) {
-    return date.toLocaleTimeString('ko-KR', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
+  
+  // 현재 시간과 메시지 시간이 같은 연도가 아니면 날짜 표시
+  if (date.getFullYear() !== now.getFullYear()) {
+    const formatted = date.toLocaleDateString('ko-KR', { 
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
     })
-  } else if (diffDays === 1) {
-    return '어제'
-  } else if (diffDays < 7) {
-    return date.toLocaleDateString('ko-KR', { weekday: 'long' })
-  } else {
-    return date.toLocaleDateString('ko-KR', { 
-      month: 'long', 
-      day: 'numeric' 
-    })
+    return formatted.replace(/\.$/, '') // 마지막 점 제거
   }
+
+  const diffMs = now - date
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHour = Math.floor(diffMin / 60)
+  const diffDay = Math.floor(diffHour / 24)
+
+  // 30일이 넘어가면 날짜로 표시
+  if (diffDay > 30) {
+    const formatted = date.toLocaleDateString('ko-KR', { 
+      month: 'numeric',
+      day: 'numeric'
+    })
+    return formatted.replace(/\.$/, '') // 마지막 점 제거
+  }
+
+  if (diffSec < 10) {
+    return 'now'
+  } else if (diffMin < 60) {
+    return `${diffMin}m`
+  } else if (diffHour < 24) {
+    return `${diffHour}H`
+  } else {
+    return `${diffDay}d`
+  }
+}
+
+// 채팅 목록 정렬 함수
+const sortChats = () => {
+  sortedChatList.value = [...chatList.value].sort((a, b) => {
+    // 1순위: 안 읽은 메시지가 있는 채팅방을 위로
+    if (a.isNew && !b.isNew) return -1
+    if (!a.isNew && b.isNew) return 1
+    
+    // 2순위: 같은 읽음 상태 내에서는 최신 메시지 순으로
+    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+  })
 }
 
 // 채팅방 선택
 const selectChat = async (chatId) => {
-  console.log('Selecting chat:', chatId) // 디버깅용 로그 추가
+  console.log('Selecting chat:', chatId)
+  
+  // 이전에 선택된 채팅방이 없었을 때만 정렬 수행
+  if (!selectedChatId.value) {
+    sortChats()
+  }
+  
   selectedChatId.value = chatId
   
   // 선택한 채팅방의 안 읽은 메시지 상태 업데이트
@@ -94,6 +130,14 @@ const selectChat = async (chatId) => {
     chatList.value[chatIndex] = {
       ...chatList.value[chatIndex],
       isNew: false
+    }
+    // sortedChatList에도 동일한 업데이트 적용
+    const sortedIndex = sortedChatList.value.findIndex(chat => chat.chatId === chatId)
+    if (sortedIndex !== -1) {
+      sortedChatList.value[sortedIndex] = {
+        ...sortedChatList.value[sortedIndex],
+        isNew: false
+      }
     }
   }
   
@@ -146,6 +190,9 @@ const sendMessage = async () => {
       }
       chatList.value.splice(chatIndex, 1)
       chatList.value.unshift(updatedChat)
+      
+      // 채팅 목록 재정렬
+      sortChats()
     }
 
     newMessage.value = ''
@@ -167,6 +214,8 @@ const loadInitialData = async () => {
     // 채팅 목록 로드
     const chatListResponse = await chatApi.getChatList()
     chatList.value = chatListResponse.data
+    // 초기 정렬 수행
+    sortChats()
 
     // 프로필 정보 로드
     const profilesResponse = await chatApi.getProfiles()
@@ -190,6 +239,44 @@ watch(selectedChatMessages, () => {
     }
   }, 0)
 })
+
+// 채팅방에서 나갈 때 정렬 초기화
+watch(selectedChatId, (newValue) => {
+  if (!newValue) {
+    sortChats()
+  }
+})
+
+// 제안서 모달 열기
+const openProposalModal = async () => {
+  console.log('Selected Chat:', selectedChat.value) // 선택된 채팅방 정보 출력
+  
+  if (!selectedChat.value?.proposalId) {
+    alert('제안서 정보가 없습니다.')
+    return
+  }
+  
+  try {
+    // API 호출하여 제안서 상세 정보 가져오기
+    const response = await chatApi.getProposal(selectedChat.value.proposalId)
+    selectedProposal.value = response.data
+    showProposalModal.value = true
+  } catch (err) {
+    console.error('Error loading proposal:', err)
+    alert('제안서를 불러오는데 실패했습니다.')
+  }
+}
+
+// 제안서 모달 닫기
+const closeProposalModal = () => {
+  showProposalModal.value = false
+  selectedProposal.value = null
+}
+
+// 인플루언서 상세 페이지로 이동
+const goToInfluencerDetail = (influencerId) => {
+  router.push(`/channels/${influencerId}`)
+}
 </script>
 
 <template>
@@ -203,6 +290,13 @@ watch(selectedChatMessages, () => {
           placeholder="채팅방 검색..."
           class="search-input"
         >
+        <button 
+          class="refresh-button" 
+          @click="sortChats"
+          title="채팅 목록 새로고침"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
       </div>
       <div class="chat-items">
         <div 
@@ -216,11 +310,15 @@ watch(selectedChatMessages, () => {
               :src="getChatProfile(chat.opponentId)?.profileImage" 
               :alt="chat.opponentName"
               class="profile-image"
+              @click.stop="goToInfluencerDetail(chat.opponentId)"
             >
           </div>
           <div class="chat-item-content">
             <div class="chat-item-header">
-              <span class="chat-name">{{ chat.opponentName }}</span>
+              <div class="chat-info">
+                <span class="chat-name">{{ chat.opponentName }}</span>
+                <span class="chat-channel-id">{{ getChatProfile(chat.opponentId)?.channelId }}</span>
+              </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
             <div class="chat-preview">{{ chat.lastMessage }}</div>
@@ -240,15 +338,19 @@ watch(selectedChatMessages, () => {
               :src="getChatProfile(selectedChat?.opponentId)?.profileImage" 
               :alt="selectedChat?.opponentName"
               class="profile-image"
+              @click="goToInfluencerDetail(selectedChat?.opponentId)"
             >
           </div>
-          <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span>
+          <div class="chat-user-info">
+            <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span>
+            <span class="chat-channel-id">{{ getChatProfile(selectedChat?.opponentId)?.channelId }}</span>
+          </div>
         </div>
         <div class="chat-header-actions">
           <span :class="['status-badge', `status-${selectedChat?.chatStatus}`]">
             {{ selectedChat?.chatStatus }}
           </span>
-          <button class="primary-button">제안서 보기</button>
+          <button class="primary-button" @click="openProposalModal">제안서 보기</button>
           <button class="primary-button">계약서 보기</button>
         </div>
       </div>
@@ -287,12 +389,180 @@ watch(selectedChatMessages, () => {
       채팅방을 선택해주세요
     </div>
   </div>
+
+  <!-- 제안서 모달 -->
+  <div v-if="showProposalModal" class="modal-backdrop" @click="closeProposalModal">
+    <div @click.stop>
+      <DetailProposalModal
+        :proposal="selectedProposal"
+        @close="closeProposalModal"
+      />
+    </div>
+  </div>
 </template>
 
 <style>
-
 @import '@/assets/css/detail.css';
 
+.chat-container {
+  display: flex;
+  height: 600px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chat-list {
+  width: 300px;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-items {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-item {
+  display: flex;
+  padding: 12px;
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.chat-item:hover {
+  background-color: #f5f5f5;
+}
+
+.chat-item.active {
+  background-color: #f0f0f0;
+}
+
+.chat-profile {
+  margin-right: 12px;
+}
+
+.profile-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.profile-image:hover {
+  transform: scale(1.05);
+}
+
+.chat-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.chat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.chat-time {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.chat-preview {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 24px;
+}
+
+.new-message-badge {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #7B21E8;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.chat-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #818080;
+  margin-right: 8px;
+}
+
+.status-대기 {
+  background-color: #f5f5f5;
+}
+
+.status-협의중 {
+  background-color: #e3f2fd;
+}
+
+.status-계약체결 {
+  background-color: #e8f5e9;
+}
+
+.chat-channel-id {
+  font-size: 12px;
+  color: #8C30F5;
+}
+
+.chat-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 </style>
 
 
