@@ -86,11 +86,13 @@ const router = createRouter({
       name: 'influencer-mypage',
       component: influencerMypage
     },
+
     {
       path: '/mypage/advertiser',
       name: 'advertiser-profile',
       component: advertiserMypage
     },
+
     {
       path: '/proposal/:id',
       name: 'proposal-detail',
@@ -118,11 +120,18 @@ const router = createRouter({
       name: 'ContractList',
       component: advertiserMypage
     },
+
     {
       path: '/contract/:contractId',
       name: 'contract-detail',
       component: DetailContract,
-      props: true
+      props: true},
+
+    {  // 광고주 마이페이지
+      path: '/mypage/advertiser',
+      name: 'AdvertiserMypage',
+      component: MyPage
+
     }
   ],
   scrollBehavior(to, from, savedPosition) {
