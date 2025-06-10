@@ -15,9 +15,9 @@ const props = defineProps({
       <div class="header-left">
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
-      <!-- <span class="header-title">Linki Admin</span> -->
+      <router-link to="/" class="header-title">Linki Admin</router-link>
       <div class="header-right">
-        <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
+        <router-link to="/login" class="header-button">로그인</router-link>
         <router-link to="/signup" class="header-button">회원가입</router-link>
       </div>
     </div>
@@ -49,32 +49,48 @@ const props = defineProps({
   justify-content: space-between;
 }
 
+.header-left {
+  flex: 1;
+}
+
 .header-title {
   font-size: 1.5rem;
-  margin: 0 auto; /* 중앙 정렬 */
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
 }
 
 .header-button {
   background: none;
   border: 1px solid white;
   color: white;
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
 .header-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: white;
+  color: black;
 }
 
 .close-sidebar-btn {
-  background: rgba(255, 255, 255, 0.1); /* 연한 흰색 배경 */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* 연한 흰색 테두리 */
-  border-radius: 50%; /* 원형 */
-  color: white; /* 흰색 X */
-  font-size: 1.2rem; /* 아이콘 크기 */
-  width: 28px; /* 버튼 크기 */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: white;
+  font-size: 1.2rem;
+  width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
@@ -86,31 +102,28 @@ const props = defineProps({
 }
 
 .close-sidebar-btn:hover {
-  background: rgba(255, 255, 255, 0.2); /* 호버 시 배경 진하게 */
-  border-color: rgba(255, 255, 255, 0.5); /* 호버 시 테두리 진하게 */
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 @media (min-width: 769px) {
   .close-sidebar-btn {
     display: none;
   }
-  .header-title {
-    margin: 0;
-  }
 }
 
 @media (max-width: 768px) {
   .header {
-    padding: 0;
+    padding: 0 16px;
   }
-  .header-content {
-    padding: 0 8px; /* 내부 컨텐츠의 좌우 패딩 */
-  }
-  .close-sidebar-btn {
-    padding: 0 8px;
-  }
+  
   .header-title {
-    /* 모바일 중앙 정렬은 이미 되어 있음 */
+    font-size: 1.2rem;
+  }
+  
+  .header-button {
+    padding: 4px 12px;
+    font-size: 0.8rem;
   }
 }
 </style>
