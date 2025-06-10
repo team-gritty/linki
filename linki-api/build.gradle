@@ -52,8 +52,12 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 
+	// --- OK HTTP(http 통신)---
+	implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
 	// --- AI 관련 (실제 사용 시 주석 해제) ---
-	// implementation 'org.springframework.ai:spring-ai-starter-model-openai' // OpenAI 연동
+	implementation("org.springframework.ai:spring-ai-client-chat:1.0.0")
+
 
 	// --- Google API Client & YouTube Data API ---
 	implementation 'com.google.api-client:google-api-client:2.2.0'
