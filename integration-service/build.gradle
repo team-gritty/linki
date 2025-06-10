@@ -61,7 +61,6 @@ dependencies {
 	// --- AI 관련 (실제 사용 시 주석 해제) ---
 	implementation("org.springframework.ai:spring-ai-client-chat:1.0.0")
 
-
 	// --- MSA 관련 eurekaClient ---
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	// health check - SpringBootActuator

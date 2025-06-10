@@ -5,6 +5,7 @@ import HomeView from '../views/HomeView.vue'
 import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
 import DetailPage from '@/views/user/advertiser/DetailPage.vue'
 import influencerMypage from '@/views/user/influencer/MyPage.vue'
+import MyPage from '@/views/user/advertiser/MyPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +18,26 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: HomeView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/oAuth/login/UserLogin.vue')
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('@/views/oAuth/signUp/UserSignUp.vue')
+    },
+    {
+      path: '/findid',
+      name: 'findid',
+      component: () => import('@/views/oAuth/findId/FindId.vue')
+    },
+    {
+      path: '/findpassword',
+      name: 'findpassword',
+      component: () => import('@/views/oAuth/findPassword/FindPassword.vue')
     },
     {
       path: '/about',
@@ -56,11 +77,7 @@ const router = createRouter({
       name: 'influencer-mypage',
       component: influencerMypage
     },
-    {
-      path: '/mypage/advertiser',
-      name: 'advertiser-profile',
-      component: advertiserMypage
-    },
+
     {
       path: '/proposal/:id',
       name: 'proposal-detail',
@@ -68,7 +85,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/mypage/campaign-list',
+      path: '/mypage/advertiser/campaign-list',
       name: 'advertiser-campaign-list',
       component: advertiserMypage
     },
@@ -79,14 +96,19 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/mypage/campaign-register',
+      path: '/mypage/advertiser/campaign-register',
       name: 'campaign-register',
       component: advertiserMypage
     },
     {
-      path: '/mypage/contract-list',
+      path: '/mypage/advertiser/contract-list',
       name: 'ContractList',
       component: advertiserMypage
+    },
+    {  // 광고주 마이페이지 
+      path: '/mypage/advertiser',
+      name: 'AdvertiserMypage',
+      component: MyPage
     }
   ],
   scrollBehavior(to, from, savedPosition) {
