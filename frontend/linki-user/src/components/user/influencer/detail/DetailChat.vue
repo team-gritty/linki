@@ -6,8 +6,8 @@
       <div class="chat-header">
         <div class="chat-header-info">
           <span class="header-date">{{ new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
-          <span :class="['status-badge', `status-${chatDetails?.contractStatus}`]">
-            {{ chatDetails?.contractStatus }}
+          <span :class="['nego-status-badge', `nego-status-${chatDetails?.negoStatus?.replace(/ /g, '-')}`]">
+            {{ chatDetails?.negoStatus }}
           </span>
         </div>
         <div class="chat-header-actions">
@@ -41,15 +41,20 @@
       </div>
 
       <!-- 메시지 입력 -->
-      <div class="message-input-container">
+      <div class="message-input-container" :class="{ 'disabled': chatDetails?.chatStatus === 'PENDING' }">
         <input 
           type="text" 
           v-model="newMessage"
           @keyup.enter="sendMessage"
-          placeholder="메시지를 입력하세요..."
+          :placeholder="chatDetails?.chatStatus === 'PENDING' ? '제안서 승인 후 채팅 가능합니다' : '메시지를 입력하세요...'"
           class="message-input"
+          :disabled="chatDetails?.chatStatus === 'PENDING'"
         >
-        <button class="send-button" @click="sendMessage">전송</button>
+        <button 
+          class="send-button" 
+          @click="sendMessage"
+          :disabled="chatDetails?.chatStatus === 'PENDING'"
+        >전송</button>
       </div>
     </div>
   </div>
@@ -188,8 +193,6 @@ watch(chatMessages, () => {
     }
   }, 0)
 })
-
-
 
 </script>
 

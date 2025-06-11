@@ -1,20 +1,24 @@
 import axios from 'axios';
 
 const BASE_URL = '';
+const BASE_URL = '';
 
 export const contractApi = {
   // 계약 목록 조회
   getMyContracts() {
+    return axios.get(`/v1/api/advertiser/contracts`);
     return axios.get(`/v1/api/advertiser/contracts`);
   },
 
   // 계약 상세 조회
   getContractDetail(contractId) {
     return axios.get(`/v1/api/advertiser/contracts/${contractId}`);
+    return axios.get(`/v1/api/advertiser/contracts/${contractId}`);
   },
 
   // 계약서 조회
   getContractDocument(contractId) {
+    return axios.get(`/v1/api/advertiser/contracts/${contractId}/document`);
     return axios.get(`/v1/api/advertiser/contracts/${contractId}/document`);
   },
 
