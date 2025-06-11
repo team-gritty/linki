@@ -25,21 +25,6 @@
   "/v1/api/influencer/reviews/advertiser*": "/advertiser-reviews$1",
   "/v1/api/influencer/reviews/influencer*": "/influencer-reviews$1",
 
-  "광고주 채널 상세 페이지 리뷰 탭 ": "채널에 해당하는 인플루언서에 대한 리뷰 불러오기",
-  "/v1/api/advertiser/influencer-reviews*": "/influencer-reviews$1",
-  "광고주 마이페이지 - 작성한 리뷰 조회": "자신이 작성한 리뷰 조회",
-  "/v1/api/advertiser/reviews/given*": "/advertiser-reviews$1",
-  "광고주 마이페이지 - 받은 리뷰 조회": "자신이 받은 리뷰 조회",
-  "/v1/api/advertiser/reviews/received*": "/influencer-reviews$1",
-  "광고주 마이페이지 - 리뷰 작성": "인플루언서에 대한 리뷰 작성",
-  "/v1/api/advertiser/reviews/influencer*": "/influencer-reviews$1",
-
-  "광고주 - 계약서 관련 (campaignId로 필터링 지원)": "광고주의 계약서 관련 라우트",
-  "/v1/api/advertiser/contracts": "/contracts",
-  "/v1/api/advertiser/contracts/:id": "/contracts/:id",
-  "/v1/api/advertiser/contracts/:id/document": "/contracts/:id/document",
-  "/v1/api/advertiser/contracts/:id/sign": "/contracts/:id/sign",
-
   "/contracts": "/contracts",
   "/v1/api/influencer/contracts": "/influencer-contracts",
   "/v1/api/influencer/contracts/:contractId": "/influencer-contracts?contractId=:contractId",
@@ -151,5 +136,23 @@
   "/v1/api/advertiser/campaigns?campaignId=:campaignId": "/advertiser-campaigns?campaignId=:campaignId",
   "/v1/api/advertiser/mypage/campaign-list": "/advertiser-campaigns",
   "/v1/api/advertiser/proposals": "/proposals",
-  "/v1/api/advertiser/proposals?campaignId=:campaignId": "/proposals?campaign_id=:campaignId"
+  "/v1/api/advertiser/proposals?campaignId=:campaignId": "/proposals?campaign_id=:campaignId",
+
+  "광고주 제안서 관련": "광고주의 제안서 관련 라우트",
+  "/v1/api/advertiser/proposals/:proposalId": "/proposals/:proposalId",
+
+  "광고주 채널 상세 페이지 리뷰 탭 ": "채널에 해당하는 인플루언서에 대한 리뷰 불러오기",
+  "/v1/api/advertiser/influencer-reviews*": "/influencer-reviews$1",
+  "광고주 마이페이지 - 작성한 리뷰 조회": "자신이 작성한 리뷰 조회",
+  "/v1/api/advertiser/reviews/given*": "/advertiser-reviews$1",
+  "광고주 마이페이지 - 받은 리뷰 조회": "자신이 받은 리뷰 조회",
+  "/v1/api/advertiser/reviews/received*": "/influencer-reviews$1",
+  "광고주 마이페이지 - 리뷰 작성": "인플루언서에 대한 리뷰 작성",
+  "/v1/api/advertiser/reviews/influencer*": "/influencer-reviews$1",
+
+  "광고주 - 계약서 관련 (campaignId로 필터링 지원)": "광고주의 계약서 관련 라우트",
+  "/v1/api/advertiser/contracts": "/contracts",
+  "/v1/api/advertiser/contracts/:id": "/contracts/:id",
+  "/v1/api/advertiser/contracts/:id/document": "/contracts/:id/document",
+  "/v1/api/advertiser/contracts/:id/sign": "/contracts/:id/sign"
 }
