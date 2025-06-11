@@ -10,10 +10,6 @@
       <MyPageCampaignRegister v-if="currentMenu === 'campaign.register'" />
       
       <!-- 계약서 관리 -->
-      <template v-if="currentMenu === 'contract.list'">
-        <DetailContract v-if="selectedContract" :contract="selectedContract" @back="handleBackToList" />
-        <MyPageContractList v-else :contracts="contracts" @show-detail="handleShowDetail" />
-      </template>
       <MyPageOngoingContracts
         v-if="currentMenu === 'contract.ongoing' && !selectedContract"
         @show-detail="handleShowDetail"
@@ -46,7 +42,6 @@ import MyPageSideBar from '@/components/user/advertiser/mypage/MyPageSideBar.vue
 import MyPageProfile from '@/components/user/advertiser/mypage/MyPageProfile.vue'
 import MyPageCampaignRegister from '@/components/user/advertiser/mypage/MyPageCampaignRegister.vue'
 import MyPageCampaignList from '@/components/user/advertiser/mypage/MyPageCampaignList.vue'
-import MyPageContractList from '@/components/user/advertiser/mypage/MyPageContractList.vue'
 import MyPageOngoingContracts from '@/components/user/advertiser/mypage/MyPageOngoingContracts.vue'
 import MyPageCompletedContracts from '@/components/user/advertiser/mypage/MyPageCompletedContracts.vue'
 import MyPageWrittenReviews from '@/components/user/advertiser/mypage/MyPageWrittenReviews.vue'
