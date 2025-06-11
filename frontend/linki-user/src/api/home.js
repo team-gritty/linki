@@ -6,15 +6,15 @@ export const homeAPI = {
     try {
       const response = await httpClient.get('/v1/api/home/campaigns')
       return response.data.map(campaign => ({
-        productId: campaign.productId,
-        productName: campaign.productName,
-        productImg: campaign.productImg,
-        productCategory: campaign.productCategory,
-        productDeadline: campaign.productDeadline,
-        productPublishStatus: campaign.productPublishStatus,
+        campaignId: campaign.campaignId,
+        campaignName: campaign.campaignName,
+        campaignImg: campaign.campaignImg,
+        campaignCategory: campaign.campaignCategory,
+        campaignDeadline: campaign.campaignDeadline,
+        campaignStatus: campaign.campaignStatus,
         companyName: campaign.companyName,
-        productCondition: campaign.productCondition,
-        productDesc: campaign.productDesc,
+        campaignCondition: campaign.campaignCondition,
+        campaignDesc: campaign.campaignDesc,
         createdAt: campaign.createdAt
       }))
     } catch (error) {
