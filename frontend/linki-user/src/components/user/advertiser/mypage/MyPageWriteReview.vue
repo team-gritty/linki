@@ -40,9 +40,11 @@
             <div class="score-input">
               <span class="rating-label">별점</span>
               <input 
-                type="text" 
-                v-model="review.score" 
-                @input="validateScore"
+                type="number"
+                v-model.number="review.score"
+                min="0"
+                max="5"
+                step="0.1"
                 placeholder="0.0"
                 class="score-number"
               >
@@ -75,34 +77,19 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { reviewApi } from '@/api/advertiser/advertiser-review';
 import axios from 'axios';
 
 const completedContracts = ref([]);
 const showModal = ref(false);
 const selectedContract = ref(null);
 const review = ref({
-  score: '',
+  score: 0,
   comment: '',
   visibility: true
 });
-
-const validateScore = () => {
-  let value = review.value.score;
-  value = value.replace(/[^\d.]/g, '');
-  const parts = value.split('.');
-  if (parts.length > 2) {
-    value = parts[0] + '.' + parts.slice(1).join('');
-  }
-  if (parts[1]?.length > 1) {
-    value = parts[0] + '.' + parts[1].slice(0, 1);
-  }
-  let numValue = parseFloat(value);
-  if (!isNaN(numValue)) {
-    if (numValue > 5) value = '5';
-    if (numValue < 0) value = '0';
-  }
-  review.value.score = value;
-};
+const router = useRouter();
 
 const fetchCompletedContracts = async () => {
   try {
@@ -135,7 +122,7 @@ const fetchCompletedContracts = async () => {
 const openReviewModal = (contract) => {
   selectedContract.value = contract;
   review.value = {
-    score: '',
+    score: 0,
     comment: '',
     visibility: true
   };
@@ -150,23 +137,21 @@ const closeModal = () => {
 const submitReview = async () => {
   if (!selectedContract.value) return;
   try {
-    // json-server POST 안정성을 위해 id 필드 추가 (이유: json-server는 id 필드가 있으면 POST/PUT이 더 안정적으로 동작함)
+    // API 엔드포인트 및 필드명에 맞게 POST, id 필드 추가
     const reviewData = {
       id: `AR${Date.now()}`,
-      advertiserReviewId: `AR${Date.now()}`,
-      advertiserReviewScore: parseFloat(review.value.score) || 0,
-      advertiserReviewComment: review.value.comment,
-      advertiserReviewCreatedAt: new Date().toISOString(),
       contractId: selectedContract.value.contractId,
+      score: parseFloat(review.value.score) || 0,
+      comment: review.value.comment,
+      createdAt: new Date().toISOString(),
       visibility: review.value.visibility
     };
-    // 작성한 리뷰 저장 요청 (advertiser-reviews는 광고주가 작성한 리뷰 목록)
-    await axios.post('/advertiser-reviews', reviewData);
+    await reviewApi.writeInfluencerReview(reviewData);
     alert('리뷰가 저장되었습니다.');
     closeModal();
-    fetchCompletedContracts();
+    // 작성한 리뷰 목록(탭)으로 이동
+    router.push({ path: '/mypage/advertiser/', query: { menu: 'review.given' } });
   } catch (error) {
-    // 에러 발생 시 상세 로그 출력 (이유: 원인 파악을 쉽게 하기 위함)
     if (error.response) {
       console.error('리뷰 저장 실패:', error.response.data, error.response.status);
     } else {

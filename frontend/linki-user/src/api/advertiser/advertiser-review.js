@@ -16,8 +16,8 @@ export const reviewApi = {
     return axios.get(`/v1/api/advertiser/reviews/given`);
   },
 
-  // 인플루언서에 대한 리뷰 작성
+  // 인플루언서에 대한 리뷰 작성 (작성한 리뷰 DB에 저장)
   writeInfluencerReview(reviewData) {
-    return axios.post(`/v1/api/advertiser/reviews/influencer`, reviewData);
+    return axios.post(`/v1/api/advertiser/reviews/given`, reviewData);
   }
 };
