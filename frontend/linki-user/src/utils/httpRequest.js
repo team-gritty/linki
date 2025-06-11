@@ -2,7 +2,8 @@ import axios from "axios";
 import { useAccountStore } from "@/stores/account";
 
 const instance = axios.create({
-    baseURL: 'http://localhost:3000',  // json-server URL
+  baseURL: 'http://localhost:3000',  // json-server URL
+  // baseURL: import.meta.env.VITE_API_BASE_URL,
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
