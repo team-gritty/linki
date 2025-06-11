@@ -51,10 +51,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-const router = useRouter()
 const isLoading = ref(false)
 const passwordError = ref('')
 const confirmError = ref('')
@@ -87,13 +85,12 @@ const handleSubmit = async () => {
 
   isLoading.value = true
   try {
-    await axios.post('/api/user/change-password', {
+    await axios.post('/api/advertiser/change-password', {
       currentPassword: passwordData.value.currentPassword,
       newPassword: passwordData.value.newPassword
     })
     
     alert('비밀번호가 성공적으로 변경되었습니다.')
-    router.push('/mypage?currentMenu=profile.basic')
   } catch (error) {
     if (error.response?.status === 401) {
       alert('현재 비밀번호가 올바르지 않습니다.')
@@ -205,4 +202,4 @@ const handleSubmit = async () => {
   opacity: 0.5;
   cursor: not-allowed;
 }
-</style> 
+</style>
