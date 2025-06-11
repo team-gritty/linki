@@ -41,7 +41,7 @@
     "/v1/api/mypage/campaign-detail/:id": "/campaign-detail/:id",
     "/v1/api/mypage/campaign-register": "/campaign-register",
     "/v1/api/mypage/contract-list": "/contract-list",
-
+    
     "/v1/api/chat/list": "/chatList",
     "/v1/api/chat/list/:chatId": "/chatList/:chatId",
     "/v1/api/chat/rooms": "/chatRooms",
@@ -50,5 +50,5 @@
     "/v1/api/chat/messages/:chatId": "/chatMessages?chatId=:chatId",
     "/v1/api/chat/chat-detail": "/chatDetails",
     "/v1/api/chat/proposal/:proposalId": "/proposals?proposal_id=:proposalId",
-    "/v1/api/proposals/:proposalId": "/proposals/:proposalId"
+    "/v1/api/chat/contract/:contractId": "/contracts?contract_id=:contractId"
 }
