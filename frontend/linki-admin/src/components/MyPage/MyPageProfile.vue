@@ -85,11 +85,14 @@ const formatDate = (date) => {
 
 const fetchProfile = async () => {
   try {
-    // API 엔드포인트는 실제 백엔드 URL로 변경해야 합니다
-    const response = await axios.get('/api/admin/profile')
+    const response = await axios.get('http://localhost:3000/admins/1')
+    const adminData = response.data
+    
     profileData.value = {
-      ...response.data,
-      joinDate: new Date(response.data.joinDate)
+      name: adminData.name,
+      phone: adminData.phone,
+      email: adminData.email,
+      joinDate: new Date(adminData.joinDate)
     }
   } catch (error) {
     console.error('프로필 정보 로딩 실패:', error)
@@ -100,8 +103,7 @@ const fetchProfile = async () => {
 const handleSubmit = async () => {
   isLoading.value = true
   try {
-    // API 엔드포인트는 실제 백엔드 URL로 변경해야 합니다
-    await axios.put('/api/admin/profile', {
+    await axios.patch('http://localhost:3000/admins/1', {
       name: profileData.value.name,
       phone: profileData.value.phone,
       email: profileData.value.email
