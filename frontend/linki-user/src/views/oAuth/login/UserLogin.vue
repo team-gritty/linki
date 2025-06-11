@@ -61,6 +61,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 const userId = ref('')
@@ -69,21 +70,48 @@ const isLoading = ref(false)
 
 const handleLogin = async () => {
   if (!userId.value || !password.value) {
-    console.error('Please fill in all fields')
+    alert('아이디와 비밀번호를 모두 입력해주세요.')
     return
   }
 
   try {
     isLoading.value = true
-    const loginData = {
+    const response = await axios.post('/api/user/login', {
       userId: userId.value,
       password: password.value
+    })
+
+    if (response.data.success) {
+      // 토큰 저장
+      localStorage.setItem('token', response.data.token)
+      // axios 기본 헤더에 토큰 설정
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+      
+      // 사용자 타입에 따라 다른 페이지로 리다이렉트
+      const userType = response.data.userType || 'general'
+      if (userType === 'influencer') {
+        router.push('/influencer/dashboard')
+      } else if (userType === 'advertiser') {
+        router.push('/advertiser/dashboard')
+      } else {
+        router.push('/dashboard')
+      }
+    } else {
+      alert(response.data.message || '로그인에 실패했습니다.')
     }
-    console.log('Login attempt with:', loginData)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/dashboard')
   } catch (error) {
     console.error('Login failed:', error)
+    if (error.response) {
+      if (error.response.status === 401) {
+        alert('아이디 또는 비밀번호가 올바르지 않습니다.')
+      } else {
+        alert(error.response.data.message || '로그인 중 오류가 발생했습니다.')
+      }
+    } else if (error.request) {
+      alert('서버와 통신할 수 없습니다. 잠시 후 다시 시도해주세요.')
+    } else {
+      alert('로그인 요청을 보내지 못했습니다. 잠시 후 다시 시도해주세요.')
+    }
   } finally {
     isLoading.value = false
   }
@@ -92,11 +120,17 @@ const handleLogin = async () => {
 const handleGoogleLogin = async () => {
   try {
     isLoading.value = true
-    console.log('Google login attempt')
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/dashboard')
+    const response = await axios.get('/api/user/auth/google')
+    
+    if (response.data.success) {
+      // Google OAuth URL로 리다이렉트
+      window.location.href = response.data.authUrl
+    } else {
+      alert('Google 로그인을 시작할 수 없습니다.')
+    }
   } catch (error) {
     console.error('Google login failed:', error)
+    alert('Google 로그인 중 오류가 발생했습니다.')
   } finally {
     isLoading.value = false
   }

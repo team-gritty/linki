@@ -9,6 +9,7 @@
           v-model="profileData.name"
           placeholder="이름을 입력하세요"
           required
+          :disabled="isLoading"
         />
       </div>
 
@@ -20,6 +21,7 @@
           placeholder="연락처를 입력하세요"
           pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
           title="000-0000-0000 형식으로 입력해주세요"
+          :disabled="isLoading"
         />
       </div>
 
@@ -30,6 +32,7 @@
           v-model="profileData.email"
           placeholder="이메일을 입력하세요"
           required
+          :disabled="isLoading"
         />
       </div>
 
@@ -39,7 +42,7 @@
       </div>
 
       <div class="button-group">
-        <button type="button" class="cancel-button" @click="handleCancel">취소</button>
+        <button type="button" class="cancel-button" @click="handleCancel" :disabled="isLoading">취소</button>
         <button type="submit" class="submit-button" :disabled="isLoading">
           {{ isLoading ? '저장 중...' : '저장' }}
         </button>
@@ -51,11 +54,16 @@
 <script>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useAlert } from '@/composables/alert'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'MyPageBasicInfo',
   setup() {
     const isLoading = ref(false)
+    const { showAlert } = useAlert()
+    const userStore = useUserStore()
+    
     const profileData = ref({
       name: '',
       phone: '',
@@ -72,9 +80,26 @@ export default {
       })
     }
 
+    const validateForm = () => {
+      if (!profileData.value.name) {
+        showAlert('이름을 입력해주세요.', 'error')
+        return false
+      }
+      if (profileData.value.phone && !/^\d{3}-\d{4}-\d{4}$/.test(profileData.value.phone)) {
+        showAlert('연락처를 올바른 형식으로 입력해주세요. (000-0000-0000)', 'error')
+        return false
+      }
+      if (!profileData.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.value.email)) {
+        showAlert('유효한 이메일을 입력해주세요.', 'error')
+        return false
+      }
+      return true
+    }
+
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/users/1')
+        isLoading.value = true
+        const response = await axios.get('/api/user/profile')
         profileData.value = {
           name: response.data.name,
           phone: response.data.phone,
@@ -83,22 +108,38 @@ export default {
         }
       } catch (error) {
         console.error('프로필 정보 로딩 실패:', error)
-        alert('프로필 정보를 불러오는데 실패했습니다.')
+        showAlert('프로필 정보를 불러오는데 실패했습니다.', 'error')
+      } finally {
+        isLoading.value = false
       }
     }
 
     const handleSubmit = async () => {
+      if (!validateForm()) return
+
       isLoading.value = true
       try {
-        await axios.patch('http://localhost:3000/users/1', {
+        const response = await axios.patch('/api/user/profile', {
           name: profileData.value.name,
           phone: profileData.value.phone,
           email: profileData.value.email
         })
-        alert('프로필이 성공적으로 업데이트되었습니다.')
+        
+        if (response.data.success) {
+          showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
+          // Update user store if needed
+          userStore.setUserInfo({
+            ...userStore.getUserInfo,
+            name: profileData.value.name,
+            email: profileData.value.email
+          })
+        } else {
+          showAlert(response.data.message || '프로필 업데이트에 실패했습니다.', 'error')
+        }
       } catch (error) {
         console.error('프로필 업데이트 실패:', error)
-        alert('프로필 업데이트에 실패했습니다.')
+        const errorMessage = error.response?.data?.message || '프로필 업데이트 중 오류가 발생했습니다.'
+        showAlert(errorMessage, 'error')
       } finally {
         isLoading.value = false
       }
