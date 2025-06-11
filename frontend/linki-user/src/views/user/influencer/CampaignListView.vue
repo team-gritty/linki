@@ -120,17 +120,16 @@ const sortBy = ref('createdAt')
 
 const categories = [
   { id: 'all', name: '전체' },
-  { id: 'FASHION', name: '패션' },
   { id: 'BEAUTY', name: '뷰티' },
-  { id: 'FOOD', name: '푸드/먹방' },
-  { id: 'ENTERTAINMENT', name: '엔터테인먼트' },
-  { id: 'TRAVEL', name: '여행' },
-  { id: 'MUSIC', name: '음악' },
+  { id: 'SPORTS', name: '스포츠' },
+  { id: 'FOOD', name: '음식' },
   { id: 'IT', name: '전자기기' },
-  { id: 'VLOG/LIFESTYLE', name: 'Vlog/라이프스타일' },
+  { id: 'TRAVEL', name: '여행' },
   { id: 'EDUCATION', name: '교육' },
   { id: 'PETS', name: '동물/펫' },
-  { id: 'SPORTS', name: '스포츠' }
+  { id: 'FASHION', name: '패션' },
+  { id: 'VLOG/LIFESTYLE', name: 'Vlog/라이프스타일' },
+  { id: 'MUSIC', name: '음악' },
 ]
 
 // URL 쿼리 파라미터로부터 카테고리 설정
