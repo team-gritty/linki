@@ -6,22 +6,22 @@
         <p>받은 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.advertiserReviewId" class="review-item">
+        <div v-for="review in reviews" :key="review.influencerReviewId" class="review-item">
           <div class="review-header">
             <div class="review-info">
               <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="review-date">{{ formatDate(review.advertiserReviewCreatedAt) }}</span>
+              <span class="review-date">{{ formatDate(review.createdAt) }}</span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.advertiserReviewScore }}</span>
+                <span class="score-value">{{ review.influencerReviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.advertiserReviewScore) }"
+                    :class="{ 'filled': index <= Math.round(review.influencerReviewScore) }"
                   >
                     ★
                   </span>
@@ -30,7 +30,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.advertiserReviewComment }}</p>
+            <p class="review-comment">{{ review.influencerReviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -56,7 +56,8 @@ export default {
 
     const fetchReviews = async () => {
       try {
-        const response = await reviewApi.getAdvertiserReviews();
+        // getInfluencerReviews는 인플루언서가 광고주에게 남긴 리뷰를 조회함
+        const response = await reviewApi.getInfluencerReviews();
         reviews.value = response.data;
       } catch (error) {
         console.error('리뷰 목록 조회 실패:', error);
