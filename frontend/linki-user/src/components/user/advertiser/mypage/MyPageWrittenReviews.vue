@@ -6,22 +6,22 @@
         <p>작성한 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.advertiserReviewId" class="review-item">
+        <div v-for="review in reviews" :key="review.advertiserReviewId || review.id" class="review-item">
           <div class="review-header">
             <div class="review-info">
               <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="review-date">{{ formatDate(review.advertiserReviewCreatedAt) }}</span>
+              <span class="review-date">{{ formatDate(review.createdAt || review.advertiserReviewCreatedAt) }}</span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.advertiserReviewScore }}</span>
+                <span class="score-value">{{ review.score ?? review.advertiserReviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.advertiserReviewScore) }"
+                    :class="{ 'filled': index <= Math.round(review.score ?? review.advertiserReviewScore) }"
                   >
                     ★
                   </span>
@@ -30,7 +30,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.advertiserReviewComment }}</p>
+            <p class="review-comment">{{ review.comment ?? review.advertiserReviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -45,13 +45,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { reviewApi } from '@/api/review';
+import { reviewApi } from '@/api/advertiser/advertiser-review';
 
 const reviews = ref([]);
 
 const fetchReviews = async () => {
   try {
-    const response = await reviewApi.getAdvertiserReviews();
+    const response = await reviewApi.getGivenReviews();
     reviews.value = response.data;
   } catch (error) {
     console.error('리뷰 목록 조회 실패:', error);
@@ -59,7 +59,9 @@ const fetchReviews = async () => {
 };
 
 const formatDate = (dateString) => {
+  if (!dateString) return '';
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 };
 
