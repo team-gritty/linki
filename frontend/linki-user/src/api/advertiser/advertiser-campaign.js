@@ -54,7 +54,7 @@ export const campaignApi = {
     }
   },
 
-  // 광고주 마이페이지 - 캠페인 목록 조회
+  // 마이페이지 - 캠페인 목록 조회
   getMyCampaigns: async (params = {}) => {
     try {
       const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns', {
