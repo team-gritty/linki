@@ -34,7 +34,7 @@
   
   <script setup>
   import { ref, onMounted, defineEmits } from 'vue';
-  import axios from 'axios';
+  import { contractApi } from '@/api/advertiser/advertiser-contract';
   
   const contracts = ref([]);
   const hovered = ref(null);
@@ -42,7 +42,7 @@
   
   const fetchContracts = async () => {
     try {
-      const response = await axios.get('/advertiser/contracts');
+      const response = await contractApi.getMyContracts();
       let contractList = Array.isArray(response.data) ? response.data : [];
       contracts.value = contractList
         .filter(contract => contract.contractStatus === 'COMPLETED')
