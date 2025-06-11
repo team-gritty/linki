@@ -1,1 +1,3 @@
-rootProject.name = 'integration-service'
+rootProject.name = 'linki'
+
+include 'integration-service'

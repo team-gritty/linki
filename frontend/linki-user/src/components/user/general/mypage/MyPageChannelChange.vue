@@ -4,14 +4,18 @@
       <button 
         :class="['tab-button', { active: selectedTab === 'influencer' }]"
         @click="selectedTab = 'influencer'"
+
         :disabled="isLoading"
+
       >
         인플루언서 등록
       </button>
       <button 
         :class="['tab-button', { active: selectedTab === 'advertiser' }]"
         @click="selectedTab = 'advertiser'"
+
         :disabled="isLoading"
+
       >
         광고주 등록
       </button>
@@ -22,6 +26,7 @@
       <div class="form-group">
         <div class="form-row">
           <div class="input-group">
+
             <label>채널명 <span class="required">*</span></label>
             <input 
               type="text" 
@@ -42,11 +47,13 @@
               :disabled="isLoading"
             />
             <div v-if="errors.channelUrl" class="error-message">{{ errors.channelUrl }}</div>
+
           </div>
         </div>
 
         <div class="form-row">
           <div class="input-group">
+
             <label>소유자 <span class="required">*</span></label>
             <input 
               type="text" 
@@ -67,11 +74,13 @@
               :disabled="isLoading"
             />
             <div v-if="errors.email" class="error-message">{{ errors.email }}</div>
+
           </div>
         </div>
 
         <div class="form-row-full">
           <div class="input-group">
+
             <label>계좌번호 <span class="required">*</span></label>
             <input 
               type="text" 
@@ -81,10 +90,12 @@
               :disabled="isLoading"
             />
             <div v-if="errors.accountNumber" class="error-message">{{ errors.accountNumber }}</div>
+
           </div>
         </div>
 
         <div class="auth-section">
+
           <button class="auth-button" @click="handleAuth" :disabled="isLoading || isAuthenticated">
             {{ isAuthenticated ? '인증 완료' : '본인 인증' }}
           </button>
@@ -114,6 +125,7 @@
           >
             {{ isLoading ? '처리 중...' : '등록 신청' }}
           </button>
+
         </div>
       </div>
     </div>
@@ -123,12 +135,15 @@
       <div class="form-group">
         <div class="form-row-full">
           <div class="input-group">
+
             <label>사업자 번호 <span class="required">*</span></label>
+
             <input 
               type="text" 
               v-model="advertiserData.businessNumber"
               placeholder="000-00-00000"
               class="input-field"
+
               :disabled="isLoading"
             />
             <div v-if="errors.businessNumber" class="error-message">{{ errors.businessNumber }}</div>
@@ -137,6 +152,7 @@
 
         <div class="form-row-full">
           <div class="input-group">
+
             <label>사업자등록증 <span class="required">*</span></label>
             <div class="file-upload-container">
               <input 
@@ -153,10 +169,12 @@
               <span class="file-name">{{ selectedFileName || '선택된 파일 없음' }}</span>
             </div>
             <div v-if="errors.businessCert" class="error-message">{{ errors.businessCert }}</div>
+
           </div>
         </div>
 
         <div class="button-group">
+
           <button class="cancel-button" @click="handleCancel" :disabled="isLoading">취소</button>
           <button 
             class="submit-button" 
@@ -165,6 +183,7 @@
           >
             {{ isLoading ? '처리 중...' : '등록 신청' }}
           </button>
+
         </div>
       </div>
     </div>
@@ -172,13 +191,16 @@
 </template>
 
 <script>
+
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useAlert } from '@/composables/alert'
 
+
 export default {
   name: 'MyPageChannelChange',
   setup() {
+
     const { showAlert } = useAlert()
     const selectedTab = ref('influencer')
     const isLoading = ref(false)
@@ -199,6 +221,7 @@ export default {
       { value: '09', label: '테크' },
       { value: '10', label: '기타' }
     ]
+
     
     const influencerData = ref({
       channelName: '',
@@ -206,11 +229,14 @@ export default {
       owner: '',
       email: '',
       accountNumber: '',
+
       category: ''
+
     })
 
     const advertiserData = ref({
       businessNumber: '',
+
       businessCert: null
     })
 
@@ -315,10 +341,12 @@ export default {
         showAlert('데이터를 불러오는데 실패했습니다.', 'error')
       } finally {
         isLoading.value = false
+
       }
     }
 
     const handleInfluencerSubmit = async () => {
+
       if (!validateInfluencerForm()) return
 
       try {
@@ -337,10 +365,12 @@ export default {
         showAlert(errorMessage, 'error')
       } finally {
         isLoading.value = false
+
       }
     }
 
     const handleAdvertiserSubmit = async () => {
+
       if (!validateAdvertiserForm()) return
 
       try {
@@ -367,10 +397,12 @@ export default {
         showAlert(errorMessage, 'error')
       } finally {
         isLoading.value = false
+
       }
     }
 
     const handleCancel = () => {
+
       errors.value = {}
       fetchData()
     }
@@ -409,6 +441,7 @@ export default {
 
     const triggerFileInput = () => {
       fileInput.value.click()
+
     }
 
     onMounted(() => {
@@ -419,6 +452,7 @@ export default {
       selectedTab,
       influencerData,
       advertiserData,
+
       isLoading,
       isAuthenticated,
       errors,
@@ -433,6 +467,7 @@ export default {
       handleAuth,
       handleFileChange,
       triggerFileInput
+
     }
   }
 }
@@ -554,9 +589,11 @@ export default {
   height: 47px;
   border: 1.5px solid rgba(0, 0, 0, 0.4);
   border-radius: 4px;
+
   padding: 0 12px;
   font-size: 16px;
   background-color: white;
+
 }
 
 .button-group {
@@ -589,6 +626,7 @@ export default {
 .auth-button:hover {
   background-color: #6618c4;
 }
+
 
 .required {
   color: #ff4d4f;
@@ -637,4 +675,5 @@ export default {
   background-color: #f5f5f5;
   cursor: not-allowed;
 }
+
 </style> 

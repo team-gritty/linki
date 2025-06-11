@@ -40,13 +40,11 @@ export const campaignAPI = {
   },
 
   // 광고주 리뷰 조회
-  getAdvertiserReviews: async (productId) => {
+  getAdvertiserReviews: async (advertiserId) => {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/reviews/advertiser`, {
+      const response = await httpClient.get(`/api/influencer/reviews/advertiser`, {
         params: {
-          productId: String(productId),
-          _sort: 'advertiserReviewCreatedAt',
-          _order: 'desc'
+          advertiser_id: String(advertiserId)
         }
       })
       return response.data
@@ -140,7 +138,7 @@ export const campaignAPI = {
   // 마이페이지 - 계약서 목록 조회
   getContractList: async (params = {}) => {
     try {
-      const response = await httpClient.get('/v1/api/mypage/contract-list', {
+      const response = await httpClient.get('/v1/api/contracts', {
         params: {
           _page: params._page || 1,
           _limit: params._limit || 10,
@@ -158,6 +156,17 @@ export const campaignAPI = {
         contracts: [],
         totalItems: 0
       }
+    }
+  },
+
+  // 계약서 상세 조회
+  getContract: async (contractId) => {
+    try {
+      const response = await httpClient.get(`/v1/api/contracts/${contractId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching contract:', error)
+      throw error
     }
   }
 } 

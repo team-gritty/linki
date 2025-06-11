@@ -1,6 +1,10 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { chatApi } from '@/api/chat'
+import DetailProposalModal from './DetailProposalModal.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
   campaignId: {
@@ -17,26 +21,35 @@ const error = ref(null)
 const currentUserId = 'advertiser1'
 const chatList = ref([])
 const chatMessages = ref([])
-const chatProfiles = ref([])
+const chatDetails = ref([])
+const sortedChatList = ref([]) // 정렬된 채팅 목록 상태 저장
+const showProposalModal = ref(false)
+const selectedProposal = ref(null)
 
 // 채팅 목록 필터링
 const filteredChats = computed(() => {
-  // 먼저 안 읽은 메시지 순으로 정렬
-  const sortedChats = [...chatList.value].sort((a, b) => {
-    // 안 읽은 메시지가 있는 채팅방을 위로
-    if (a.isNew && !b.isNew) return -1
-    if (!a.isNew && b.isNew) return 1
-    // 같은 상태면 최신 메시지 순으로
-    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
-  })
-
-  if (!searchQuery.value) return sortedChats
+  // 검색어가 없을 때는 정렬된 목록 반환
+  if (!searchQuery.value) return sortedChatList.value
+  
+  // 검색어가 있을 때는 현재 정렬된 목록에서 필터링
   const query = searchQuery.value.toLowerCase()
-  return sortedChats.filter(chat => 
+  return sortedChatList.value.filter(chat => 
     chat.opponentName.toLowerCase().includes(query) ||
     chat.lastMessage.toLowerCase().includes(query)
   )
 })
+
+// 채팅 상세 정보 가져오기
+const getChatDetail = (chatId) => {
+  const detail = chatDetails.value.find(detail => detail.chatId === chatId)
+  return detail
+}
+
+// 채팅 프로필 정보 가져오기 (partnerId로 매칭)
+const getChatDetailByPartnerId = (partnerId) => {
+  const detail = chatDetails.value.find(detail => detail.partnerId === partnerId)
+  return detail
+}
 
 // 선택된 채팅방
 const selectedChat = computed(() => 
@@ -54,38 +67,110 @@ const selectedChatMessages = computed(() => {
 
 // 채팅 프로필 가져오기
 const getChatProfile = (userId) => {
-  const profile = chatProfiles.value.find(profile => profile.userId === userId)
+  const profile = chatDetails.value.find(profile => profile.userId === userId)
   console.log('Getting profile for userId:', userId, 'Found:', profile) // 디버깅용 로그 추가
   return profile
 }
 
-// 시간 포맷 함수
+// 채팅 목록 시간 포맷 함수 (원래 버전으로 복구)
 const formatTime = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
-  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) {
-    return date.toLocaleTimeString('ko-KR', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
+  
+  if (date.getFullYear() !== now.getFullYear()) {
+    const formatted = date.toLocaleDateString('ko-KR', { 
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
     })
-  } else if (diffDays === 1) {
-    return '어제'
-  } else if (diffDays < 7) {
-    return date.toLocaleDateString('ko-KR', { weekday: 'long' })
-  } else {
-    return date.toLocaleDateString('ko-KR', { 
-      month: 'long', 
-      day: 'numeric' 
-    })
+    return formatted.replace(/\.$/, '')
   }
+
+  const diffMs = now - date
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHour = Math.floor(diffMin / 60)
+  const diffDay = Math.floor(diffHour / 24)
+
+  if (diffDay > 30) {
+    const formatted = date.toLocaleDateString('ko-KR', { 
+      month: 'numeric',
+      day: 'numeric'
+    })
+    return formatted.replace(/\.$/, '')
+  }
+
+  if (diffSec < 10) {
+    return 'now'
+  } else if (diffMin < 60) {
+    return `${diffMin}m`
+  } else if (diffHour < 24) {
+    return `${diffHour}H`
+  } else {
+    return `${diffDay}d`
+  }
+}
+
+// 메시지 시간 포맷 함수
+const formatMessageTime = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('ko-KR', { 
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  }).replace('오전 ', 'AM ').replace('오후 ', 'PM ')
+}
+
+// 날짜 포맷 함수
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  if (date.toDateString() === today.toDateString()) {
+    return '오늘'
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return '어제'
+  } else {
+    return date.toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric'
+    }).replace('월 ', '월 ')
+  }
+}
+
+// 날짜 구분선 표시 여부 확인
+const shouldShowDateSeparator = (currentMessage, index, messages) => {
+  if (index === 0) return true
+
+  const currentDate = new Date(currentMessage.messageDate).toDateString()
+  const prevDate = new Date(messages[index - 1].messageDate).toDateString()
+  
+  return currentDate !== prevDate
+}
+
+// 채팅 목록 정렬 함수
+const sortChats = () => {
+  sortedChatList.value = [...chatList.value].sort((a, b) => {
+    // 1순위: 안 읽은 메시지가 있는 채팅방을 위로
+    if (a.isNew && !b.isNew) return -1
+    if (!a.isNew && b.isNew) return 1
+    
+    // 2순위: 같은 읽음 상태 내에서는 최신 메시지 순으로
+    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+  })
 }
 
 // 채팅방 선택
 const selectChat = async (chatId) => {
-  console.log('Selecting chat:', chatId) // 디버깅용 로그 추가
+  console.log('Selecting chat:', chatId)
+  
+  // 이전에 선택된 채팅방이 없었을 때만 정렬 수행
+  if (!selectedChatId.value) {
+    sortChats()
+  }
+  
   selectedChatId.value = chatId
   
   // 선택한 채팅방의 안 읽은 메시지 상태 업데이트
@@ -94,6 +179,14 @@ const selectChat = async (chatId) => {
     chatList.value[chatIndex] = {
       ...chatList.value[chatIndex],
       isNew: false
+    }
+    // sortedChatList에도 동일한 업데이트 적용
+    const sortedIndex = sortedChatList.value.findIndex(chat => chat.chatId === chatId)
+    if (sortedIndex !== -1) {
+      sortedChatList.value[sortedIndex] = {
+        ...sortedChatList.value[sortedIndex],
+        isNew: false
+      }
     }
   }
   
@@ -146,6 +239,9 @@ const sendMessage = async () => {
       }
       chatList.value.splice(chatIndex, 1)
       chatList.value.unshift(updatedChat)
+      
+      // 채팅 목록 재정렬
+      sortChats()
     }
 
     newMessage.value = ''
@@ -166,11 +262,21 @@ const loadInitialData = async () => {
   try {
     // 채팅 목록 로드
     const chatListResponse = await chatApi.getChatList()
-    chatList.value = chatListResponse.data
+    chatList.value = chatListResponse.data || []
+    console.log('Loaded chat list:', chatList.value)
+    
+    // 채팅 상세 정보 로드
+    const detailsResponse = await chatApi.getChatDetails()
+    chatDetails.value = detailsResponse.data || []
+    console.log('Loaded chat details:', chatDetails.value)
+    
+    // 초기 정렬 수행
+    sortChats()
 
-    // 프로필 정보 로드
-    const profilesResponse = await chatApi.getProfiles()
-    chatProfiles.value = profilesResponse.data
+    // 채팅 목록이 있다면 첫 번째 채팅방 선택
+    if (chatList.value.length > 0) {
+      await selectChat(chatList.value[0].chatId)
+    }
   } catch (err) {
     error.value = '데이터를 불러오는데 실패했습니다.'
     console.error('Error loading initial data:', err)
@@ -190,6 +296,50 @@ watch(selectedChatMessages, () => {
     }
   }, 0)
 })
+
+// 채팅방에서 나갈 때 정렬 초기화
+watch(selectedChatId, (newValue) => {
+  if (!newValue) {
+    sortChats()
+  }
+})
+
+// 제안서 모달 열기
+const openProposalModal = async () => {
+  if (!selectedChat.value?.proposalId) {
+    alert('제안서 정보가 없습니다.')
+    return
+  }
+  
+  try {
+    const response = await chatApi.getProposal(selectedChat.value.proposalId)
+    selectedProposal.value = response.data
+    showProposalModal.value = true
+  } catch (error) {
+    console.error('제안서 로딩 실패:', error)
+    alert('제안서를 불러오는데 실패했습니다.')
+  }
+}
+
+// 제안서 모달 닫기
+const closeProposalModal = () => {
+  showProposalModal.value = false
+  selectedProposal.value = null
+}
+
+// 계약서 보기
+const openContractModal = () => {
+  if (!selectedChat.value?.proposalId) {
+    alert('계약서 정보가 없습니다.')
+    return
+  }
+  // 계약서 관련 로직 추가
+}
+
+// 인플루언서 상세 페이지로 이동
+const goToInfluencerDetail = (influencerId) => {
+  router.push(`/channels/${influencerId}`)
+}
 </script>
 
 <template>
@@ -203,6 +353,13 @@ watch(selectedChatMessages, () => {
           placeholder="채팅방 검색..."
           class="search-input"
         >
+        <button 
+          class="refresh-button" 
+          @click="sortChats"
+          title="채팅 목록 새로고침"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
       </div>
       <div class="chat-items">
         <div 
@@ -213,19 +370,24 @@ watch(selectedChatMessages, () => {
         >
           <div class="chat-profile">
             <img 
-              :src="getChatProfile(chat.opponentId)?.profileImage" 
+              :src="getChatDetail(chat.chatId)?.profileImage" 
               :alt="chat.opponentName"
               class="profile-image"
+              @click.stop="goToInfluencerDetail(chat.opponentId)"
             >
           </div>
           <div class="chat-item-content">
             <div class="chat-item-header">
-              <span class="chat-name">{{ chat.opponentName }}</span>
+              <div class="chat-info">
+                <span class="chat-name">{{ chat.opponentName }}</span>
+              </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
-            <div class="chat-preview">{{ chat.lastMessage }}</div>
+            <div class="chat-preview-wrapper">
+              <div class="chat-preview">{{ chat.lastMessage }}</div>
+              <div v-if="chat.isNew" class="new-message-badge"></div>
+            </div>
           </div>
-          <div v-if="chat.isNew" class="new-message-badge"></div>
         </div>
       </div>
     </div>
@@ -237,19 +399,23 @@ watch(selectedChatMessages, () => {
         <div class="chat-header-info">
           <div class="chat-profile">
             <img 
-              :src="getChatProfile(selectedChat?.opponentId)?.profileImage" 
+              :src="getChatDetail(selectedChat?.chatId)?.profileImage" 
               :alt="selectedChat?.opponentName"
               class="profile-image"
+              @click="goToInfluencerDetail(selectedChat?.opponentId)"
             >
           </div>
-          <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span>
+          <div class="chat-user-info">
+            <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span><br>
+            <span class="chat-channel-id">채널명 : {{ getChatDetail(selectedChat?.chatId)?.channelName }}</span>
+          </div>
         </div>
         <div class="chat-header-actions">
           <span :class="['status-badge', `status-${selectedChat?.chatStatus}`]">
             {{ selectedChat?.chatStatus }}
           </span>
-          <button class="primary-button">제안서 보기</button>
-          <button class="primary-button">계약서 보기</button>
+          <button class="primary-button" @click="openProposalModal">제안서 보기</button>
+          <button class="primary-button" @click="openContractModal">계약서 보기</button>
         </div>
       </div>
 
@@ -258,14 +424,24 @@ watch(selectedChatMessages, () => {
         <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
         <template v-else>
-          <div 
-            v-for="message in selectedChatMessages" 
-            :key="message.messageId"
-            :class="['message', { 'my-message': message.senderId === currentUserId }]"
-          >
-            <div class="message-content">{{ message.content }}</div>
-            <div class="message-time">{{ formatTime(message.messageDate) }}</div>
-          </div>
+          <template v-for="(message, index) in selectedChatMessages" :key="message.messageId">
+            <!-- 날짜 구분선 -->
+            <div v-if="shouldShowDateSeparator(message, index, selectedChatMessages)" class="date-separator">
+              <span>{{ formatDate(message.messageDate) }}</span>
+            </div>
+            <!-- 알람 메시지 -->
+            <div v-if="message.messageType === 'alarm'" class="alarm-wrapper">
+              <div class="alarm-datetime">{{ formatDate(message.messageDate) }} {{ formatMessageTime(message.messageDate) }}</div>
+              <div class="alarm-message">
+                {{ message.content }}
+              </div>
+            </div>
+            <!-- 일반 메시지 -->
+            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId }]">
+              <div class="message-content">{{ message.content }}</div>
+              <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
+            </div>
+          </template>
         </template>
       </div>
 
@@ -287,12 +463,20 @@ watch(selectedChatMessages, () => {
       채팅방을 선택해주세요
     </div>
   </div>
+
+  <!-- 제안서 모달 -->
+  <div v-if="showProposalModal" class="modal-backdrop" @click="closeProposalModal">
+    <div @click.stop>
+      <DetailProposalModal
+        :proposal="selectedProposal"
+        @close="closeProposalModal"
+      />
+    </div>
+  </div>
 </template>
 
 <style>
-
 @import '@/assets/css/detail.css';
-
 </style>
 
 

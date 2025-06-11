@@ -9,7 +9,9 @@
           v-model="passwordData.currentPassword"
           placeholder="현재 비밀번호를 입력하세요"
           required
+
           :disabled="isLoading"
+
         />
       </div>
 
@@ -20,12 +22,14 @@
           v-model="passwordData.newPassword"
           placeholder="새 비밀번호를 입력하세요"
           required
+
           :disabled="isLoading"
         />
         <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
         <div class="password-rules">
           비밀번호는 8자 이상이며, 영문/숫자/특수문자를 포함해야 합니다.
         </div>
+
       </div>
 
       <div class="form-group">
@@ -35,14 +39,18 @@
           v-model="passwordData.confirmPassword"
           placeholder="새 비밀번호를 다시 입력하세요"
           required
+
           :disabled="isLoading"
+
         />
         <div v-if="confirmError" class="error-message">{{ confirmError }}</div>
       </div>
 
       <div class="button-group">
+
         <button type="button" class="cancel-button" @click="handleCancel" :disabled="isLoading">취소</button>
         <button type="submit" class="submit-button" :disabled="isLoading || !isFormValid">
+
           {{ isLoading ? '변경 중...' : '비밀번호 변경' }}
         </button>
       </div>
@@ -51,16 +59,20 @@
 </template>
 
 <script>
+
 import { ref, computed } from 'vue'
 import axios from 'axios'
 import { useAlert } from '@/composables/alert'
+
 
 export default {
   name: 'MyPagePassword',
   setup() {
     const isLoading = ref(false)
+
     const { showAlert } = useAlert()
     
+
     const passwordData = ref({
       currentPassword: '',
       newPassword: '',
@@ -79,9 +91,11 @@ export default {
       )
     })
 
+
     const validatePassword = () => {
       passwordError.value = ''
       confirmError.value = ''
+
 
       if (!passwordData.value.currentPassword) {
         showAlert('현재 비밀번호를 입력해주세요.', 'error')
@@ -104,12 +118,15 @@ export default {
       if (passwordData.value.newPassword === passwordData.value.currentPassword) {
         passwordError.value = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
         showAlert('새 비밀번호는 현재 비밀번호와 달라야 합니다.', 'error')
+
         return false
       }
 
       if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
         confirmError.value = '비밀번호가 일치하지 않습니다.'
+
         showAlert('새 비밀번호가 일치하지 않습니다.', 'error')
+
         return false
       }
 
@@ -121,11 +138,14 @@ export default {
 
       isLoading.value = true
       try {
+
         const response = await axios.patch('/api/user/password', {
+
           currentPassword: passwordData.value.currentPassword,
           newPassword: passwordData.value.newPassword
         })
         
+
         if (response.data.success) {
           showAlert('비밀번호가 성공적으로 변경되었습니다.', 'success')
           passwordData.value = {
@@ -145,6 +165,7 @@ export default {
         } else {
           const errorMessage = error.response?.data?.message || '비밀번호 변경 중 오류가 발생했습니다.'
           showAlert(errorMessage, 'error')
+
         }
       } finally {
         isLoading.value = false
@@ -166,7 +187,9 @@ export default {
       passwordError,
       confirmError,
       isLoading,
+
       isFormValid,
+
       handleSubmit,
       handleCancel
     }
@@ -266,9 +289,11 @@ export default {
   cursor: not-allowed;
 }
 
+
 .password-rules {
   font-size: 12px;
   color: #666;
   margin-top: 4px;
 }
+
 </style> 

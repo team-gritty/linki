@@ -10,7 +10,7 @@
           placeholder="이름을 입력하세요"
           required
           :disabled="isLoading"
-        />
+
       </div>
 
       <div class="form-group">
@@ -22,7 +22,7 @@
           pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
           title="000-0000-0000 형식으로 입력해주세요"
           :disabled="isLoading"
-        />
+
       </div>
 
       <div class="form-group">
@@ -33,7 +33,7 @@
           placeholder="이메일을 입력하세요"
           required
           :disabled="isLoading"
-        />
+
       </div>
 
       <div class="form-group">
@@ -42,6 +42,7 @@
       </div>
 
       <div class="button-group">
+
         <button type="button" class="cancel-button" @click="handleCancel" :disabled="isLoading">취소</button>
         <button type="submit" class="submit-button" :disabled="isLoading">
           {{ isLoading ? '저장 중...' : '저장' }}
@@ -57,13 +58,14 @@ import axios from 'axios'
 import { useAlert } from '@/composables/alert'
 import { useUserStore } from '@/stores/user'
 
+
 export default {
   name: 'MyPageBasicInfo',
   setup() {
     const isLoading = ref(false)
     const { showAlert } = useAlert()
     const userStore = useUserStore()
-    
+
     const profileData = ref({
       name: '',
       phone: '',
@@ -79,6 +81,7 @@ export default {
         day: 'numeric'
       })
     }
+
 
     const validateForm = () => {
       if (!profileData.value.name) {
@@ -100,6 +103,7 @@ export default {
       try {
         isLoading.value = true
         const response = await axios.get('/api/user/profile')
+
         profileData.value = {
           name: response.data.name,
           phone: response.data.phone,
@@ -108,22 +112,27 @@ export default {
         }
       } catch (error) {
         console.error('프로필 정보 로딩 실패:', error)
+
         showAlert('프로필 정보를 불러오는데 실패했습니다.', 'error')
       } finally {
         isLoading.value = false
+
       }
     }
 
     const handleSubmit = async () => {
+
       if (!validateForm()) return
 
       isLoading.value = true
       try {
         const response = await axios.patch('/api/user/profile', {
+
           name: profileData.value.name,
           phone: profileData.value.phone,
           email: profileData.value.email
         })
+
         
         if (response.data.success) {
           showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
@@ -140,6 +149,7 @@ export default {
         console.error('프로필 업데이트 실패:', error)
         const errorMessage = error.response?.data?.message || '프로필 업데이트 중 오류가 발생했습니다.'
         showAlert(errorMessage, 'error')
+
       } finally {
         isLoading.value = false
       }

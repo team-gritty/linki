@@ -16,7 +16,6 @@ Thumbs.db
 # 🔐 민감 정보 및 설정 파일
 # ========================
 application-secret.properties
-application.yml
 .env
 .env.*
 
@@ -115,5 +114,3 @@ $RECYCLE.BIN/
 /frontend/Linki/yarn-debug.log*
 /frontend/Linki/yarn-error.log*
 /fronted/json-server/node_modules/
-/frontend/json-server/db.json
-/frontend/json-server/routes.json

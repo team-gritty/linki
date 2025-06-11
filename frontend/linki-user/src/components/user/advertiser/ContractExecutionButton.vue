@@ -6,8 +6,8 @@
 </template>
 
 <script setup>
- // reactive 상태 관리, watch는 props.adExecuted 변화를 감지
-import { ref, watch, toRefs } from 'vue'
+ // reactive 상태 관리, watch는 props.isExecuted 변화를 감지
+import { ref, watch } from 'vue'
  // HTTP 요청을 위해 axios
 import axios from 'axios'
 
@@ -19,18 +19,18 @@ const props = defineProps({
     required: true
   },
   // 광고 이행 상태. 'yes'면 이미 이행됨.
-  adExecuted: {
-    type: String,
+  isExecuted: {
+    type: Boolean,
     required: true
   }
 })
 // 버튼 활성화/비활성화 상태를 저장하는 반응형 변수 executed
-// 초기값은 props.adExecuted가 'yes'인지 확인
-const executed = ref(props.adExecuted === 'yes')
+// 초기값은 props.isExecuted가 true인지 확인
+const executed = ref(props.isExecuted)
 
 // 광고 이행 상태가 변경될 때마다 executed 업데이트
-watch(() => props.adExecuted, (val) => {
-  executed.value = val === 'yes'
+watch(() => props.isExecuted, (val) => {
+  executed.value = val
 })
 
 // 광고 이행 처리 함수
@@ -39,12 +39,19 @@ watch(() => props.adExecuted, (val) => {
 async function executeAd() {
   if (executed.value) return
   try {
-    const res = await axios.patch(`/v1/api/contracts/${props.contractId}`, { ad_executed: 'yes' })
+    // 1. contracts 전체 조회
+    const res = await axios.get('http://localhost:3000/contracts')
+    const contract = res.data.find(c => c.contractId === props.contractId)
+    if (!contract) {
+      alert('계약서를 찾을 수 없습니다.')
+      return
+    }
+    // 2. id(숫자)로 PATCH, isExecuted true로 변경
+    await axios.patch(`http://localhost:3000/contracts/${contract.id}`, { isExecuted: true })
     executed.value = true
     console.log('[ContractExecutionButton] PATCH 성공:', {
       contractId: props.contractId,
-      ad_executed: 'yes',
-      response: res.data
+      isExecuted: true
     })
   } catch (e) {
     alert('광고 이행 처리에 실패했습니다.')
