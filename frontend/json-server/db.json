@@ -666,6 +666,7 @@
       "created_at": "2024-03-20",
       "status": "PENDING",
       "img": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
+
       "content": "안녕하세요, 테크리뷰 마스터입니다. 5만 구독자를 보유한 IT 전문 채널을 운영하고 있습니다. 이어폰 리뷰 경험이 풍부하며, 객관적이고 전문적인 리뷰를 제공할 수 있습니다. 제품의 음질, 착용감, 배터리 성능 등을 상세히 분석하여 시청자들에게 유용한 정보를 전달하겠습니다.fg",
       "submitted_at": "2025-06-11T07:09:44.515Z"
     },
@@ -770,6 +771,33 @@
     }
   ],
   "chatMessages": [
+    {
+      "messageId": "msg10",
+      "chatId": "chat5",
+      "senderId": "system",
+      "content": "안녕하세요! 마스카라 리뷰 영상 관련해서 연락드립니다.",
+      "messageDate": "2024-03-25T10:30:00",
+      "messageRead": true,
+      "messageType": "message"
+    },
+    {
+      "messageId": "msg11",
+      "chatId": "chat5",
+      "senderId": "advertiser1",
+      "content": "네, 안녕하세요. 제안서 잘 보았습니다.",
+      "messageDate": "2024-03-25T10:35:00",
+      "messageRead": true,
+      "messageType": "message"
+    },
+    {
+      "messageId": "msg12",
+      "chatId": "chat5",
+      "senderId": "1",
+      "content": "마스카라 발색 테스트 사진입니다.",
+      "messageDate": "2024-03-25T11:00:00",
+      "messageRead": false,
+      "messageType": "message"
+    },
     {
       "messageId": "msg1",
       "chatId": "chat1",
@@ -913,6 +941,7 @@
       "chatId": "chat2",
       "chatPartner": "게임덕후",
       "proposalId": "p2",
+
       "negoStatus": "계약 진행중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=400&h=400",

@@ -13,16 +13,16 @@
   "/v1/api/influencer/campaigns/:productId": "/campaigns?productId=:productId",
   "/v1/api/influencer/campaigns*": "/campaigns$1",
 
-    "/api/proposals": "/proposals",
-    "/v1/api/proposals": "/proposals",
-    "/v1/api/proposals/:id": "/proposals?proposal_id=:id",
-    "/v1/api/proposals\\?proposal_id=:id": "/proposals?proposal_id=:id",
-    "/v1/api/proposals\\?campaign_id=:campaign_id": "/proposals?campaign_id=:campaign_id",
-    "/v1/api/influencer/proposals": "/proposals",
-    "/v1/api/influencer/proposals/:proposalId": "/proposals?proposal_id=:proposalId",
-    "/v1/api/influencer/proposals\\?_page=:page&_limit=:limit": "/proposals?_page=:page&_limit=:limit",
-    "/v1/api/influencer/campaigns/:campaignId/proposals\\?_page=:page&_limit=:limit&_sort=:sort&_order=:order": "/proposals?campaign_id=:campaignId&_page=:page&_limit=:limit&_sort=:sort&_order=:order",
-    "/v1/api/influencer/campaigns": "/campaigns",
+  "/api/proposals": "/proposals",
+  "/v1/api/proposals": "/proposals",
+  "/v1/api/proposals/:id": "/proposals?proposal_id=:id",
+  "/v1/api/proposals\\?proposal_id=:id": "/proposals?proposal_id=:id",
+  "/v1/api/proposals\\?campaign_id=:campaign_id": "/proposals?campaign_id=:campaign_id",
+  "/v1/api/influencer/proposals": "/proposals",
+  "/v1/api/influencer/proposals/:proposalId": "/proposals?proposal_id=:proposalId",
+  "/v1/api/influencer/proposals\\?_page=:page&_limit=:limit": "/proposals?_page=:page&_limit=:limit",
+  "/v1/api/influencer/campaigns/:campaignId/proposals\\?_page=:page&_limit=:limit&_sort=:sort&_order=:order": "/proposals?campaign_id=:campaignId&_page=:page&_limit=:limit&_sort=:sort&_order=:order",
+  "/v1/api/influencer/campaigns": "/campaigns",
 
   "/api/advertiser-reviews": "/advertiser-reviews",
   "/v1/api/influencer/reviews/advertiser*": "/advertiser-reviews$1",
@@ -41,7 +41,6 @@
   "/v1/api/advertiser/contracts": "/contracts",
   "/v1/api/advertiser/contracts/:id": "/contracts/:id",
   "/v1/api/advertiser/contracts/:id/document": "/contracts/:id/document",
-  "/v1/api/advertiser/contracts/:id/sign": "/contracts/:id/sign",
 
   "/contracts": "/contracts",
   "/v1/api/influencer/contracts": "/contracts",
@@ -52,8 +51,6 @@
   "/v1/api/influencer/contracts/:contractId/settlements": "/contract-settlements?contractId=:contractId",
   "/v1/api/influencer/settlements": "/settlements",
 
-  "/v1/api/channels": "/channels",
-  "/v1/api/channels/:id": "/channels/:id",
   "/v1/api/channels/:id/reviews": "/channels/:id/reviews",
 
   "/v1/api/mypage/campaign-list": "/campaign-list",
@@ -70,7 +67,6 @@
   "/v1/api/chat/chat-detail": "/chatDetails",
   "/v1/api/chat/proposal/:proposalId": "/proposals?proposal_id=:proposalId",
   "/v1/api/chat/contract/:contractId": "/contracts?contract_id=:contractId",
-
 
   "/v1/admin/api/generalUsers": "/generalUser",
   "/v1/admin/api/generalUsers/search": "/generalUser",
@@ -158,6 +154,13 @@
   "/v1/api/advertiser/proposals": "/proposals",
   "/v1/api/advertiser/proposals?campaignId=:campaignId": "/proposals?campaign_id=:campaignId",
 
+  "광고주 제안서 관련": "광고주의 제안서 관련 라우트",
+  "/v1/api/advertiser/proposals/:proposalId": "/proposals/:proposalId",
+
+  "광고주": "광고주가 특정 계약서에 대해 전자서명을 할 때 호출",
+  "/v1/api/advertiser/contracts/:id/sign": "/contracts/:id/sign",
+  "광고주": " 광고주가 제안서(:proposalId)를 바탕으로 새로운 계약서를 생성할 때 호출되는 API",
+  "/v1/api/advertiser/contracts/:proposalId": "/contracts",
   "/v1/api/influencer/campaigns/:campaignId": "/campaigns/:campaignId",
   "/api/influencer/advertiser-reviews": "/advertiser-reviews",
   "/v1/api/influencer/reviews/received": "/advertiser-reviews",
