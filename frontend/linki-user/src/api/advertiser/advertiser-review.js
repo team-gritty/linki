@@ -6,18 +6,18 @@ import axios from 'axios';
 const BASE_URL = '';  
 
 export const reviewApi = {
-  // 내가 받은 (광고주) 리뷰 조회
+  // 내가 받은(광고주) 리뷰 조회
   getReceivedReviews() {
-    return axios.get(`${BASE_URL}/influencer-reviews`);
+    return axios.get(`/v1/api/advertiser/reviews/received`);
   },
 
-  // 내가 준 (인플루언서에게) 리뷰 조회 
+  // 내가 쓴(인플루언서에게 남긴) 리뷰 조회
   getGivenReviews() {
-    return axios.get(`${BASE_URL}/advertiser-reviews`);
+    return axios.get(`/v1/api/advertiser/reviews/given`);
   },
 
-  // 인플루언서 대한 리뷰 작성하기
-  submitAdvertiserReview(reviewData) {
-    return axios.post(`${BASE_URL}/advertiser/influencer-reviews`, reviewData);
+  // 인플루언서에 대한 리뷰 작성
+  writeInfluencerReview(reviewData) {
+    return axios.post(`/v1/api/advertiser/reviews/influencer`, reviewData);
   }
 };

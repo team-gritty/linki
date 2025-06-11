@@ -27,8 +27,12 @@
 
   "광고주 채널 상세 페이지 리뷰 탭 ": "채널에 해당하는 인플루언서에 대한 리뷰 불러오기",
   "/v1/api/advertiser/influencer-reviews*": "/influencer-reviews$1",
-  "광고주 마이페이지 - 자신이 작성한 리뷰 조회": "자신이 작성한 리뷰 조회",
-  "/v1/api/advertiser/advertiser-reviews*": "/advertiser-reviews$1",
+  "광고주 마이페이지 - 작성한 리뷰 조회": "자신이 작성한 리뷰 조회",
+  "/v1/api/advertiser/reviews/given*": "/advertiser-reviews$1",
+  "광고주 마이페이지 - 받은 리뷰 조회": "자신이 받은 리뷰 조회",
+  "/v1/api/advertiser/reviews/received*": "/influencer-reviews$1",
+  "광고주 마이페이지 - 리뷰 작성": "인플루언서에 대한 리뷰 작성",
+  "/v1/api/advertiser/reviews/influencer*": "/influencer-reviews$1",
 
   "광고주 - 계약서 관련": "광고주의 계약서 관련 라우트",
   "/v1/api/advertiser/contracts": "/contracts",
