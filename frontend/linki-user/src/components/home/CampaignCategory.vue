@@ -66,16 +66,6 @@ const getCategoryIcon = (categoryName) => {
   return iconMap[categoryName] || '📌'
 }
 
-// 카테고리 클릭 핸들러
-const handleCategoryClick = (category) => {
-  router.push({
-    path: '/campaigns',
-    query: { 
-      category: category.name
-    }
-  })
-}
-
 // 전체보기 버튼 핸들러
 const handleViewAll = () => {
   router.push({
