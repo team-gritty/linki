@@ -29,7 +29,7 @@
   onMounted(async () => {
     try {
         // 그래프 위한 데이터 조회 함수
-      const response = await axios.get(`/v1/api/subscriber-history?channelId=${props.channelId}`)
+      const response = await axios.get(`/subscriber-history?channelId=${props.channelId}`)
       // 조회된 데이터를 history 배열에 저장
       history.value = response.data
     } catch (error) {

@@ -42,7 +42,7 @@
   
   const fetchContracts = async () => {
     try {
-      const response = await axios.get('/v1/api/advertiser/contracts');
+      const response = await axios.get('/advertiser/contracts');
       let contractList = Array.isArray(response.data) ? response.data : [];
       contracts.value = contractList
         .filter(contract => contract.contractStatus === 'COMPLETED')

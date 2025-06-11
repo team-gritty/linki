@@ -25,6 +25,9 @@
   "/v1/api/influencer/reviews/advertiser*": "/advertiser-reviews$1",
   "/v1/api/influencer/reviews/influencer*": "/influencer-reviews$1",
 
+  "광고주 - 리뷰 관련": "광고주의 리뷰 관련 라우트",
+  "/v1/api/advertiser/influencer-reviews*": "/influencer-reviews$1",
+
   "광고주 - 계약서 관련": "광고주의 계약서 관련 라우트",
   "/v1/api/advertiser/contracts": "/contracts",
   "/v1/api/advertiser/contracts/:id": "/contracts/:id",

@@ -61,7 +61,7 @@ async function fetchProposals() {
   loading.value = true
   error.value = null
   try {
-    const res = await axios.get(`/v1/api/proposals?campaign_id=${props.campaignId}`)
+    const res = await axios.get(`/proposals?campaignId=${props.campaignId}`)
     proposals.value = res.data
   } catch (e) {
     error.value = '제안서 목록을 불러오지 못했습니다.'
