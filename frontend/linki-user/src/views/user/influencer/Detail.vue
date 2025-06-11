@@ -43,14 +43,13 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { proposalAPI } from '@/api/proposal'
 
 import DetailHeader from '@/components/user/influencer/detail/DetailHeader.vue'
 import DetailProposal from '@/components/user/influencer/detail/DetailProposal.vue'
 import DetailCampaign from '@/components/user/influencer/detail/DetailCampaign.vue'
 import DetailChat from '@/components/user/influencer/detail/DetailChat.vue'
 import DetailContract from '@/components/user/influencer/detail/DetailContract.vue'
-
-const BASE_URL = 'http://localhost:3000'
 
 const route = useRoute()
 const router = useRouter()
@@ -78,6 +77,7 @@ const initializeTab = () => {
 const fetchData = async () => {
   try {
     const id = route.params.id;
+    console.log('Fetching proposal with ID:', id);
     
     // 계약서 탭이고 query에 계약 정보가 있는 경우
     if (route.query.tab === 'contract' && route.query.contractId) {
@@ -98,36 +98,53 @@ const fetchData = async () => {
       return; // 여기서 함수 종료
     }
 
-    // 기존 제안서 조회 로직
-    const proposalRes = await axios.get(`${BASE_URL}/proposals?proposal_id=${id}`);
+    // 1. 전체 제안서 목록 조회
+    const proposalsResponse = await axios.get('/v1/api/influencer/proposals');
+    console.log('All proposals:', proposalsResponse.data);
     
-    if (proposalRes.data?.length > 0) {
-      proposal.value = proposalRes.data[0];
-      
-      const campaignId = proposal.value.product_id || proposal.value.campaign_id;
-      if (!campaignId) throw new Error('캠페인 ID를 찾을 수 없습니다.');
-      
-      // 캠페인 정보 조회
-      const campaignRes = await axios.get(`${BASE_URL}/campaign-list?campaign_id=${campaignId}`);
-      if (campaignRes.data?.length > 0) {
-        campaignDetail.value = campaignRes.data[0];
-        
-        // 계약 정보 조회
-        const contractRes = await axios.get(`${BASE_URL}/contracts?campaignId=${campaignId}`);
-        if (contractRes.data?.length > 0) {
-          contractId.value = contractRes.data[0].contractId;
-        }
-      } else {
-        throw new Error('캠페인 정보를 찾을 수 없습니다.');
-      }
-    } else if (!route.query.contractId) { // 제안서도 없고 계약 정보도 없는 경우에만 에러
+    // proposal_id로 해당 제안서 찾기
+    const foundProposal = proposalsResponse.data.find(p => p.proposal_id === id);
+    console.log('Found proposal:', foundProposal);
+    
+    if (!foundProposal) {
       throw new Error('제안서를 찾을 수 없습니다.');
     }
+    
+    proposal.value = foundProposal;
+    
+    // 2. 캠페인 정보 조회
+    const campaignId = foundProposal.campaign_id;
+    console.log('Campaign ID:', campaignId);
+    
+    if (!campaignId) {
+      throw new Error('캠페인 ID를 찾을 수 없습니다.');
+    }
+    
+    // 캠페인 정보 조회
+    const campaignRes = await axios.get(`/v1/api/influencer/campaigns/${campaignId}`);
+    console.log('Campaign response:', campaignRes.data);
+    
+    if (campaignRes.data && Array.isArray(campaignRes.data)) {
+      campaignDetail.value = campaignRes.data[0];
+    } else if (campaignRes.data) {
+      campaignDetail.value = campaignRes.data;
+    } else {
+      throw new Error('캠페인 정보를 찾을 수 없습니다.');
+    }
+    
+    // 3. 계약 정보 조회 (있는 경우)
+    if (foundProposal.contractId) {
+      const contractRes = await axios.get(`/v1/api/influencer/contracts?campaignId=${campaignId}`);
+      if (contractRes.data?.length > 0) {
+        contractId.value = contractRes.data[0].contractId;
+      }
+    }
+    
   } catch (error) {
     console.error('Failed to fetch data:', error);
-    if (!route.query.contractId) { // 계약 정보가 없는 경우에만 에러 메시지 표시
+    if (!route.query.contractId) {
       alert(error.message || '데이터를 불러오는데 실패했습니다.');
-      router.push('/mypage');
+      router.push('/mypage/influencer');
     }
   }
 };
@@ -137,64 +154,51 @@ watch(() => route.query, initializeTab)
 
 const saveProposal = async (newContent) => {
   try {
-    const proposalId = route.params.id
-    if (!proposalId) throw new Error('제안서 ID를 찾을 수 없습니다.')
+    const proposalId = route.params.id;
+    if (!proposalId) throw new Error('제안서 ID를 찾을 수 없습니다.');
 
-    const response = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`)
-    if (response.data?.length > 0) {
-      const proposalData = response.data[0]
-      
-      const updatedData = {
-        ...proposalData,
-        contents: newContent,
-        submitted_at: new Date().toISOString()
-      }
+    const updatedData = {
+      ...proposal.value,
+      contents: newContent,
+      submitted_at: new Date().toISOString()
+    };
 
-      await axios.put(`${BASE_URL}/proposals/${proposalData.id}`, updatedData)
-      await fetchData()
-      alert('제안서가 성공적으로 수정되었습니다.')
-    } else {
-      throw new Error('제안서를 찾을 수 없습니다.')
-    }
+    await proposalAPI.updateProposal(proposalId, updatedData);
+    await fetchData();
+    alert('제안서가 성공적으로 수정되었습니다.');
   } catch (error) {
-    console.error('Failed to update proposal:', error)
-    alert(`제안서 수정에 실패했습니다. 오류: ${error.message}`)
+    console.error('Failed to update proposal:', error);
+    alert(`제안서 수정에 실패했습니다. 오류: ${error.message}`);
   }
-}
+};
 
 const deleteProposal = async () => {
-  if (!confirm('정말로 이 제안서를 삭제하시겠습니까?')) return
+  if (!confirm('정말로 이 제안서를 삭제하시겠습니까?')) return;
   
   try {
-    const proposalId = route.params.id
-    if (!proposalId) throw new Error('제안서 ID를 찾을 수 없습니다.')
+    const proposalId = route.params.id;
+    if (!proposalId) throw new Error('제안서 ID를 찾을 수 없습니다.');
 
-    const response = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`)
-    if (response.data?.length > 0) {
-      const proposalData = response.data[0]
-      await axios.delete(`${BASE_URL}/proposals/${proposalData.id}`)
-      router.push('/mypage')
-    } else {
-      throw new Error('제안서를 찾을 수 없습니다.')
-    }
+    await proposalAPI.deleteProposal(proposalId);
+    router.push('/mypage');
   } catch (error) {
-    console.error('Failed to delete proposal:', error)
-    alert(error.message || '제안서 삭제에 실패했습니다.')
+    console.error('Failed to delete proposal:', error);
+    alert(error.message || '제안서 삭제에 실패했습니다.');
   }
-}
+};
 
 const goToCampaignDetail = () => {
   if (campaignDetail.value?.campaign_id) {
-    router.push(`/campaign/${campaignDetail.value.campaign_id}`)
+    router.push(`/campaign/${campaignDetail.value.campaign_id}`);
   }
-}
+};
 
 const goToProposalList = () => {
-  router.push('/mypage')
-}
+  router.push('/mypage/influencer');
+};
 
 onMounted(() => {
-  fetchData()
-  initializeTab()
-})
+  fetchData();
+  initializeTab();
+});
 </script> 

@@ -9,6 +9,7 @@ const instance = axios.create({
         'Content-Type': 'application/json',
     },
     paramsSerializer: {
+        encode: encodeURIComponent,
         serialize: (params) => {
             // URL 쿼리 파라미터 직렬화
             const searchParams = new URLSearchParams();

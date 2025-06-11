@@ -6,29 +6,29 @@
       </div>
       <div v-else-if="campaignDetail" class="campaign-content">
         <div class="detail-img-box">
-          <img class="main-img" :src="campaignDetail.campaign_img || campaignDetail.productImg" alt="캠페인 메인 이미지" />
+          <img class="main-img" :src="campaignDetail.campaign_img" alt="캠페인 메인 이미지" />
         </div>
         <div class="detail-info-box">
           <div class="detail-title">캠페인 설명</div>
           <div class="detail-desc">
-            {{ campaignDetail.campaign_desc || campaignDetail.productDesc }}
+            {{ campaignDetail.campaign_desc }}
           </div>
           <div class="detail-meta-service">
             <div class="meta-row-service">
               <span class="meta-label">광고 신청 마감일</span>
-              <span class="meta-value">{{ formatDate(campaignDetail.campaign_deadline || campaignDetail.productDeadline) }}</span>
+              <span class="meta-value">{{ formatDate(campaignDetail.campaign_deadline) }}</span>
             </div>
             <div class="meta-row-service">
               <span class="meta-label">광고 조건</span>
-              <span class="meta-value">{{ campaignDetail.campaign_condition || campaignDetail.productCondition }}</span>
+              <span class="meta-value">{{ campaignDetail.campaign_condition }}</span>
             </div>
             <div class="meta-row-service">
               <span class="meta-label">카테고리</span>
-              <span class="meta-value">{{ campaignDetail.campaign_category || campaignDetail.productCategory }}</span>
+              <span class="meta-value">{{ campaignDetail.campaign_category }}</span>
             </div>
             <div class="meta-row-service">
               <span class="meta-label">브랜드</span>
-              <span class="meta-value">{{ campaignDetail.campaign_brand || campaignDetail.companyName }}</span>
+              <span class="meta-value">{{ campaignDetail.campaign_brand }}</span>
             </div>
           </div>
         </div>
@@ -58,7 +58,6 @@ export default {
     const route = useRoute();
     const loading = ref(true);
     const campaignDetail = ref(null);
-    const BASE_URL = 'http://localhost:3000';
 
     const fetchCampaignDetail = async () => {
       try {
@@ -69,7 +68,7 @@ export default {
         }
 
         // 1. proposal_id로 제안서 조회
-        const proposalResponse = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`);
+        const proposalResponse = await axios.get(`/v1/api/influencer/proposals/${proposalId}`);
         if (!proposalResponse.data || proposalResponse.data.length === 0) {
           throw new Error('제안서 정보를 찾을 수 없습니다.');
         }
@@ -77,13 +76,13 @@ export default {
         const proposal = proposalResponse.data[0];
         
         // 2. 제안서의 campaign_id로 캠페인 조회
-        const campaignResponse = await axios.get(`${BASE_URL}/campaigns?productId=${proposal.campaign_id}`);
+        const campaignResponse = await axios.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
         if (campaignResponse.data && campaignResponse.data.length > 0) {
           campaignDetail.value = campaignResponse.data[0];
 
           // 3. 계약 정보가 있다면 조회
           if (proposal.contractId) {
-            const contractResponse = await axios.get(`${BASE_URL}/contracts/${proposal.contractId}`);
+            const contractResponse = await axios.get(`/v1/api/influencer/contracts/${proposal.contractId}`);
             if (contractResponse.data) {
               campaignDetail.value.contract = contractResponse.data;
             }
