@@ -65,6 +65,14 @@ const getIconComponent = (categoryName) => {
   return iconMap[categoryName] || '📱'
 }
 
+// 카테고리 클릭 핸들러 추가
+const handleCategoryClick = (category) => {
+  router.push({
+    name: 'campaigns',
+    query: { category: category.name }
+  })
+}
+
 onMounted(async () => {
   await fetchCategories()
 })
@@ -96,7 +104,9 @@ onMounted(async () => {
     <div class="category-slider">
       <div class="category-grid">
         <div v-for="category in displayedCategories" :key="category.id" 
-             :class="['category-item', { active: category.active }]">
+             :class="['category-item', { active: category.active }]"
+             @click="handleCategoryClick(category)"
+             style="cursor: pointer;">
           <div class="category-icon">
             {{ category.icon }}
           </div>
@@ -110,8 +120,6 @@ onMounted(async () => {
   </section>
 </template>
 
-<style scoped>
-.more-button:hover {
-  background-color: #6618c4;
-}
+<style>
+@import '@/assets/css/home.css';
 </style> 

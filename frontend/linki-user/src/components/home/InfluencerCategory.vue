@@ -22,6 +22,16 @@ const fetchSidebarCategories = async () => {
   }
 }
 
+// 카테고리 클릭 핸들러 수정
+const handleCategoryClick = (category) => {
+  router.push({
+    path: '/channels',  // 실제 채널 목록 페이지 경로로 수정
+    query: { 
+      selectedCategories: JSON.stringify([category.name])
+    }
+  })
+}
+
 onMounted(async () => {
   await fetchSidebarCategories()
 })
@@ -30,14 +40,15 @@ onMounted(async () => {
 <template>
   <div class="sidebar">
     <h3 class="sidebar-title">인플루언서</h3>
+    <button class="view-all-button" @click="$router.push({ name: 'influencer-list' })">
+      전체보기
+    </button>
     <ul class="category-menu">
-      <li class="menu-item">
-        <button class="view-all-button" @click="$router.push({ name: 'influencer-list' })">
-          전체보기
-        </button>
-      </li>
       <li v-for="category in sidebarCategories" :key="category.id" class="menu-item">
-        <a href="#" :class="{ active: category.active }">
+        <a href="#" 
+           :class="{ active: category.active }"
+           @click.prevent="handleCategoryClick(category)"
+           style="cursor: pointer;">
           {{ category.name }}
           <span class="arrow">›</span>
         </a>
@@ -46,7 +57,6 @@ onMounted(async () => {
   </div>
 </template>
 
-<style >
+<style>
 @import '@/assets/css/home.css';
-
 </style> 
