@@ -48,6 +48,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
 
 const props = defineProps({
   proposal: {
@@ -109,7 +110,8 @@ async function saveEdit() {
   }
 }
 function handleContract() {
-  emit('contract', props.proposal)
+  contractApi.startContract(props.proposal.id)
+  alert('계약서 작성을 시작합니다')
 }
 </script>
 

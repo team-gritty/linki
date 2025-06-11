@@ -21,5 +21,11 @@ export const contractApi = {
   // 계약 서명
   signContract(contractId, signData) {
     return axios.post(`/v1/api/advertiser/contracts/${contractId}/sign`, signData);
+  },
+
+  // 계약서 작성 시작 - 제안서 상세에서 '계약'버튼 누를때 
+  startContract(proposalId) {
+    console.log('[startContract] POST /v1/api/advertiser/contracts DTO:', proposalId);
+    return axios.post('/v1/api/advertiser/contracts', proposalId);
   }
 };
