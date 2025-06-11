@@ -79,7 +79,7 @@ const updateTab = (tab) => {
 }
 
 const goToList = () => {
-  router.push('/mypage/campaign-list')
+  router.push('/mypage/advertiser/campaign-list')
 }
 
 onMounted(() => {

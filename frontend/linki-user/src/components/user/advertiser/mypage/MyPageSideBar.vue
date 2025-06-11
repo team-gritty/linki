@@ -19,13 +19,14 @@
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
+import axios from 'axios'
 const props = defineProps({
   currentMenu: {
     type: String,
     required: true
   }
 })
-const emit = defineEmits(['update:currentMenu'])
+const emit = defineEmits(['update:currentMenu', 'contractsLoaded'])
 
 const menuItems = [
   {
@@ -48,7 +49,8 @@ const menuItems = [
     name: '계약서 관리',
     children: [
       { id: 'contract.list', name: '계약서 목록' },
-      { id: 'contract.ongoing', name: '진행중인 계약' }
+      { id: 'contract.ongoing', name: '진행중인 계약' },
+      { id: 'contract.completed', name: '완료된 계약' }
     ]
   },
   {
@@ -56,7 +58,8 @@ const menuItems = [
     name: '리뷰 관리',
     children: [
       { id: 'review.written', name: '작성한 리뷰' },
-      { id: 'review.received', name: '받은 리뷰' }
+      { id: 'review.received', name: '받은 리뷰' },
+      { id: 'review.write', name: '리뷰 작성' }
     ]
   },
   {
@@ -70,8 +73,17 @@ const menuItems = [
   }
 ]
 
-function selectMenu(menuId) {
+async function selectMenu(menuId) {
   emit('update:currentMenu', menuId)
+  if (menuId === 'contract.list') {
+    try {
+      const response = await axios.get('/contracts')
+      emit('contractsLoaded', response.data)
+    } catch (error) {
+      console.error('계약서 목록 불러오기 실패:', error)
+      emit('contractsLoaded', [])
+    }
+  }
 }
 </script>
 

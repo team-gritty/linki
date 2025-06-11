@@ -90,7 +90,7 @@ const router = useRouter()
 const route = useRoute()
 
 function goToList() {
-  router.push('/mypage/campaign-list')
+  router.push('/mypage/advertiser/campaign-list')
 }
 
 const props = defineProps({
