@@ -15,16 +15,16 @@
     <!-- 캠페인 상세 정보 -->
     <div v-else-if="campaign" class="campaign-content">
       <div class="campaign-header">
-        <img :src="campaign.productImg" :alt="campaign.productName" class="campaign-image">
+        <img :src="campaign.campaignImg" :alt="campaign.campaignName" class="campaign-image">
         <div class="campaign-info">
           <div class="campaign-meta">
-            <span class="category">{{ campaign.productCategory }}</span>
-            <span class="deadline">마감일: {{ formatDate(campaign.productDeadline) }}</span>
+            <span class="category">{{ campaign.campaignCategory }}</span>
+            <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
           </div>
-          <h1 class="campaign-title">{{ campaign.productName }}</h1>
+          <h1 class="campaign-title">{{ campaign.campaignName }}</h1>
           <p class="company-name">{{ campaign.companyName }}</p>
           <div class="campaign-description">
-            {{ campaign.productDesc }}
+            {{ campaign.campaignDesc }}
           </div>
         </div>
       </div>
@@ -33,15 +33,15 @@
         <section class="info-section">
           <h2>캠페인 조건</h2>
           <div class="condition-box">
-            {{ campaign.productCondition }}
+            {{ campaign.campaignCondition }}
           </div>
         </section>
 
         <section class="info-section">
           <h2>캠페인 상태</h2>
           <div class="status-box">
-            <span :class="['status-badge', campaign.productPublishStatus.toLowerCase()]">
-              {{ getStatusText(campaign.productPublishStatus) }}
+            <span :class="['status-badge', campaign.campaignStatus.toLowerCase()]">
+              {{ getStatusText(campaign.campaignStatus) }}
             </span>
           </div>
         </section>
