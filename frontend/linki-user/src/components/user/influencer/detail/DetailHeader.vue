@@ -3,10 +3,10 @@
     <div class="campaign-summary-box">
       <div class="summary-left">
         <template v-if="campaignDetail">
-          <img :src="campaignDetail.campaign_img" :alt="campaignDetail.campaign_name" class="summary-thumb">
+          <img :src="campaignDetail.campaignImg" :alt="campaignDetail.campaignName" class="summary-thumb">
           <div class="summary-info">
-            <h2 class="summary-title">{{ campaignDetail.campaign_name }}</h2>
-            <p class="summary-sub">{{ campaignDetail.campaign_desc }}</p>
+            <h2 class="summary-title">{{ campaignDetail.campaignName }}</h2>
+            <p class="summary-sub">{{ campaignDetail.campaignDesc }}</p>
           </div>
         </template>
         <div v-else class="summary-info">
