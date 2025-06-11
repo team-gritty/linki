@@ -51,8 +51,11 @@ export default {
     const fetchContracts = async () => {
       try {
         const response = await contractApi.getMyContracts();
-        // PENDING 상태인 계약만 필터링
-        contracts.value = response.data.filter(contract => contract.contractStatus === 'PENDING');
+        // PENDING 또는 PENDING_SIGN 상태인 계약만 필터링
+        contracts.value = response.data.filter(contract => 
+          contract.contractStatus === 'PENDING' || 
+          contract.contractStatus === 'PENDING_SIGN'
+        );
       } catch (error) {
         console.error('계약 목록 조회 실패:', error);
       }
@@ -94,6 +97,7 @@ export default {
     const getStatusClass = (status) => {
       return {
         'status-pending': status === 'PENDING',
+        'status-pending-sign': status === 'PENDING_SIGN',
         'status-active': status === 'ACTIVE',
         'status-completed': status === 'COMPLETED'
       };
@@ -102,6 +106,7 @@ export default {
     const getStatusText = (status) => {
       const statusMap = {
         'PENDING': '진행중',
+        'PENDING_SIGN': '서명 대기중',
         'ACTIVE': '활성',
         'COMPLETED': '완료'
       };
@@ -124,6 +129,66 @@ export default {
 };
 </script>
 
-<style>
-@import '@/assets/css/mypage.css';
+<style scoped>
+.detail-btn {
+  padding: 8px 24px;
+  background-color: #8B5CF6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.detail-btn:hover {
+  background-color: #7C3AED;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #EEF2FF;
+  color: #6366F1;
+}
+
+.status-pending-sign {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.status-active {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+.status-completed {
+  background-color: #F3F4F6;
+  color: #4B5563;
+}
+
+.contract-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+  border: 1px solid #E5E7EB;
+}
+
+.contract-item:hover {
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.amount {
+  color: #8B5CF6;
+  font-weight: 600;
+}
 </style> 
