@@ -6,8 +6,8 @@
       <div class="chat-header">
         <div class="chat-header-info">
           <span class="header-date">{{ new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
-          <span :class="['status-badge', `status-${chatInfo?.chatStatus}`]">
-            {{ chatInfo?.chatStatus }}
+          <span :class="['status-badge', `status-${chatDetails?.contractStatus}`]">
+            {{ chatDetails?.contractStatus }}
           </span>
         </div>
         <div class="chat-header-actions">
@@ -24,7 +24,15 @@
             <div v-if="shouldShowDateSeparator(message, index)" class="date-separator">
               <span>{{ formatDate(message.messageDate) }}</span>
             </div>
-            <div :class="['message', { 'my-message': message.senderId.startsWith('inf') }]">
+            <!-- 알람 메시지 -->
+            <div v-if="message.messageType === 'alarm'" class="alarm-wrapper">
+              <div class="alarm-datetime">{{ formatDate(message.messageDate) }} {{ formatMessageTime(message.messageDate) }}</div>
+              <div class="alarm-message">
+                {{ message.content }}
+              </div>
+            </div>
+            <!-- 일반 메시지 -->
+            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId }]">
               <div class="message-content">{{ message.content }}</div>
               <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
             </div>
@@ -52,9 +60,7 @@ import { ref, onMounted, watch } from 'vue'
 import { chatApi } from '@/api/chat'
 import { useRouter, useRoute } from 'vue-router'
 
-const router = useRouter()
 const route = useRoute()
-const emit = defineEmits(['update:currentTab'])
 
 const newMessage = ref('')
 const loading = ref(false)
@@ -62,7 +68,7 @@ const error = ref(null)
 const currentUserId = 'inf1'
 const chatInfo = ref(null)
 const chatMessages = ref([])
-const chatProfile = ref(null)
+const chatDetails = ref(null)
 
 // 메시지 시간 포맷 함수
 const formatMessageTime = (dateString) => {
@@ -111,38 +117,27 @@ const loadChatInfo = async () => {
   try {
     // proposalId로 채팅방 찾기
     const proposalId = route.params.id
-    const chatListResponse = await fetch('http://localhost:3000/chatList')
-    if (!chatListResponse.ok) {
-      throw new Error(`HTTP error! status: ${chatListResponse.status}`)
-    }
-    const chatList = await chatListResponse.json()
-    const targetChat = chatList.find(chat => chat.proposalId === proposalId)
+    
+    // 채팅 목록 로드
+    const chatListResponse = await chatApi.getChatList()
+    const targetChat = chatListResponse.data.find(chat => chat.proposalId === proposalId)
     
     if (!targetChat) {
       error.value = '채팅방을 찾을 수 없습니다.'
       return
     }
-
     chatInfo.value = targetChat
 
-    // 채팅방의 chatId와 일치하는 메시지들 로드
-    const messagesResponse = await fetch('http://localhost:3000/chatMessages')
-    if (!messagesResponse.ok) {
-      throw new Error(`HTTP error! status: ${messagesResponse.status}`)
-    }
-    const allMessages = await messagesResponse.json()
-    chatMessages.value = allMessages
-      .filter(msg => msg.chatId === targetChat.chatId)
+    // 채팅 상세 정보 로드
+    const detailsResponse = await chatApi.getChatDetails()
+    const detail = detailsResponse.data.find(d => d.chatId === targetChat.chatId)
+    chatDetails.value = detail
+
+    // 메시지 로드
+    const messagesResponse = await chatApi.getMessages(targetChat.chatId)
+    chatMessages.value = messagesResponse.data
       .sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
 
-    // 프로필 정보 로드
-    const profilesResponse = await fetch('http://localhost:3000/chatProfiles')
-    if (!profilesResponse.ok) {
-      throw new Error(`HTTP error! status: ${profilesResponse.status}`)
-    }
-    const profiles = await profilesResponse.json()
-    const profile = profiles.find(p => p.userId === targetChat.opponentId)
-    chatProfile.value = profile
   } catch (err) {
     error.value = '채팅방 정보를 불러오는데 실패했습니다.'
     console.error('Error loading chat info:', err)
@@ -161,7 +156,8 @@ const sendMessage = async () => {
     senderId: currentUserId,
     content: newMessage.value,
     messageDate: new Date().toISOString(),
-    messageRead: false
+    messageRead: false,
+    messageType: 'message'
   }
 
   try {
@@ -193,20 +189,8 @@ watch(chatMessages, () => {
   }, 0)
 })
 
-// 인플루언서 상세 페이지로 이동
-const goToInfluencerDetail = (influencerId) => {
-  router.push(`/channels/${influencerId}`)
-}
 
-// 제안서 탭으로 이동
-const goToProposal = () => {
-  emit('update:currentTab', 'proposal')
-}
 
-// 계약서 탭으로 이동
-const goToContract = () => {
-  emit('update:currentTab', 'contract')
-}
 </script>
 
 <style>

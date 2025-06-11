@@ -4,7 +4,7 @@ export const chatApi = {
   // 채팅방 생성
   createRoom: async (proposalId) => {
     try {
-      return await axios.post(`/v1/api/chat/room`, {
+      return await axios.post(`/v1/api/chat/rooms/${proposalId}`, {
         chatId: `chat${Date.now()}`,
         opponentName: "New Chat",
         opponentId: `inf${Date.now()}`,
@@ -42,7 +42,7 @@ export const chatApi = {
   // 채팅방 상세 정보 조회
   enterRoom: async (chatId) => {
     try {
-      const response = await axios.get(`/v1/api/chat/room/${chatId}`)
+      const response = await axios.get(`/v1/api/chat/list/${chatId}`)
       const messages = await axios.get(`/v1/api/chat/messages/${chatId}`)
       return {
         ...response.data,
@@ -54,7 +54,7 @@ export const chatApi = {
     }
   },
 
-  // 메시지 조회
+  // 메시지 목록 조회
   getMessages: async (chatId) => {
     try {
       return await axios.get(`/v1/api/chat/messages/${chatId}`)
@@ -64,20 +64,10 @@ export const chatApi = {
     }
   },
 
-  // 알람 읽음 처리
-  readAlarm: async (alarmDto) => {
-    try {
-      return await axios.patch(`/v1/api/chat/alarm/read`, alarmDto)
-    } catch (error) {
-      console.error('Error marking alarm as read:', error)
-      throw error
-    }
-  },
-
   // 제안서 거절
-  rejectProposal: async (chatId) => {
+  rejectProposal: async (proposalId) => {
     try {
-      return await axios.post(`/v1/api/proposals/${chatId}/reject`)
+      return await axios.post(`/v1/api/proposals/${proposalId}/reject`)
     } catch (error) {
       console.error('Error rejecting proposal:', error)
       throw error
@@ -104,11 +94,20 @@ export const chatApi = {
     }
   },
 
+  // 채팅 상세 정보 조회
+  getChatDetails: async () => {
+    try {
+      return await axios.get(`/v1/api/chat/chat-detail`)
+    } catch (error) {
+      console.error('Error getting chat details:', error)
+      throw error
+    }
+  },
+
   // 제안서 상세 조회
   getProposal: async (proposalId) => {
     try {
       const response = await axios.get(`/v1/api/chat/proposal/${proposalId}`)
-      // 응답이 배열인 경우 첫 번째 항목 반환
       return {
         data: Array.isArray(response.data) ? response.data[0] : response.data
       }
