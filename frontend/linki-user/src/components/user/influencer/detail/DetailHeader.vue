@@ -23,9 +23,6 @@
           <button class="go-list-btn" @click="goToProposalList">
             제안서 목록
           </button>
-          <button class="go-list-btn" @click="goToCampaignDetail">
-            캠페인 확인 →
-          </button>
         </template>
       </div>
     </div>
@@ -90,18 +87,17 @@ export default {
     };
 
     const goToProposalList = () => {
-      router.push('/mypage');
+      router.push({
+        name: 'influencer-mypage',
+        query: { currentMenu: 'campaign.proposals' }
+      });
     };
 
-    const goToCampaignDetail = () => {
-      router.push(`/campaign/${props.campaignDetail?.campaign_id}`);
-    };
 
     return {
       getContractTitle,
       goToContractList,
       goToProposalList,
-      goToCampaignDetail
     };
   }
 }
