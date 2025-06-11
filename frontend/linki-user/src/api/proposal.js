@@ -6,30 +6,28 @@ export const proposalAPI = {
     try {
       const response = await httpClient.get('/v1/api/influencer/proposals', {
         params: {
-          status: params.status,
           _page: params._page || 1,
-          _limit: params._limit || 10,
-          _sort: params._sort || 'createdAt',
-          _order: params._order || 'desc'
+          _limit: params._limit || 10
         }
       });
+      
+      // 응답 데이터가 배열인지 확인
+      const proposals = Array.isArray(response.data) ? response.data : [];
+      
       return {
-        proposals: response.data,
+        proposals,
         totalItems: parseInt(response.headers['x-total-count'] || '0')
       };
     } catch (error) {
       console.error('Failed to fetch proposals:', error);
-      return {
-        proposals: [],
-        totalItems: 0
-      };
+      throw error;
     }
   },
 
   // 제안서 상세 조회
   getProposalDetail: async (proposalId) => {
     try {
-      const response = await httpClient.get(`/v1/api/proposals/${proposalId}`);
+      const response = await httpClient.get(`/v1/api/influencer/proposals/${proposalId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch proposal detail:', error);
@@ -40,7 +38,7 @@ export const proposalAPI = {
   // 제안서 수정
   updateProposal: async (proposalId, proposalData) => {
     try {
-      const response = await httpClient.put(`/v1/api/influencer/proposals/${proposalId}`, proposalData);
+      const response = await httpClient.post(`/v1/api/influencer/proposals/${proposalId}`, proposalData);
       return response.data;
     } catch (error) {
       console.error('Failed to update proposal:', error);

@@ -45,7 +45,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { reviewApi } from '@/api/review';
+import axios from 'axios';
 
 export default {
   name: 'MyPageWrittenReviews',
@@ -55,7 +55,7 @@ export default {
 
     const fetchReviews = async () => {
       try {
-        const response = await reviewApi.getInfluencerReviews();
+        const response = await axios.get('/v1/api/influencer/reviews/written');
         reviews.value = response.data;
       } catch (error) {
         console.error('리뷰 목록 조회 실패:', error);
