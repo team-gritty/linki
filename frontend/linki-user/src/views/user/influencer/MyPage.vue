@@ -23,7 +23,7 @@
         
       <!-- 구독 관리 -->
       <MyPageSubscriptionApply v-if="currentMenu === 'subscription.apply'" />
-      <MyPageSubscriptionManage v-if="currentMenu === 'subscription.manage'" />
+      <MyPageSubscriptionManage v-if="currentMenu === 'subscription.manage'" v-model:currentMenu="currentMenu" />
       <MyPageSubscriptionRefund v-if="currentMenu === 'subscription.refund'" />
     </div>
   </div>
