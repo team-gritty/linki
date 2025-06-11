@@ -30,17 +30,17 @@
         <div class="campaign-grid">
           <div 
             v-for="campaign in popularCampaigns" 
-            :key="campaign.productId"
+            :key="campaign.campaign_id"
             class="campaign-card"
-            @click="goToCampaignDetail(campaign.productId)"
+            @click="goToCampaignDetail(campaign.campaign_id)"
           >
-            <img :src="campaign.productImg" :alt="campaign.productName">
+            <img :src="campaign.campaign_img" :alt="campaign.campaign_name">
             <div class="campaign-info">
-              <h3>{{ campaign.productName }}</h3>
-              <p>{{ campaign.productCondition }}</p>
+              <h3>{{ campaign.campaign_name }}</h3>
+              <p>{{ campaign.campaign_condition }}</p>
               <div class="campaign-meta">
-                <span class="category">{{ campaign.productCategory }}</span>
-                <span class="deadline">마감일: {{ formatDate(campaign.productDeadline) }}</span>
+                <span class="category">{{ campaign.campaign_category }}</span>
+                <span class="deadline">마감일: {{ formatDate(campaign.campaign_deadline) }}</span>
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@
           <div class="sort-options">
             <select v-model="sortBy" @change="fetchCampaigns">
               <option value="createdAt">최신순</option>
-              <option value="productDeadline">마감임박순</option>
+              <option value="campaign_deadline">마감임박순</option>
             </select>
           </div>
         </div>
@@ -62,17 +62,17 @@
         <div class="campaign-grid">
           <div 
             v-for="campaign in campaigns" 
-            :key="campaign.productId"
+            :key="campaign.campaign_id"
             class="campaign-card"
-            @click="goToCampaignDetail(campaign.productId)"
+            @click="goToCampaignDetail(campaign.campaign_id)"
           >
-            <img :src="campaign.productImg" :alt="campaign.productName">
+            <img :src="campaign.campaign_img" :alt="campaign.campaign_name">
             <div class="campaign-info">
-              <h3>{{ campaign.productName }}</h3>
-              <p>{{ campaign.productCondition }}</p>
+              <h3>{{ campaign.campaign_name }}</h3>
+              <p>{{ campaign.campaign_condition }}</p>
               <div class="campaign-meta">
-                <span class="category">{{ campaign.productCategory }}</span>
-                <span class="deadline">마감일: {{ formatDate(campaign.productDeadline) }}</span>
+                <span class="category">{{ campaign.campaign_category }}</span>
+                <span class="deadline">마감일: {{ formatDate(campaign.campaign_deadline) }}</span>
               </div>
             </div>
           </div>
@@ -159,7 +159,7 @@ const fetchCampaigns = async () => {
     }
 
     if (selectedCategory.value !== 'all') {
-      params.productCategory = selectedCategory.value
+      params.campaign_category = selectedCategory.value
     }
 
     const response = await campaignAPI.getCampaigns(params)

@@ -84,38 +84,61 @@ export default {
     const isEditing = ref(false)
     const editingContent = ref('')
     const proposalData = ref(null)
-    const BASE_URL = 'http://localhost:3000'
+    
 
     const fetchProposal = async () => {
       try {
-        loading.value = true
-        const proposalId = route.params.id // URL에서 proposal id를 가져옴 (예: p3)
+        loading.value = true;
+        const proposalId = route.params.id;
+        console.log('Fetching proposal with ID:', proposalId);
+
         if (!proposalId) {
-          throw new Error('제안서 ID가 없습니다.')
+          throw new Error('제안서 ID가 없습니다.');
         }
 
-        // 1. proposal_id로 제안서 조회
-        const proposalResponse = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`)
-        if (proposalResponse.data && proposalResponse.data.length > 0) {
-          proposalData.value = proposalResponse.data[0]
-          
-          // 2. 계약 정보가 있다면 조회
-          if (proposalData.value.contractId) {
-            const contractResponse = await axios.get(`${BASE_URL}/contracts/${proposalData.value.contractId}`)
-            if (contractResponse.data) {
-              // 계약 정보 처리
-              proposalData.value.contract = contractResponse.data
+        // 1. 제안서 정보를 직접 조회
+        const proposalResponse = await axios.get(`/v1/api/influencer/proposals/${proposalId}`);
+        console.log('Proposal response:', proposalResponse.data);
+
+        if (!proposalResponse.data || !proposalResponse.data.length) {
+          throw new Error('제안서를 찾을 수 없습니다.');
+        }
+
+        const proposal = proposalResponse.data[0]; // json-server는 항상 배열을 반환
+
+        // 2. 캠페인 정보 조회
+        if (proposal.campaign_id) {
+          try {
+            const campaignResponse = await axios.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
+            console.log('Campaign response:', campaignResponse.data);
+            
+            if (campaignResponse.data && campaignResponse.data.length > 0) {
+              proposal.campaign = campaignResponse.data[0];
             }
+          } catch (error) {
+            console.error('Failed to fetch campaign:', error);
           }
-          return
         }
 
-        throw new Error('제안서 정보를 찾을 수 없습니다.')
+        proposalData.value = proposal;
+
+        // 3. 계약 정보가 있다면 조회
+        if (proposal.contractId) {
+          try {
+            const contractResponse = await axios.get(`/v1/api/influencer/contracts/${proposal.contractId}`);
+            if (contractResponse.data && contractResponse.data.length > 0) {
+              proposalData.value.contract = contractResponse.data[0];
+            }
+          } catch (error) {
+            console.error('Failed to fetch contract:', error);
+          }
+        }
+
       } catch (error) {
-        console.error('Failed to fetch proposal:', error)
-        proposalData.value = null
+        console.error('Failed to fetch proposal:', error);
+        proposalData.value = null;
       } finally {
-        loading.value = false
+        loading.value = false;
       }
     }
 
@@ -159,7 +182,7 @@ export default {
       try {
         if (!proposalData.value?.id) return
         
-        await axios.patch(`${BASE_URL}/proposals/${proposalData.value.id}`, {
+        await axios.patch(`/v1/api/influencer/proposals/${proposalData.value.id}`, {
           content: editingContent.value,
           submitted_at: new Date().toISOString()
         })
@@ -177,7 +200,7 @@ export default {
       try {
         if (!proposalData.value?.id) return
         
-        await axios.delete(`${BASE_URL}/proposals/${proposalData.value.id}`)
+        await axios.delete(`/v1/api/influencer/proposals/${proposalData.value.id}`)
         proposalData.value = null
       } catch (error) {
         console.error('Failed to delete proposal:', error)

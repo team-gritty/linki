@@ -15,12 +15,12 @@
         <div v-else class="proposals-container">
           <div v-for="proposal in proposals" :key="proposal.proposal_id" class="card">
             <img 
-              :src="proposal.campaign?.productImg" 
-              :alt="proposal.campaign?.productName"
+              :src="proposal.campaign?.campaign_img" 
+              :alt="proposal.campaign?.campaign_name"
               class="thumb"
             >
             <div class="info">
-              <div class="name">{{ proposal.campaign?.productName || '캠페인 정보 없음' }}</div>
+              <div class="name">{{ proposal.campaign?.campaign_name || '캠페인 정보 없음' }}</div>
               <div class="meta">
                 <span>제출일: {{ formatDate(proposal.submitted_at) }}</span>
                 <div class="status-container">
@@ -44,6 +44,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { proposalAPI } from '@/api/proposal';
 
 export default {
   name: 'MyPageProposalList',
@@ -79,29 +80,43 @@ export default {
       loading.value = true;
       error.value = null;
       try {
-        const proposalRes = await axios.get('http://localhost:3000/proposals');
-        const proposalList = proposalRes.data;
+        // 1. 먼저 모든 제안서 목록을 가져옵니다
+        const response = await axios.get('/v1/api/influencer/proposals', {
+          params: {
+            _page: 1,
+            _limit: 10
+          }
+        });
         
-        const proposalsWithCampaign = await Promise.all(
-          proposalList.map(async (proposal) => {
-            try {
-              const campaignRes = await axios.get(`http://localhost:3000/campaigns?productId=${proposal.product_id}`);
-              const campaign = campaignRes.data[0];
-              return {
-                ...proposal,
-                campaign
-              };
-            } catch (err) {
-              console.error(`Failed to fetch campaign for proposal ${proposal.proposal_id}:`, err);
-              return {
-                ...proposal,
-                campaign: null
-              };
-            }
-          })
-        );
-        
+        const proposalList = response.data;
+        console.log('Fetched proposals:', proposalList);
+
+        if (!Array.isArray(proposalList)) {
+          throw new Error('제안서 데이터 형식이 올바르지 않습니다.');
+        }
+
+        // 2. 캠페인 목록을 한 번에 가져옵니다
+        const campaignsResponse = await axios.get('/v1/api/influencer/campaigns');
+        const campaigns = campaignsResponse.data;
+        console.log('Fetched campaigns:', campaigns);
+
+        // 3. 제안서와 캠페인 정보를 매칭합니다
+        const proposalsWithCampaign = proposalList.map(proposal => {
+          const matchingCampaign = campaigns.find(
+            campaign => campaign.campaign_id === proposal.campaign_id
+          );
+          
+          console.log(`Matching campaign for proposal ${proposal.proposal_id}:`, matchingCampaign);
+          
+          return {
+            ...proposal,
+            campaign: matchingCampaign || null
+          };
+        });
+
         proposals.value = proposalsWithCampaign;
+        console.log('Final proposals with campaigns:', proposals.value);
+
       } catch (err) {
         error.value = '제안서 목록을 불러오는데 실패했습니다.';
         console.error('Failed to fetch proposals:', err);
@@ -111,6 +126,7 @@ export default {
     };
     
     const viewDetail = (proposalId) => {
+      console.log('Navigating to proposal:', proposalId);
       router.push(`/proposal/${proposalId}`);
     };
     

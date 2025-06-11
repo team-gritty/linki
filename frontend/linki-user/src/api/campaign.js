@@ -4,7 +4,7 @@ export const campaignAPI = {
   // 캠페인 목록 조회
   getCampaigns: async (params = {}) => {
     try {
-      const response = await httpClient.get('/v1/api/campaigns', {
+      const response = await httpClient.get('/v1/api/influencer/campaigns', {
         params: {
           _page: params._page || 1,
           _limit: params._limit || 10,
@@ -29,7 +29,7 @@ export const campaignAPI = {
   // 캠페인 상세 정보 조회
   getCampaignDetail: async (campaignId) => {
     try {
-      const response = await httpClient.get(`/v1/api/campaigns/${campaignId}`)
+      const response = await httpClient.get(`/v1/api/influencer/campaigns/${campaignId}`)
       const campaigns = response.data;
       // 단일 캠페인 반환
       return Array.isArray(campaigns) ? campaigns[0] : campaigns;
@@ -40,13 +40,11 @@ export const campaignAPI = {
   },
 
   // 광고주 리뷰 조회
-  getAdvertiserReviews: async (productId) => {
+  getAdvertiserReviews: async (advertiserId) => {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/reviews/advertiser`, {
+      const response = await httpClient.get(`/api/influencer/advertiser-reviews`, {
         params: {
-          productId: String(productId),
-          _sort: 'advertiserReviewCreatedAt',
-          _order: 'desc'
+          advertiser_id: String(advertiserId)
         }
       })
       return response.data

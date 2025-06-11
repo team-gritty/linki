@@ -5,7 +5,7 @@
       <div :class="$style.parent">
         <div :class="$style.div">이름</div>
         <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
+          <div :class="$style.placeToInfoBox" />
           <input 
             type="text" 
             v-model="profileData.name"
@@ -17,7 +17,7 @@
       <div :class="$style.parent">
         <div :class="$style.div">연락처</div>
         <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
+          <div :class="$style.placeToInfoBox" />
           <input 
             type="tel" 
             v-model="profileData.phone"
@@ -33,7 +33,7 @@
       <div :class="$style.parent">
         <div :class="$style.div">Email</div>
         <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
+          <div :class="$style.placeToInfoBox" />
           <input 
             type="email" 
             v-model="profileData.email"
@@ -45,7 +45,7 @@
       <div :class="$style.parent">
         <div :class="$style.div">가입일</div>
         <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
+          <div :class="$style.placeToInfoBox" />
           <div :class="$style.md">{{ formatDate(profileData.joinDate) }}</div>
         </div>
       </div>
@@ -63,13 +63,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { useAlert } from '@/composables/alert'
-import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const isLoading = ref(false)
-const { showAlert } = useAlert()
-const userStore = useUserStore()
+const showPasswordModal = ref(false)
+const passwordLoading = ref(false)
 
 const profileData = ref({
   name: '',
@@ -77,6 +75,15 @@ const profileData = ref({
   email: '',
   joinDate: null
 })
+
+const passwordData = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const passwordError = ref('')
+const confirmError = ref('')
 
 const formatDate = (date) => {
   if (!date) return '-'
@@ -87,70 +94,84 @@ const formatDate = (date) => {
   })
 }
 
-const validateForm = () => {
-  if (!profileData.value.name) {
-    showAlert('이름을 입력해주세요.', 'error')
-    return false
-  }
-  if (profileData.value.phone && !/^\d{3}-\d{4}-\d{4}$/.test(profileData.value.phone)) {
-    showAlert('연락처를 올바른 형식으로 입력해주세요. (000-0000-0000)', 'error')
-    return false
-  }
-  if (!profileData.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.value.email)) {
-    showAlert('유효한 이메일을 입력해주세요.', 'error')
-    return false
-  }
-  return true
-}
-
 const fetchProfile = async () => {
   try {
-    isLoading.value = true
-    const response = await axios.get('/api/user/profile')
+    const response = await axios.get('/api/advertiser/profile')
     profileData.value = {
       ...response.data,
       joinDate: new Date(response.data.joinDate)
     }
   } catch (error) {
     console.error('프로필 정보 로딩 실패:', error)
-    showAlert('프로필 정보를 불러오는데 실패했습니다.', 'error')
-  } finally {
-    isLoading.value = false
+    alert('프로필 정보를 불러오는데 실패했습니다.')
   }
 }
 
 const handleSubmit = async () => {
-  if (!validateForm()) return
-
   isLoading.value = true
   try {
-    const response = await axios.patch('/api/user/profile', {
+    await axios.put('/api/advertiser/profile', {
       name: profileData.value.name,
       phone: profileData.value.phone,
       email: profileData.value.email
     })
-
-    if (response.data.success) {
-      showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
-      userStore.setUserInfo({
-        ...userStore.getUserInfo,
-        name: profileData.value.name,
-        email: profileData.value.email
-      })
-    } else {
-      showAlert(response.data.message || '프로필 업데이트에 실패했습니다.', 'error')
-    }
+    
+    alert('프로필이 성공적으로 업데이트되었습니다.')
   } catch (error) {
     console.error('프로필 업데이트 실패:', error)
-    const errorMessage = error.response?.data?.message || '프로필 업데이트 중 오류가 발생했습니다.'
-    showAlert(errorMessage, 'error')
+    alert('프로필 업데이트에 실패했습니다.')
   } finally {
     isLoading.value = false
   }
 }
 
+const validatePassword = () => {
+  passwordError.value = ''
+  confirmError.value = ''
+
+  if (passwordData.value.newPassword.length < 8) {
+    passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
+    return false
+  }
+
+  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+    confirmError.value = '비밀번호가 일치하지 않습니다.'
+    return false
+  }
+
+  return true
+}
+
+const handlePasswordChange = async () => {
+  if (!validatePassword()) return
+
+  passwordLoading.value = true
+  try {
+    await axios.post('/api/advertiser/change-password', {
+      currentPassword: passwordData.value.currentPassword,
+      newPassword: passwordData.value.newPassword
+    })
+    
+    alert('비밀번호가 성공적으로 변경되었습니다.')
+    showPasswordModal.value = false
+    passwordData.value = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    }
+  } catch (error) {
+    if (error.response?.status === 401) {
+      alert('현재 비밀번호가 올바르지 않습니다.')
+    } else {
+      alert('비밀번호 변경 중 오류가 발생했습니다.')
+    }
+  } finally {
+    passwordLoading.value = false
+  }
+}
+
 const handleCancel = () => {
-  fetchProfile()
+  router.push('/advertiser/mypage')
 }
 
 onMounted(() => {

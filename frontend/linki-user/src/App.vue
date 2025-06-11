@@ -5,6 +5,8 @@ import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import Chatbot from '@/components/chatbot/Chatbot.vue'
+import Alert from '@/components/common/Alert.vue'
 
 const router = useRouter()
 const openSidebar = ref(false)
@@ -34,6 +36,8 @@ watch(
       </main>
     </div>
     <Footer />
+    <Chatbot />
+    <Alert />
   </div>
 </template>
 

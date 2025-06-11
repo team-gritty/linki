@@ -2,7 +2,7 @@
 
 1. cd frontend/json-server
 2. npm install
-3. json-server --watch db.json --routes routes.json --port 3000
+3. node server.js
 
 
 ### json server 작성방법
