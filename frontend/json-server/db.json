@@ -657,8 +657,8 @@
       "created_at": "2024-03-20",
       "status": "PENDING",
       "img": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
-      "content": "안녕하세요, 테크리뷰 마스터입니다. 5만 구독자를 보유한 IT 전문 채널을 운영하고 있습니다. 이어폰 리뷰 경험이 풍부하며, 객관적이고 전문적인 리뷰를 제공할 수 있습니다. 제품의 음질, 착용감, 배터리 성능 등을 상세히 분석하여 시청자들에게 유용한 정보를 전달하겠습니다.",
-      "submitted_at": "2024-03-20T10:00:00.000Z"
+      "content": "안녕하세요, 테크리뷰 마스터입니다. 5만 구독자를 보유한 IT 전문 채널을 운영하고 있습니다. 이어폰 리뷰 경험이 풍부하며, 객관적이고 전문적인 리뷰를 제공할 수 있습니다. 제품의 음질, 착용감, 배터리 성능 등을 상세히 분석하여 시청자들에게 유용한 정보를 전달하겠습니다.fg",
+      "submitted_at": "2025-06-11T07:09:44.515Z"
     },
     {
       "id": 2,
@@ -721,38 +721,34 @@
       "lastMessage": "네, 알겠습니다. 영상은 다음주까지 업로드하도록 하겠습니다.",
       "lastMessageTime": "2025-03-26T10:30:00",
       "isNew": true,
-      "proposalId": "p1",
-      "chatStatus": "협의중"
+      "proposalId": "p1"
     },
     {
       "chatId": "chat2",
       "opponentName": "게임덕후",
       "opponentId": "inf2",
-      "lastMessage": "키보드 리뷰 기획안 보내드립니다.",
+      "lastMessage": "제안서 승인 대기중입니다.",
       "lastMessageTime": "2025-05-26T09:15:00",
       "isNew": false,
-      "proposalId": "p2",
-      "chatStatus": "대기"
+      "proposalId": "p2"
     },
     {
       "chatId": "chat3",
       "opponentName": "IT리뷰어",
       "opponentId": "inf3",
-      "lastMessage": "쿨러 성능 테스트 결과 공유드립니다.",
+      "lastMessage": "제안서 승인 대기중입니다.",
       "lastMessageTime": "2025-06-05T10:45:00",
       "isNew": true,
-      "proposalId": "p3",
-      "chatStatus": "계약체결"
+      "proposalId": "p3"
     },
     {
       "chatId": "chat4",
       "opponentName": "사운드마스터",
       "opponentId": "inf4",
-      "lastMessage": "스피커 리뷰 일정 조율 가능할까요?",
+      "lastMessage": "제안서 승인 대기중입니다.",
       "lastMessageTime": "2024-03-24T18:20:00",
       "isNew": false,
-      "proposalId": "p4",
-      "chatStatus": "대기"
+      "proposalId": "p4"
     },
     {
       "chatId": "chat5",
@@ -761,38 +757,10 @@
       "lastMessage": "마스카라 발색 테스트 사진입니다.",
       "lastMessageTime": "2024-03-26T10:59:55",
       "isNew": true,
-      "proposalId": "p5",
-      "chatStatus": "협의중"
+      "proposalId": "p5"
     }
   ],
   "chatMessages": [
-    {
-      "messageId": "msg10",
-      "chatId": "chat5",
-      "senderId": "system",
-      "content": "안녕하세요! 마스카라 리뷰 영상 관련해서 연락드립니다.",
-      "messageDate": "2024-03-25T10:30:00",
-      "messageRead": true,
-      "messageType" : "message"
-    },
-    {
-      "messageId": "msg11",
-      "chatId": "chat5",
-      "senderId": "advertiser1",
-      "content": "네, 안녕하세요. 제안서 잘 보았습니다.",
-      "messageDate": "2024-03-25T10:35:00",
-      "messageRead": true,
-      "messageType" : "message"
-    },
-    {
-      "messageId": "msg12",
-      "chatId": "chat5",
-      "senderId": "1",
-      "content": "마스카라 발색 테스트 사진입니다.",
-      "messageDate": "2024-03-25T11:00:00",
-      "messageRead": false,
-      "messageType" : "message"
-    },
     {
       "messageId": "msg1",
       "chatId": "chat1",
@@ -800,7 +768,7 @@
       "content": "안녕하세요, 이어폰 리뷰 관련해서 문의드립니다.",
       "messageDate": "2024-03-25T10:00:00",
       "messageRead": true,
-      "messageType" : "message"
+      "messageType": "message"
     },
     {
       "messageId": "msg2",
@@ -809,7 +777,7 @@
       "content": "네, 어떤 점이 궁금하신가요?",
       "messageDate": "2024-03-25T10:15:00",
       "messageRead": true,
-      "messageType" : "message"
+      "messageType": "message"
     },
     {
       "messageId": "msg3",
@@ -818,7 +786,7 @@
       "content": "리뷰 영상 업로드 일정을 다음 주로 조정해도 될까요?",
       "messageDate": "2024-03-25T10:20:00",
       "messageRead": true,
-      "messageType" : "message"
+      "messageType": "message"
     },
     {
       "messageId": "msg4",
@@ -827,63 +795,97 @@
       "content": "네, 알겠습니다. 영상은 다음주까지 업로드하도록 하겠습니다.",
       "messageDate": "2024-03-25T10:30:00",
       "messageRead": false,
-      "messageType" : "message"
+      "messageType": "message"
     },
     {
       "messageId": "msg5",
       "chatId": "chat2",
-      "senderId": "inf2",
-      "content": "안녕하세요! 키보드 리뷰 기획안 작성했습니다.",
-      "messageDate": "2024-03-25T09:00:00",
+      "senderId": "advertiser1",
+      "content": "안녕하세요, 키보드 리뷰 영상 관련해서 연락드립니다.",
+      "messageDate": "2024-03-25T11:00:00",
       "messageRead": true,
-      "messageType" : "message"
-
+      "messageType": "message"
     },
     {
       "messageId": "msg6",
       "chatId": "chat2",
-      "senderId": "advertiser1",
-      "content": "감사합니다. 한번 검토해보고 피드백 드리겠습니다.",
-      "messageDate": "2024-03-25T09:10:00",
+      "senderId": "inf2",
+      "content": "네, 반갑습니다. 어떤 내용으로 진행하면 될까요?",
+      "messageDate": "2024-03-25T11:15:00",
       "messageRead": true,
-      "messageType" : "message"
-
+      "messageType": "message"
     },
     {
       "messageId": "msg7",
       "chatId": "chat2",
-      "senderId": "inf2",
-      "content": "키보드 리뷰 기획안 보내드립니다.",
-      "messageDate": "2024-03-25T09:15:00",
-      "messageRead": false,
-      "messageType" : "message"
+      "senderId": "advertiser1",
+      "content": "키보드의 타건감과 RGB 기능을 중점적으로 보여주시면 좋을 것 같습니다.",
+      "messageDate": "2024-03-25T11:30:00",
+      "messageRead": true,
+      "messageType": "message"
     },
     {
       "messageId": "msg8",
-      "chatId": "chat3",
+      "chatId": "chat4",
       "senderId": "advertiser1",
-      "content": "안녕하세요, 쿨러 성능 테스트는 어떻게 진행되고 있나요?",
-      "messageDate": "2024-03-25T10:30:00",
+      "content": "스피커 리뷰 컨셉에 대해 의견 나누고 싶습니다.",
+      "messageDate": "2024-03-25T13:00:00",
       "messageRead": true,
-      "messageType" : "message"
+      "messageType": "message"
     },
     {
       "messageId": "msg9",
-      "chatId": "chat3",
-      "senderId": "inf3",
-      "content": "쿨러 성능 테스트 결과 공유드립니다.",
-      "messageDate": "2024-03-25T10:45:00",
+      "chatId": "chat4",
+      "senderId": "inf4",
+      "content": "네, 어떤 방향으로 생각하고 계신가요?",
+      "messageDate": "2024-03-25T13:15:00",
+      "messageRead": true,
+      "messageType": "message"
+    },
+    {
+      "messageId": "msg10",
+      "chatId": "chat4",
+      "senderId": "advertiser1",
+      "content": "음질 테스트와 함께 휴대성에 대한 부분도 강조해주시면 좋을 것 같아요.",
+      "messageDate": "2024-03-25T13:30:00",
       "messageRead": false,
-      "messageType" : "message"
+      "messageType": "message"
+    },
+    {
+      "messageId": "msg11",
+      "chatId": "chat5",
+      "senderId": "system",
+      "content": "안녕하세요! 마스카라 리뷰 영상 관련해서 연락드립니다.",
+      "messageDate": "2024-03-25T10:30:00",
+      "messageRead": true,
+      "messageType": "message"
     },
     {
       "messageId": "msg12",
       "chatId": "chat5",
+      "senderId": "advertiser1",
+      "content": "네, 안녕하세요. 제안서 잘 보았습니다.",
+      "messageDate": "2024-03-25T10:35:00",
+      "messageRead": true,
+      "messageType": "message"
+    },
+    {
+      "messageId": "msg13",
+      "chatId": "chat5",
       "senderId": "1",
-      "content": "'뷰티여신'님이 제안서를 수정하셨습니다.",
+      "content": "마스카라 발색 테스트 사진입니다.",
       "messageDate": "2024-03-25T11:00:00",
       "messageRead": false,
-      "messageType" : "alarm"
+      "messageType": "message"
+    },
+    {
+      "messageId": "msg14",
+      "chatId": "chat3",
+      "senderId": "system",
+      "content": "제안서 승인 대기중입니다.",
+      "messageDate": "2025-06-05T10:45:00",
+      "messageRead": false,
+      "messageType": "alarm"
     }
   ],
   "chatDetails": [
@@ -891,7 +893,8 @@
       "chatId": "chat1",
       "chatPartner": "테크리뷰 마스터",
       "proposalId": "p1",
-      "contractStatus": "협의중",
+      "negoStatus": "협의중",
+      "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
       "name": "테크리뷰 마스터",
       "channelName": "TechReview Master",
@@ -901,7 +904,8 @@
       "chatId": "chat2",
       "chatPartner": "게임덕후",
       "proposalId": "p2",
-      "contractStatus": "계약체결",
+      "negoStatus": "계약 진행중",
+      "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=400&h=400",
       "name": "게임덕후",
       "channelName": "GameMaster",
@@ -911,30 +915,33 @@
       "chatId": "chat3",
       "chatPartner": "IT리뷰어",
       "proposalId": "p3",
-      "contractStatus": "대기",
-      "profileImage": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=400&h=400",
+      "negoStatus": "제안서 대기",
+      "chatStatus": "PENDING",
+      "profileImage": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400&h=400",
       "name": "IT리뷰어",
-      "channelName": "IT Review Pro",
+      "channelName": "TechInsight",
       "partnerId": "inf3"
     },
     {
       "chatId": "chat4",
       "chatPartner": "사운드마스터",
       "proposalId": "p4",
-      "contractStatus": "대기",
-      "profileImage": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&q=80&w=400&h=400",
+      "negoStatus": "계약 진행중",
+      "chatStatus": "ACTIVE",
+      "profileImage": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=400&h=400",
       "name": "사운드마스터",
-      "channelName": "Sound Master",
+      "channelName": "SoundMaster",
       "partnerId": "inf4"
     },
     {
       "chatId": "chat5",
       "chatPartner": "뷰티여신",
       "proposalId": "p5",
-      "contractStatus": "협의중",
+      "negoStatus": "계약 완료",
+      "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
       "name": "뷰티여신",
-      "channelName": "Beauty Queen",
+      "channelName": "BeautyGoddess",
       "partnerId": "1"
     }
   ],

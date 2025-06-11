@@ -1039,28 +1039,37 @@
     gap: 12px;
   }
   
-  .status-badge {
+  .nego-status-badge {
     padding: 4px 12px;
     border-radius: 12px;
-    font-size: 0.9em;
-    color: #818080 !important;
-    font-weight: 500 !important;
-    ;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 10px;
+    color: #666666;
   }
   
-  .status-대기 {
-    background-color: #f0f0f0;
-    color: #666;
+  .nego-status-제안서-대기 {
+    background-color: #FFF3E0;
   }
   
-  .status-협의중 {
-    background-color: #FFF8E6;
-    color: #FFA800;
+  .nego-status-제안서-승인 {
+    background-color: #E8F5E9;
   }
   
-  .status-계약체결 {
-    background-color: #e0f2e9;
-    color: #0ca678;
+  .nego-status-협의중 {
+    background-color: #E3F2FD;
+  }
+  
+  .nego-status-계약-서명대기 {
+    background-color: #F3E5F5;
+  }
+  
+  .nego-status-계약-진행중 {
+    background-color: #E8EAF6;
+  }
+  
+  .nego-status-계약-완료 {
+    background-color: #ECEFF1;
   }
   
   .primary-button {
@@ -1120,21 +1129,32 @@
     color: #999;
   }
   
+  .message-input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
   .message-input-container {
-    padding: 16px;
-    border-top: 1px solid #e0e0e0;
     display: flex;
+    padding: 16px;
     gap: 8px;
     background: #fff;
+    border-top: 1px solid #e0e0e0;
   }
-  
+
   .message-input {
     flex: 1;
-    padding: 8px;
+    padding: 8px 12px;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
+    font-size: 14px;
   }
-  
+
+  .message-input:disabled {
+    background-color: #f5f5f5;
+    color: #666666;
+  }
+
   .send-button {
     padding: 8px 16px;
     background-color: #8C30F5;
@@ -1142,10 +1162,16 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 14px;
   }
-  
-  .send-button:hover {
-    background-color: #7B2BF9;
+
+  .send-button:hover:not(:disabled) {
+    background-color: #7B21E8;
+  }
+
+  .send-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
   }
   
   .no-chat-selected {
@@ -1891,4 +1917,40 @@
 
 .alarm-message .message-time {
   display: none;
+}
+
+/* 제안서 대기 상태 */
+.nego-status-제안서-대기 {
+  background-color: #FFF3E0;
+  color: #666666;
+}
+
+/* 제안서 승인 상태 */
+.nego-status-제안서-승인 {
+  background-color: #E8F5E9;
+  color: #666666;
+}
+
+/* 협의중 상태 */
+.nego-status-협의중 {
+  background-color: #E3F2FD;
+  color: #666666;
+}
+
+/* 계약 서명대기 상태 */
+.nego-status-계약-서명대기 {
+  background-color: #F3E5F5;
+  color: #666666;
+}
+
+/* 계약 진행중 상태 */
+.nego-status-계약-진행중 {
+  background-color: #E8EAF6;
+  color: #666666;
+}
+
+/* 계약 완료 상태 */
+.nego-status-계약-완료 {
+  background-color: #ECEFF1;
+  color: #666666;
 }
