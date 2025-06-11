@@ -107,12 +107,12 @@ const validateScore = () => {
 const fetchCompletedContracts = async () => {
   try {
     // 1. 모든 완료된 계약 불러오기
-    const contractsResponse = await axios.get('http://localhost:3000/v1/api/advertiser/contracts');
+    const contractsResponse = await axios.get('/v1/api/advertiser/contracts');
     let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
     const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
 
     // 2. advertiser-reviews에서 이미 리뷰 작성된 contractId 목록 불러오기
-    const reviewsResponse = await axios.get('http://localhost:3000/advertiser-reviews');
+    const reviewsResponse = await axios.get('/advertiser-reviews');
     const reviewedContractIds = (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : []).map(r => r.contractId);
 
     // 3. 리뷰가 작성되지 않은 계약만 필터링 (이유: 리뷰 작성한 계약은 목록에서 제외)
@@ -161,7 +161,7 @@ const submitReview = async () => {
       visibility: review.value.visibility
     };
     // 작성한 리뷰 저장 요청 (advertiser-reviews는 광고주가 작성한 리뷰 목록)
-    await axios.post('http://localhost:3000/advertiser-reviews', reviewData);
+    await axios.post('/advertiser-reviews', reviewData);
     alert('리뷰가 저장되었습니다.');
     closeModal();
     fetchCompletedContracts();
