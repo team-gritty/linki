@@ -104,6 +104,7 @@ export default {
         // 모든 평점의 합을 평균으로 계산 (camelCase)
         const avg = this.reviews.reduce((sum, r) => sum + (r.influencerReviewScore || 0), 0) / this.reviews.length
         this.avgScore = avg
+        // 부모 컴포넌트로 리뷰 통계 이벤트 emit
         this.$emit('review-stats', { count: this.reviews.length, avg })
       } else {
         // 리뷰 없으면 0으로 초기화
