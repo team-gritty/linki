@@ -62,8 +62,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { contractApi } from '@/api/contract';
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000';
-
 export default {
   name: 'DetailContract',
 
@@ -85,25 +83,28 @@ export default {
           throw new Error('제안서 ID를 찾을 수 없습니다.');
         }
 
-        const proposalResponse = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`);
+        const proposalResponse = await axios.get(`/v1/api/influencer/proposals/${proposalId}`);
         if (!proposalResponse.data || proposalResponse.data.length === 0) {
           throw new Error('제안서 정보를 찾을 수 없습니다.');
         }
 
-        // 2. 제안서에서 캠페인 ID 추출
+        // 2. 제안서에서 캠페인 ID 확인
         const proposal = proposalResponse.data[0];
-        const campaignId = proposal.campaign_id || proposal.product_id;
-        if (!campaignId) {
+        console.log('Proposal data:', proposal);
+        
+        if (!proposal.campaign_id) {
           throw new Error('캠페인 정보를 찾을 수 없습니다.');
         }
 
-        // 3. 캠페인 ID로 계약 정보 조회
-        const contractResponse = await axios.get(`${BASE_URL}/contracts?campaignId=${campaignId}`);
+        // 3. 캠페인 ID로 계약 정보 조회 - routes.json 설정에 맞춰 수정
+        const contractResponse = await axios.get(`/v1/api/influencer/contracts/campaign/${proposal.campaign_id}`);
+        console.log('Contract API Response:', contractResponse.data);
+        
         if (contractResponse.data && contractResponse.data.length > 0) {
           contract.value = contractResponse.data[0];
           console.log('Found contract:', contract.value);
         } else {
-          throw new Error('이 캠페인에 대한 계약 정보를 찾을 수 없습니다.');
+          throw new Error('해당 캠페인의 계약 정보를 찾을 수 없습니다.');
         }
 
       } catch (err) {
@@ -128,7 +129,7 @@ export default {
 
     const viewContractDocument = async () => {
       try {
-        const response = await contractApi.getContractDocument(contract.value.contractId);
+        const response = await axios.get(`/v1/api/influencer/contracts/${contract.value.contractId}`);
         window.location.href = response.data.documentUrl;
       } catch (error) {
         console.error('계약서 조회 실패:', error);
@@ -137,7 +138,7 @@ export default {
 
     const signContract = async () => {
       try {
-        const response = await contractApi.signContract(contract.value.contractId);
+        const response = await axios.post(`/v1/api/influencer/contracts/${contract.value.contractId}/sign`);
         window.location.href = response.data.signUrl;
       } catch (error) {
         console.error('전자서명 실패:', error);

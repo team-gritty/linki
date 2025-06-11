@@ -1,190 +1,205 @@
 <template>
-  <div class="password-change-container">
-    <h2 class="section-title">비밀번호 변경</h2>
-    <form @submit.prevent="handleSubmit" class="password-form">
-      <div class="form-group">
-        <label>현재 비밀번호</label>
-        <input 
-          type="password" 
-          v-model="passwordData.currentPassword"
-          placeholder="현재 비밀번호를 입력하세요"
-          required
-        />
+  <div :class="$style.myProfileParent">
+    <div :class="$style.myProfile">비밀번호 변경</div>
+    <div :class="$style.formContainer">
+      <div :class="$style.parent">
+        <div :class="$style.div">현재 비밀번호</div>
+        <div :class="$style.placeboxInfo">
+          <div :class="$style.placeToInfoBox"></div>
+          <input 
+            type="password" 
+            v-model="passwordData.currentPassword"
+            :class="$style.md"
+            :disabled="isLoading"
+          />
+        </div>
       </div>
-      <div class="form-group">
-        <label>새 비밀번호</label>
-        <input 
-          type="password" 
-          v-model="passwordData.newPassword"
-          placeholder="새 비밀번호를 입력하세요"
-          required
-        />
-        <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
+      <div :class="$style.parent">
+        <div :class="$style.div">새 비밀번호</div>
+        <div :class="$style.placeboxInfo">
+          <div :class="$style.placeToInfoBox"></div>
+          <input 
+            type="password" 
+            v-model="passwordData.newPassword"
+            :class="$style.md"
+            :disabled="isLoading"
+          />
+        </div>
+        <div v-if="passwordError" :class="$style.errorMessage">{{ passwordError }}</div>
       </div>
-      <div class="form-group">
-        <label>새 비밀번호 확인</label>
-        <input 
-          type="password" 
-          v-model="passwordData.confirmPassword"
-          placeholder="새 비밀번호를 다시 입력하세요"
-          required
-        />
-        <div v-if="confirmError" class="error-message">{{ confirmError }}</div>
+      <div :class="$style.parent">
+        <div :class="$style.div">새 비밀번호 확인</div>
+        <div :class="$style.placeboxInfo">
+          <div :class="$style.placeToInfoBox"></div>
+          <input 
+            type="password" 
+            v-model="passwordData.confirmPassword"
+            :class="$style.md"
+            :disabled="isLoading"
+          />
+        </div>
+        <div v-if="confirmError" :class="$style.errorMessage">{{ confirmError }}</div>
       </div>
-      <div class="button-group">
-        <button type="submit" class="submit-button" :disabled="isLoading">
-          {{ isLoading ? '변경 중...' : '비밀번호 변경' }}
-        </button>
+      <div :class="$style.buttonContainer">
+        <div :class="$style.button" @click="handleSubmit" :disabled="isLoading">
+          <div :class="$style.viewAllProducts">{{ isLoading ? '변경 중...' : '변경' }}</div>
+        </div>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
 import axios from 'axios'
 
-export default {
-  name: 'MyPagePassword',
-  setup() {
-    const isLoading = ref(false)
-    const passwordData = ref({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+const isLoading = ref(false)
+const passwordError = ref('')
+const confirmError = ref('')
+
+const passwordData = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const validatePassword = () => {
+  passwordError.value = ''
+  confirmError.value = ''
+
+  if (passwordData.value.newPassword.length < 8) {
+    passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
+    return false
+  }
+
+  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+    confirmError.value = '비밀번호가 일치하지 않습니다.'
+    return false
+  }
+
+  return true
+}
+
+const handleSubmit = async () => {
+  if (!validatePassword()) return
+
+  isLoading.value = true
+  try {
+    await axios.post('/api/influencer/change-password', {
+      currentPassword: passwordData.value.currentPassword,
+      newPassword: passwordData.value.newPassword
     })
-    const passwordError = ref('')
-    const confirmError = ref('')
-
-    const validatePassword = () => {
-      passwordError.value = ''
-      confirmError.value = ''
-
-      if (passwordData.value.newPassword.length < 8) {
-        passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
-        return false
-      }
-
-      if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
-        confirmError.value = '비밀번호가 일치하지 않습니다.'
-        return false
-      }
-
-      return true
+    
+    alert('비밀번호가 성공적으로 변경되었습니다.')
+  } catch (error) {
+    if (error.response?.status === 401) {
+      alert('현재 비밀번호가 올바르지 않습니다.')
+    } else {
+      alert('비밀번호 변경 중 오류가 발생했습니다.')
     }
-
-    const handleSubmit = async () => {
-      if (!validatePassword()) return
-
-      isLoading.value = true
-      try {
-        await axios.post('/api/influencer/change-password', {
-          currentPassword: passwordData.value.currentPassword,
-          newPassword: passwordData.value.newPassword
-        })
-        
-        alert('비밀번호가 성공적으로 변경되었습니다.')
-        passwordData.value = {
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          alert('현재 비밀번호가 올바르지 않습니다.')
-        } else {
-          alert('비밀번호 변경 중 오류가 발생했습니다.')
-        }
-      } finally {
-        isLoading.value = false
-      }
-    }
-
-    return {
-      passwordData,
-      passwordError,
-      confirmError,
-      isLoading,
-      handleSubmit
-    }
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
 
-<style scoped>
-.password-change-container {
+<style module>
+.myProfileParent {
+  position: relative;
+  width: 100%;
   padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.section-title {
-  font-size: 24px;
+.myProfile {
+  font-size: 20px;
+  line-height: 28px;
   font-weight: 500;
-  color: #333;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
-.password-form {
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   max-width: 400px;
 }
 
-.form-group {
-  margin-bottom: 24px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 14px;
-  color: #666;
+.div {
+  line-height: 24px;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #000;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-bottom: 8px;
 }
 
-.form-group input {
+.placeToInfoBox {
+  position: absolute;
+  height: 100%;
   width: 100%;
-  height: 40px;
-  padding: 0 16px;
-  border: 1px solid #ddd;
+  top: 0;
+  left: 0;
   border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s;
+  background-color: rgba(245, 245, 245, 0.7);
 }
 
-.form-group input:focus {
+.md {
+  position: absolute;
+  top: 13px;
+  left: 16px;
+  line-height: 24px;
+  background: transparent;
+  border: none;
+  width: calc(100% - 32px);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.md:focus {
   outline: none;
-  border-color: #d6bcf7;
 }
 
-.error-message {
+.placeboxInfo {
+  position: relative;
+  width: 100%;
+  height: 50px;
+}
+
+.parent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.errorMessage {
   color: #ff4d4f;
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 4px;
 }
 
-.button-group {
-  margin-top: 32px;
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }
 
-.submit-button {
-  width: 100%;
-  height: 44px;
-  background-color: #d6bcf7;
-  border: none;
+.button {
+  padding: 12px 48px;
+  background-color: #1890ff;
   border-radius: 4px;
   color: white;
-  font-size: 16px;
-  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 500;
 }
 
-.submit-button:hover {
-  background-color: #c4a1f7;
+.button:hover {
+  background-color: #40a9ff;
 }
 
-.submit-button:disabled {
-  background-color: #e9e9e9;
+.viewAllProducts {
+  line-height: 24px;
+}
+
+[disabled] {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 </style> 

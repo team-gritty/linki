@@ -13,10 +13,10 @@
       <h1>제안서 작성</h1>
       
       <div v-if="campaign" class="campaign-info">
-        <h2>{{ campaign.productName }}</h2>
+        <h2>{{ campaign.campaign_name }}</h2>
         <p class="campaign-meta">
-          <span class="category">{{ campaign.productCategory }}</span>
-          <span class="deadline">마감일: {{ campaign.productDeadline }}</span>
+          <span class="category">{{ campaign.campaign_category }}</span>
+          <span class="deadline">마감일: {{ campaign.campaign_deadline }}</span>
         </p>
       </div>
 

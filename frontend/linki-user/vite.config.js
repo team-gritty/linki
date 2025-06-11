@@ -16,6 +16,7 @@ export default defineConfig({
   server: {
     port: 3002,
     host: '0.0.0.0',
+    allowedHosts: ['linki.kr', 'www.linki.kr'],
     proxy: {
       '/v1/api': {
         target: 'http://localhost:3000',

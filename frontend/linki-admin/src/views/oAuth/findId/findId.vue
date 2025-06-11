@@ -31,6 +31,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 const name = ref('')
@@ -39,7 +40,7 @@ const isLoading = ref(false)
 
 const handleFindId = async () => {
   if (!name.value || !email.value) {
-    console.error('Please fill in all fields')
+    alert('이름과 이메일을 모두 입력해주세요.')
     return
   }
 
@@ -49,12 +50,27 @@ const handleFindId = async () => {
       name: name.value,
       email: email.value
     }
-    console.log('Find ID attempt with:', findIdData)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    alert('아이디 찾기 기능 준비중입니다.')
-    router.push('/login')
+
+    const response = await axios.post('/api/admin/find-id', findIdData)
+    
+    if (response.data.success) {
+      alert(`회원님의 아이디는 ${response.data.userId} 입니다.`)
+      router.push('/login')
+    } else {
+      alert(response.data.message || '일치하는 회원 정보를 찾을 수 없습니다.')
+    }
   } catch (error) {
     console.error('Find ID failed:', error)
+    if (error.response) {
+      // 서버에서 응답이 왔지만 에러인 경우
+      alert(error.response.data.message || '아이디 찾기 중 오류가 발생했습니다.')
+    } else if (error.request) {
+      // 요청은 보냈지만 응답을 받지 못한 경우
+      alert('서버와 통신할 수 없습니다. 잠시 후 다시 시도해주세요.')
+    } else {
+      // 요청 자체를 보내지 못한 경우
+      alert('요청을 보내지 못했습니다. 잠시 후 다시 시도해주세요.')
+    }
   } finally {
     isLoading.value = false
   }

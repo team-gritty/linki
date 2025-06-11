@@ -33,7 +33,9 @@ const menuItems = [
     id: 'profile',
     name: '내 정보 관리',
     children: [
-      { id: 'profile.basic', name: '기본 정보' }
+      { id: 'profile.basic', name: '기본 정보' },
+      { id: 'profile.password', name: '비밀번호 변경' }
+
     ]
   },
   {
