@@ -35,26 +35,26 @@
     <!-- 리뷰가 있으면 리뷰 리스트를 렌더링 -->
     <div v-else class="reviews-container">
       <!-- 각 리뷰 카드를 반복 렌더링 -->
-      <div v-for="review in reviews" :key="review.influencer_review_id" class="review-card">
+      <div v-for="review in reviews" :key="review.influencerReviewId" class="review-card">
         <!-- 리뷰 카드의 헤더: 별점과 점수 -->
         <div class="review-card-header">
           <span class="stars">
             <span v-for="n in 5" :key="n">
               <!-- 가득 찬 별 -->
-              <svg v-if="review.influencer_review_score >= n" width="22" height="22" viewBox="0 0 22 22" fill="#FFC107"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
+              <svg v-if="review.influencerReviewScore >= n" width="22" height="22" viewBox="0 0 22 22" fill="#FFC107"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
               <!-- 반 별 -->
-              <svg v-else-if="review.influencer_review_score >= n-0.5" width="22" height="22" viewBox="0 0 22 22"><defs><linearGradient :id="'half'+review.influencer_review_id+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8" :fill="'url(#half'+review.influencer_review_id+n+')'"/></svg>
+              <svg v-else-if="review.influencerReviewScore >= n-0.5" width="22" height="22" viewBox="0 0 22 22"><defs><linearGradient :id="'half'+review.influencerReviewId+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8" :fill="'url(#half'+review.influencerReviewId+n+')'"/></svg>
               <!-- 빈 별 -->
               <svg v-else width="22" height="22" viewBox="0 0 22 22" fill="#eee"><polygon points="11,2 14,8 21,8 15.5,12.5 17.5,20 11,15.5 4.5,20 6.5,12.5 1,8 8,8"/></svg>
             </span>
           </span>
           <!-- 리뷰 점수 -->
-          <span class="score">{{ review.influencer_review_score.toFixed(1) }}</span>
+          <span class="score">{{ review.influencerReviewScore.toFixed(1) }}</span>
         </div>
         <!-- 리뷰 카드 본문: 코멘트와 날짜 -->
         <div class="review-card-body">
-          <div class="comment">{{ review.influencer_review_comment }}</div>
-          <div class="date">{{ formatDate(review.created_at) }}</div>
+          <div class="comment">{{ review.influencerReviewComment }}</div>
+          <div class="date">{{ formatDate(review.createdAt) }}</div>
         </div>
       </div>
     </div>
@@ -86,8 +86,8 @@ export default {
     async fetchReviews() {
       try {
         this.loading = true
-        // API로부터 리뷰 데이터 가져오기
-        const response = await axios.get(`/v1/api/influencer-reviews?influencer_id=${this.channelId}`)
+        // API로부터 리뷰 데이터 가져오기 (influencerId로 필터링, camelCase)
+        const response = await axios.get(`http://localhost:3000/influencer-reviews?influencerId=${this.channelId}`)
         this.reviews = response.data
         // 리뷰 통계 계산
         this.calcStats()
@@ -101,8 +101,8 @@ export default {
     // 평균 평점 계산 메서드
     calcStats() {
       if (this.reviews.length) {
-        // 모든 평점의 합을 평균으로 계산
-        const avg = this.reviews.reduce((sum, r) => sum + (r.influencer_review_score || 0), 0) / this.reviews.length
+        // 모든 평점의 합을 평균으로 계산 (camelCase)
+        const avg = this.reviews.reduce((sum, r) => sum + (r.influencerReviewScore || 0), 0) / this.reviews.length
         this.avgScore = avg
         // 부모 컴포넌트로 리뷰 통계 이벤트 emit
         this.$emit('review-stats', { count: this.reviews.length, avg })

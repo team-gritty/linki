@@ -21,7 +21,7 @@ const error = ref(null)
 const currentUserId = 'advertiser1'
 const chatList = ref([])
 const chatMessages = ref([])
-const chatProfiles = ref([])
+const chatDetails = ref([])
 const sortedChatList = ref([]) // 정렬된 채팅 목록 상태 저장
 const showProposalModal = ref(false)
 const selectedProposal = ref(null)
@@ -39,6 +39,18 @@ const filteredChats = computed(() => {
   )
 })
 
+// 채팅 상세 정보 가져오기
+const getChatDetail = (chatId) => {
+  const detail = chatDetails.value.find(detail => detail.chatId === chatId)
+  return detail
+}
+
+// 채팅 프로필 정보 가져오기 (partnerId로 매칭)
+const getChatDetailByPartnerId = (partnerId) => {
+  const detail = chatDetails.value.find(detail => detail.partnerId === partnerId)
+  return detail
+}
+
 // 선택된 채팅방
 const selectedChat = computed(() => 
   chatList.value.find(chat => chat.chatId === selectedChatId.value)
@@ -55,7 +67,7 @@ const selectedChatMessages = computed(() => {
 
 // 채팅 프로필 가져오기
 const getChatProfile = (userId) => {
-  const profile = chatProfiles.value.find(profile => profile.userId === userId)
+  const profile = chatDetails.value.find(profile => profile.userId === userId)
   console.log('Getting profile for userId:', userId, 'Found:', profile) // 디버깅용 로그 추가
   return profile
 }
@@ -250,13 +262,21 @@ const loadInitialData = async () => {
   try {
     // 채팅 목록 로드
     const chatListResponse = await chatApi.getChatList()
-    chatList.value = chatListResponse.data
+    chatList.value = chatListResponse.data || []
+    console.log('Loaded chat list:', chatList.value)
+    
+    // 채팅 상세 정보 로드
+    const detailsResponse = await chatApi.getChatDetails()
+    chatDetails.value = detailsResponse.data || []
+    console.log('Loaded chat details:', chatDetails.value)
+    
     // 초기 정렬 수행
     sortChats()
 
-    // 프로필 정보 로드
-    const profilesResponse = await chatApi.getProfiles()
-    chatProfiles.value = profilesResponse.data
+    // 채팅 목록이 있다면 첫 번째 채팅방 선택
+    if (chatList.value.length > 0) {
+      await selectChat(chatList.value[0].chatId)
+    }
   } catch (err) {
     error.value = '데이터를 불러오는데 실패했습니다.'
     console.error('Error loading initial data:', err)
@@ -350,7 +370,7 @@ const goToInfluencerDetail = (influencerId) => {
         >
           <div class="chat-profile">
             <img 
-              :src="getChatProfile(chat.opponentId)?.profileImage" 
+              :src="getChatDetail(chat.chatId)?.profileImage" 
               :alt="chat.opponentName"
               class="profile-image"
               @click.stop="goToInfluencerDetail(chat.opponentId)"
@@ -360,7 +380,6 @@ const goToInfluencerDetail = (influencerId) => {
             <div class="chat-item-header">
               <div class="chat-info">
                 <span class="chat-name">{{ chat.opponentName }}</span>
-                <span class="chat-channel-id">{{ getChatProfile(chat.opponentId)?.channelId }}</span>
               </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
@@ -380,15 +399,15 @@ const goToInfluencerDetail = (influencerId) => {
         <div class="chat-header-info">
           <div class="chat-profile">
             <img 
-              :src="getChatProfile(selectedChat?.opponentId)?.profileImage" 
+              :src="getChatDetail(selectedChat?.chatId)?.profileImage" 
               :alt="selectedChat?.opponentName"
               class="profile-image"
               @click="goToInfluencerDetail(selectedChat?.opponentId)"
             >
           </div>
           <div class="chat-user-info">
-            <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span>
-            <span class="chat-channel-id">{{ getChatProfile(selectedChat?.opponentId)?.channelId }}</span>
+            <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span><br>
+            <span class="chat-channel-id">채널명 : {{ getChatDetail(selectedChat?.chatId)?.channelName }}</span>
           </div>
         </div>
         <div class="chat-header-actions">
@@ -410,7 +429,15 @@ const goToInfluencerDetail = (influencerId) => {
             <div v-if="shouldShowDateSeparator(message, index, selectedChatMessages)" class="date-separator">
               <span>{{ formatDate(message.messageDate) }}</span>
             </div>
-            <div :class="['message', { 'my-message': message.senderId === currentUserId }]">
+            <!-- 알람 메시지 -->
+            <div v-if="message.messageType === 'alarm'" class="alarm-wrapper">
+              <div class="alarm-datetime">{{ formatDate(message.messageDate) }} {{ formatMessageTime(message.messageDate) }}</div>
+              <div class="alarm-message">
+                {{ message.content }}
+              </div>
+            </div>
+            <!-- 일반 메시지 -->
+            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId }]">
               <div class="message-content">{{ message.content }}</div>
               <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
             </div>
@@ -450,7 +477,6 @@ const goToInfluencerDetail = (influencerId) => {
 
 <style>
 @import '@/assets/css/detail.css';
-
 </style>
 
 

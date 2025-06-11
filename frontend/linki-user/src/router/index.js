@@ -7,6 +7,7 @@ import DetailPage from '@/views/user/advertiser/DetailPage.vue'
 import influencerMypage from '@/views/user/influencer/MyPage.vue'
 import DetailContract from '@/components/user/influencer/detail/DetailContract.vue'
 import MyPage from '@/views/user/advertiser/MyPage.vue'
+import UserMyPage from '@/views/user/general/MyPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +81,11 @@ const router = createRouter({
       name: 'campaign-proposal',
       component: () => import('../views/user/influencer/CampaignProposalView.vue'),
       props: true
+    },
+    {
+      path: '/mypage',
+      name: 'user-mypage',
+      component: UserMyPage
     },
     {
       path: '/mypage/influencer',
