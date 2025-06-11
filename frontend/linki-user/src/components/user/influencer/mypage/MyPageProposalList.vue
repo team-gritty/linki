@@ -15,12 +15,12 @@
         <div v-else class="proposals-container">
           <div v-for="proposal in proposals" :key="proposal.proposal_id" class="card">
             <img 
-              :src="proposal.campaign?.campaign_img" 
-              :alt="proposal.campaign?.campaign_name"
+              :src="proposal.campaign?.campaignImg" 
+              :alt="proposal.campaign?.campaignName"
               class="thumb"
             >
             <div class="info">
-              <div class="name">{{ proposal.campaign?.campaign_name || '캠페인 정보 없음' }}</div>
+              <div class="name">{{ proposal.campaign?.campaignName || '캠페인 정보 없음' }}</div>
               <div class="meta">
                 <span>제출일: {{ formatDate(proposal.submitted_at) }}</span>
                 <div class="status-container">
@@ -103,7 +103,7 @@ export default {
         // 3. 제안서와 캠페인 정보를 매칭합니다
         const proposalsWithCampaign = proposalList.map(proposal => {
           const matchingCampaign = campaigns.find(
-            campaign => campaign.campaign_id === proposal.campaign_id
+            campaign => campaign.campaignId === proposal.campaign_id || campaign.campaignId === proposal.product_id
           );
           
           console.log(`Matching campaign for proposal ${proposal.proposal_id}:`, matchingCampaign);

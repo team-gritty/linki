@@ -3,8 +3,10 @@
     <!-- 상단 헤더 -->
     <div class="header">
       <div class="product-info" v-if="campaignDetail">
-        <img :src="campaignDetail.productImg" :alt="campaignDetail.productName" class="product-img">
+        <img :src="campaignDetail.campaignImg" :alt="campaignDetail.campaignName" class="product-img">
         <div class="product-text">
+          <h2>{{ campaignDetail.campaignName }}</h2>
+          <p class="product-desc">{{ campaignDetail.campaignDesc }}</p>
           <h2>{{ campaignDetail.productName }}</h2>
           <p class="product-desc">{{ campaignDetail.productDesc }}</p>
         </div>
@@ -53,15 +55,15 @@
         <div class="info-grid">
           <div class="info-item">
             <label>광고 선택 마감일</label>
-            <p>{{ formatDate(campaignDetail?.productDeadline) }}</p>
+            <p>{{ formatDate(campaignDetail?.campaignDeadline) }}</p>
           </div>
           <div class="info-item">
             <label>광고 조건</label>
-            <p>팔로워 수 2만 명 이상</p>
+            <p>{{ campaignDetail?.campaignCondition }}</p>
           </div>
           <div class="info-item">
             <label>카테고리</label>
-            <p>{{ campaignDetail?.productCategory }}</p>
+            <p>{{ campaignDetail?.campaignCategory }}</p>
           </div>
           <div class="info-item">
             <label>브랜드</label>

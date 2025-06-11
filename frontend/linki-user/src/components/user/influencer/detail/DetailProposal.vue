@@ -37,15 +37,15 @@
           <div class="info-grid">
             <div class="info-item">
               <label>광고 선택 마감일</label>
-              <p>{{ formatDate(campaignDetail.productDeadline) }}</p>
+              <p>{{ formatDate(campaignDetail.campaignDeadline) }}</p>
             </div>
             <div class="info-item">
               <label>광고 조건</label>
-              <p>{{ campaignDetail.productCondition }}</p>
+              <p>{{ campaignDetail.campaignCondition }}</p>
             </div>
             <div class="info-item">
               <label>카테고리</label>
-              <p>{{ campaignDetail.productCategory }}</p>
+              <p>{{ campaignDetail.campaignCategory }}</p>
             </div>
             <div class="info-item">
               <label>브랜드</label>
