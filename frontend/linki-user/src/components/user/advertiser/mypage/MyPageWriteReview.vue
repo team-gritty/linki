@@ -98,11 +98,11 @@ const fetchCompletedContracts = async () => {
     let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
     const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
 
-    // 2. advertiser-reviews에서 이미 리뷰 작성된 contractId 목록 불러오기
-    const reviewsResponse = await axios.get('/advertiser-reviews');
+    // 2. 작성한 리뷰 DB에서 이미 리뷰 작성된 contractId 목록 불러오기
+    const reviewsResponse = await reviewApi.getGivenReviews();
     const reviewedContractIds = (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : []).map(r => r.contractId);
 
-    // 3. 리뷰가 작성되지 않은 계약만 필터링 (이유: 리뷰 작성한 계약은 목록에서 제외)
+    // 3. 리뷰가 작성되지 않은 계약만 필터링
     completedContracts.value = completedList
       .filter(contract => !reviewedContractIds.includes(contract.contractId))
       .map(contract => ({
@@ -149,7 +149,7 @@ const submitReview = async () => {
     await reviewApi.writeInfluencerReview(reviewData);
     alert('리뷰가 저장되었습니다.');
     closeModal();
-    // 작성한 리뷰 목록(탭)으로 이동
+    await fetchCompletedContracts(); // 리뷰 작성 후 최신화
     router.push({ path: '/mypage/advertiser/', query: { menu: 'review.given' } });
   } catch (error) {
     if (error.response) {
