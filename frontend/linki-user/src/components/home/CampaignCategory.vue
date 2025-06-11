@@ -32,11 +32,12 @@ const nextCategorySlide = () => {
 const fetchCategories = async () => {
   try {
     loading.value = true
-    const data = await homeAPI.getCategories()
-    console.log('Categories response:', data)
-    categories.value = data.map(category => ({
-      ...category,
-      icon: getIconComponent(category.name),
+    // API 호출로 카테고리 데이터 가져오기
+    const response = await homeAPI.getCategories()
+    categories.value = response.map(category => ({
+      id: category.name.toUpperCase().replace('/', '_'),
+      name: category.name,
+      icon: getCategoryIcon(category.name),
       active: false
     }))
   } catch (err) {
@@ -47,22 +48,39 @@ const fetchCategories = async () => {
   }
 }
 
-// 아이콘 컴포넌트 매핑 함수
-const getIconComponent = (categoryName) => {
+// 카테고리별 아이콘 매핑 함수
+const getCategoryIcon = (categoryName) => {
   const iconMap = {
-    '패션': '👗',
     '뷰티': '💄',
+    '스포츠': '⚽',
     '푸드/먹방': '🍽️',
-    '엔터테인먼트': '🎮',
+    '엔터테인먼트': '🎬',
     '여행': '✈️',
     '음악': '🎵',
     '전자기기': '📱',
     'Vlog/라이프스타일': '🎥',
     '교육': '📚',
     '동물/펫': '🐾',
-    '스포츠': '⚽'
+    '패션': '👗'
   }
-  return iconMap[categoryName] || '📱'
+  return iconMap[categoryName] || '📌'
+}
+
+// 카테고리 클릭 핸들러
+const handleCategoryClick = (category) => {
+  router.push({
+    path: '/campaigns',
+    query: { 
+      category: category.name
+    }
+  })
+}
+
+// 전체보기 버튼 핸들러
+const handleViewAll = () => {
+  router.push({
+    path: '/campaigns'
+  })
 }
 
 // 카테고리 클릭 핸들러 추가
@@ -115,7 +133,7 @@ onMounted(async () => {
       </div>
     </div>
     <div class="center-button-wrapper">
-      <button class="more-button" @click="$router.push({ name: 'campaigns' })">전체보기</button>
+      <button class="more-button" @click="handleViewAll">전체보기</button>
     </div>
   </section>
 </template>
