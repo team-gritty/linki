@@ -44,23 +44,32 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import DetailContract from './DetailContract.vue'
 
+const props = defineProps({
+  campaignId: {
+    type: String,
+    required: true
+  }
+})
+
 const contracts = ref([])
 const hovered = ref(null)
 const selectedContract = ref(null)
 
 const fetchContracts = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/contracts')
+    const response = await axios.get('/v1/api/advertiser/contracts')
     let contractList = Array.isArray(response.data) ? response.data : []
-    contracts.value = contractList.map(contract => ({
-      contractId: contract.contractId,
-      contractTitle: contract.contractTitle,
-      contractStatus: contract.contractStatus,
-      contractStartDate: contract.contractStartDate,
-      contractEndDate: contract.contractEndDate,
-      contractAmount: contract.contractAmount,
-      ...contract
-    }))
+    contracts.value = contractList
+      .filter(contract => contract.campaignId === props.campaignId)
+      .map(contract => ({
+        contractId: contract.contractId,
+        contractTitle: contract.contractTitle,
+        contractStatus: contract.contractStatus,
+        contractStartDate: contract.contractStartDate,
+        contractEndDate: contract.contractEndDate,
+        contractAmount: contract.contractAmount,
+        ...contract
+      }))
   } catch (error) {
     contracts.value = []
   }
