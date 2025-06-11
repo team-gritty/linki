@@ -6,29 +6,29 @@
       </div>
       <div v-else-if="campaignDetail" class="campaign-content">
         <div class="detail-img-box">
-          <img class="main-img" :src="campaignDetail.campaign_img" alt="캠페인 메인 이미지" />
+          <img class="main-img" :src="campaignDetail.campaignImg" alt="캠페인 메인 이미지" />
         </div>
         <div class="detail-info-box">
           <div class="detail-title">캠페인 설명</div>
           <div class="detail-desc">
-            {{ campaignDetail.campaign_desc }}
+            {{ campaignDetail.campaignDesc }}
           </div>
           <div class="detail-meta-service">
             <div class="meta-row-service">
               <span class="meta-label">광고 신청 마감일</span>
-              <span class="meta-value">{{ formatDate(campaignDetail.campaign_deadline) }}</span>
+              <span class="meta-value">{{ formatDate(campaignDetail.campaignDeadline) }}</span>
             </div>
             <div class="meta-row-service">
               <span class="meta-label">광고 조건</span>
-              <span class="meta-value">{{ campaignDetail.campaign_condition }}</span>
+              <span class="meta-value">{{ campaignDetail.campaignCondition }}</span>
             </div>
             <div class="meta-row-service">
               <span class="meta-label">카테고리</span>
-              <span class="meta-value">{{ campaignDetail.campaign_category }}</span>
+              <span class="meta-value">{{ campaignDetail.campaignCategory }}</span>
             </div>
             <div class="meta-row-service">
               <span class="meta-label">브랜드</span>
-              <span class="meta-value">{{ campaignDetail.campaign_brand }}</span>
+              <span class="meta-value">{{ campaignDetail.companyName }}</span>
             </div>
           </div>
         </div>
