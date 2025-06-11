@@ -10,7 +10,7 @@ export const campaignAPI = {
           _limit: params._limit || 10,
           _sort: params._sort || 'createdAt',
           _order: params._order || 'desc',
-          ...(params.productCategory && params.productCategory !== 'all' ? { productCategory: params.productCategory } : {})
+          ...(params.campaignCategory && params.campaignCategory !== 'all' ? { campaignCategory: params.campaignCategory } : {})
         }
       })
       return {
@@ -55,11 +55,11 @@ export const campaignAPI = {
   },
 
   // 제안서 제출
-  submitProposal: async (productId, contents) => {
+  submitProposal: async (campaignId, contents) => {
     try {
-      const response = await httpClient.post(`/v1/api/influencer/campaigns/${productId}/proposals`, {
+      const response = await httpClient.post(`/v1/api/influencer/campaigns/${campaignId}/proposals`, {
         contents: contents,
-        product_id: String(productId),
+        campaign_id: String(campaignId),
         status: 'PENDING',
         submitted_at: new Date().toISOString(),
         influencer_id: 'INF001' // TODO: 실제 로그인한 사용자 ID로 대체
@@ -100,7 +100,7 @@ export const campaignAPI = {
     try {
       console.log('API: Fetching campaign detail for ID:', campaignId)
       // campaign-list에서 데이터 가져오기
-      const response = await httpClient.get(`/campaign-list?campaign_id=${campaignId}`)
+      const response = await httpClient.get(`/campaign-list?campaignId=${campaignId}`)
       console.log('API: Raw response:', response)
       
       if (!response.data || response.data.length === 0) {
@@ -110,13 +110,13 @@ export const campaignAPI = {
       // 응답 데이터 변환
       const campaign = response.data[0]
       return {
-        productImg: campaign.campaign_img,
-        productName: campaign.campaign_name,
-        companyName: campaign.campaign_brand,
-        productDesc: campaign.campaign_desc,
-        productDeadline: campaign.campaign_deadline,
-        productCondition: campaign.campaign_condition,
-        productCategory: campaign.campaign_category
+        campaignImg: campaign.campaignImg,
+        campaignName: campaign.campaignName,
+        companyName: campaign.companyName,
+        campaignDesc: campaign.campaignDesc,
+        campaignDeadline: campaign.campaignDeadline,
+        campaignCondition: campaign.campaignCondition,
+        campaignCategory: campaign.campaignCategory
       }
     } catch (error) {
       console.error('Error fetching my campaign detail:', error)
