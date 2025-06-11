@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = '';
-const BASE_URL = '';
+
 
 export const contractApi = {
   // 계약 목록 조회
