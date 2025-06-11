@@ -107,7 +107,7 @@ const validateScore = () => {
 const fetchCompletedContracts = async () => {
   try {
     // 1. 모든 완료된 계약 불러오기
-    const contractsResponse = await axios.get('http://localhost:3000/contracts');
+    const contractsResponse = await axios.get('http://localhost:3000/v1/api/advertiser/contracts');
     let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
     const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
 

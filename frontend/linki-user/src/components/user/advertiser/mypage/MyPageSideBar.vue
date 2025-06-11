@@ -77,7 +77,7 @@ async function selectMenu(menuId) {
   emit('update:currentMenu', menuId)
   if (menuId === 'contract.list') {
     try {
-      const response = await axios.get('/contracts')
+      const response = await axios.get('/v1/api/advertiser/contracts')
       emit('contractsLoaded', response.data)
     } catch (error) {
       console.error('계약서 목록 불러오기 실패:', error)
