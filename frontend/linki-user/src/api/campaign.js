@@ -40,13 +40,11 @@ export const campaignAPI = {
   },
 
   // 광고주 리뷰 조회
-  getAdvertiserReviews: async (productId) => {
+  getAdvertiserReviews: async (advertiserId) => {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/reviews/advertiser`, {
+      const response = await httpClient.get(`/api/influencer/reviews/advertiser`, {
         params: {
-          productId: String(productId),
-          _sort: 'advertiserReviewCreatedAt',
-          _order: 'desc'
+          advertiser_id: String(advertiserId)
         }
       })
       return response.data
