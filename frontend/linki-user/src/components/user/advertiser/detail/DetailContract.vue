@@ -53,11 +53,11 @@
         </button>
       </div>
 
-      <!-- 광고 이행 확인 버튼: UI/UX를 고려해 하단에 배치 -->
-      <div class="ad-execution-section">
+      <!-- 광고 이행 확인 버튼: 진행중인 계약서(PENDING)에서만 노출 -->
+      <div v-if="contract.contractStatus === 'PENDING'" class="ad-execution-section">
         <ContractExecutionButton
           :contract-id="contract.contractId"
-          :ad-executed="contract.adExecuted || contract.ad_executed || 'no'"
+          :is-executed="contract.isExecuted"
         />
       </div>
     </div>
