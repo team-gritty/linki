@@ -7,10 +7,10 @@ import axios from 'axios'
  */
 export async function getReviewStats(channelId) {
   try {
-    const res = await axios.get(`/v1/api/influencer-reviews?influencer_id=${channelId}`)
+    const res = await axios.get(`http://localhost:3000/influencer-reviews?influencerId=${channelId}`)
     const reviews = res.data
     const count = reviews.length
-    const avg = count > 0 ? (reviews.reduce((sum, r) => sum + (r.influencer_review_score || 0), 0) / count) : 0
+    const avg = count > 0 ? (reviews.reduce((sum, r) => sum + (r.influencerReviewScore || 0), 0) / count) : 0
     return { avg, count }
   } catch (e) {
     return { avg: 0, count: 0 }
