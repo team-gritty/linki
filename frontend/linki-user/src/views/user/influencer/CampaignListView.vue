@@ -30,17 +30,17 @@
         <div class="campaign-grid">
           <div 
             v-for="campaign in popularCampaigns" 
-            :key="campaign.productId"
+            :key="campaign.campaignId"
             class="campaign-card"
-            @click="goToCampaignDetail(campaign.productId)"
+            @click="goToCampaignDetail(campaign.campaignId)"
           >
-            <img :src="campaign.productImg" :alt="campaign.productName">
+            <img :src="campaign.campaignImg" :alt="campaign.campaignName">
             <div class="campaign-info">
-              <h3>{{ campaign.productName }}</h3>
-              <p>{{ campaign.productCondition }}</p>
+              <h3>{{ campaign.campaignName }}</h3>
+              <p>{{ campaign.campaignCondition }}</p>
               <div class="campaign-meta">
-                <span class="category">{{ campaign.productCategory }}</span>
-                <span class="deadline">마감일: {{ formatDate(campaign.productDeadline) }}</span>
+                <span class="category">{{ campaign.campaignCategory }}</span>
+                <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
               </div>
             </div>
           </div>
@@ -54,7 +54,7 @@
           <div class="sort-options">
             <select v-model="sortBy" @change="fetchCampaigns">
               <option value="createdAt">최신순</option>
-              <option value="productDeadline">마감임박순</option>
+              <option value="campaignDeadline">마감임박순</option>
             </select>
           </div>
         </div>
@@ -62,17 +62,17 @@
         <div class="campaign-grid">
           <div 
             v-for="campaign in campaigns" 
-            :key="campaign.productId"
+            :key="campaign.campaignId"
             class="campaign-card"
-            @click="goToCampaignDetail(campaign.productId)"
+            @click="goToCampaignDetail(campaign.campaignId)"
           >
-            <img :src="campaign.productImg" :alt="campaign.productName">
+            <img :src="campaign.campaignImg" :alt="campaign.campaignName">
             <div class="campaign-info">
-              <h3>{{ campaign.productName }}</h3>
-              <p>{{ campaign.productCondition }}</p>
+              <h3>{{ campaign.campaignName }}</h3>
+              <p>{{ campaign.campaignCondition }}</p>
               <div class="campaign-meta">
-                <span class="category">{{ campaign.productCategory }}</span>
-                <span class="deadline">마감일: {{ formatDate(campaign.productDeadline) }}</span>
+                <span class="category">{{ campaign.campaignCategory }}</span>
+                <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
               </div>
             </div>
           </div>
@@ -102,11 +102,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const error = ref(null)
 const campaigns = ref([])
@@ -130,6 +131,18 @@ const categories = [
   { id: 'VLOG/LIFESTYLE', name: 'Vlog/라이프스타일' },
   { id: 'MUSIC', name: '음악' },
 ]
+
+// URL 쿼리 파라미터로부터 카테고리 설정
+const initializeFromQuery = () => {
+  const categoryFromQuery = route.query.category
+  if (categoryFromQuery) {
+    // 카테고리 이름으로 ID 찾기
+    const category = categories.find(c => c.name === categoryFromQuery)
+    if (category) {
+      selectedCategory.value = category.id
+    }
+  }
+}
 
 // 인기 캠페인 불러오기 (최신 3개)
 const fetchPopularCampaigns = async () => {
@@ -159,7 +172,7 @@ const fetchCampaigns = async () => {
     }
 
     if (selectedCategory.value !== 'all') {
-      params.productCategory = selectedCategory.value
+      params.campaignCategory = selectedCategory.value
     }
 
     const response = await campaignAPI.getCampaigns(params)
@@ -176,6 +189,14 @@ const fetchCampaigns = async () => {
 const selectCategory = (categoryId) => {
   selectedCategory.value = categoryId
   currentPage.value = 1 // 카테고리 변경 시 첫 페이지로
+  // URL 업데이트
+  const category = categories.find(c => c.id === categoryId)
+  router.push({
+    query: {
+      ...route.query,
+      category: categoryId === 'all' ? undefined : category.name
+    }
+  })
   fetchCampaigns()
 }
 
@@ -197,7 +218,17 @@ const goToCampaignDetail = (campaignId) => {
   router.push(`/campaign/${campaignId}`)
 }
 
+// URL 쿼리 변경 감지
+watch(
+  () => route.query,
+  () => {
+    initializeFromQuery()
+    fetchCampaigns()
+  }
+)
+
 onMounted(() => {
+  initializeFromQuery()
   fetchPopularCampaigns()
   fetchCampaigns()
 })

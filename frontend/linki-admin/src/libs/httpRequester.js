@@ -1,72 +1,120 @@
+import { useAccountStore } from '@/stores/account';
 import axios from "axios";
 
+
 const instance = axios.create({
-    timeout: 3000, // 3초 타임아웃 설정
+    // baseURL: 'http://localhost:3000',  // json-server URL
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+    timeout: 15000,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    paramsSerializer: {
+        serialize: (params) => {
+            // URL 쿼리 파라미터 직렬화
+            const searchParams = new URLSearchParams();
+            for (const key in params) {
+                if (params[key] !== undefined && params[key] !== null) {
+                    searchParams.append(key, params[key]);
+                }
+            }
+            return searchParams.toString();
+        }
+    }
 });
 
-// 인터셉터(응답 시)
-instance.interceptors.response.use((res) => {
-    return res;
-}, (err) => {
-    if (!err.response) {
-        window.alert("네트워크 연결을 확인해주세요.");
-        return Promise.reject(err);
+// 요청 인터셉터
+instance.interceptors.request.use(
+    (config) => {
+        console.log('API Request:', config.method.toUpperCase(), config.url, config.params || config.data)
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
+);
 
-    switch (err.response.status) {
-        case 400:
-            window.alert("잘못된 요청입니다.");
-            break;
-        case 403:
-            window.alert("접근이 거부되었습니다.");
-            break;
-        case 404:
-            window.alert("요청한 리소스를 찾을 수 없습니다.");
-            break;
-        case 408:
-            window.alert("요청 시간이 초과되었습니다.");
-            break;
-        case 409:
-            window.alert("요청이 충돌했습니다.");
-            break;
-        case 429:
-            window.alert("너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.");
-            break;
-        case 500:
-            window.alert("서버 오류가 발생했습니다. 관리자에게 문의해주세요.");
-            break;
-        case 502:
-            window.alert("서버 게이트웨이 오류가 발생했습니다.");
-            break;
-        case 503:
-            window.alert("서비스가 일시적으로 사용할 수 없습니다.");
-            break;
-        case 504:
-            window.alert("게이트웨이 시간 초과가 발생했습니다.");
-            break;
-        default:
-            window.alert("알 수 없는 오류가 발생했습니다.");
-            break;
+// 응답 인터셉터
+instance.interceptors.response.use(
+    (response) => {
+        console.log('API Response:', response.status, response.data)
+        return response;
+    },
+    (error) => {
+        console.error('API Error:', error.response?.status, error.response?.data)
+        return Promise.reject(error);
     }
-    return Promise.reject(err);
-});
+);
 
-export default {
-    get(url, params) {
-        return instance.get(url, { params });
+// HTTP 요청 설정 생성
+const generateConfig = () => {
+    const accountStore = useAccountStore();
+    
+    const config = {
+        headers: {}
+    };
+
+    // if (accountStore.accessToken) {
+    //     config.headers.authorization = `Bearer ${accountStore.accessToken}`;
+    // }
+
+    return config;
+};
+
+// HTTP 클라이언트 메서드
+const httpClient = {
+    /**
+     * GET 요청
+     * @param {string} url - 요청 URL
+     * @param {Object} [params] - URL 쿼리 파라미터
+     * @returns {Promise} 
+     */
+    get(url, config = {}) {
+        const finalConfig = {
+            ...generateConfig(),
+            ...config
+        };
+        return instance.get(url, finalConfig);
     },
-    post(url, params) {
-        return instance.post(url, params);
+
+    /**
+     * POST 요청
+     * @param {string} url - 요청 URL
+     * @param {Object} data - 요청 바디 데이터
+     * @returns {Promise}
+     */
+    post(url, data) {
+        return instance.post(url, data, generateConfig());
     },
-    put(url, params) {
-        return instance.put(url, params);
+
+    /**
+     * PUT 요청
+     * @param {string} url - 요청 URL
+     * @param {Object} data - 요청 바디 데이터
+     * @returns {Promise}
+     */
+    put(url, data) {
+        return instance.put(url, data, generateConfig());
     },
+
+    /**
+     * DELETE 요청
+     * @param {string} url - 요청 URL
+     * @returns {Promise}
+     */
     delete(url) {
-        return instance.delete(url);
+        return instance.delete(url, generateConfig());
     },
-    patch(url, params) {
-        return instance.patch(url, params);
+
+    /**
+     * PATCH 요청
+     * @param {string} url - 요청 URL
+     * @param {Object} data - 요청 바디 데이터
+     * @returns {Promise}
+     */
+    patch(url, data) {
+        return instance.patch(url, data, generateConfig());
     }
 };
 
-
+export default httpClient; 

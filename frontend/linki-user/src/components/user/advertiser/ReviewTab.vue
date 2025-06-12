@@ -87,7 +87,7 @@ export default {
       try {
         this.loading = true
         // API로부터 리뷰 데이터 가져오기 (influencerId로 필터링, camelCase)
-        const response = await axios.get(`http://localhost:3000/influencer-reviews?influencerId=${this.channelId}`)
+        const response = await axios.get(`/v1/api/advertiser/influencer-reviews?influencerId=${this.channelId}`)
         this.reviews = response.data
         // 리뷰 통계 계산
         this.calcStats()

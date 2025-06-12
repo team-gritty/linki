@@ -3,17 +3,14 @@
     <MyPageSideBar v-model:currentMenu="currentMenu" @contractsLoaded="onContractsLoaded" />
     <main class="list-content">
       <!-- 프로필/비밀번호 변경 -->
-      <MyPageProfile v-if="currentMenu === 'profile.basic'" />
-      
+      <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
+      <MyPagePassword v-if="currentMenu === 'profile.password'" />
+
       <!-- 광고 캠페인 -->
       <MyPageCampaignList v-if="currentMenu === 'campaign.list'" />
       <MyPageCampaignRegister v-if="currentMenu === 'campaign.register'" />
       
       <!-- 계약서 관리 -->
-      <template v-if="currentMenu === 'contract.list'">
-        <DetailContract v-if="selectedContract" :contract="selectedContract" @back="handleBackToList" />
-        <MyPageContractList v-else :contracts="contracts" @show-detail="handleShowDetail" />
-      </template>
       <MyPageOngoingContracts
         v-if="currentMenu === 'contract.ongoing' && !selectedContract"
         @show-detail="handleShowDetail"
@@ -43,10 +40,10 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import MyPageSideBar from '@/components/user/advertiser/mypage/MyPageSideBar.vue'
-import MyPageProfile from '@/components/user/advertiser/mypage/MyPageProfile.vue'
+import MyPageBasicInfo from '@/components/user/advertiser/mypage/MyPageBasicInfo.vue'
+import MyPagePassword from '@/components/user/advertiser/mypage/MyPagePassword.vue'
 import MyPageCampaignRegister from '@/components/user/advertiser/mypage/MyPageCampaignRegister.vue'
 import MyPageCampaignList from '@/components/user/advertiser/mypage/MyPageCampaignList.vue'
-import MyPageContractList from '@/components/user/advertiser/mypage/MyPageContractList.vue'
 import MyPageOngoingContracts from '@/components/user/advertiser/mypage/MyPageOngoingContracts.vue'
 import MyPageCompletedContracts from '@/components/user/advertiser/mypage/MyPageCompletedContracts.vue'
 import MyPageWrittenReviews from '@/components/user/advertiser/mypage/MyPageWrittenReviews.vue'

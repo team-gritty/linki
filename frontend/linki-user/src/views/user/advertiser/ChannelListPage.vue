@@ -61,8 +61,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
 import axios from 'axios'
@@ -70,6 +70,7 @@ import axios from 'axios'
 import { getReviewStats } from './useReviewStats.js'
 
 const router = useRouter()
+const route = useRoute()
 const modalOpen = ref(false)
 const page = ref(1) // 현재 페이지 번호
 const itemsPerPage = 5 // 페이지당 보여지는 채널 개수
@@ -77,6 +78,20 @@ const listData = ref([]) // 전체 채널 데이터 저장할 배열
 const error = ref(null)
 
 const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
+
+// URL 쿼리에서 선택된 카테고리 초기화
+const initializeFromQuery = () => {
+  const categoriesFromQuery = route.query.selectedCategories
+  if (categoriesFromQuery) {
+    try {
+      const parsedCategories = JSON.parse(categoriesFromQuery)
+      selectedCategories.value = parsedCategories
+      onCategoryChange(parsedCategories)
+    } catch (err) {
+      console.error('카테고리 파싱 실패:', err)
+    }
+  }
+}
 
 const pagedListData = computed(() => { 
   const startIndex = (page.value - 1) * itemsPerPage  
@@ -141,10 +156,20 @@ function changePage(newPage) {
   page.value = newPage // 페이지 번호 업데이트
 }
 
-// 페이지가 처음 로드되면 
+// URL 쿼리 변경 감지
+watch(
+  () => route.query,
+  () => {
+    initializeFromQuery()
+  }
+)
+
 onMounted(() => {
-  // 전체 채널 데이터를 axios로 받아와서 listData에 저장 
-  fetchChannels()
+  initializeFromQuery() // URL 쿼리 파라미터 처리
+  // 선택된 카테고리가 없을 경우에만 전체 채널 데이터를 불러옴
+  if (selectedCategories.value.length === 0) {
+    fetchChannels()
+  }
 })
 
 // 검색 버튼 호버 효과

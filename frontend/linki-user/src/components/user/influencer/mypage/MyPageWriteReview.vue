@@ -129,11 +129,11 @@ export default {
 
     const fetchCompletedContracts = async () => {
       try {
-        const contractsResponse = await axios.get('http://localhost:3000/contracts');
+        const contractsResponse = await axios.get('/v1/api/influencer/contracts');
         const contracts = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
 
         // 정산 정보 가져오기
-        const settlementsResponse = await axios.get('http://localhost:3000/settlements');
+        const settlementsResponse = await axios.get('/v1/api/influencer/settlements');
         const settlements = Array.isArray(settlementsResponse.data) ? settlementsResponse.data : [];
 
         // 정산이 완료된 계약만 필터링
@@ -185,12 +185,7 @@ export default {
           visibility: review.value.visibility
         };
 
-        try {
-          await axios.post('http://localhost:3000/influencer-reviews', reviewData);
-        } catch (error) {
-          console.log('리뷰 저장은 실패했지만 계속 진행합니다:', reviewData);
-        }
-        
+        await axios.post('/v1/api/influencer/reviews/written', reviewData);
         alert('리뷰가 저장되었습니다.');
         closeModal();
         fetchCompletedContracts();

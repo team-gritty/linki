@@ -1,7 +1,7 @@
 import httpClient from '@/utils/httpRequest'
 
 export const proposalAPI = {
-  // 내 제안서 목록 조회
+  // 광고주가 받은 제안서 목록 조회
   getMyProposals: async (params = {}) => {
     try {
       const response = await httpClient.get('/v1/api/influencer/proposals', {
@@ -35,10 +35,10 @@ export const proposalAPI = {
     }
   },
 
-  // 제안서 수정
+  // 광고주가 제안서 승낙한다음 제안서 수정
   updateProposal: async (proposalId, proposalData) => {
     try {
-      const response = await httpClient.post(`/v1/api/influencer/proposals/${proposalId}`, proposalData);
+      const response = await httpClient.put(`/v1/api/advertiser/proposals/${proposalId}`, proposalData);
       return response.data;
     } catch (error) {
       console.error('Failed to update proposal:', error);

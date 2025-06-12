@@ -40,14 +40,14 @@ async function executeAd() {
   if (executed.value) return
   try {
     // 1. contracts 전체 조회
-    const res = await axios.get('http://localhost:3000/contracts')
+    const res = await axios.get('v1/api/advertiser/contracts')
     const contract = res.data.find(c => c.contractId === props.contractId)
     if (!contract) {
       alert('계약서를 찾을 수 없습니다.')
       return
     }
     // 2. id(숫자)로 PATCH, isExecuted true로 변경
-    await axios.patch(`http://localhost:3000/contracts/${contract.id}`, { isExecuted: true })
+    await axios.patch(`/v1/api/advertiser/contracts/${contract.id}`, { isExecuted: true })
     executed.value = true
     console.log('[ContractExecutionButton] PATCH 성공:', {
       contractId: props.contractId,
