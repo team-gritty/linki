@@ -7,13 +7,12 @@
         <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div v-if="dropdownOpen" class="dropdown-menu custom-category-dropdown" @click.stop>
-
         <div class="category-list">
-          <label v-for="cat in categories" :key="cat" class="category-item">
-            <input type="radio" name="category-radio-bar" v-model="selectedCategory" :value="cat" />
-
-            <span>{{ cat }}</span>
-          </label>
+          <div v-for="cat in categories" :key="cat" 
+               class="category-item"
+               @click="() => { selectedCategory = cat; closeDropdownAndEmit(); }">
+            {{ cat }}
+          </div>
         </div>
       </div>
     </div>
@@ -107,13 +106,11 @@ onBeforeUnmount(() => {
   top: 110%;
   left: 0;
   background: #fff;
-  border: 1.5px solid #8C30F5;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(140,48,245,0.08);
-  min-width: 260px;
-  width: 260px;
-  z-index: 20;
-  padding: 18px 0 12px 0;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  z-index: 1000;
 }
 .select-all-btn {
   width: auto;
@@ -136,25 +133,22 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 .category-list {
-  max-height: 220px;
+  max-height: 300px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 0 18px;
+  padding: 8px 0;
 }
 .category-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.08em;
-  padding: 8px 0;
+  padding: 10px 20px;
   cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.15s;
+  transition: background-color 0.2s;
+  color: #333;
+  font-size: 15px;
 }
 .category-item:hover {
-  background: #F5F0FF;
+  background-color: #F5F0FF;
+  color: #8C30F5;
 }
 .category-item input[type="checkbox"] {
   accent-color: #8C30F5;
