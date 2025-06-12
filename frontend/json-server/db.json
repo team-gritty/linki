@@ -646,9 +646,9 @@
       "campaignId": "c4"
     },
     {
-      "contractId": "CTR005",
+      "contractId": "CTR006",
       "contractTitle": "게이밍 헤드셋 리뷰",
-      "contractStatus": "COMPLETED",
+      "contractStatus": "PENDING_SIGN",
       "contractStartDate": "2024-02-01",
       "contractEndDate": "2024-03-01",
       "contractAmount": 1200000,

@@ -2,15 +2,11 @@
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
 
 import { useRouter } from 'vue-router'
-
-import { useChatbotStore } from '@/stores/chatbot'
-
 import ChatDropdown from '@/components/ChatDropdown.vue'
 
 
 const router = useRouter()
 const isMobile = ref(false)
-const chatbotStore = useChatbotStore()
 
 const props = defineProps({
   openSidebar: Boolean,
@@ -31,17 +27,6 @@ const goTochannels = () => {
 const goToCampaigns = () => {
   router.push('/campaigns')
 }
-
-const toggleChatbot = () => {
-  if (!chatbotStore.showChatbot) {
-    chatbotStore.toggleChatbot(true)
-  }
-  
-  if (props.openSidebar) {
-    props.toggleSidebar()
-  }
-}
-
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
 }
@@ -80,7 +65,7 @@ watch(() => props.openSidebar, (newValue) => {
         <li class="menu-item" @click="goToHome">홈</li>
         <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-   
+
 
       </ul>
     </div>
@@ -103,7 +88,7 @@ watch(() => props.openSidebar, (newValue) => {
           </li>
 
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
-   
+
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
 
         </ul>
@@ -142,8 +127,9 @@ body, html {
   display: flex;
   align-items: center;
   position: relative;
-  width: auto;
+  width: 100%;
   justify-content: center;
+  padding: 0 120px;
 }
 
 .navbar-right {
@@ -155,7 +141,7 @@ body, html {
 
 .logo {
   position: absolute;
-  left: 0;
+  left: 60px;
   color: #7B21E8;
   font-size: 24px;
   font-weight: bold;
@@ -177,9 +163,11 @@ body, html {
 .menu-list.desktop-menu {
   display: flex;
   align-items: center;
-  margin: 0 auto;
+  justify-content: center;
   list-style: none;
   padding: 0;
+  margin: 0 auto;
+  gap: 64px;
 }
 
 .menu-item { 
@@ -187,34 +175,31 @@ body, html {
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.2s;
-  padding: 8px 16px;
-  margin: 0 2em;
+  padding: 8px 12px;
   text-align: center;
-}
-
-.menu-item span {
   position: relative;
   display: inline-block;
 }
 
-.menu-item span::after {
+.menu-item::after {
   content: '';
   position: absolute;
   width: 0;
   height: 1px;
-  bottom: -4px;
-  left: 0;
+  bottom: 0;
+  left: 50%;
   background-color: #7B21E8;
-  transition: width 0.2s ease;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
 }
 
-.menu-item:hover span::after,
-.menu-item.active span::after {
-  width: 100%;
+.menu-item:hover::after {
+  width: 70%;
+  left: 13.5%;
+  transform: none;
 }
 
-.menu-item:hover,
-.menu-item.active {
+.menu-item:hover {
   color: #7B21E8;
 }
 
@@ -222,6 +207,31 @@ body, html {
   text-decoration: none;
   color: inherit;
   white-space: nowrap;
+  display: inline-block;
+  position: relative;
+}
+
+.menu-item a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #7B21E8;
+  transition: width 0.3s ease;
+}
+
+.menu-item:hover a::after {
+  width: 100%;
+}
+
+.menu-item.active {
+  color: #7B21E8;
+}
+
+.menu-item.active::after {
+  width: calc(100% - 32px);
 }
 
 .mypage-button {
@@ -297,86 +307,188 @@ body, html {
   margin-top: 40px;
 }
 
-@media (max-width: 600px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 13px; 
-    padding: 0 2px;
-    margin: 0 0.5em;
-    min-width: 60px;
-  }
-  .mypage-button {
-    min-width: unset;
-    padding: 8px;
-  }
-  .mypage-button span { display: none; }
+/* 모바일 메뉴 아이템 스타일 수정 */
+.mobile-menu .menu-item {
+  text-align: left;
+  padding: 12px 16px;
 }
 
-@media (min-width: 601px) and (max-width: 900px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 14px; 
-    padding: 0 4px;
-    margin: 0 1em;
-    min-width: 70px;
-  }
+.mobile-menu .menu-item::after {
+  left: 16px;
+  transform: none;
 }
 
-@media (min-width: 901px) and (max-width: 1100px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 14px; 
-    padding: 0 6px;
-    margin: 0 1.5em;
-    min-width: 75px;
+.mobile-menu .menu-item:hover::after {
+  width: calc(100% - 32px);
+}
+
+@media (max-width: 1200px) {
+  .navbar-left {
+    padding: 0 100px;
+  }
+  
+  .menu-list.desktop-menu {
+    gap: 48px;
   }
 }
 
-@media (min-width: 1101px) and (max-width: 1399px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 15px; 
-    padding: 0 8px;
-    margin: 0 2em;
-    min-width: 80px;
+@media (max-width: 1024px) {
+  .navbar-left {
+    padding: 0 80px;
+  }
+
+  .menu-list.desktop-menu {
+    gap: 32px;
+  }
+
+  .menu-item {
+    padding: 8px 10px;
+    font-size: 14px;
   }
 }
 
-@media (min-width: 1400px) and (max-width: 1699px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 15px; 
-    padding: 0 10px;
-    margin: 0 2.5em;
-    min-width: 80px;
+@media (max-width: 900px) {
+  .navbar-left {
+    padding: 0 60px;
   }
-}
 
-@media (min-width: 1700px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 16px; 
-    padding: 0 16px;
-    margin: 0 3em;
-    min-width: 90px;
+  .menu-list.desktop-menu {
+    gap: 24px;
+  }
+
+  .menu-item {
+    padding: 8px 8px;
+  }
+
+  .menu-item:hover::after {
+    width: 85%;
+    left: 7.5%;
   }
 }
 
 @media (max-width: 768px) {
   .navbar {
     padding: 0 16px;
+    height: 60px;
+  }
+
+  .navbar-left {
+    width: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
   }
   
   .hamburger {
     display: block;
+    background: none;
+    border: none;
+    padding: 8px;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 16px;
+  }
+
+  .logo {
+    position: static;
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
   }
   
   .desktop-menu {
     display: none;
   }
-  
+
+  .navbar-right {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mypage-button {
+    min-width: unset;
+    padding: 8px;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mypage-button span {
+    display: none;
+  }
+
+  .mypage-button i {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 12px;
+  }
+
+  .hamburger {
+    margin-right: 12px;
+    padding: 6px;
+    font-size: 20px;
+  }
+
   .logo {
-    margin-right: 0;
+    font-size: 18px;
+  }
+
+  .navbar-right {
+    gap: 6px;
+  }
+
+  .mypage-button {
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+  }
+
+  .mypage-button i {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 8px;
+  }
+
+  .hamburger {
+    margin-right: 8px;
+    padding: 4px;
+    font-size: 18px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .navbar-right {
+    gap: 4px;
+  }
+
+  .mypage-button {
+    padding: 4px;
+    height: 28px;
+    width: 28px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-sidebar-overlay {
+    display: none !important;
+  }
+
+  .hamburger {
+    display: none;
   }
 }
 </style>
