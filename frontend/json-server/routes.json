@@ -60,6 +60,7 @@
 
   "/v1/api/chat/list": "/chatList",
   "/v1/api/chat/list/:chatId": "/chatList/:chatId",
+  "/v1/api/chat/:userId": "/userChatList?userId=:userId",
   "/v1/api/chat/rooms": "/chatRooms",
   "/v1/api/chat/rooms/:proposalId": "/chatRooms/:proposalId",
   "/v1/api/chat/messages": "/chatMessages",
