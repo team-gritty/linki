@@ -10,7 +10,7 @@
   "/v1/api/campaigns/:id": "/campaigns?productId=:id",
   "/v1/api/campaigns/product/:id": "/campaigns?productId=:id",
   "/v1/api/campaign-list": "/campaigns",
-  
+
   "/v1/api/influencer/campaigns/:productId/proposals": "/proposals?campaign_id=:productId",
   "/v1/api/influencer/campaigns/:productId": "/campaigns?productId=:productId",
   "/v1/api/influencer/campaigns\\?_page=:page&_limit=:limit&_sort=:sort&_order=:order": "/campaigns?_page=:page&_limit=:limit&_sort=:sort&_order=:order",
@@ -151,11 +151,11 @@
   "/v1/admin/api/adminSignUp/search/:type": "/adminSignUp",
 
   "광고주 - 캠페인 관련": "광고주의 캠페인 관련 라우트",
-  "/v1/api/mypage/advertiser/campaigns": "/advertiser-campaigns",
-  "/v1/api/advertiser/campaigns": "/advertiser-campaigns",
-  "/v1/api/advertiser/campaigns/:id": "/advertiser-campaigns?campaignId=:id",
-  "/v1/api/advertiser/campaigns?campaignId=:campaignId": "/advertiser-campaigns?campaignId=:campaignId",
-  "/v1/api/advertiser/mypage/campaign-list": "/advertiser-campaigns",
+  "/v1/api/mypage/advertiser/campaigns": "/campaigns",
+  "/v1/api/advertiser/campaigns": "/campaigns",
+  "/v1/api/advertiser/campaigns/:id": "/campaigns?campaignId=:id",
+  "/v1/api/advertiser/mypage/campaign-detail/:id": "/campaigns?campaignId=:id",
+  "/v1/api/advertiser/mypage/campaign-list": "/campaigns",
   "/v1/api/advertiser/proposals": "/proposals",
   "/v1/api/advertiser/proposals?campaignId=:campaignId": "/proposals?campaign_id=:campaignId",
 

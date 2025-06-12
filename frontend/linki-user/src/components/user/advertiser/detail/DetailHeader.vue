@@ -30,7 +30,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { campaignAPI } from '@/api/campaign'
+import campaignApi from '@/api/advertiser/advertiser-campaign'
 
 const props = defineProps({
   currentTab: {
@@ -56,7 +56,7 @@ const campaignInfo = ref({
 const fetchCampaignInfo = async () => {
   try {
     console.log('Fetching campaign info for ID:', route.params.id)
-    const data = await campaignAPI.getMyCampaignDetail(route.params.id)
+    const data = await campaignApi.getMyCampaignDetail(route.params.id)
     console.log('Received campaign data:', data)
     campaignInfo.value = data
   } catch (error) {
