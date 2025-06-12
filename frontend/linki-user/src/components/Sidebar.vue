@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
+
 import { useRouter } from 'vue-router'
 
 import { useChatbotStore } from '@/stores/chatbot'
+
+import ChatDropdown from '@/components/ChatDropdown.vue'
 
 
 const router = useRouter()
@@ -52,12 +55,7 @@ onUnmounted(() => {
 
 const sidebarElement = ref(null)
 
-function goToInfluencer() {
-  router.push('/channels') // ChannelListPage로 이동 
-  if (props.toggleSidebar) { 
-    props.toggleSidebar() // 모바일 사이드바 닫기
-  }
-}
+
 
 watch(() => props.openSidebar, (newValue) => {
   if (sidebarElement.value) {
