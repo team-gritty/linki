@@ -50,17 +50,17 @@ const fetchCampaigns = async () => {
     console.log('Campaign response:', data)
     campaignProducts.value = data.map(campaign => {
       return {
-        id: campaign.productId,
-        name: campaign.productName,
-        image: campaign.productImg,
-        category: campaign.productCategory,
+        id: campaign.campaignId,
+        name: campaign.campaignName,
+        image: campaign.campaignImg,
+        category: campaign.campaignCategory,
         reviews: 0,
         rating: 4.5,
-        timeLeft: calculateTimeLeft(campaign.productDeadline),
-        status: campaign.productPublishStatus,
+        timeLeft: calculateTimeLeft(campaign.campaignDeadline),
+        status: campaign.campaignStatus,
         advertiser: campaign.companyName,
-        description: campaign.productDesc,
-        condition: campaign.productCondition
+        description: campaign.campaignDesc,
+        condition: campaign.campaignCondition
       }
     })
   } catch (err) {

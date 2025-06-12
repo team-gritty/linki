@@ -40,9 +40,11 @@
             <div class="score-input">
               <span class="rating-label">별점</span>
               <input 
-                type="text" 
-                v-model="review.score" 
-                @input="validateScore"
+                type="number"
+                v-model.number="review.score"
+                min="0"
+                max="5"
+                step="0.1"
                 placeholder="0.0"
                 class="score-number"
               >
@@ -57,12 +59,7 @@
             <label>리뷰 내용</label>
             <textarea v-model="review.comment" placeholder="리뷰 내용을 작성해주세요"></textarea>
           </div>
-          <div class="visibility-toggle">
-            <label>
-              <input type="checkbox" v-model="review.visibility">
-              공개하기
-            </label>
-          </div>
+      
         </div>
         <div class="modal-footer">
           <button @click="closeModal" class="cancel-btn">취소</button>
@@ -75,47 +72,32 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { reviewApi } from '@/api/advertiser/advertiser-review';
+import { contractApi } from '@/api/advertiser/advertiser-contract';
 
 const completedContracts = ref([]);
 const showModal = ref(false);
 const selectedContract = ref(null);
 const review = ref({
-  score: '',
+  score: 0,
   comment: '',
   visibility: true
 });
-
-const validateScore = () => {
-  let value = review.value.score;
-  value = value.replace(/[^\d.]/g, '');
-  const parts = value.split('.');
-  if (parts.length > 2) {
-    value = parts[0] + '.' + parts.slice(1).join('');
-  }
-  if (parts[1]?.length > 1) {
-    value = parts[0] + '.' + parts[1].slice(0, 1);
-  }
-  let numValue = parseFloat(value);
-  if (!isNaN(numValue)) {
-    if (numValue > 5) value = '5';
-    if (numValue < 0) value = '0';
-  }
-  review.value.score = value;
-};
+const router = useRouter();
 
 const fetchCompletedContracts = async () => {
   try {
     // 1. 모든 완료된 계약 불러오기
-    const contractsResponse = await axios.get('http://localhost:3000/contracts');
+    const contractsResponse = await contractApi.getMyContracts();
     let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
     const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
 
-    // 2. advertiser-reviews에서 이미 리뷰 작성된 contractId 목록 불러오기
-    const reviewsResponse = await axios.get('http://localhost:3000/advertiser-reviews');
+    // 2. 작성한 리뷰 DB에서 이미 리뷰 작성된 contractId 목록 불러오기
+    const reviewsResponse = await reviewApi.getGivenReviews();
     const reviewedContractIds = (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : []).map(r => r.contractId);
 
-    // 3. 리뷰가 작성되지 않은 계약만 필터링 (이유: 리뷰 작성한 계약은 목록에서 제외)
+    // 3. 리뷰가 작성되지 않은 계약만 필터링
     completedContracts.value = completedList
       .filter(contract => !reviewedContractIds.includes(contract.contractId))
       .map(contract => ({
@@ -135,7 +117,7 @@ const fetchCompletedContracts = async () => {
 const openReviewModal = (contract) => {
   selectedContract.value = contract;
   review.value = {
-    score: '',
+    score: 0,
     comment: '',
     visibility: true
   };
@@ -150,23 +132,20 @@ const closeModal = () => {
 const submitReview = async () => {
   if (!selectedContract.value) return;
   try {
-    // json-server POST 안정성을 위해 id 필드 추가 (이유: json-server는 id 필드가 있으면 POST/PUT이 더 안정적으로 동작함)
+    // API 엔드포인트 및 필드명에 맞게 POST, id 필드 추가
     const reviewData = {
       id: `AR${Date.now()}`,
-      advertiserReviewId: `AR${Date.now()}`,
-      advertiserReviewScore: parseFloat(review.value.score) || 0,
-      advertiserReviewComment: review.value.comment,
-      advertiserReviewCreatedAt: new Date().toISOString(),
       contractId: selectedContract.value.contractId,
+      score: parseFloat(review.value.score) || 0,
+      comment: review.value.comment,
+      createdAt: new Date().toISOString(),
       visibility: review.value.visibility
     };
-    // 작성한 리뷰 저장 요청 (advertiser-reviews는 광고주가 작성한 리뷰 목록)
-    await axios.post('http://localhost:3000/advertiser-reviews', reviewData);
+    await reviewApi.writeInfluencerReview(reviewData);
     alert('리뷰가 저장되었습니다.');
     closeModal();
-    fetchCompletedContracts();
+    await fetchCompletedContracts(); // 리뷰 작성 후 최신화
   } catch (error) {
-    // 에러 발생 시 상세 로그 출력 (이유: 원인 파악을 쉽게 하기 위함)
     if (error.response) {
       console.error('리뷰 저장 실패:', error.response.data, error.response.status);
     } else {

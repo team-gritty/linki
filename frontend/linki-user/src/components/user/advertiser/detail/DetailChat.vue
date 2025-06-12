@@ -272,11 +272,6 @@ const loadInitialData = async () => {
     
     // 초기 정렬 수행
     sortChats()
-
-    // 채팅 목록이 있다면 첫 번째 채팅방 선택
-    if (chatList.value.length > 0) {
-      await selectChat(chatList.value[0].chatId)
-    }
   } catch (err) {
     error.value = '데이터를 불러오는데 실패했습니다.'
     console.error('Error loading initial data:', err)
@@ -411,8 +406,8 @@ const goToInfluencerDetail = (influencerId) => {
           </div>
         </div>
         <div class="chat-header-actions">
-          <span :class="['status-badge', `status-${selectedChat?.chatStatus}`]">
-            {{ selectedChat?.chatStatus }}
+          <span :class="['nego-status-badge', `nego-status-${getChatDetail(selectedChat?.chatId)?.negoStatus?.replace(/ /g, '-')}`]">
+            {{ getChatDetail(selectedChat?.chatId)?.negoStatus }}
           </span>
           <button class="primary-button" @click="openProposalModal">제안서 보기</button>
           <button class="primary-button" @click="openContractModal">계약서 보기</button>
@@ -446,15 +441,22 @@ const goToInfluencerDetail = (influencerId) => {
       </div>
 
       <!-- 메시지 입력 -->
-      <div class="message-input-container">
-        <input 
-          type="text" 
-          v-model="newMessage"
-          @keyup.enter="sendMessage"
-          placeholder="메시지를 입력하세요..."
-          class="message-input"
-        >
-        <button @click="sendMessage" class="send-button">전송</button>
+      <div class="message-input-wrapper">
+        <div class="message-input-container" :class="{ 'disabled': getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING' }">
+          <input 
+            type="text" 
+            v-model="newMessage"
+            @keyup.enter="sendMessage"
+            :placeholder="getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING' ? '제안서 승인 후 채팅 가능합니다' : '메시지를 입력하세요...'"
+            class="message-input"
+            :disabled="getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING'"
+          >
+          <button 
+            @click="sendMessage" 
+            class="send-button"
+            :disabled="getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING'"
+          >전송</button>
+        </div>
       </div>
     </div>
 

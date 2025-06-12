@@ -16,16 +16,21 @@
       <hr class="proposal-detail-divider" />
       <div class="proposal-detail-content-block">
         <div class="proposal-detail-content-title">내용</div>
-        <div class="proposal-detail-content-text">{{ proposal.content }}</div>
+        <div v-if="!isEditMode" class="proposal-detail-content-text">{{ proposal.content }}</div>
+        <div v-else>
+          <textarea v-model="editContent" rows="6" style="width:100%;margin-bottom:12px;"></textarea>
+        </div>
       </div>
-      <div class="proposal-detail-btns" v-if="proposal.status !== 'REJECTED' && proposal.status !== 'rejected'">
-        <div class="proposal-detail-btn-wrapper">
-          <button class="proposal-detail-btn reject" @click="handleRejectClick">거절</button>
-        </div>
-        <div class="proposal-detail-btn-wrapper">
-          <button class="proposal-detail-btn accept">승낙</button>
-          <div class="proposal-detail-accept-desc">승낙하고 채팅 시작하기</div>
-        </div>
+      <!-- 버튼 영역 - 거절 상태가 아닐 때만 표시 -->
+      <div v-if="proposal.status !== 'REJECTED'" class="proposal-detail-btns">
+        <template v-if="!isEditMode">
+          <button class="proposal-detail-btn" @click="startEdit">수정</button>
+          <button class="proposal-detail-btn accept" @click="handleContract">계약</button>
+        </template>
+        <template v-else>
+          <button class="proposal-detail-btn" @click="cancelEdit">취소</button>
+          <button class="proposal-detail-btn accept" @click="saveEdit">저장</button>
+        </template>
       </div>
     </div>
     <div v-if="rejectModalOpen" class="modal-backdrop">
@@ -42,6 +47,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
 
 const props = defineProps({
   proposal: {
@@ -50,7 +57,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'reject'])
+const emit = defineEmits(['close', 'reject', 'contract'])
 
 const statusText = computed(() => {
   const statusMap = {
@@ -79,6 +86,32 @@ function handleRejectCancel() {
 function handleRejectConfirm() {
   emit('reject', props.proposal.id)
   rejectModalOpen.value = false
+}
+
+// 수정 모드 관련
+const isEditMode = ref(false)
+const editContent = ref('')
+
+function startEdit() {
+  isEditMode.value = true
+  editContent.value = props.proposal.content
+}
+function cancelEdit() {
+  isEditMode.value = false
+}
+async function saveEdit() {
+  try {
+    await proposalAPI.updateProposal(props.proposal.id, { ...props.proposal, content: editContent.value })
+    props.proposal.content = editContent.value // 즉시 반영
+    isEditMode.value = false
+    alert('제안서가 수정되었습니다.')
+  } catch (e) {
+    alert('제안서 수정에 실패했습니다.')
+  }
+}
+function handleContract() {
+  contractApi.startContract(props.proposal.id)
+  alert('계약서 작성을 시작합니다')
 }
 </script>
 
@@ -205,51 +238,34 @@ function handleRejectConfirm() {
 
 .proposal-detail-btns {
   display: flex;
-  justify-content: center;
-  gap: 16px;
+  justify-content: flex-end;
+  gap: 12px;
   margin-top: 24px;
 }
 
-.proposal-detail-btn-wrapper {
-  flex: 1;
-  max-width: 240px;
-  text-align: center;
-}
-
 .proposal-detail-btn {
-  width: 100%;
-  padding: 12px;
+  padding: 12px 32px;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.proposal-detail-btn.reject {
-  background-color: white;
-  border: 1px solid #DC3545;
-  color: #DC3545;
-}
-
-.proposal-detail-btn.reject:hover {
-  background-color: #DC3545;
-  color: white;
+  background: #f3f4f6;
+  color: #7B21E8;
+  transition: background 0.2s, color 0.2s;
 }
 
 .proposal-detail-btn.accept {
-  background-color: #7B21E8;
-  color: white;
+  background: #7B21E8;
+  color: #fff;
+}
+
+.proposal-detail-btn:not(.accept):hover {
+  background: #e5e7eb;
 }
 
 .proposal-detail-btn.accept:hover {
-  background-color: #5B10B8;
-}
-
-.proposal-detail-accept-desc {
-  font-size: 0.9em;
-  color: #666;
-  margin-top: 8px;
+  background: #5B10B8;
 }
 
 .modal-backdrop {

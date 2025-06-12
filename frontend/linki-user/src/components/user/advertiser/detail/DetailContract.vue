@@ -44,9 +44,9 @@
           계약서 조회
         </button>
         <button 
+          v-if="contract.contractStatus === 'PENDING_SIGN'"
           class="action-button sign-contract" 
           @click="signContract"
-          :disabled="contract.contractStatus !== 'PENDING'"
         >
           <i class="fas fa-signature"></i>
           전자 서명
@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, ref, onMounted } from 'vue'
 import { contractApi } from '@/api/advertiser/advertiser-contract'
 import ContractExecutionButton from '../ContractExecutionButton.vue'
 
@@ -74,7 +74,30 @@ const props = defineProps({
   contract: {
     type: Object,
     required: true
+  },
+  campaignId: {
+    type: String,
+    required: false
   }
+})
+
+// 캠페인별 계약 목록 상태 및 fetch 함수 추가
+const contracts = ref([])
+
+const fetchContracts = async () => {
+  if (!props.campaignId) return
+  try {
+    const response = await contractApi.getMyContracts()
+    contracts.value = (Array.isArray(response.data) ? response.data : []).filter(
+      contract => contract.campaignId === props.campaignId
+    )
+  } catch (error) {
+    contracts.value = []
+  }
+}
+
+onMounted(() => {
+  fetchContracts()
 })
 
 function formatDate(dateString) {

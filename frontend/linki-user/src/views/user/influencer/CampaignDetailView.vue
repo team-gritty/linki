@@ -15,16 +15,16 @@
     <!-- 캠페인 상세 정보 -->
     <div v-else-if="campaign" class="campaign-content">
       <div class="campaign-header">
-        <img :src="campaign.productImg" :alt="campaign.productName" class="campaign-image">
+        <img :src="campaign.campaignImg" :alt="campaign.campaignName" class="campaign-image">
         <div class="campaign-info">
           <div class="campaign-meta">
-            <span class="category">{{ campaign.productCategory }}</span>
-            <span class="deadline">마감일: {{ formatDate(campaign.productDeadline) }}</span>
+            <span class="category">{{ campaign.campaignCategory }}</span>
+            <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
           </div>
-          <h1 class="campaign-title">{{ campaign.productName }}</h1>
+          <h1 class="campaign-title">{{ campaign.campaignName }}</h1>
           <p class="company-name">{{ campaign.companyName }}</p>
           <div class="campaign-description">
-            {{ campaign.productDesc }}
+            {{ campaign.campaignDesc }}
           </div>
         </div>
       </div>
@@ -33,15 +33,15 @@
         <section class="info-section">
           <h2>캠페인 조건</h2>
           <div class="condition-box">
-            {{ campaign.productCondition }}
+            {{ campaign.campaignCondition }}
           </div>
         </section>
 
         <section class="info-section">
           <h2>캠페인 상태</h2>
           <div class="status-box">
-            <span :class="['status-badge', campaign.productPublishStatus.toLowerCase()]">
-              {{ getStatusText(campaign.productPublishStatus) }}
+            <span :class="['status-badge', campaign.campaignStatus.toLowerCase()]">
+              {{ getStatusText(campaign.campaignStatus) }}
             </span>
           </div>
         </section>
@@ -50,13 +50,6 @@
         <section class="info-section reviews-section">
           <div class="reviews-header">
             <h2>광고주 리뷰</h2>
-            <div v-if="reviews.length > 0" class="average-rating">
-              <div class="stars">
-                <div class="stars-filled" :style="{ width: `${averageRating * 20}%` }"></div>
-                <div class="stars-empty"></div>
-              </div>
-              <span class="rating-text">{{ averageRating.toFixed(1) }}/5</span>
-            </div>
           </div>
           <div v-if="loadingReviews" class="loading-state">
             <div class="loading-spinner"></div>
@@ -70,18 +63,18 @@
             아직 등록된 리뷰가 없습니다.
           </div>
           <div v-else class="reviews-list">
-            <div v-for="review in reviews" :key="review.advertiserReviewId" class="review-item">
-              <div class="review-header">
+            <div v-for="review in reviews" :key="review.reviewId" class="review-item">
+              <div class="review-content">
                 <div class="review-rating">
                   <div class="stars">
-                    <div class="stars-filled" :style="{ width: `${review.advertiserReviewScore * 20}%` }"></div>
+                    <div class="stars-filled" :style="{ width: `${review.reviewScore * 20}%` }"></div>
                     <div class="stars-empty"></div>
                   </div>
-                  <span class="rating-text">{{ review.advertiserReviewScore.toFixed(1) }}</span>
+                  <span class="rating-text">{{ review.reviewScore.toFixed(1) }}</span>
                 </div>
-                <span class="review-date">{{ formatDate(review.advertiserReviewCreatedAt) }}</span>
+                <p class="review-comment">{{ review.reviewComment }}</p>
+                <span class="review-date">{{ formatDate(review.reviewCreatedAt) }}</span>
               </div>
-              <p class="review-comment">{{ review.advertiserReviewComment }}</p>
             </div>
           </div>
         </section>
@@ -118,6 +111,10 @@ const fetchCampaignDetail = async () => {
     const data = await campaignAPI.getCampaignDetail(route.params.id)
     campaign.value = data
     console.log('Campaign detail:', data)
+    // 캠페인 정보를 가져온 후 광고주 리뷰를 가져옴
+    if (data?.advertiserId) {
+      await fetchAdvertiserReviews()
+    }
   } catch (err) {
     console.error('캠페인 상세 정보 로딩 실패:', err)
     error.value = '캠페인 정보를 불러오는데 실패했습니다.'
@@ -130,8 +127,11 @@ const fetchAdvertiserReviews = async () => {
   try {
     loadingReviews.value = true
     reviewError.value = null
-    const data = await campaignAPI.getAdvertiserReviews(route.params.id)
-    reviews.value = data
+    // 캠페인의 광고주 ID로 리뷰 조회
+    if (campaign.value?.advertiserId) {
+      const data = await campaignAPI.getAdvertiserReviews(campaign.value.advertiserId)
+      reviews.value = data
+    }
   } catch (err) {
     console.error('광고주 리뷰 로딩 실패:', err)
     reviewError.value = '리뷰를 불러오는데 실패했습니다.'
@@ -166,16 +166,8 @@ const goBack = () => {
   router.back()
 }
 
-// 평균 평점 계산
-const averageRating = computed(() => {
-  if (reviews.value.length === 0) return 0
-  const sum = reviews.value.reduce((acc, review) => acc + review.advertiserReviewScore, 0)
-  return sum / reviews.value.length
-})
-
 onMounted(() => {
   fetchCampaignDetail()
-  fetchAdvertiserReviews()
 })
 </script>
 
@@ -400,21 +392,19 @@ onMounted(() => {
 .reviews-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .review-item {
   background: #f9fafb;
-  padding: 20px;
+  padding: 24px;
   border-radius: 12px;
-  margin-bottom: 16px;
 }
 
-.review-header {
+.review-content {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .review-rating {
@@ -423,51 +413,12 @@ onMounted(() => {
   gap: 8px;
 }
 
-.review-rating .stars {
-  font-size: 18px;
-}
-
-.review-date {
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-.review-comment {
-  color: #374151;
-  line-height: 1.6;
-  margin: 0;
-  font-size: 1rem;
-}
-
-.no-reviews {
-  text-align: center;
-  padding: 24px;
-  color: #6b7280;
-  background: #f9fafb;
-  border-radius: 8px;
-}
-
-.reviews-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.average-rating {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .stars {
   position: relative;
   display: inline-block;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   color: #e5e7eb;
-  unicode-bidi: bidi-override;
-  direction: ltr;
 }
 
 .stars-filled {
@@ -494,8 +445,43 @@ onMounted(() => {
 }
 
 .rating-text {
-  font-size: 1.1rem;
+  font-size: 15px;
   font-weight: 600;
   color: #4b5563;
+}
+
+.review-comment {
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 15px;
+}
+
+.review-date {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.reviews-header {
+  margin-bottom: 24px;
+}
+
+.average-rating,
+.review-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .review-item {
+    padding: 20px;
+  }
 }
 </style> 

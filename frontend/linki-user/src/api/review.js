@@ -1,20 +1,36 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:3000';
+import httpClient from '@/utils/httpRequest'
 
 export const reviewApi = {
   // 인플루언서가 작성한 리뷰 조회
-  getInfluencerReviews() {
-    return axios.get(`${BASE_URL}/influencer-reviews`);
+  async getInfluencerReviews() {
+    try {
+      const response = await httpClient.get(`/v1/api/influencer/reviews/written`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching influencer reviews:', error);
+      throw error;
+    }
   },
 
   // 인플루언서가 받은 리뷰 조회
-  getAdvertiserReviews() {
-    return axios.get(`${BASE_URL}/advertiser-reviews`);
+  async getAdvertiserReviews() {
+    try {
+      const response = await httpClient.get(`/v1/api/influencer/reviews/received`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching advertiser reviews:', error);
+      throw error;
+    }
   },
 
   // 광고주에 대한 리뷰 작성
-  submitAdvertiserReview(reviewData) {
-    return axios.post(`${BASE_URL}/influencer-reviews`, reviewData);
+  async submitAdvertiserReview(reviewData) {
+    try {
+      const response = await httpClient.post(`/v1/api/influencer/reviews/written`, reviewData);
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting advertiser review:', error);
+      throw error;
+    }
   }
 };

@@ -3,10 +3,10 @@
     <div class="campaign-summary-box">
       <div class="summary-left">
         <template v-if="campaignDetail">
-          <img :src="campaignDetail.campaign_img" :alt="campaignDetail.campaign_name" class="summary-thumb">
+          <img :src="campaignDetail.campaignImg" :alt="campaignDetail.campaignName" class="summary-thumb">
           <div class="summary-info">
-            <h2 class="summary-title">{{ campaignDetail.campaign_name }}</h2>
-            <p class="summary-sub">{{ campaignDetail.campaign_desc }}</p>
+            <h2 class="summary-title">{{ campaignDetail.campaignName }}</h2>
+            <p class="summary-sub">{{ campaignDetail.campaignDesc }}</p>
           </div>
         </template>
         <div v-else class="summary-info">
@@ -22,9 +22,6 @@
         <template v-else>
           <button class="go-list-btn" @click="goToProposalList">
             제안서 목록
-          </button>
-          <button class="go-list-btn" @click="goToCampaignDetail">
-            캠페인 확인 →
           </button>
         </template>
       </div>
@@ -90,18 +87,17 @@ export default {
     };
 
     const goToProposalList = () => {
-      router.push('/mypage');
+      router.push({
+        name: 'influencer-mypage',
+        query: { currentMenu: 'campaign.proposals' }
+      });
     };
 
-    const goToCampaignDetail = () => {
-      router.push(`/campaign/${props.campaignDetail?.campaign_id}`);
-    };
 
     return {
       getContractTitle,
       goToContractList,
       goToProposalList,
-      goToCampaignDetail
     };
   }
 }

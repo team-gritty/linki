@@ -31,6 +31,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 const userId = ref('')
@@ -39,7 +40,7 @@ const isLoading = ref(false)
 
 const handleFindPassword = async () => {
   if (!userId.value || !email.value) {
-    console.error('Please fill in all fields')
+    alert('아이디와 이메일을 모두 입력해주세요.')
     return
   }
 
@@ -49,12 +50,27 @@ const handleFindPassword = async () => {
       userId: userId.value,
       email: email.value
     }
-    console.log('Find Password attempt with:', findPasswordData)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    alert('비밀번호 찾기 기능 준비중입니다.')
-    router.push('/login')
+
+    const response = await axios.post('/api/admin/find-password', findPasswordData)
+    
+    if (response.data.success) {
+      alert('입력하신 이메일로 임시 비밀번호가 발송되었습니다.')
+      router.push('/login')
+    } else {
+      alert(response.data.message || '일치하는 회원 정보를 찾을 수 없습니다.')
+    }
   } catch (error) {
     console.error('Find Password failed:', error)
+    if (error.response) {
+      // 서버에서 응답이 왔지만 에러인 경우
+      alert(error.response.data.message || '비밀번호 찾기 중 오류가 발생했습니다.')
+    } else if (error.request) {
+      // 요청은 보냈지만 응답을 받지 못한 경우
+      alert('서버와 통신할 수 없습니다. 잠시 후 다시 시도해주세요.')
+    } else {
+      // 요청 자체를 보내지 못한 경우
+      alert('요청을 보내지 못했습니다. 잠시 후 다시 시도해주세요.')
+    }
   } finally {
     isLoading.value = false
   }

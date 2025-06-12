@@ -5,7 +5,7 @@
     <div class="content-area">
       <!-- 내 정보 -->
       <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
-      <MyPageChannelInfo v-if="currentMenu === 'profile.channel'" />
+<!--      <MyPageChannelInfo v-if="currentMenu === 'profile.channel'" />-->
       <MyPagePassword v-if="currentMenu === 'profile.password'" />
       
       <!-- 캠페인 관리 -->
@@ -23,7 +23,7 @@
         
       <!-- 구독 관리 -->
       <MyPageSubscriptionApply v-if="currentMenu === 'subscription.apply'" />
-      <MyPageSubscriptionManage v-if="currentMenu === 'subscription.manage'" />
+      <MyPageSubscriptionManage v-if="currentMenu === 'subscription.manage'" v-model:currentMenu="currentMenu" />
       <MyPageSubscriptionRefund v-if="currentMenu === 'subscription.refund'" />
     </div>
   </div>

@@ -34,15 +34,17 @@
   
   <script setup>
   import { ref, onMounted, defineEmits } from 'vue';
-  import axios from 'axios';
+  import { contractApi, CONTRACT_STATUS } from '@/api/advertiser/advertiser-contract';
+  import { useRouter } from 'vue-router';
   
   const contracts = ref([]);
   const hovered = ref(null);
   const emit = defineEmits(['show-detail']);
+  const router = useRouter();
   
   const fetchContracts = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/contracts');
+      const response = await contractApi.getMyContracts();
       let contractList = Array.isArray(response.data) ? response.data : [];
       contracts.value = contractList
         .filter(contract => contract.contractStatus === 'COMPLETED')
@@ -61,7 +63,13 @@
   };
   
   function viewContractDetail(contract) {
-    emit('show-detail', contract);
+    router.push({
+      path: `/mypage/campaign-detail/${contract.campaignId}`,
+      query: { 
+        tab: 'contract.list',
+        contractId: contract.contractId
+      }
+    });
   }
   
   function formatDate(dateString) {
@@ -73,21 +81,23 @@
     return new Intl.NumberFormat('ko-KR').format(amount);
   }
   
-  function getStatusClass(status) {
-    return {
-      'status-pending': status === 'PENDING',
-      'status-active': status === 'ACTIVE',
-      'status-completed': status === 'COMPLETED'
-    };
-  }
-  
   function getStatusText(status) {
     const statusMap = {
-      'PENDING': '진행중',
-      'ACTIVE': '활성',
-      'COMPLETED': '완료'
+      [CONTRACT_STATUS.PENDING]: '진행중',
+      [CONTRACT_STATUS.PENDING_SIGN]: '서명 대기중',
+      [CONTRACT_STATUS.ACTIVE]: '활성',
+      [CONTRACT_STATUS.COMPLETED]: '완료'
     };
     return statusMap[status] || status;
+  }
+  
+  function getStatusClass(status) {
+    return {
+      'status-pending': status === CONTRACT_STATUS.PENDING,
+      'status-pending-sign': status === CONTRACT_STATUS.PENDING_SIGN,
+      'status-active': status === CONTRACT_STATUS.ACTIVE,
+      'status-completed': status === CONTRACT_STATUS.COMPLETED
+    };
   }
   
   onMounted(() => {
@@ -95,6 +105,68 @@
   });
   </script>
   
-  <style>
+  <style scoped>
   @import '@/assets/css/mypage.css';
+  
+  .detail-btn {
+    padding: 8px 24px;
+    background-color: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .detail-btn:hover {
+    background-color: #7C3AED;
+  }
+  
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .status-pending {
+    background-color: #EEF2FF;
+    color: #6366F1;
+  }
+  
+  .status-pending-sign {
+    background-color: #FEF3C7;
+    color: #D97706;
+  }
+  
+  .status-active {
+    background-color: #ECFDF5;
+    color: #059669;
+  }
+  
+  .status-completed {
+    background-color: #F3F4F6;
+    color: #4B5563;
+  }
+  
+  .contract-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+    border: 1px solid #E5E7EB;
+  }
+  
+  .contract-item:hover {
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .amount {
+    color: #8B5CF6;
+    font-weight: 600;
+  }
   </style> 

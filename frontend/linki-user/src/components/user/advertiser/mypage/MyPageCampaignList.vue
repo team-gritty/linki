@@ -12,15 +12,15 @@
             <span>마감일: {{ item.due }}</span>
             <div class="campaign-status-toggle">
               <button
-                :class="['status-btn', item.status === '모집중' ? 'active' : '']"
-                @click="item.status !== '모집중' && openStatusModal(idx, '모집중')"
-                :disabled="item.status === '모집중'"
+                :class="['status-btn', item.status === 'ACTIVE' ? 'active' : '']"
+                @click="item.status !== 'ACTIVE' && openStatusModal(idx, 'ACTIVE')"
+                :disabled="item.status === 'ACTIVE'"
                 type="button"
               >모집중</button>
               <button
-                :class="['status-btn', item.status === '비공개' ? 'inactive private-active' : '']"
-                @click="openStatusModal(idx, '비공개')"
-                :disabled="item.status === '비공개'"
+                :class="['status-btn', item.status === 'DRAFT' ? 'inactive private-active' : '']"
+                @click="openStatusModal(idx, 'DRAFT')"
+                :disabled="item.status === 'DRAFT'"
                 type="button"
               >비공개</button>
             </div>
@@ -43,30 +43,28 @@
       <div v-if="campaigns.length === 0" class="empty-msg">
         등록된 캠페인이 없습니다.
       </div>
+    </div>
   
-      <!-- 상태 변경 모달 -->
-      <div v-if="modalOpen" class="modal-backdrop">
-        <div class="modal-box">
-          <div class="modal-message">
-            캠페인 상태를 {{ nextStatus }}(으)로 변경하시겠습니까?
-          </div>
-          <div class="modal-actions">
-            <button class="modal-cancel" @click="modalOpen = false">취소</button>
-            <button class="modal-confirm" @click="confirmStatusChange">확인</button>
-          </div>
+    <!-- 상태 변경 모달 -->
+    <div v-if="modalOpen" class="modal-overlay" @click="modalOpen = false">
+      <div class="modal-content" @click.stop>
+        <h3>캠페인 상태 변경</h3>
+        <p>캠페인 상태를 <strong>{{ nextStatus === 'ACTIVE' ? '모집중' : '비공개' }}</strong>로 변경하시겠습니까?</p>
+        <div class="modal-actions">
+          <button @click="modalOpen = false" class="cancel-btn">취소</button>
+          <button @click="confirmStatusChange" class="confirm-btn">확인</button>
         </div>
       </div>
+    </div>
   
-      <!-- 삭제 모달 -->
-      <div v-if="deleteModalOpen" class="modal-backdrop">
-        <div class="modal-box">
-          <div class="modal-message">
-            캠페인을 삭제하시겠습니까?
-          </div>
-          <div class="modal-actions">
-            <button class="modal-cancel" @click="deleteModalOpen = false">취소</button>
-            <button class="modal-delete" @click="confirmDelete">삭제</button>
-          </div>
+    <!-- 삭제 확인 모달 -->
+    <div v-if="deleteModalOpen" class="modal-overlay" @click="deleteModalOpen = false">
+      <div class="modal-content" @click.stop>
+        <h3>캠페인 삭제</h3>
+        <p>정말로 이 캠페인을 삭제하시겠습니까?</p>
+        <div class="modal-actions">
+          <button @click="deleteModalOpen = false" class="cancel-btn">취소</button>
+          <button @click="confirmDelete" class="confirm-btn delete">삭제</button>
         </div>
       </div>
     </div>
@@ -76,21 +74,26 @@
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import httpClient from '@/utils/httpRequest'
+  import campaignApi from '@/api/advertiser/advertiser-campaign'
   
   const router = useRouter()
   const campaigns = ref([])
   
   onMounted(async () => {
     try {
-      const response = await httpClient.get('/campaign-list')
+      // Use the campaigns endpoint directly to get all campaigns
+      const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns')
+      console.log('Campaign response:', response.data)
+      
       campaigns.value = response.data.map(item => ({
-        id: item.campaign_id,
-        name: item.campaign_name,
-        image: item.campaign_img,
-        due: item.campaign_deadline ? item.campaign_deadline.split('T')[0] : '',
-        status: item.campaign_publish_status
+        id: item.campaignId,
+        name: item.campaignName,
+        image: item.campaignImg,
+        due: item.campaignDeadline ? new Date(item.campaignDeadline).toLocaleDateString('ko-KR') : '',
+        status: item.campaignStatus
       }))
     } catch (e) {
+      console.error('Failed to fetch campaigns:', e)
       campaigns.value = []
     }
   })
@@ -145,4 +148,74 @@
   
   <style>
   @import '@/assets/css/mypage.css';
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+  }
+
+  .modal-content h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  .modal-content p {
+    margin: 0 0 1.5rem 0;
+    color: #666;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .cancel-btn, .confirm-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .cancel-btn {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .confirm-btn {
+    background: #7c3aed;
+    color: white;
+  }
+
+  .confirm-btn.delete {
+    background: #dc2626;
+  }
+
+  .cancel-btn:hover {
+    background: #e5e7eb;
+  }
+
+  .confirm-btn:hover {
+    background: #6d28d9;
+  }
+
+  .confirm-btn.delete:hover {
+    background: #b91c1c;
+  }
   </style> 

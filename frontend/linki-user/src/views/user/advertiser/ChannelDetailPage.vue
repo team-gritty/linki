@@ -129,13 +129,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from '@/components/user/advertiser/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from '@/components/user/advertiser/LikeRatioBarChart.vue'
 import CommentRatioBarChart from '@/components/user/advertiser/CommentRatioBarChart.vue'
 import ReviewTab from '@/components/user/advertiser/ReviewTab.vue'
-import { getReviewStats } from './useReviewStats.js'
+import { reviewApi } from '@/api/advertiser/advertiser-review'
+import channelApi from '@/api/advertiser/advertiser-channel'
 
 const route = useRoute()
 const channel = ref(null)
@@ -150,7 +150,7 @@ const reviewCount = ref(0)
 const reviewAvg = ref(0)
 
 async function fetchReviewStatsOnEnter() {
-  const { avg, count } = await getReviewStats(id.value)
+  const { avg, count } = await reviewApi.getReviewStats(id.value)
   reviewCount.value = count
   reviewAvg.value = avg
 }
@@ -165,11 +165,9 @@ onMounted(async () => {
   loading.value = true
   try {
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
-    const response = await axios.get('/v1/api/channels')
-    channels.value = response.data
+    channels.value = await channelApi.getAllChannels()
     // 2. 채널 Id로 해당 채널 데이터 가져오기
-    const channelRes = await axios.get(`/v1/api/channels/${id.value}`)
-    channel.value = channelRes.data
+    channel.value = await channelApi.getChannelById(id.value)
     // 3. 리뷰 통계도 진입시 바로 fetch
     await fetchReviewStatsOnEnter()
   } catch (err) {

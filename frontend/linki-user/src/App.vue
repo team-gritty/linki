@@ -5,6 +5,8 @@ import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import Chatbot from '@/components/chatbot/Chatbot.vue'
+import Alert from '@/components/common/Alert.vue'
 
 const router = useRouter()
 const openSidebar = ref(false)
@@ -34,6 +36,8 @@ watch(
       </main>
     </div>
     <Footer />
+    <Chatbot />
+    <Alert />
   </div>
 </template>
 
@@ -52,7 +56,7 @@ watch(
 
 .main-container {
   flex: 1;
-  width: 100vw;
+  width: 100%;
   min-height: 0;
   padding-top: 121px; /* Header(48) + Navbar(73) */
   padding-bottom: 60px; /* Footer 높이 */
@@ -64,5 +68,15 @@ watch(
   min-height: calc(100vh - 48px - 73px - 60px);
   overflow-y: auto;
   background-color: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding-top: 108px; /* Header(48) + Mobile Navbar(60) */
+  }
+
+  .content {
+    min-height: calc(100vh - 48px - 60px - 60px);
+  }
 }
 </style>

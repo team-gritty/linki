@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
+
 import { useRouter } from 'vue-router'
+import ChatDropdown from '@/components/ChatDropdown.vue'
 
 
 const router = useRouter()
-
 const isMobile = ref(false)
 
 const props = defineProps({
@@ -39,12 +40,7 @@ onUnmounted(() => {
 
 const sidebarElement = ref(null)
 
-function goToInfluencer() {
-  router.push('/channels') // ChannelListPage로 이동 
-  if (props.toggleSidebar) { 
-    props.toggleSidebar() // 모바일 사이드바 닫기
-  }
-}
+
 
 watch(() => props.openSidebar, (newValue) => {
   if (sidebarElement.value) {
@@ -65,10 +61,12 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
+
         <li class="menu-item" @click="goToHome">홈</li>
         <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-        <li class="menu-item">고객센터</li>
+
+
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -76,20 +74,23 @@ watch(() => props.openSidebar, (newValue) => {
         <i class="fas fa-user"></i>
         <span>마이페이지</span>
       </button>
+      <ChatDropdown />
     </div>
     <!-- 모바일 사이드바 오버레이 -->
     <div :class="['mobile-sidebar-overlay', { 'is-open': openSidebar }]" @click.self="toggleSidebar">
       <div :class="['mobile-sidebar', { 'is-open': openSidebar }]">
         <ul class="menu-list mobile-menu">
           <li class="menu-item">
-            <router-link to="/home">홈</router-link>
+            <router-link to="/home"><span>홈</span></router-link>
           </li>
           <li class="menu-item">
-            <router-link to="/channels">인플루언서</router-link>
+            <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
+
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
-          <li class="menu-item">고객센터</li>
+
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
+
         </ul>
       </div>
     </div>
@@ -125,17 +126,25 @@ body, html {
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 4em;
   position: relative;
   width: 100%;
+  justify-content: center;
+  padding: 0 120px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
 }
 
 .logo {
+  position: absolute;
+  left: 60px;
   color: #7B21E8;
   font-size: 24px;
   font-weight: bold;
-  margin-right: 6em;
-  transition: all 0.2s;
   text-decoration: none;
 }
 
@@ -143,43 +152,86 @@ body, html {
   opacity: 0.8;
 }
 
-.menu-list.desktop-menu {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 .menu-list {
   display: flex;
-  flex-direction: row;
-  gap: 40px;
+  align-items: center;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* 메뉴 아이템 한개당 텍스트 스타일 */
+.menu-list.desktop-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  gap: 64px;
+}
+
 .menu-item { 
   font-size: 15px;
-  margin-right: 0;
-  padding: 0 8px;
+  white-space: nowrap;
   cursor: pointer;
   transition: color 0.2s;
+  padding: 8px 12px;
+  text-align: center;
+  position: relative;
+  display: inline-block;
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: 0;
+  left: 50%;
+  background-color: #7B21E8;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.menu-item:hover::after {
+  width: 70%;
+  left: 13.5%;
+  transform: none;
+}
+
+.menu-item:hover {
+  color: #7B21E8;
 }
 
 .menu-item a {
   text-decoration: none;
   color: inherit;
+  white-space: nowrap;
+  display: inline-block;
+  position: relative;
 }
 
-.menu-item:hover a {
+.menu-item a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #7B21E8;
+  transition: width 0.3s ease;
+}
+
+.menu-item:hover a::after {
+  width: 100%;
+}
+
+.menu-item.active {
   color: #7B21E8;
 }
 
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+.menu-item.active::after {
+  width: calc(100% - 32px);
 }
 
 .mypage-button {
@@ -255,56 +307,188 @@ body, html {
   margin-top: 40px;
 }
 
-@media (max-width: 600px) {
-  .menu-list { gap: 6px; }
-  .menu-item { font-size: 13px; padding: 0 2px; }
-  .mypage-button {
-    min-width: unset;
-    padding: 8px;
+/* 모바일 메뉴 아이템 스타일 수정 */
+.mobile-menu .menu-item {
+  text-align: left;
+  padding: 12px 16px;
+}
+
+.mobile-menu .menu-item::after {
+  left: 16px;
+  transform: none;
+}
+
+.mobile-menu .menu-item:hover::after {
+  width: calc(100% - 32px);
+}
+
+@media (max-width: 1200px) {
+  .navbar-left {
+    padding: 0 100px;
   }
-  .mypage-button span { display: none; }
+  
+  .menu-list.desktop-menu {
+    gap: 48px;
+  }
 }
 
-@media (min-width: 601px) and (max-width: 900px) {
-  .menu-list { gap: 10px; }
-  .menu-item { font-size: 14px; padding: 0 4px; }
+@media (max-width: 1024px) {
+  .navbar-left {
+    padding: 0 80px;
+  }
+
+  .menu-list.desktop-menu {
+    gap: 32px;
+  }
+
+  .menu-item {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
 }
 
-@media (min-width: 901px) and (max-width: 1100px) {
-  .menu-list { gap: 12px; }
-  .menu-item { font-size: 14px; padding: 0 6px; }
-}
+@media (max-width: 900px) {
+  .navbar-left {
+    padding: 0 60px;
+  }
 
-@media (min-width: 1101px) and (max-width: 1399px) {
-  .menu-list { gap: 16px; }
-  .menu-item { font-size: 15px; padding: 0 8px; }
-}
+  .menu-list.desktop-menu {
+    gap: 24px;
+  }
 
-@media (min-width: 1400px) and (max-width: 1699px) {
-  .menu-list { gap: 18px; }
-  .menu-item { font-size: 15px; padding: 0 10px; }
-}
+  .menu-item {
+    padding: 8px 8px;
+  }
 
-@media (min-width: 1700px) {
-  .menu-list { gap: 24px; }
-  .menu-item { font-size: 16px; margin-right: 10em; padding: 0 16px; }
+  .menu-item:hover::after {
+    width: 85%;
+    left: 7.5%;
+  }
 }
 
 @media (max-width: 768px) {
   .navbar {
     padding: 0 16px;
+    height: 60px;
+  }
+
+  .navbar-left {
+    width: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
   }
   
   .hamburger {
     display: block;
+    background: none;
+    border: none;
+    padding: 8px;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 16px;
+  }
+
+  .logo {
+    position: static;
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
   }
   
   .desktop-menu {
     display: none;
   }
-  
+
+  .navbar-right {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mypage-button {
+    min-width: unset;
+    padding: 8px;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mypage-button span {
+    display: none;
+  }
+
+  .mypage-button i {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 12px;
+  }
+
+  .hamburger {
+    margin-right: 12px;
+    padding: 6px;
+    font-size: 20px;
+  }
+
   .logo {
-    margin-right: 0;
+    font-size: 18px;
+  }
+
+  .navbar-right {
+    gap: 6px;
+  }
+
+  .mypage-button {
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+  }
+
+  .mypage-button i {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 8px;
+  }
+
+  .hamburger {
+    margin-right: 8px;
+    padding: 4px;
+    font-size: 18px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .navbar-right {
+    gap: 4px;
+  }
+
+  .mypage-button {
+    padding: 4px;
+    height: 28px;
+    width: 28px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-sidebar-overlay {
+    display: none !important;
+  }
+
+  .hamburger {
+    display: none;
   }
 }
 </style>

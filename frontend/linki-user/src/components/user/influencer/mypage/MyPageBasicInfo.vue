@@ -1,56 +1,68 @@
 <template>
-  <div :class="$style.myProfileParent">
-    <div :class="$style.myProfile">My Profile</div>
-    <div :class="$style.frameParent">
-      <div :class="$style.parent">
-        <div :class="$style.div">이름</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox" />
-          <div :class="$style.md">Md</div>
-        </div>
+  <div class="basic-info-container">
+    <h2 class="basic-info-title">기본 정보</h2>
+    
+    <form class="basic-info-form" @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label>이름</label>
+        <input 
+          type="text" 
+          v-model="profileData.name"
+          placeholder="이름을 입력하세요"
+          :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.name">{{ errors.name }}</span>
       </div>
-      <div :class="$style.parent">
-        <div :class="$style.div">연락처</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox" />
-          <div :class="$style.md">Rimel</div>
-        </div>
+
+      <div class="form-group">
+        <label>연락처</label>
+        <input 
+          type="tel" 
+          v-model="profileData.phone"
+          placeholder="000-0000-0000"
+          pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
+          title="000-0000-0000 형식으로 입력해주세요"
+          :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.phone">{{ errors.phone }}</span>
       </div>
-    </div>
-    <div :class="$style.frameGroup">
-      <div :class="$style.parent">
-        <div :class="$style.div">Email</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox" />
-          <div :class="$style.md">rimel1111@gmail.com</div>
-        </div>
+
+      <div class="form-group">
+        <label>이메일</label>
+        <input 
+          type="email" 
+          v-model="profileData.email"
+          placeholder="이메일을 입력하세요"
+          :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
       </div>
-      <div :class="$style.parent">
-        <div :class="$style.div">가입일</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox" />
-          <div :class="$style.md">Kingston, 5236, United State</div>
-        </div>
+
+      <div class="form-group">
+        <label>가입일</label>
+        <div class="join-date">{{ formatDate(profileData.joinDate) }}</div>
       </div>
-    </div>
-    <div :class="$style.cancelParent">
-      <div :class="$style.div">Cancel</div>
-      <div :class="$style.button">
-        <div :class="$style.viewAllProducts">Save Changes</div>
+
+      <div class="button-group">
+        <button type="submit" class="save-button" :disabled="isLoading || !isFormValid">
+          {{ isLoading ? '저장 중...' : '저장' }}
+        </button>
       </div>
-    </div>
+    </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useAlert } from '@/composables/alert'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const { showAlert } = useAlert()
+const userStore = useUserStore()
 const isLoading = ref(false)
-const showPasswordModal = ref(false)
-const passwordLoading = ref(false)
 
 const profileData = ref({
   name: '',
@@ -59,14 +71,21 @@ const profileData = ref({
   joinDate: null
 })
 
-const passwordData = ref({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: ''
+const errors = ref({
+  name: '',
+  phone: '',
+  email: ''
 })
 
-const passwordError = ref('')
-const confirmError = ref('')
+const isFormValid = computed(() => {
+  return (
+    profileData.value.name &&
+    profileData.value.email &&
+    !errors.value.name &&
+    !errors.value.phone &&
+    !errors.value.email
+  )
+})
 
 const formatDate = (date) => {
   if (!date) return '-'
@@ -77,8 +96,34 @@ const formatDate = (date) => {
   })
 }
 
+const validateForm = () => {
+  errors.value = {
+    name: '',
+    phone: '',
+    email: ''
+  }
+
+  if (!profileData.value.name) {
+    errors.value.name = '이름을 입력해주세요.'
+    return false
+  }
+
+  if (profileData.value.phone && !/^\d{3}-\d{4}-\d{4}$/.test(profileData.value.phone)) {
+    errors.value.phone = '연락처를 올바른 형식으로 입력해주세요. (000-0000-0000)'
+    return false
+  }
+
+  if (!profileData.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.value.email)) {
+    errors.value.email = '유효한 이메일을 입력해주세요.'
+    return false
+  }
+
+  return true
+}
+
 const fetchProfile = async () => {
   try {
+    isLoading.value = true
     const response = await axios.get('/api/influencer/profile')
     profileData.value = {
       ...response.data,
@@ -86,199 +131,133 @@ const fetchProfile = async () => {
     }
   } catch (error) {
     console.error('프로필 정보 로딩 실패:', error)
-    alert('프로필 정보를 불러오는데 실패했습니다.')
-  }
-}
-
-const handleSubmit = async () => {
-  isLoading.value = true
-  try {
-    await axios.put('/api/influencer/profile', {
-      name: profileData.value.name,
-      phone: profileData.value.phone,
-      email: profileData.value.email
-    })
-    
-    alert('프로필이 성공적으로 업데이트되었습니다.')
-  } catch (error) {
-    console.error('프로필 업데이트 실패:', error)
-    alert('프로필 업데이트에 실패했습니다.')
+    showAlert('프로필 정보를 불러오는데 실패했습니다.', 'error')
   } finally {
     isLoading.value = false
   }
 }
 
-const validatePassword = () => {
-  passwordError.value = ''
-  confirmError.value = ''
+const handleSubmit = async () => {
+  if (!validateForm()) return
 
-  if (passwordData.value.newPassword.length < 8) {
-    passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
-    return false
-  }
-
-  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
-    confirmError.value = '비밀번호가 일치하지 않습니다.'
-    return false
-  }
-
-  return true
-}
-
-const handlePasswordChange = async () => {
-  if (!validatePassword()) return
-
-  passwordLoading.value = true
   try {
-    await axios.post('/api/influencer/change-password', {
-      currentPassword: passwordData.value.currentPassword,
-      newPassword: passwordData.value.newPassword
+    isLoading.value = true
+    const response = await axios.patch('/api/influencer/profile', {
+      name: profileData.value.name,
+      phone: profileData.value.phone,
+      email: profileData.value.email
     })
-    
-    alert('비밀번호가 성공적으로 변경되었습니다.')
-    showPasswordModal.value = false
-    passwordData.value = {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+
+    if (response.data.success) {
+      showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
+      userStore.setUserInfo({
+        ...userStore.getUserInfo,
+        name: profileData.value.name,
+        email: profileData.value.email
+      })
+    } else {
+      showAlert(response.data.message || '프로필 업데이트에 실패했습니다.', 'error')
     }
   } catch (error) {
-    if (error.response?.status === 401) {
-      alert('현재 비밀번호가 올바르지 않습니다.')
-    } else {
-      alert('비밀번호 변경 중 오류가 발생했습니다.')
-    }
+    console.error('프로필 업데이트 실패:', error)
+    const errorMessage = error.response?.data?.message || '프로필 업데이트 중 오류가 발생했습니다.'
+    showAlert(errorMessage, 'error')
   } finally {
-    passwordLoading.value = false
+    isLoading.value = false
   }
 }
 
-const handleCancel = () => {
-  router.push('/influencer/mypage')
-}
-
-onMounted(() => {
-  fetchProfile()
-})
+fetchProfile()
 </script>
 
-<style module>
-.myProfile {
-  position: absolute;
-  top: 40px;
-  left: 80px;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: 500;
+<style scoped>
+.basic-info-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.div {
-  position: relative;
-  line-height: 24px;
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #000;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.basic-info-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #333;
 }
 
-.placeToInfoBox {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0%;
-  right: 0%;
-  bottom: 0%;
-  left: 0%;
-  border-radius: 4px;
-  background-color: rgba(245, 245, 245, 0.7);
-  overflow: hidden;
-}
-
-.md {
-  position: absolute;
-  top: 13px;
-  left: 16px;
-  line-height: 24px;
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #000;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 0.5;
-}
-
-.placeboxInfo {
-  width: 330px;
-  position: relative;
-  height: 50px;
-}
-
-.parent {
+.basic-info-form {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 8px;
+  gap: 1.5rem;
 }
 
-.frameParent {
-  position: absolute;
-  top: 84px;
-  left: 80px;
+.form-group {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 50px;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.frameGroup {
-  position: absolute;
-  top: 190px;
-  left: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 50px;
-}
-
-.viewAllProducts {
-  position: relative;
-  line-height: 24px;
+.form-group label {
+  font-size: 0.9rem;
   font-weight: 500;
+  color: #666;
 }
 
-.button {
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #d6bcf7;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.join-date {
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  color: #666;
+}
+
+.error-message {
+  font-size: 0.8rem;
+  color: #ff4444;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.save-button {
+  min-width: 80px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
   background-color: #d6bcf7;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 48px;
+  color: #000;
 }
 
-.cancelParent {
-  position: absolute;
-  top: calc(50% + 219px);
-  right: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 32px;
-  color: #fafafa;
+.save-button:hover {
+  background-color: #c4a3f7;
 }
 
-.myProfileParent {
-  width: 100%;
-  position: relative;
-  box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  background-color: #fff;
-  height: 630px;
-  overflow: hidden;
-  text-align: left;
-  font-size: 16px;
-  color: #7b21e8;
-  font-family: Poppins;
+.save-button:disabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
 }
 </style>

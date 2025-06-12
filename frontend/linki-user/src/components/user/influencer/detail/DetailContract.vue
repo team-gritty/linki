@@ -60,9 +60,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { contractApi } from '@/api/contract';
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:3000';
+import httpClient from '@/utils/httpRequest';
 
 export default {
   name: 'DetailContract',
@@ -79,32 +77,39 @@ export default {
         loading.value = true;
         error.value = null;
         
-        // 1. 제안서 ID로 제안서 정보 조회
+        // 1. 제안서 ID로 제안서 정보 조회 (p1)
         const proposalId = route.params.id;
-        if (!proposalId) {
-          throw new Error('제안서 ID를 찾을 수 없습니다.');
-        }
-
-        const proposalResponse = await axios.get(`${BASE_URL}/proposals?proposal_id=${proposalId}`);
+        console.log('Fetching proposal with ID:', proposalId);
+        
+        const proposalResponse = await httpClient.get(`/v1/api/influencer/proposals?proposal_id=${proposalId}`);
         if (!proposalResponse.data || proposalResponse.data.length === 0) {
           throw new Error('제안서 정보를 찾을 수 없습니다.');
         }
 
-        // 2. 제안서에서 캠페인 ID 추출
         const proposal = proposalResponse.data[0];
-        const campaignId = proposal.campaign_id || proposal.product_id;
-        if (!campaignId) {
+        console.log('Found proposal:', proposal);
+
+        // 2. 제안서의 campaign_id로 캠페인 조회 (c1)
+        if (!proposal.campaign_id) {
           throw new Error('캠페인 정보를 찾을 수 없습니다.');
         }
 
-        // 3. 캠페인 ID로 계약 정보 조회
-        const contractResponse = await axios.get(`${BASE_URL}/contracts?campaignId=${campaignId}`);
-        if (contractResponse.data && contractResponse.data.length > 0) {
-          contract.value = contractResponse.data[0];
-          console.log('Found contract:', contract.value);
-        } else {
-          throw new Error('이 캠페인에 대한 계약 정보를 찾을 수 없습니다.');
+        const campaignResponse = await httpClient.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
+        if (!campaignResponse.data || campaignResponse.data.length === 0) {
+          throw new Error('캠페인 정보를 찾을 수 없습니다.');
         }
+
+        const campaign = campaignResponse.data[0];
+        console.log('Found campaign:', campaign);
+
+        // 3. 캠페인의 계약 정보 조회 (CTR001)
+        const contractData = await contractApi.getContractDetail(proposal.contractId);
+        if (!contractData) {
+          throw new Error('계약 정보를 찾을 수 없습니다.');
+        }
+
+        contract.value = contractData;
+        console.log('Found contract:', contract.value);
 
       } catch (err) {
         console.error('계약 상세 조회 실패:', err);
@@ -119,28 +124,43 @@ export default {
     });
 
     const goToContractList = () => {
-      // 현재 URL이 /proposal/로 시작하므로, 제안서 목록으로 이동
       router.push({
         path: '/mypage',
-        query: { tab: 'contracts' }  // 마이페이지의 계약서 탭으로 이동
+        query: { tab: 'contracts' }
       });
     };
 
     const viewContractDocument = async () => {
       try {
-        const response = await contractApi.getContractDocument(contract.value.contractId);
-        window.location.href = response.data.documentUrl;
+        if (!contract.value.contractId) {
+          throw new Error('계약 ID가 없습니다.');
+        }
+        const documentData = await contractApi.getContractDocument(contract.value.contractId);
+        if (documentData && documentData.documentUrl) {
+          window.location.href = documentData.documentUrl;
+        } else {
+          throw new Error('계약서 URL을 찾을 수 없습니다.');
+        }
       } catch (error) {
         console.error('계약서 조회 실패:', error);
+        alert('계약서 조회에 실패했습니다.');
       }
     };
 
     const signContract = async () => {
       try {
-        const response = await contractApi.signContract(contract.value.contractId);
-        window.location.href = response.data.signUrl;
+        if (!contract.value.contractId) {
+          throw new Error('계약 ID가 없습니다.');
+        }
+        const signData = await contractApi.signContract(contract.value.contractId);
+        if (signData && signData.signUrl) {
+          window.location.href = signData.signUrl;
+        } else {
+          throw new Error('서명 URL을 찾을 수 없습니다.');
+        }
       } catch (error) {
         console.error('전자서명 실패:', error);
+        alert('전자서명 처리에 실패했습니다.');
       }
     };
 
@@ -166,7 +186,7 @@ export default {
     const getStatusText = (status) => {
       const statusMap = {
         'PENDING': '진행중',
-        'ACTIVE': '활성',
+        'PENDING_SIGN': '서명 대기중',
         'COMPLETED': '완료'
       };
       return statusMap[status] || status;

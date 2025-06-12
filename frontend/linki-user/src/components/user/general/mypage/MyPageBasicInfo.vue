@@ -1,15 +1,17 @@
 <template>
   <div class="basic-info-container">
-    <h2 class="section-title">기본 정보</h2>
-    <form @submit.prevent="handleSubmit" class="info-form">
+    <h2 class="basic-info-title">기본 정보</h2>
+    
+    <form class="basic-info-form" @submit.prevent="handleSubmit">
       <div class="form-group">
         <label>이름</label>
         <input 
           type="text" 
           v-model="profileData.name"
           placeholder="이름을 입력하세요"
-          required
+          :disabled="isLoading"
         />
+        <span class="error-message" v-if="errors.name">{{ errors.name }}</span>
       </div>
 
       <div class="form-group">
@@ -17,10 +19,12 @@
         <input 
           type="tel" 
           v-model="profileData.phone"
-          placeholder="연락처를 입력하세요"
+          placeholder="000-0000-0000"
           pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
           title="000-0000-0000 형식으로 입력해주세요"
+          :disabled="isLoading"
         />
+        <span class="error-message" v-if="errors.phone">{{ errors.phone }}</span>
       </div>
 
       <div class="form-group">
@@ -29,18 +33,18 @@
           type="email" 
           v-model="profileData.email"
           placeholder="이메일을 입력하세요"
-          required
+          :disabled="isLoading"
         />
+        <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
       </div>
 
       <div class="form-group">
         <label>가입일</label>
-        <div class="readonly-field">{{ formatDate(profileData.joinDate) }}</div>
+        <div class="join-date">{{ formatDate(profileData.joinDate) }}</div>
       </div>
 
       <div class="button-group">
-        <button type="button" class="cancel-button" @click="handleCancel">취소</button>
-        <button type="submit" class="submit-button" :disabled="isLoading">
+        <button type="submit" class="save-button" :disabled="isLoading || !isFormValid">
           {{ isLoading ? '저장 중...' : '저장' }}
         </button>
       </div>
@@ -48,118 +52,162 @@
   </div>
 </template>
 
-<script>
-import { ref, onMounted } from 'vue'
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useAlert } from '@/composables/alert'
+import { useUserStore } from '@/stores/user'
 
-export default {
-  name: 'MyPageBasicInfo',
-  setup() {
-    const isLoading = ref(false)
-    const profileData = ref({
-      name: '',
-      phone: '',
-      email: '',
-      joinDate: null
-    })
+const router = useRouter()
+const { showAlert } = useAlert()
+const userStore = useUserStore()
+const isLoading = ref(false)
 
-    const formatDate = (date) => {
-      if (!date) return '-'
-      return new Date(date).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+const profileData = ref({
+  name: '',
+  phone: '',
+  email: '',
+  joinDate: null
+})
+
+const errors = ref({
+  name: '',
+  phone: '',
+  email: ''
+})
+
+const isFormValid = computed(() => {
+  return (
+    profileData.value.name &&
+    profileData.value.email &&
+    !errors.value.name &&
+    !errors.value.phone &&
+    !errors.value.email
+  )
+})
+
+const formatDate = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const validateForm = () => {
+  errors.value = {
+    name: '',
+    phone: '',
+    email: ''
+  }
+
+  if (!profileData.value.name) {
+    errors.value.name = '이름을 입력해주세요.'
+    return false
+  }
+
+  if (profileData.value.phone && !/^\d{3}-\d{4}-\d{4}$/.test(profileData.value.phone)) {
+    errors.value.phone = '연락처를 올바른 형식으로 입력해주세요. (000-0000-0000)'
+    return false
+  }
+
+  if (!profileData.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.value.email)) {
+    errors.value.email = '유효한 이메일을 입력해주세요.'
+    return false
+  }
+
+  return true
+}
+
+const fetchProfile = async () => {
+  try {
+    isLoading.value = true
+    const response = await axios.get('/api/user/profile')
+    profileData.value = {
+      ...response.data,
+      joinDate: new Date(response.data.joinDate)
     }
-
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/users/1')
-        profileData.value = {
-          name: response.data.name,
-          phone: response.data.phone,
-          email: response.data.email,
-          joinDate: new Date(response.data.joinDate)
-        }
-      } catch (error) {
-        console.error('프로필 정보 로딩 실패:', error)
-        alert('프로필 정보를 불러오는데 실패했습니다.')
-      }
-    }
-
-    const handleSubmit = async () => {
-      isLoading.value = true
-      try {
-        await axios.patch('http://localhost:3000/users/1', {
-          name: profileData.value.name,
-          phone: profileData.value.phone,
-          email: profileData.value.email
-        })
-        alert('프로필이 성공적으로 업데이트되었습니다.')
-      } catch (error) {
-        console.error('프로필 업데이트 실패:', error)
-        alert('프로필 업데이트에 실패했습니다.')
-      } finally {
-        isLoading.value = false
-      }
-    }
-
-    const handleCancel = () => {
-      fetchProfile()
-    }
-
-    onMounted(() => {
-      fetchProfile()
-    })
-
-    return {
-      profileData,
-      isLoading,
-      formatDate,
-      handleSubmit,
-      handleCancel
-    }
+  } catch (error) {
+    console.error('프로필 정보 로딩 실패:', error)
+    showAlert('프로필 정보를 불러오는데 실패했습니다.', 'error')
+  } finally {
+    isLoading.value = false
   }
 }
+
+const handleSubmit = async () => {
+  if (!validateForm()) return
+
+  try {
+    isLoading.value = true
+    const response = await axios.patch('/api/user/profile', {
+      name: profileData.value.name,
+      phone: profileData.value.phone,
+      email: profileData.value.email
+    })
+
+    if (response.data.success) {
+      showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
+      userStore.setUserInfo({
+        ...userStore.getUserInfo,
+        name: profileData.value.name,
+        email: profileData.value.email
+      })
+    } else {
+      showAlert(response.data.message || '프로필 업데이트에 실패했습니다.', 'error')
+    }
+  } catch (error) {
+    console.error('프로필 업데이트 실패:', error)
+    const errorMessage = error.response?.data?.message || '프로필 업데이트 중 오류가 발생했습니다.'
+    showAlert(errorMessage, 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+fetchProfile()
 </script>
 
 <style scoped>
 .basic-info-container {
-  padding: 40px;
   max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.section-title {
-  font-size: 24px;
-  font-weight: 500;
+.basic-info-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
   color: #333;
-  margin-bottom: 32px;
 }
 
-.info-form {
+.basic-info-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1.5rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .form-group label {
-  font-size: 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: #666;
 }
 
 .form-group input {
-  height: 40px;
-  padding: 0 16px;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
 
 .form-group input:focus {
@@ -167,57 +215,49 @@ export default {
   border-color: #d6bcf7;
 }
 
-.readonly-field {
-  height: 40px;
-  padding: 0 16px;
+.form-group input:disabled {
   background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  cursor: not-allowed;
+}
+
+.join-date {
+  padding: 0.75rem;
+  background-color: #f5f5f5;
   border-radius: 4px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
   color: #666;
+}
+
+.error-message {
+  font-size: 0.8rem;
+  color: #ff4444;
 }
 
 .button-group {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  margin-top: 16px;
+  margin-top: 1rem;
 }
 
-.cancel-button {
-  padding: 0 24px;
-  height: 40px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancel-button:hover {
-  background: #f5f5f5;
-}
-
-.submit-button {
-  padding: 0 24px;
-  height: 40px;
+.save-button {
+  min-width: 80px;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
-  background: #d6bcf7;
-  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  background-color: #d6bcf7;
+  color: #000;
 }
 
-.submit-button:hover {
-  background: #c4a1f7;
+.save-button:hover {
+  background-color: #c4a3f7;
 }
 
-.submit-button:disabled {
-  background: #eee;
+.save-button:disabled {
+  background-color: #eee;
+  color: #999;
   cursor: not-allowed;
 }
 </style> 

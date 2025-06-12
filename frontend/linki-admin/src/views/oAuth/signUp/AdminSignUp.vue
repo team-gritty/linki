@@ -52,6 +52,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 const userId = ref('')
@@ -76,7 +77,7 @@ const isFormValid = computed(() => {
 
 const handleSignup = async () => {
   if (!isFormValid.value) {
-    console.error('Please fill in all fields correctly')
+    alert('모든 필드를 올바르게 입력해주세요.')
     return
   }
 
@@ -89,11 +90,27 @@ const handleSignup = async () => {
       handphone: handphone.value,
       email: email.value
     }
-    console.log('Signup attempt with:', signupData)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/login')
+
+    const response = await axios.post('/api/admin/signup', signupData)
+    
+    if (response.data.success) {
+      alert('회원가입이 완료되었습니다.')
+      router.push('/login')
+    } else {
+      alert(response.data.message || '회원가입 중 오류가 발생했습니다.')
+    }
   } catch (error) {
     console.error('Signup failed:', error)
+    if (error.response) {
+      // 서버에서 응답이 왔지만 에러인 경우
+      alert(error.response.data.message || '회원가입 중 오류가 발생했습니다.')
+    } else if (error.request) {
+      // 요청은 보냈지만 응답을 받지 못한 경우
+      alert('서버와 통신할 수 없습니다. 잠시 후 다시 시도해주세요.')
+    } else {
+      // 요청 자체를 보내지 못한 경우
+      alert('회원가입 요청을 보내지 못했습니다. 잠시 후 다시 시도해주세요.')
+    }
   } finally {
     isLoading.value = false
   }
@@ -102,11 +119,11 @@ const handleSignup = async () => {
 const handleGoogleSignup = async () => {
   try {
     isLoading.value = true
-    console.log('Google signup attempt')
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/login')
+    const response = await axios.get('/api/admin/auth/google')
+    window.location.href = response.data.authUrl
   } catch (error) {
     console.error('Google signup failed:', error)
+    alert('Google 로그인 중 오류가 발생했습니다.')
   } finally {
     isLoading.value = false
   }

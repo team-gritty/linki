@@ -33,7 +33,9 @@ const menuItems = [
     id: 'profile',
     name: '내 정보 관리',
     children: [
-      { id: 'profile.basic', name: '기본 정보' }
+      { id: 'profile.basic', name: '기본 정보' },
+      { id: 'profile.password', name: '비밀번호 변경' }
+
     ]
   },
   {
@@ -48,7 +50,6 @@ const menuItems = [
     id: 'contract',
     name: '계약서 관리',
     children: [
-      { id: 'contract.list', name: '계약서 목록' },
       { id: 'contract.ongoing', name: '진행중인 계약' },
       { id: 'contract.completed', name: '완료된 계약' }
     ]
@@ -75,15 +76,6 @@ const menuItems = [
 
 async function selectMenu(menuId) {
   emit('update:currentMenu', menuId)
-  if (menuId === 'contract.list') {
-    try {
-      const response = await axios.get('/contracts')
-      emit('contractsLoaded', response.data)
-    } catch (error) {
-      console.error('계약서 목록 불러오기 실패:', error)
-      emit('contractsLoaded', [])
-    }
-  }
 }
 </script>
 
