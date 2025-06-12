@@ -34,14 +34,13 @@ const filteredChats = computed(() => {
   // 검색어가 있을 때는 현재 정렬된 목록에서 필터링
   const query = searchQuery.value.toLowerCase()
   return sortedChatList.value.filter(chat => 
-    chat.opponentName.toLowerCase().includes(query) ||
+    chat.partnerName.toLowerCase().includes(query) ||
     chat.lastMessage.toLowerCase().includes(query)
   )
 })
 
 // 채팅 상세 정보 가져오기
 const getChatDetail = (chatId) => {
-  // chatRoom API 응답 구조에 맞게 수정
   const response = chatDetails.value.find(room => room.chatId === chatId)
   return response || null
 }
@@ -388,7 +387,7 @@ const goToInfluencerDetail = (influencerId) => {
           <div class="chat-profile">
             <img
               :src="getChatDetail(chat.chatId)?.profileImage"
-              :alt="chat.opponentName"
+              :alt="getChatDetail(chat.chatId)?.partnerName"
               class="profile-image"
               @click.stop="goToInfluencerDetail(chat.partnerId)"
             >
@@ -396,7 +395,7 @@ const goToInfluencerDetail = (influencerId) => {
           <div class="chat-item-content">
             <div class="chat-item-header">
               <div class="chat-info">
-                <span class="chat-name">{{ chat.opponentName }}</span>
+                <span class="chat-name">{{ getChatDetail(chat.chatId)?.partnerName }}</span>
               </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
@@ -417,13 +416,13 @@ const goToInfluencerDetail = (influencerId) => {
           <div class="chat-profile">
             <img
               :src="getChatDetail(selectedChat?.chatId)?.profileImage"
-              :alt="selectedChat?.opponentName"
+              :alt="getChatDetail(selectedChat?.chatId)?.partnerName"
               class="profile-image"
               @click="goToInfluencerDetail(selectedChat?.partnerId)"
             >
           </div>
           <div class="chat-user-info">
-            <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span><br>
+            <span class="chat-partner-name">{{ getChatDetail(selectedChat?.chatId)?.partnerName }}</span><br>
             <span class="chat-channel-id">채널명 : {{ getChatDetail(selectedChat?.chatId)?.channelName }}</span>
           </div>
         </div>

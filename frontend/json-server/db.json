@@ -927,56 +927,51 @@
   "chatDetails": [
     {
       "chatId": "chat1",
-      "chatPartner": "테크리뷰 마스터",
+      "partnerName": "테크리뷰 마스터",
       "proposalId": "p1",
       "negoStatus": "협의중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "테크리뷰 마스터",
       "channelName": "TechReview Master",
       "partnerId": "inf1"
     },
     {
       "chatId": "chat2",
-      "chatPartner": "게임덕후",
+      "partnerName": "게임덕후",
       "proposalId": "p2",
       "negoStatus": "계약 진행중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "게임덕후",
       "channelName": "GameMaster",
       "partnerId": "inf2"
     },
     {
       "chatId": "chat3",
-      "chatPartner": "IT리뷰어",
+      "partnerName": "IT리뷰어",
       "proposalId": "p3",
       "negoStatus": "제안서 대기",
       "chatStatus": "PENDING",
       "profileImage": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "IT리뷰어",
       "channelName": "TechInsight",
       "partnerId": "inf3"
     },
     {
       "chatId": "chat4",
-      "chatPartner": "사운드마스터",
+      "partnerName": "사운드마스터",
       "proposalId": "p4",
       "negoStatus": "계약 진행중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "사운드마스터",
       "channelName": "SoundMaster",
       "partnerId": "inf4"
     },
     {
       "chatId": "chat5",
-      "chatPartner": "뷰티여신",
+      "partnerName": "뷰티여신",
       "proposalId": "p5",
       "negoStatus": "계약 완료",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "뷰티여신",
       "channelName": "BeautyGoddess",
       "partnerId": "1"
     }
