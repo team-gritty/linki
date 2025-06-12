@@ -1,0 +1,35 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: chat-service
+
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/????serverTimezone=UTC&characterEncoding=UTF-8
+#    username: ???
+#    password: ??
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update          # dev: update / prod: validate
+#    open-in-view: false
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        dialect: org.hibernate.dialect.MySQLDialect
+
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+      # ?? ??? ??? config service ? ?? ?????!
+
+
+
