@@ -33,5 +33,10 @@ export const contractApi = {
   startContract(proposalId) {
     console.log('[startContract] POST /v1/api/advertiser/contracts DTO:', proposalId);
     return httpClient.post('/v1/api/advertiser/contracts', proposalId);
+  },
+
+  // 계약 이행 상태 업데이트
+  executeContract(contractId, isExecuted = true) {
+    return httpClient.patch(`/v1/api/advertiser/contracts/${contractId}`, { isExecuted });
   }
 };
