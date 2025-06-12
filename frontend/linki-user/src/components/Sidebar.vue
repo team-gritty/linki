@@ -127,8 +127,15 @@ body, html {
   display: flex;
   align-items: center;
   position: relative;
-  width: 100%;
+  width: auto;
   justify-content: center;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
 }
 
 .logo {
@@ -200,11 +207,6 @@ body, html {
   text-decoration: none;
   color: inherit;
   white-space: nowrap;
-}
-
-.navbar-right {
-  position: absolute;
-  right: 60px;
 }
 
 .mypage-button {
