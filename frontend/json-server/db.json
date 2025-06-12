@@ -111,7 +111,7 @@
       "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80",
       "createdAt": "2025-04-01T00:00:00",
       "campaignDeadline": "2025-05-27T00:00:00",
-      "campaignCategory": "IT",
+      "campaignCategory": "뷰티",
       "campaignStatus": "ACTIVE",
       "companyName": "HAVIT"
     },
@@ -123,7 +123,7 @@
       "campaignImg": "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80",
       "createdAt": "2025-05-01T00:00:00",
       "campaignDeadline": "2025-06-10T00:00:00",
-      "campaignCategory": "IT",
+      "campaignCategory": "전자기기",
       "campaignStatus": "ACTIVE",
       "companyName": "TESTBRAND"
     },
@@ -135,7 +135,7 @@
       "campaignImg": "https://images.unsplash.com/photo-1593642702749-b7d2a804fbcf?auto=format&fit=crop&q=80",
       "createdAt": "2025-06-01T00:00:00",
       "campaignDeadline": "2025-07-01T00:00:00",
-      "campaignCategory": "IT",
+      "campaignCategory": "전자기기",
       "campaignStatus": "ACTIVE",
       "companyName": "TESTBRAND"
     },
@@ -147,7 +147,7 @@
       "campaignImg": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&q=80",
       "createdAt": "2025-07-01T00:00:00",
       "campaignDeadline": "2025-08-01T00:00:00",
-      "campaignCategory": "IT",
+      "campaignCategory": "Vlog/라이프스타일",
       "campaignStatus": "ACTIVE",
       "companyName": "TEIOOOOOOD"
     },
@@ -159,7 +159,7 @@
       "campaignImg": "https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?auto=format&fit=crop&q=80",
       "createdAt": "2025-06-01T00:00:00",
       "campaignDeadline": "2025-06-10T00:00:00",
-      "campaignCategory": "BEAUTY",
+      "campaignCategory": "뷰티",
       "campaignStatus": "ACTIVE",
       "companyName": "리멜"
     }

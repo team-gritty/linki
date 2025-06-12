@@ -1,21 +1,46 @@
 import httpClient from '@/utils/httpRequest'
 
 export const campaignAPI = {
+  // 카테고리 목록 조회
+  getCategories: async () => {
+    try {
+      const response = await httpClient.get('/v1/api/home/categories')
+      return response.data
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+      return []
+    }
+  },
+
   // 캠페인 목록 조회
   getCampaigns: async (params = {}) => {
     try {
+      const queryParams = {
+        _page: params._page || 1,
+        _limit: params._limit || 10,
+        _sort: params._sort || 'createdAt',
+        _order: params._order || 'desc'
+      }
+
+      // 카테고리 필터링 파라미터 추가
+      if (params.campaignCategory && params.campaignCategory !== '전체') {
+        queryParams.campaignCategory = params.campaignCategory
+      }
+
+      console.log('Fetching campaigns with params:', queryParams) // 디버깅용
+
       const response = await httpClient.get('/v1/api/influencer/campaigns', {
-        params: {
-          _page: params._page || 1,
-          _limit: params._limit || 10,
-          _sort: params._sort || 'createdAt',
-          _order: params._order || 'desc',
-          ...(params.campaignCategory && params.campaignCategory !== 'all' ? { campaignCategory: params.campaignCategory } : {})
-        }
+        params: queryParams
       })
+
+      let campaigns = response.data;
+      const totalCount = parseInt(response.headers['x-total-count']) || campaigns.length;
+      
+      console.log('Received campaigns:', campaigns) // 디버깅용
+
       return {
-        campaigns: response.data,
-        totalItems: parseInt(response.headers['x-total-count'] || '0')
+        campaigns: campaigns,
+        totalItems: totalCount
       }
     } catch (error) {
       console.error('Error fetching campaigns:', error)
