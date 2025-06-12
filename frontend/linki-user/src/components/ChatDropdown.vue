@@ -50,9 +50,9 @@ const goToChat = (chat) => {
 const formatTime = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
-  
+
   if (date.getFullYear() !== now.getFullYear()) {
-    const formatted = date.toLocaleDateString('ko-KR', { 
+    const formatted = date.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric'
@@ -67,7 +67,7 @@ const formatTime = (dateString) => {
   const diffDay = Math.floor(diffHour / 24)
 
   if (diffDay > 30) {
-    const formatted = date.toLocaleDateString('ko-KR', { 
+    const formatted = date.toLocaleDateString('ko-KR', {
       month: 'numeric',
       day: 'numeric'
     })
@@ -112,9 +112,9 @@ onUnmounted(() => {
         <h3>채팅 목록</h3>
       </div>
       <div class="chat-list">
-        <div v-for="chat in sortedChatList" 
-             :key="chat.chatId" 
-             class="chat-item" 
+        <div v-for="chat in sortedChatList"
+             :key="chat.chatId"
+             class="chat-item"
              @click="goToChat(chat)">
           <div class="chat-info">
             <div class="chat-name">{{ chat.chatPartner }}</div>

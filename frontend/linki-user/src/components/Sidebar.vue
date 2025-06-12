@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
+
 import { useRouter } from 'vue-router'
 
 import { useChatbotStore } from '@/stores/chatbot'
+
+import ChatDropdown from '@/components/ChatDropdown.vue'
 
 
 const router = useRouter()
@@ -52,12 +55,7 @@ onUnmounted(() => {
 
 const sidebarElement = ref(null)
 
-function goToInfluencer() {
-  router.push('/channels') // ChannelListPage로 이동 
-  if (props.toggleSidebar) { 
-    props.toggleSidebar() // 모바일 사이드바 닫기
-  }
-}
+
 
 watch(() => props.openSidebar, (newValue) => {
   if (sidebarElement.value) {
@@ -82,7 +80,7 @@ watch(() => props.openSidebar, (newValue) => {
         <li class="menu-item" @click="goToHome">홈</li>
         <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-        <li class="menu-item" @click="toggleChatbot">챗봇</li>
+   
 
       </ul>
     </div>
@@ -105,7 +103,7 @@ watch(() => props.openSidebar, (newValue) => {
           </li>
 
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
-          <li class="menu-item" @click="toggleChatbot">챗봇</li>
+   
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
 
         </ul>
