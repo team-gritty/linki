@@ -14,10 +14,10 @@ export const chatApi = {
     }
   },
 
-// 채팅방 활성화 요청 (HTTP 통신만 담당)
+  // 채팅방 활성화 요청
   activateRoom: async (proposalId) => {
     try {
-      const response = await httpClient.post(`/v1/api/chat-service/rooms/active/${proposalId}`)
+      const response = await httpClient.post(`/v1/api/chat-service/rooms/activate/${proposalId}`)
       return response.data
     } catch (error) {
       console.error('Error activating chat room:', error)
@@ -28,14 +28,24 @@ export const chatApi = {
   // 광고주의 채팅방 목록 조회
   getChatList: async (campaignId) => {
     try {
-      return await httpClient.get(`/v1//api/chat-service/list/${campaignId}`)
+      return await httpClient.get(`/v1/api/chat-service/list/${campaignId}`)
     } catch (error) {
       console.error('Error getting chat list:', error)
       throw error
     }
   },
 
-// 인플루언서의 채팅방 조회
+  // 광고주의 채팅방 조회
+  getChatDetails: async (chatId) => {
+    try {
+      return await httpClient.get(`/v1/api/chat-service/chat-detail/${chatId}`)
+    } catch (error) {
+      console.error('Error getting chat details:', error)
+      throw error
+    }
+  },
+
+  // 인플루언서의 채팅방 조회
   getChatRoom: async (proposalId) => {
     try {
       const response = await httpClient.get(`/v1/api/chat-service/room/${proposalId}`);
@@ -46,8 +56,7 @@ export const chatApi = {
     }
   },
 
-
-// 사용자별 채팅방 목록 조회
+  // 사용자별 채팅방 목록 조회
   getUserChatList: async (userId = 'user1') => {
     try {
       const response = await httpClient.get(`/v1/api/chat-service/user-chat-list/${userId}`)
@@ -88,20 +97,10 @@ export const chatApi = {
     }
   },
 
-  //광고주의 특정 채팅창 조회
-  getChatDetails: async (chatId) => {
-    try {
-      return await httpClient.get(`/v1/api/chat-service/chat-detail/${chatId}`)
-    } catch (error) {
-      console.error('Error getting chat details:', error)
-      throw error
-    }
-  },
-
   // 제안서 상세 조회
   getProposal: async (proposalId) => {
     try {
-      const response = await httpClient.get(`/v1/api/chat/proposal/${proposalId}`)
+      const response = await httpClient.get(`/v1/ap/chat-service/proposals/${proposalId}`)
       return {
         data: Array.isArray(response.data) ? response.data[0] : response.data
       }
