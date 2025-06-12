@@ -129,6 +129,7 @@ body, html {
   position: relative;
   width: 100%;
   justify-content: center;
+  padding: 0 120px;
 }
 
 .navbar-right {
@@ -166,7 +167,7 @@ body, html {
   list-style: none;
   padding: 0;
   margin: 0 auto;
-  gap: 48px;
+  gap: 64px;
 }
 
 .menu-item { 
@@ -174,33 +175,31 @@ body, html {
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.2s;
-  padding: 8px 16px;
+  padding: 8px 12px;
   text-align: center;
-}
-
-.menu-item span {
   position: relative;
   display: inline-block;
 }
 
-.menu-item span::after {
+.menu-item::after {
   content: '';
   position: absolute;
   width: 0;
   height: 1px;
-  bottom: -4px;
-  left: 0;
+  bottom: 0;
+  left: 50%;
   background-color: #7B21E8;
-  transition: width 0.2s ease;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
 }
 
-.menu-item:hover span::after,
-.menu-item.active span::after {
-  width: 100%;
+.menu-item:hover::after {
+  width: 70%;
+  left: 13.5%;
+  transform: none;
 }
 
-.menu-item:hover,
-.menu-item.active {
+.menu-item:hover {
   color: #7B21E8;
 }
 
@@ -208,6 +207,31 @@ body, html {
   text-decoration: none;
   color: inherit;
   white-space: nowrap;
+  display: inline-block;
+  position: relative;
+}
+
+.menu-item a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #7B21E8;
+  transition: width 0.3s ease;
+}
+
+.menu-item:hover a::after {
+  width: 100%;
+}
+
+.menu-item.active {
+  color: #7B21E8;
+}
+
+.menu-item.active::after {
+  width: calc(100% - 32px);
 }
 
 .mypage-button {
@@ -283,14 +307,34 @@ body, html {
   margin-top: 40px;
 }
 
-@media (max-width: 1024px) {
-  .navbar {
-    padding: 0 30px;
-  }
+/* 모바일 메뉴 아이템 스타일 수정 */
+.mobile-menu .menu-item {
+  text-align: left;
+  padding: 12px 16px;
+}
 
-  .logo {
-    left: 30px;
-    font-size: 22px;
+.mobile-menu .menu-item::after {
+  left: 16px;
+  transform: none;
+}
+
+.mobile-menu .menu-item:hover::after {
+  width: calc(100% - 32px);
+}
+
+@media (max-width: 1200px) {
+  .navbar-left {
+    padding: 0 100px;
+  }
+  
+  .menu-list.desktop-menu {
+    gap: 48px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .navbar-left {
+    padding: 0 80px;
   }
 
   .menu-list.desktop-menu {
@@ -298,8 +342,27 @@ body, html {
   }
 
   .menu-item {
-    padding: 8px;
+    padding: 8px 10px;
     font-size: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar-left {
+    padding: 0 60px;
+  }
+
+  .menu-list.desktop-menu {
+    gap: 24px;
+  }
+
+  .menu-item {
+    padding: 8px 8px;
+  }
+
+  .menu-item:hover::after {
+    width: 85%;
+    left: 7.5%;
   }
 }
 

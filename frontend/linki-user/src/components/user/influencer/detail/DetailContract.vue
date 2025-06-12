@@ -60,7 +60,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { contractApi } from '@/api/contract';
-import axios from 'axios';
+import httpClient from '@/utils/httpRequest';
 
 export default {
   name: 'DetailContract',
@@ -77,15 +77,11 @@ export default {
         loading.value = true;
         error.value = null;
         
-        // 1. 제안서 ID로 제안서 정보 조회
+        // 1. 제안서 ID로 제안서 정보 조회 (p1)
         const proposalId = route.params.id;
         console.log('Fetching proposal with ID:', proposalId);
         
-        if (!proposalId) {
-          throw new Error('제안서 ID를 찾을 수 없습니다.');
-        }
-
-        const proposalResponse = await axios.get(`/v1/api/influencer/proposals/${proposalId}`);
+        const proposalResponse = await httpClient.get(`/v1/api/influencer/proposals?proposal_id=${proposalId}`);
         if (!proposalResponse.data || proposalResponse.data.length === 0) {
           throw new Error('제안서 정보를 찾을 수 없습니다.');
         }
@@ -93,12 +89,12 @@ export default {
         const proposal = proposalResponse.data[0];
         console.log('Found proposal:', proposal);
 
-        // 2. 제안서에서 campaign_id로 캠페인 조회
+        // 2. 제안서의 campaign_id로 캠페인 조회 (c1)
         if (!proposal.campaign_id) {
           throw new Error('캠페인 정보를 찾을 수 없습니다.');
         }
 
-        const campaignResponse = await axios.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
+        const campaignResponse = await httpClient.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
         if (!campaignResponse.data || campaignResponse.data.length === 0) {
           throw new Error('캠페인 정보를 찾을 수 없습니다.');
         }
@@ -106,13 +102,13 @@ export default {
         const campaign = campaignResponse.data[0];
         console.log('Found campaign:', campaign);
 
-        // 3. 캠페인 ID로 계약 정보 조회
-        const contractResponse = await axios.get(`/v1/api/influencer/contracts/campaign/${campaign.productId}`);
-        if (!contractResponse.data || contractResponse.data.length === 0) {
+        // 3. 캠페인의 계약 정보 조회 (CTR001)
+        const contractData = await contractApi.getContractDetail(proposal.contractId);
+        if (!contractData) {
           throw new Error('계약 정보를 찾을 수 없습니다.');
         }
 
-        contract.value = contractResponse.data[0];
+        contract.value = contractData;
         console.log('Found contract:', contract.value);
 
       } catch (err) {
