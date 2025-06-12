@@ -1376,7 +1376,7 @@
     {
       "chatId": "chat1",
       "opponentName": "테크리뷰 마스터",
-      "partnerId": "inf1",
+      "opponentId": "inf1",
       "lastMessage": "네, 알겠습니다. 영상은 다음주까지 업로드하도록 하겠습니다.",
       "lastMessageTime": "2025-03-26T10:30:00",
       "isNew": true,
@@ -1385,7 +1385,7 @@
     {
       "chatId": "chat2",
       "opponentName": "게임덕후",
-      "partnerId": "inf2",
+      "opponentId": "inf2",
       "lastMessage": "제안서 승인 대기중입니다.",
       "lastMessageTime": "2025-05-26T09:15:00",
       "isNew": false,
@@ -1394,7 +1394,7 @@
     {
       "chatId": "chat3",
       "opponentName": "IT리뷰어",
-      "partnerId": "inf3",
+      "opponentId": "inf3",
       "lastMessage": "제안서 승인 대기중입니다.",
       "lastMessageTime": "2025-06-05T10:45:00",
       "isNew": true,
@@ -1403,7 +1403,7 @@
     {
       "chatId": "chat4",
       "opponentName": "사운드마스터",
-      "partnerId": "inf4",
+      "opponentId": "inf4",
       "lastMessage": "제안서 승인 대기중입니다.",
       "lastMessageTime": "2024-03-24T18:20:00",
       "isNew": false,
@@ -1412,7 +1412,7 @@
     {
       "chatId": "chat5",
       "opponentName": "뷰티여신",
-      "partnerId": "1",
+      "opponentId": "1",
       "lastMessage": "마스카라 발색 테스트 사진입니다.",
       "lastMessageTime": "2024-03-26T10:59:55",
       "isNew": true,

@@ -389,7 +389,7 @@ const goToInfluencerDetail = (influencerId) => {
               :src="getChatDetail(chat.chatId)?.profileImage"
               :alt="getChatDetail(chat.chatId)?.partnerName"
               class="profile-image"
-              @click.stop="goToInfluencerDetail(chat.partnerId)"
+              @click.stop="goToInfluencerDetail(chat.opponentId)"
             >
           </div>
           <div class="chat-item-content">
@@ -418,7 +418,7 @@ const goToInfluencerDetail = (influencerId) => {
               :src="getChatDetail(selectedChat?.chatId)?.profileImage"
               :alt="getChatDetail(selectedChat?.chatId)?.partnerName"
               class="profile-image"
-              @click="goToInfluencerDetail(selectedChat?.partnerId)"
+              @click="goToInfluencerDetail(selectedChat?.opponentId)"
             >
           </div>
           <div class="chat-user-info">
