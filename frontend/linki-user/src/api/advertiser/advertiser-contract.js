@@ -1,5 +1,13 @@
 import httpClient from '@/utils/httpRequest'
 
+// Contract status constants
+export const CONTRACT_STATUS = {
+  PENDING_SIGN: 'PENDING_SIGN',  // 서명 대기중
+  PENDING: 'PENDING',            // 진행중
+  COMPLETED: 'COMPLETED',        // 완료
+  ACTIVE: 'ACTIVE'              // 활성
+}
+
 export const contractApi = {
   // 계약 목록 조회
   getMyContracts() {
