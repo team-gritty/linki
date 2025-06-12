@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
-import ChatDropdown from '@/components/ChatDropdown.vue'
+
+import { useChatbotStore } from '@/stores/chatbot'
+
 
 const router = useRouter()
-
 const isMobile = ref(false)
+const chatbotStore = useChatbotStore()
 
 const props = defineProps({
   openSidebar: Boolean,
@@ -26,6 +28,17 @@ const goTochannels = () => {
 const goToCampaigns = () => {
   router.push('/campaigns')
 }
+
+const toggleChatbot = () => {
+  if (!chatbotStore.showChatbot) {
+    chatbotStore.toggleChatbot(true)
+  }
+  
+  if (props.openSidebar) {
+    props.toggleSidebar()
+  }
+}
+
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
 }
@@ -65,10 +78,12 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-        <li class="menu-item" @click="goToHome"><span>홈</span></li>
-        <li class="menu-item" @click="goTochannels"><span>인플루언서</span></li>
-        <li class="menu-item" @click="goToCampaigns"><span>캠페인</span></li>
-        
+
+        <li class="menu-item" @click="goToHome">홈</li>
+        <li class="menu-item" @click="goTochannels">인플루언서</li>
+        <li class="menu-item" @click="goToCampaigns">캠페인</li>
+        <li class="menu-item" @click="toggleChatbot">챗봇</li>
+
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -88,9 +103,11 @@ watch(() => props.openSidebar, (newValue) => {
           <li class="menu-item">
             <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
-          <li class="menu-item" @click="goToCampaigns"><span>캠페인</span></li>
-          
-          <li class="menu-item" @click="goToMyPage"><span>마이페이지</span></li>
+
+          <li class="menu-item" @click="goToCampaigns">캠페인</li>
+          <li class="menu-item" @click="toggleChatbot">챗봇</li>
+          <li class="menu-item" @click="goToMyPage">마이페이지</li>
+
         </ul>
       </div>
     </div>

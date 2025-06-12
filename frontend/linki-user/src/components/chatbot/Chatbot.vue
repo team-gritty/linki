@@ -1,10 +1,15 @@
 <template>
-  <div class="chatbot-container" :class="{ 'is-open': isOpen }">
+  <div v-if="showChatbot" class="chatbot-container" :class="{ 'is-open': isOpen }">
     <!-- 챗봇 토글 버튼 -->
-    <button class="chat-toggle" @click="toggleChat">
-      <span v-if="!isOpen">💬</span>
-      <span v-else>&times;</span>
-    </button>
+    <div class="chat-toggle-container">
+      <button class="chat-toggle" @click="toggleChat">
+        <span v-if="!isOpen">💬</span>
+        <span v-else>&times;</span>
+      </button>
+      <button class="close-button" @click="closeChatbot" title="챗봇 끄기">
+        <span>&times;</span>
+      </button>
+    </div>
 
     <!-- 챗봇 메인 창 -->
     <div class="chat-window" v-show="isOpen">
@@ -61,7 +66,8 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick, computed } from 'vue'
+import { useChatbotStore } from '@/stores/chatbot'
 
 export default {
   name: 'Chatbot',
@@ -71,6 +77,8 @@ export default {
     const messages = ref([])
     const isTyping = ref(false)
     const messageContainer = ref(null)
+    const chatbotStore = useChatbotStore()
+    const showChatbot = computed(() => chatbotStore.showChatbot)
 
     // 초기 메시지
     const initialMessage = {
@@ -85,6 +93,11 @@ export default {
       if (isOpen.value && messages.value.length === 0) {
         messages.value.push(initialMessage)
       }
+    }
+
+    // 챗봇 완전히 끄기
+    const closeChatbot = () => {
+      chatbotStore.toggleChatbot(false)
     }
 
     // 시간 포맷팅
@@ -163,7 +176,9 @@ export default {
       messageContainer,
       toggleChat,
       sendMessage,
-      formatTime
+      formatTime,
+      showChatbot,
+      closeChatbot
     }
   }
 }
@@ -172,9 +187,14 @@ export default {
 <style scoped>
 .chatbot-container {
   position: fixed;
-  bottom: 100px;  /* 하단바 높이를 고려하여 수정 */
+  bottom: 100px;
   right: 20px;
   z-index: 1000;
+}
+
+.chat-toggle-container {
+  position: relative;
+  display: inline-block;
 }
 
 .chat-toggle {
@@ -197,6 +217,29 @@ export default {
   background-repeat: no-repeat;
 }
 
+.close-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #ff2222;
+}
+
 .chat-toggle span {
   display: none;
 }
@@ -206,7 +249,7 @@ export default {
   bottom: 80px;
   right: 0;
   width: 360px;
-  height: 500px;  /* 높이 조정 */
+  height: 500px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
