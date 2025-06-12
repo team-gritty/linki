@@ -1,68 +1,66 @@
 <template>
   <div class="campaign-detail-wrap">
-    <div class="campaign-detail-main">
-      <div v-if="!campaignInfo" class="loading">
-        데이터를 불러오는 중입니다...
+    <div v-if="!campaignInfo" class="loading">
+      데이터를 불러오는 중입니다...
+    </div>
+    <div v-else class="campaign-detail-main">
+      <div class="detail-img-box">
+        <img class="main-img" :src="form.campaignImg" alt="캠페인 메인 이미지" />
       </div>
-      <div v-else class="campaign-content">
-        <div class="detail-img-box">
-          <img class="main-img" :src="form.campaignImg" alt="캠페인 메인 이미지" />
+      <div class="detail-info-box">
+        <div class="detail-title">캠페인 설명</div>
+        <div class="detail-desc">
+          <template v-if="editMode">
+            <textarea v-model="form.campaignDesc" class="edit-textarea" rows="6" />
+          </template>
+          <template v-else>{{ form.campaignDesc }}</template>
         </div>
-        <div class="detail-info-box">
-          <div class="detail-title">캠페인 설명</div>
-          <div class="detail-desc">
-            <template v-if="editMode">
-              <textarea v-model="form.campaignDesc" class="edit-textarea" rows="6" />
-            </template>
-            <template v-else>{{ form.campaignDesc }}</template>
+        <div class="detail-meta-service">
+          <div class="meta-row-service">
+            <span class="meta-label">광고 신청 마감일</span>
+            <span class="meta-value">
+              <template v-if="editMode">
+                <input type="date" v-model="form.campaignDeadline" class="edit-input" />
+              </template>
+              <template v-else>{{ formatDate(form.campaignDeadline) }}</template>
+            </span>
           </div>
-          <div class="detail-meta-service">
-            <div class="meta-row-service">
-              <span class="meta-label">광고 신청 마감일</span>
-              <span class="meta-value">
-                <template v-if="editMode">
-                  <input type="date" v-model="form.campaignDeadline" class="edit-input" />
-                </template>
-                <template v-else>{{ formatDate(form.campaignDeadline) }}</template>
-              </span>
-            </div>
-            <div class="meta-row-service">
-              <span class="meta-label">광고 조건</span>
-              <span class="meta-value">
-                <template v-if="editMode">
-                  <input v-model="form.campaignCondition" class="edit-input" />
-                </template>
-                <template v-else>{{ form.campaignCondition }}</template>
-              </span>
-            </div>
-            <div class="meta-row-service">
-              <span class="meta-label">카테고리</span>
-              <span class="meta-value">
-                <template v-if="editMode">
-                  <select v-model="form.campaignCategory" class="edit-input">
-                    <option value="게임">게임</option>
-                    <option value="IT">IT</option>
-                    <option value="가전">가전</option>
-                    <option value="기타">기타</option>
-                  </select>
-                </template>
-                <template v-else>{{ form.campaignCategory }}</template>
-              </span>
-            </div>
-            <div class="meta-row-service">
-              <span class="meta-label">브랜드</span>
-              <span class="meta-value">
-                <template v-if="editMode">
-                  <input v-model="form.companyName" class="edit-input" />
-                </template>
-                <template v-else>{{ form.companyName }}</template>
-              </span>
-            </div>
+          <div class="meta-row-service">
+            <span class="meta-label">광고 조건</span>
+            <span class="meta-value">
+              <template v-if="editMode">
+                <input v-model="form.campaignCondition" class="edit-input" />
+              </template>
+              <template v-else>{{ form.campaignCondition }}</template>
+            </span>
           </div>
-          <button class="edit-btn" @click="editMode ? save() : editMode = true">
-            {{ editMode ? '저장' : '수정' }}
-          </button>
+          <div class="meta-row-service">
+            <span class="meta-label">카테고리</span>
+            <span class="meta-value">
+              <template v-if="editMode">
+                <select v-model="form.campaignCategory" class="edit-input">
+                  <option value="게임">게임</option>
+                  <option value="IT">IT</option>
+                  <option value="가전">가전</option>
+                  <option value="기타">기타</option>
+                </select>
+              </template>
+              <template v-else>{{ form.campaignCategory }}</template>
+            </span>
+          </div>
+          <div class="meta-row-service">
+            <span class="meta-label">브랜드</span>
+            <span class="meta-value">
+              <template v-if="editMode">
+                <input v-model="form.companyName" class="edit-input" />
+              </template>
+              <template v-else>{{ form.companyName }}</template>
+            </span>
+          </div>
         </div>
+        <button class="edit-btn" @click="editMode ? save() : editMode = true">
+          {{ editMode ? '저장' : '수정' }}
+        </button>
       </div>
     </div>
     <div v-if="showToast" class="toast-success">
@@ -147,24 +145,34 @@ onMounted(() => {
 }
 
 .campaign-detail-wrap {
-  padding: 1rem;
+  background: #fafafd;
+  border-radius: 12px;
+  padding: 48px 40px;
 }
 
-.campaign-content {
-  display: grid;
-  gap: 2rem;
+.campaign-detail-main {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
 }
 
 .detail-img-box {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  flex: 0 0 400px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(140,48,245,0.06);
 }
 
 .main-img {
   width: 100%;
   height: auto;
+  object-fit: contain;
   border-radius: 8px;
+}
+
+.detail-info-box {
+  flex: 1;
 }
 
 .edit-textarea {
@@ -190,6 +198,7 @@ onMounted(() => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  float: right;
 }
 
 .edit-btn:hover {
