@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
-
+import ChatDropdown from '@/components/ChatDropdown.vue'
 
 const router = useRouter()
 
@@ -76,6 +76,7 @@ watch(() => props.openSidebar, (newValue) => {
         <i class="fas fa-user"></i>
         <span>마이페이지</span>
       </button>
+      <ChatDropdown />
     </div>
     <!-- 모바일 사이드바 오버레이 -->
     <div :class="['mobile-sidebar-overlay', { 'is-open': openSidebar }]" @click.self="toggleSidebar">
