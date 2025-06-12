@@ -1,10 +1,8 @@
 {
-  "/categories": "/categories",
   "/v1/api/home/categories": "/categories",
-  "/v1/api/home/campaigns": "/campaigns",
-  "/v1/api/home/influencers": "/influencers",
-  "/v1/api/home/sidebar-categories": "/sidebarCategories",
-  "/v1/api/home/ending-today": "/endingTodayProducts",
+  "/v1/api/home/ending-today-campaigns": "/endingTodayCampaigns",
+  "/v1/api/home/monthInfluencers": "/monthInfluencers",
+  "/v1/api/home/banners": "/banners",
 
   "/v1/api/campaigns": "/campaigns",
   "/v1/api/campaigns/:id": "/campaigns?productId=:id",

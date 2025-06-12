@@ -16,7 +16,7 @@ const displayedInfluencers = computed(() => {
 const fetchInfluencers = async () => {
   try {
     loading.value = true
-    const data = await homeAPI.getInfluencers()
+    const data = await homeAPI.getmonthInfluencers()
     console.log('Influencers response:', data)
     influencers.value = data.map(influencer => ({
       id: influencer.id,
@@ -27,8 +27,7 @@ const fetchInfluencers = async () => {
         influencer.subscribers : 
         influencer.subscribers.toLocaleString(),
       reviews: influencer.avgCommentCount || 0,
-      rating: 4.5,
-      platform: 'YouTube',
+      rating: influencer.rating,
       averageViews: influencer.avgViewCount
     }))
   } catch (err) {
