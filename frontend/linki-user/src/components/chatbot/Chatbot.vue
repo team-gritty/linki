@@ -1,13 +1,9 @@
 <template>
-  <div v-if="showChatbot" class="chatbot-container" :class="{ 'is-open': isOpen }">
+  <div v-if="showChatbot" class="chatbot-container" :class="{ 'is-open': isOpen }" ref="chatbotContainer">
     <!-- 챗봇 토글 버튼 -->
     <div class="chat-toggle-container">
       <button class="chat-toggle" @click="toggleChat">
-        <span v-if="!isOpen">💬</span>
-        <span v-else>&times;</span>
-      </button>
-      <button class="close-button" @click="closeChatbot" title="챗봇 끄기">
-        <span>&times;</span>
+
       </button>
     </div>
 
@@ -66,7 +62,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, nextTick, computed } from 'vue'
+import { ref, onMounted, watch, nextTick, computed, onUnmounted } from 'vue'
 import { useChatbotStore } from '@/stores/chatbot'
 
 export default {
@@ -77,6 +73,7 @@ export default {
     const messages = ref([])
     const isTyping = ref(false)
     const messageContainer = ref(null)
+    const chatbotContainer = ref(null)
     const chatbotStore = useChatbotStore()
     const showChatbot = computed(() => chatbotStore.showChatbot)
 
@@ -87,17 +84,29 @@ export default {
       timestamp: new Date()
     }
 
+    // 외부 클릭 이벤트 핸들러
+    const handleClickOutside = (event) => {
+      if (isOpen.value && chatbotContainer.value && !chatbotContainer.value.contains(event.target)) {
+        isOpen.value = false
+      }
+    }
+
+    // 컴포넌트 마운트 시 이벤트 리스너 추가
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside)
+    })
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    onUnmounted(() => {
+      document.removeEventListener('click', handleClickOutside)
+    })
+
     // 챗봇 토글
     const toggleChat = () => {
       isOpen.value = !isOpen.value
       if (isOpen.value && messages.value.length === 0) {
         messages.value.push(initialMessage)
       }
-    }
-
-    // 챗봇 완전히 끄기
-    const closeChatbot = () => {
-      chatbotStore.toggleChatbot(false)
     }
 
     // 시간 포맷팅
@@ -174,11 +183,11 @@ export default {
       messages,
       isTyping,
       messageContainer,
+      chatbotContainer,
       toggleChat,
       sendMessage,
       formatTime,
-      showChatbot,
-      closeChatbot
+      showChatbot
     }
   }
 }
@@ -215,33 +224,6 @@ export default {
   background-size: 35px;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.close-button {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s ease;
-}
-
-.close-button:hover {
-  background-color: #ff2222;
-}
-
-.chat-toggle span {
-  display: none;
 }
 
 .chat-window {

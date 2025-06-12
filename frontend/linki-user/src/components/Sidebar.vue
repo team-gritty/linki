@@ -80,7 +80,7 @@ watch(() => props.openSidebar, (newValue) => {
         <li class="menu-item" @click="goToHome">홈</li>
         <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-        <li class="menu-item" @click="toggleChatbot">챗봇</li>
+   
 
       </ul>
     </div>
@@ -103,7 +103,7 @@ watch(() => props.openSidebar, (newValue) => {
           </li>
 
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
-          <li class="menu-item" @click="toggleChatbot">챗봇</li>
+   
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
 
         </ul>
