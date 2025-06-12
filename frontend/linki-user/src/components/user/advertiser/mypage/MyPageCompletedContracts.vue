@@ -35,10 +35,12 @@
   <script setup>
   import { ref, onMounted, defineEmits } from 'vue';
   import { contractApi, CONTRACT_STATUS } from '@/api/advertiser/advertiser-contract';
+  import { useRouter } from 'vue-router';
   
   const contracts = ref([]);
   const hovered = ref(null);
   const emit = defineEmits(['show-detail']);
+  const router = useRouter();
   
   const fetchContracts = async () => {
     try {
@@ -61,7 +63,13 @@
   };
   
   function viewContractDetail(contract) {
-    emit('show-detail', contract);
+    router.push({
+      path: `/mypage/campaign-detail/${contract.campaignId}`,
+      query: { 
+        tab: 'contract.list',
+        contractId: contract.contractId
+      }
+    });
   }
   
   function formatDate(dateString) {
