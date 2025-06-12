@@ -1,81 +1,90 @@
 <template>
-  <div :class="$style.myProfileParent">
-    <div :class="$style.myProfile">My Profile</div>
-    <div :class="$style.frameParent">
-      <div :class="$style.parent">
-        <div :class="$style.div">이름</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
-          <input 
-            type="text" 
-            v-model="profileData.name"
-            :class="$style.md"
-            :disabled="isLoading"
-          />
-        </div>
+  <div class="basic-info-container">
+    <h2 class="basic-info-title">기본 정보</h2>
+    
+    <form class="basic-info-form" @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label>이름</label>
+        <input 
+          type="text" 
+          v-model="profileData.name"
+          placeholder="이름을 입력하세요"
+          :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.name">{{ errors.name }}</span>
       </div>
-      <div :class="$style.parent">
-        <div :class="$style.div">연락처</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
-          <input 
-            type="tel" 
-            v-model="profileData.phone"
-            :class="$style.md"
-            pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
-            title="000-0000-0000 형식으로 입력해주세요"
-            :disabled="isLoading"
-          />
-        </div>
+
+      <div class="form-group">
+        <label>연락처</label>
+        <input 
+          type="tel" 
+          v-model="profileData.phone"
+          placeholder="000-0000-0000"
+          pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
+          title="000-0000-0000 형식으로 입력해주세요"
+          :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.phone">{{ errors.phone }}</span>
       </div>
-    </div>
-    <div :class="$style.frameGroup">
-      <div :class="$style.parent">
-        <div :class="$style.div">Email</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
-          <input 
-            type="email" 
-            v-model="profileData.email"
-            :class="$style.md"
-            :disabled="isLoading"
-          />
-        </div>
+
+      <div class="form-group">
+        <label>이메일</label>
+        <input 
+          type="email" 
+          v-model="profileData.email"
+          placeholder="이메일을 입력하세요"
+          :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
       </div>
-      <div :class="$style.parent">
-        <div :class="$style.div">가입일</div>
-        <div :class="$style.placeboxInfo">
-          <div :class="$style.placeToInfoBox"></div>
-          <div :class="$style.md">{{ formatDate(profileData.joinDate) }}</div>
-        </div>
+
+      <div class="form-group">
+        <label>가입일</label>
+        <div class="join-date">{{ formatDate(profileData.joinDate) }}</div>
       </div>
-    </div>
-    <div :class="$style.cancelParent">
-      <div :class="$style.cancel" @click="handleCancel" :disabled="isLoading">Cancel</div>
-      <div :class="$style.button" @click="handleSubmit" :disabled="isLoading">
-        <div :class="$style.viewAllProducts">Save Changes</div>
+
+      <div class="button-group">
+        <button type="submit" class="save-button" :disabled="isLoading || !isFormValid">
+          {{ isLoading ? '저장 중...' : '저장' }}
+        </button>
       </div>
-    </div>
+    </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAlert } from '@/composables/alert'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-const isLoading = ref(false)
 const { showAlert } = useAlert()
 const userStore = useUserStore()
+const isLoading = ref(false)
 
 const profileData = ref({
   name: '',
   phone: '',
   email: '',
   joinDate: null
+})
+
+const errors = ref({
+  name: '',
+  phone: '',
+  email: ''
+})
+
+const isFormValid = computed(() => {
+  return (
+    profileData.value.name &&
+    profileData.value.email &&
+    !errors.value.name &&
+    !errors.value.phone &&
+    !errors.value.email
+  )
 })
 
 const formatDate = (date) => {
@@ -88,18 +97,27 @@ const formatDate = (date) => {
 }
 
 const validateForm = () => {
+  errors.value = {
+    name: '',
+    phone: '',
+    email: ''
+  }
+
   if (!profileData.value.name) {
-    showAlert('이름을 입력해주세요.', 'error')
+    errors.value.name = '이름을 입력해주세요.'
     return false
   }
+
   if (profileData.value.phone && !/^\d{3}-\d{4}-\d{4}$/.test(profileData.value.phone)) {
-    showAlert('연락처를 올바른 형식으로 입력해주세요. (000-0000-0000)', 'error')
+    errors.value.phone = '연락처를 올바른 형식으로 입력해주세요. (000-0000-0000)'
     return false
   }
+
   if (!profileData.value.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.value.email)) {
-    showAlert('유효한 이메일을 입력해주세요.', 'error')
+    errors.value.email = '유효한 이메일을 입력해주세요.'
     return false
   }
+
   return true
 }
 
@@ -122,8 +140,8 @@ const fetchProfile = async () => {
 const handleSubmit = async () => {
   if (!validateForm()) return
 
-  isLoading.value = true
   try {
+    isLoading.value = true
     const response = await axios.patch('/api/user/profile', {
       name: profileData.value.name,
       phone: profileData.value.phone,
@@ -149,151 +167,97 @@ const handleSubmit = async () => {
   }
 }
 
-const handleCancel = () => {
-  fetchProfile()
-}
-
-onMounted(() => {
-  fetchProfile()
-})
+fetchProfile()
 </script>
 
-<style module>
-.myProfile {
-  position: absolute;
-  top: 40px;
-  left: 80px;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: 500;
+<style scoped>
+.basic-info-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.div {
-  position: relative;
-  line-height: 24px;
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #000;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.placeToInfoBox {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  top: 0%;
-  right: 0%;
-  bottom: 0%;
-  left: 0%;
-  border-radius: 4px;
-  background-color: rgba(245, 245, 245, 0.7);
-  overflow: hidden;
-}
-
-.md {
-  position: absolute;
-  top: 13px;
-  left: 16px;
-  line-height: 24px;
-  background: transparent;
-  border: none;
-  width: calc(100% - 32px);
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.md:focus {
-  outline: none;
-}
-
-.placeboxInfo {
-  width: 330px;
-  position: relative;
-  height: 50px;
-}
-
-.parent {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 8px;
-}
-
-.frameParent {
-  position: absolute;
-  top: 84px;
-  left: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 50px;
-}
-
-.frameGroup {
-  position: absolute;
-  top: 190px;
-  left: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 50px;
-}
-
-.viewAllProducts {
-  position: relative;
-  line-height: 24px;
-  font-weight: 500;
-}
-
-.button {
-  border-radius: 4px;
-  background-color: #d6bcf7;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 48px;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: #c9a7f5;
-}
-
-.cancel {
-  color: #666;
-  cursor: pointer;
-  padding: 16px 48px;
-}
-
-.cancel:hover {
+.basic-info-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
   color: #333;
 }
 
-.cancelParent {
-  position: absolute;
-  top: calc(50% + 219px);
-  right: 80px;
+.basic-info-form {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 32px;
-  color: #fafafa;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.myProfileParent {
-  width: 100%;
-  position: relative;
-  box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.05);
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #fff;
-  height: 630px;
-  overflow: hidden;
-  text-align: left;
-  font-size: 16px;
-  color: #7b21e8;
-  font-family: Poppins;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #d6bcf7;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.join-date {
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  color: #666;
+}
+
+.error-message {
+  font-size: 0.8rem;
+  color: #ff4444;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.save-button {
+  min-width: 80px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #d6bcf7;
+  color: #000;
+}
+
+.save-button:hover {
+  background-color: #c4a3f7;
+}
+
+.save-button:disabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
 }
 </style> 

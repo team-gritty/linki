@@ -1,10 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
+
 import { useRouter } from 'vue-router'
 import ChatDropdown from '@/components/ChatDropdown.vue'
 
-const router = useRouter()
 
+const router = useRouter()
 const isMobile = ref(false)
 
 const props = defineProps({
@@ -39,12 +40,7 @@ onUnmounted(() => {
 
 const sidebarElement = ref(null)
 
-function goToInfluencer() {
-  router.push('/channels') // ChannelListPage로 이동 
-  if (props.toggleSidebar) { 
-    props.toggleSidebar() // 모바일 사이드바 닫기
-  }
-}
+
 
 watch(() => props.openSidebar, (newValue) => {
   if (sidebarElement.value) {
@@ -65,9 +61,12 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-        <li class="menu-item" @click="goToHome"><span>홈</span></li>
-        <li class="menu-item" @click="goTochannels"><span>인플루언서</span></li>
-        <li class="menu-item" @click="goToCampaigns"><span>캠페인</span></li>
+
+        <li class="menu-item" @click="goToHome">홈</li>
+        <li class="menu-item" @click="goTochannels">인플루언서</li>
+        <li class="menu-item" @click="goToCampaigns">캠페인</li>
+
+
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -87,8 +86,11 @@ watch(() => props.openSidebar, (newValue) => {
           <li class="menu-item">
             <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
-          <li class="menu-item" @click="goToCampaigns"><span>캠페인</span></li>
-          <li class="menu-item" @click="goToMyPage"><span>마이페이지</span></li>
+
+          <li class="menu-item" @click="goToCampaigns">캠페인</li>
+
+          <li class="menu-item" @click="goToMyPage">마이페이지</li>
+
         </ul>
       </div>
     </div>
@@ -100,7 +102,7 @@ watch(() => props.openSidebar, (newValue) => {
   position: fixed;
   top: 48px;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 73px;
   background: #fff;
   display: flex;
@@ -306,7 +308,7 @@ body, html {
     padding: 0 16px;
     height: 60px;
   }
-  
+
   .navbar-left {
     width: auto;
     display: flex;
@@ -324,7 +326,7 @@ body, html {
     cursor: pointer;
     margin-right: 16px;
   }
-  
+
   .logo {
     position: static;
     font-size: 20px;
@@ -421,7 +423,7 @@ body, html {
   .mobile-sidebar-overlay {
     display: none !important;
   }
-  
+
   .hamburger {
     display: none;
   }
