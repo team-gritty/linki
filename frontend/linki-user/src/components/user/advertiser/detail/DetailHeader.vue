@@ -2,9 +2,9 @@
   <div class="detail-header">
     <div class="campaign-summary-box">
       <div class="summary-left">
-        <img class="summary-thumb" :src="campaignInfo.productImg" alt="제품 썸네일" />
+        <img class="summary-thumb" :src="campaignInfo.campaignImg" alt="제품 썸네일" />
         <div class="summary-info">
-          <div class="summary-title">{{ campaignInfo.productName }}</div>
+          <div class="summary-title">{{ campaignInfo.campaignName }}</div>
           <div class="summary-sub">{{ campaignInfo.companyName }}</div>
         </div>
       </div>
@@ -44,33 +44,24 @@ const router = useRouter()
 const route = useRoute()
 
 const campaignInfo = ref({
-  productImg: '',
-  productName: '',
+  campaignImg: '',
+  campaignName: '',
   companyName: '',
-  productDesc: '',
-  productDeadline: '',
-  productCondition: '',
-  productCategory: ''
+  campaignDesc: '',
+  campaignDeadline: '',
+  campaignCondition: '',
+  campaignCategory: ''
 })
 
 const fetchCampaignInfo = async () => {
   try {
     console.log('Fetching campaign info for ID:', route.params.id)
-    const data = await campaignApi.getMyCampaignDetail(route.params.id)
+    const data = await campaignApi.getCampaignDetail(route.params.id)
     console.log('Received campaign data:', data)
     campaignInfo.value = data
   } catch (error) {
     console.error('Failed to fetch campaign info:', error)
-    // 에러 시 더미 데이터로 폴백
-    campaignInfo.value = {
-      productImg: 'https://cdn.pixabay.com/photo/2016/03/31/19/14/controller-1294077_1280.png',
-      productName: '게임기',
-      companyName: 'HAVIT HV-G92 Gamepad',
-      productDesc: `Ipsum has been the industry's standard dummy text ever since the 1500s...`,
-      productDeadline: '2025-05-26',
-      productCondition: '평균 조회수 2만 회 이상',
-      productCategory: '게임'
-    }
+ 
   }
 }
 

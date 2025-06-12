@@ -6,7 +6,7 @@
       </div>
       <div v-else class="campaign-content">
         <div class="detail-img-box">
-          <img class="main-img" :src="form.campaignImg" alt="제품 메인 이미지" />
+          <img class="main-img" :src="form.campaignImg" alt="캠페인 메인 이미지" />
         </div>
         <div class="detail-info-box">
           <div class="detail-title">캠페인 설명</div>
@@ -82,8 +82,6 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:campaign-info'])
-
 const editMode = ref(false)
 const showToast = ref(false)
 const campaignInfo = ref(null)
@@ -111,7 +109,6 @@ const fetchCampaignInfo = async () => {
 
 async function save() {
   try {
-    // TODO: API를 통해 캠페인 정보 업데이트
     await campaignApi.updateCampaign(props.campaignId, form.value)
     campaignInfo.value = { ...form.value }
     editMode.value = false
@@ -201,8 +198,8 @@ onMounted(() => {
 
 .toast-success {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: 20px;
+  right: 20px;
   background-color: #10b981;
   color: white;
   padding: 1rem 2rem;
