@@ -153,10 +153,9 @@
   "광고주 - 캠페인 관련": "광고주의 캠페인 관련 라우트",
   "/v1/api/mypage/advertiser/campaigns": "/campaigns",
   "/v1/api/advertiser/campaigns": "/campaigns",
-  "/v1/api/advertiser/campaigns/:id": "/campaigns?campaignId=:id",
-  "/v1/api/advertiser/mypage/campaign-detail/:id": "/campaigns?campaignId=:id",
-  "/v1/api/advertiser/mypage/campaign-list": "/campaigns",
+  "/v1/api/advertiser/campaigns/:campaignId": "/campaigns?campaignId=:campaignId",
   "/v1/api/advertiser/proposals": "/proposals",
+  "캠페인에 관련된 제안서만 조회": "캠페인에 관련된 제안서만 조회",
   "/v1/api/advertiser/proposals?campaignId=:campaignId": "/proposals?campaign_id=:campaignId",
 
   "광고주 제안서 관련": "광고주의 제안서 관련 라우트",
