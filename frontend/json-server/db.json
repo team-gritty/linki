@@ -1777,7 +1777,7 @@
 
   "monthInfluencers": [
     {
-      "id": 1,
+      "influencersId": 1,
       "youtubeChannelId": "UCxxxxxx1",
       "name": "테크리뷰 마스터",
       "category": "전자기기",
@@ -1791,7 +1791,7 @@
       "rating": 4.6
     },
     {
-      "id": 2,
+      "influencersId": 2,
       "youtubeChannelId": "UCxxxxxx2",
       "name": "뷰티여신",
       "category": "뷰티",
@@ -1805,7 +1805,7 @@
       "rating": 4.8
     },
     {
-      "id": 3,
+      "influencersId": 3,
       "youtubeChannelId": "UCxxxxxx3",
       "name": "푸드로거",
       "category": "푸드/먹방",
@@ -1819,7 +1819,7 @@
       "rating": 4.4
     },
     {
-      "id": 4,
+      "influencersId": 4,
       "youtubeChannelId": "UCxxxxxx4",
       "name": "여행스토리",
       "category": "여행",
@@ -1833,7 +1833,7 @@
       "rating": 4.5
     },
     {
-      "id": 5,
+      "influencersId": 5,
       "youtubeChannelId": "UCxxxxxx5",
       "name": "패션왕",
       "category": "패션",
@@ -1847,7 +1847,7 @@
       "rating": 4.7
     },
     {
-      "id": 6,
+      "influencersId": 6,
       "youtubeChannelId": "UCxxxxxx6",
       "name": "인테리어연구소",
       "category": "리빙/인테리어",
@@ -1861,7 +1861,7 @@
       "rating": 4.3
     },
     {
-      "id": 7,
+      "influencersId": 7,
       "youtubeChannelId": "UCxxxxxx7",
       "name": "헬스남매",
       "category": "헬스/운동",
@@ -1875,7 +1875,7 @@
       "rating": 4.9
     },
     {
-      "id": 8,
+      "influencersId": 8,
       "youtubeChannelId": "UCxxxxxx8",
       "name": "육아천재",
       "category": "키즈/육아",

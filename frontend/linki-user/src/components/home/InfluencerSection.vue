@@ -19,7 +19,7 @@ const fetchInfluencers = async () => {
     const data = await homeAPI.getmonthInfluencers()
     console.log('Influencers response:', data)
     influencers.value = data.map(influencer => ({
-      id: influencer.id,
+      id: influencer.influencersId,
       name: influencer.name,
       profileImage: influencer.profileImage,
       category: influencer.category,
@@ -66,7 +66,7 @@ onMounted(async () => {
     <div class="influencer-grid">
       <router-link 
         v-for="influencer in displayedInfluencers" 
-        :key="influencer.id" 
+        :key="influencer.id"
         :to="{ name: 'channel-detail', params: { id: influencer.id }}"
         class="influencer-card"
         @click="handleInfluencerClick(influencer.id)"
