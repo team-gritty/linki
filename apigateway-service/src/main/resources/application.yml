@@ -5,18 +5,18 @@ spring:
   application:
     name: apigateway-service
 
-  cloud:
-    gateway:
-      routes:
-        - id: integration-service
-          uri: lb://INTEGRATION-SERVICE
-          predicates:
-            - Path=/v1/admin/api/**
-
-        - id: integration-service
-          uri: lb://INTEGRATION-SERVICE
-          predicates:
-            - Path=/v1/api/**
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: integration-service
+#          uri: lb://INTEGRATION-SERVICE
+#          predicates:
+#            - Path=/v1/admin/api/**
+#
+#        - id: integration-service
+#          uri: lb://INTEGRATION-SERVICE
+#          predicates:
+#            - Path=/v1/api/**
 
 eureka:
   client:
