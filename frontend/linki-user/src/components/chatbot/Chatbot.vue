@@ -1,10 +1,11 @@
 <template>
-  <div class="chatbot-container" :class="{ 'is-open': isOpen }">
+  <div v-if="showChatbot" class="chatbot-container" :class="{ 'is-open': isOpen }" ref="chatbotContainer">
     <!-- 챗봇 토글 버튼 -->
-    <button class="chat-toggle" @click="toggleChat">
-      <span v-if="!isOpen">💬</span>
-      <span v-else>&times;</span>
-    </button>
+    <div class="chat-toggle-container">
+      <button class="chat-toggle" @click="toggleChat">
+
+      </button>
+    </div>
 
     <!-- 챗봇 메인 창 -->
     <div class="chat-window" v-show="isOpen">
@@ -61,7 +62,8 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick, computed, onUnmounted } from 'vue'
+import { useChatbotStore } from '@/stores/chatbot'
 
 export default {
   name: 'Chatbot',
@@ -71,6 +73,9 @@ export default {
     const messages = ref([])
     const isTyping = ref(false)
     const messageContainer = ref(null)
+    const chatbotContainer = ref(null)
+    const chatbotStore = useChatbotStore()
+    const showChatbot = computed(() => chatbotStore.showChatbot)
 
     // 초기 메시지
     const initialMessage = {
@@ -78,6 +83,23 @@ export default {
       text: '안녕하세요! Linki Assistant입니다. 무엇을 도와드릴까요?',
       timestamp: new Date()
     }
+
+    // 외부 클릭 이벤트 핸들러
+    const handleClickOutside = (event) => {
+      if (isOpen.value && chatbotContainer.value && !chatbotContainer.value.contains(event.target)) {
+        isOpen.value = false
+      }
+    }
+
+    // 컴포넌트 마운트 시 이벤트 리스너 추가
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside)
+    })
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    onUnmounted(() => {
+      document.removeEventListener('click', handleClickOutside)
+    })
 
     // 챗봇 토글
     const toggleChat = () => {
@@ -161,9 +183,11 @@ export default {
       messages,
       isTyping,
       messageContainer,
+      chatbotContainer,
       toggleChat,
       sendMessage,
-      formatTime
+      formatTime,
+      showChatbot
     }
   }
 }
@@ -172,9 +196,14 @@ export default {
 <style scoped>
 .chatbot-container {
   position: fixed;
-  bottom: 100px;  /* 하단바 높이를 고려하여 수정 */
+  bottom: 100px;
   right: 20px;
   z-index: 1000;
+}
+
+.chat-toggle-container {
+  position: relative;
+  display: inline-block;
 }
 
 .chat-toggle {
@@ -197,16 +226,12 @@ export default {
   background-repeat: no-repeat;
 }
 
-.chat-toggle span {
-  display: none;
-}
-
 .chat-window {
   position: absolute;
   bottom: 80px;
   right: 0;
   width: 360px;
-  height: 500px;  /* 높이 조정 */
+  height: 500px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);

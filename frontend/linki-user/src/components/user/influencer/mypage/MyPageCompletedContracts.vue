@@ -48,11 +48,12 @@ export default {
 
     const fetchContracts = async () => {
       try {
-        const response = await contractApi.getMyContracts();
+        const data = await contractApi.getMyContracts();
         // COMPLETED 상태인 계약만 필터링
-        contracts.value = response.data.filter(contract => contract.contractStatus === 'COMPLETED');
+        contracts.value = data.filter(contract => contract.contractStatus === 'COMPLETED');
       } catch (error) {
         console.error('계약 목록 조회 실패:', error);
+        contracts.value = [];
       }
     };
 

@@ -646,9 +646,9 @@
       "campaignId": "c4"
     },
     {
-      "contractId": "CTR005",
+      "contractId": "CTR006",
       "contractTitle": "게이밍 헤드셋 리뷰",
-      "contractStatus": "COMPLETED",
+      "contractStatus": "PENDING_SIGN",
       "contractStartDate": "2024-02-01",
       "contractEndDate": "2024-03-01",
       "contractAmount": 1200000,
@@ -941,7 +941,6 @@
       "chatId": "chat2",
       "chatPartner": "게임덕후",
       "proposalId": "p2",
-
       "negoStatus": "계약 진행중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=400&h=400",
@@ -997,6 +996,58 @@
       "settlementAmount": 900000,
       "settlementStatus": "PENDING",
       "settlementDate": "2024-03-20"
+    }
+  ],
+  "userChatList": [
+    {
+      "userId": "user1",
+      "senderId": "inf1",
+      "chatId": "chat1",
+      "lastMessage": "안녕하세요, 제안서 검토해보시겠어요?",
+      "lastMessageTime": "2025-03-19T10:30:00Z",
+      "isNew": true,
+      "proposalId": "p1",
+      "chatPartner": "김인플루언서"
+    },
+    {
+      "userId": "user1",
+      "senderId": "inf2",
+      "chatId": "chat2",
+      "lastMessage": "수정된 제안서 확인해주세요",
+      "lastMessageTime": "2025-05-19T09:15:00Z",
+      "isNew": false,
+      "proposalId": "p2",
+      "chatPartner": "박뷰티"
+    },
+    {
+      "userId": "user1",
+      "senderId": "inf3",
+      "chatId": "chat3",
+      "lastMessage": "네, 알겠습니다!",
+      "lastMessageTime": "2025-06-11T15:45:00Z",
+      "isNew": true,
+      "proposalId": "p3",
+      "chatPartner": "이푸드"
+    },
+    {
+      "userId": "user1",
+      "senderId": "inf4",
+      "chatId": "chat4",
+      "lastMessage": "캠페인 일정 조율이 필요합니다.",
+      "lastMessageTime": "2024-03-18T14:20:00Z",
+      "isNew": false,
+      "proposalId": "p4",
+      "chatPartner": "최패션"
+    },
+    {
+      "userId": "user1",
+      "senderId": "inf5",
+      "chatId": "chat5",
+      "lastMessage": "수정사항 반영했습니다.",
+      "lastMessageTime": "2024-03-18T11:10:00Z",
+      "isNew": false,
+      "proposalId": "p5",
+      "chatPartner": "정라이프"
     }
   ]
 }

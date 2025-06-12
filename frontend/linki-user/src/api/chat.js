@@ -39,6 +39,17 @@ export const chatApi = {
     }
   },
 
+  // 사용자별 채팅방 목록 조회
+  getUserChatList: async (userId = 'user1') => {
+    try {
+      const response = await axios.get(`/v1/api/chat/${userId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error getting user chat list:', error)
+      throw error
+    }
+  },
+
   // 채팅방 상세 정보 조회
   enterRoom: async (chatId) => {
     try {

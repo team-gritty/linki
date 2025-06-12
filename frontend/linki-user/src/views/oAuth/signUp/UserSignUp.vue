@@ -214,6 +214,11 @@ const handphone = ref('')
 const email = ref('')
 const isLoading = ref(false)
 
+// 모달 상태
+const showTermsModal = ref(false)
+const showPrivacyModal = ref(false)
+const showMarketingModal = ref(false)
+
 // 약관 동의 상태
 const termsAgreed = ref(false)
 const privacyAgreed = ref(false)
