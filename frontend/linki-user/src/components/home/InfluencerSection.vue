@@ -20,15 +20,15 @@ const fetchInfluencers = async () => {
     console.log('Influencers response:', data)
     influencers.value = data.map(influencer => ({
       id: influencer.influencersId,
-      name: influencer.name,
-      profileImage: influencer.profileImage,
-      category: influencer.category,
-      subscribers: typeof influencer.subscribers === 'string' ? 
-        influencer.subscribers : 
-        influencer.subscribers.toLocaleString(),
-      reviews: influencer.avgCommentCount || 0,
-      rating: influencer.rating,
-      averageViews: influencer.avgViewCount
+      name: influencer.influencerName,
+      profileImage: influencer.influencerProfileImage,
+      category: influencer.influencerCategory,
+      subscribers: typeof influencer.influencerSubscribers === 'string' ?
+        influencer.influencerSubscribers :
+        influencer.influencerSubscribers.toLocaleString(),
+      reviews: influencer.influencerReviewsCount || 0,
+      rating: influencer.influencerRating,
+      averageViews: influencer.influencerAvgViewCount
     }))
   } catch (err) {
     console.error('인플루언서 로딩 실패:', err)

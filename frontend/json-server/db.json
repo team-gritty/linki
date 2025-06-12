@@ -1774,123 +1774,89 @@
         "rating": 4.2
       }
     ],
-
   "monthInfluencers": [
     {
       "influencersId": 1,
-      "youtubeChannelId": "UCxxxxxx1",
-      "name": "테크리뷰 마스터",
-      "category": "전자기기",
-      "subscribers": "5.2만",
-      "videoCount": 245,
-      "createdAt": "2019-05-10",
-      "avgViewCount": 15000,
-      "avgCommentCount": 320,
-      "avgLikeCount": 2800,
-      "profileImage": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.6
+      "influencerName": "테크리뷰 마스터",
+      "influencerCategory": "전자기기",
+      "influencerSubscribers": "5.2만",
+      "influencerAvgViewCount": 15000,
+      "influencerReviewsCount": 320,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.6
     },
     {
       "influencersId": 2,
-      "youtubeChannelId": "UCxxxxxx2",
-      "name": "뷰티여신",
-      "category": "뷰티",
-      "subscribers": "8.9만",
-      "videoCount": 312,
-      "createdAt": "2018-01-01",
-      "avgViewCount": 25000,
-      "avgCommentCount": 450,
-      "avgLikeCount": 3900,
-      "profileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.8
+      "influencerName": "뷰티여신",
+      "influencerCategory": "뷰티",
+      "influencerSubscribers": "8.9만",
+      "influencerAvgViewCount": 25000,
+      "influencerReviewsCount": 450,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.8
     },
     {
       "influencersId": 3,
-      "youtubeChannelId": "UCxxxxxx3",
-      "name": "푸드로거",
-      "category": "푸드/먹방",
-      "subscribers": "3.5만",
-      "videoCount": 180,
-      "createdAt": "2020-03-15",
-      "avgViewCount": 12000,
-      "avgCommentCount": 280,
-      "avgLikeCount": 1700,
-      "profileImage": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.4
+      "influencerName": "푸드로거",
+      "influencerCategory": "푸드/먹방",
+      "influencerSubscribers": "3.5만",
+      "influencerAvgViewCount": 12000,
+      "influencerReviewsCount": 280,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.4
     },
     {
       "influencersId": 4,
-      "youtubeChannelId": "UCxxxxxx4",
-      "name": "여행스토리",
-      "category": "여행",
-      "subscribers": "4.2만",
-      "videoCount": 156,
-      "createdAt": "2019-08-20",
-      "avgViewCount": 18000,
-      "avgCommentCount": 390,
-      "avgLikeCount": 2200,
-      "profileImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.5
+      "influencerName": "여행스토리",
+      "influencerCategory": "여행",
+      "influencerSubscribers": "4.2만",
+      "influencerAvgViewCount": 18000,
+      "influencerReviewsCount": 390,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.5
     },
     {
       "influencersId": 5,
-      "youtubeChannelId": "UCxxxxxx5",
-      "name": "패션왕",
-      "category": "패션",
-      "subscribers": "6.7만",
-      "videoCount": 289,
-      "createdAt": "2018-11-15",
-      "avgViewCount": 22000,
-      "avgCommentCount": 420,
-      "avgLikeCount": 3100,
-      "profileImage": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.7
+      "influencerName": "패션왕",
+      "influencerCategory": "패션",
+      "influencerSubscribers": "6.7만",
+      "influencerAvgViewCount": 22000,
+      "influencerReviewsCount": 420,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.7
     },
     {
       "influencersId": 6,
-      "youtubeChannelId": "UCxxxxxx6",
-      "name": "인테리어연구소",
-      "category": "리빙/인테리어",
-      "subscribers": "2.8만",
-      "videoCount": 140,
-      "createdAt": "2021-02-10",
-      "avgViewCount": 10000,
-      "avgCommentCount": 210,
-      "avgLikeCount": 1500,
-      "profileImage": "https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.3
+      "influencerName": "인테리어연구소",
+      "influencerCategory": "리빙/인테리어",
+      "influencerSubscribers": "2.8만",
+      "influencerAvgViewCount": 10000,
+      "influencerReviewsCount": 210,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.3
     },
     {
       "influencersId": 7,
-      "youtubeChannelId": "UCxxxxxx7",
-      "name": "헬스남매",
-      "category": "헬스/운동",
-      "subscribers": "7.4만",
-      "videoCount": 198,
-      "createdAt": "2019-09-01",
-      "avgViewCount": 27000,
-      "avgCommentCount": 510,
-      "avgLikeCount": 4200,
-      "profileImage": "https://images.unsplash.com/photo-1611691549217-d35a644ba3f3?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.9
+      "influencerName": "헬스남매",
+      "influencerCategory": "헬스/운동",
+      "influencerSubscribers": "7.4만",
+      "influencerAvgViewCount": 27000,
+      "influencerReviewsCount": 510,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1611691549217-d35a644ba3f3?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.9
     },
     {
       "influencersId": 8,
-      "youtubeChannelId": "UCxxxxxx8",
-      "name": "육아천재",
-      "category": "키즈/육아",
-      "subscribers": "3.3만",
-      "videoCount": 163,
-      "createdAt": "2020-12-25",
-      "avgViewCount": 9000,
-      "avgCommentCount": 190,
-      "avgLikeCount": 1300,
-      "profileImage": "https://images.unsplash.com/photo-1589571894960-20bbe2828a27?auto=format&fit=crop&q=80&w=400&h=400",
-      "rating": 4.2
+      "influencerName": "육아천재",
+      "influencerCategory": "키즈/육아",
+      "influencerSubscribers": "3.3만",
+      "influencerAvgViewCount": 9000,
+      "influencerReviewsCount": 190,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1589571894960-20bbe2828a27?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.2
     }
   ]
-
-
 }
-  
+
+
 
