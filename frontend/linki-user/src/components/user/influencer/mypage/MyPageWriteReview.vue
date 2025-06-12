@@ -57,12 +57,6 @@
             <label>리뷰 내용</label>
             <textarea v-model="review.comment" placeholder="리뷰 내용을 작성해주세요"></textarea>
           </div>
-          <div class="visibility-toggle">
-            <label>
-              <input type="checkbox" v-model="review.visibility">
-              공개하기
-            </label>
-          </div>
         </div>
         <div class="modal-footer">
           <button @click="closeModal" class="cancel-btn">취소</button>
@@ -75,7 +69,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import httpClient from '../../../../utils/httpRequest';
 
 export default {
   name: 'MyPageWriteReview',
@@ -129,11 +123,11 @@ export default {
 
     const fetchCompletedContracts = async () => {
       try {
-        const contractsResponse = await axios.get('/v1/api/influencer/contracts');
+        const contractsResponse = await httpClient.get('/v1/api/influencer/contracts');
         const contracts = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
 
         // 정산 정보 가져오기
-        const settlementsResponse = await axios.get('/v1/api/influencer/settlements');
+        const settlementsResponse = await httpClient.get('/v1/api/influencer/settlements');
         const settlements = Array.isArray(settlementsResponse.data) ? settlementsResponse.data : [];
 
         // 정산이 완료된 계약만 필터링
@@ -182,10 +176,10 @@ export default {
           influencerReviewComment: review.value.comment,
           createdAt: new Date().toISOString(),
           contractId: selectedContract.value.contractId,
-          visibility: review.value.visibility
+          visibility: true
         };
 
-        await axios.post('/v1/api/influencer/reviews/written', reviewData);
+        await httpClient.post('/v1/api/influencer/reviews/written', reviewData);
         alert('리뷰가 저장되었습니다.');
         closeModal();
         fetchCompletedContracts();
@@ -385,10 +379,6 @@ export default {
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   resize: vertical;
-}
-
-.visibility-toggle {
-  margin-bottom: 20px;
 }
 
 .modal-footer {

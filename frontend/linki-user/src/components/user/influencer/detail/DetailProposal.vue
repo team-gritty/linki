@@ -66,81 +66,35 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 export default {
   name: 'DetailProposal',
   props: {
+    detailData: {
+      type: Object,
+      required: true
+    },
     campaignDetail: {
       type: Object,
       default: null
     }
   },
   setup(props) {
-    const route = useRoute()
-    const loading = ref(true)
+    const router = useRouter()
+    const loading = ref(false)
     const isEditing = ref(false)
     const editingContent = ref('')
     const proposalData = ref(null)
-    
 
-    const fetchProposal = async () => {
-      try {
-        loading.value = true;
-        const proposalId = route.params.id;
-        console.log('Fetching proposal with ID:', proposalId);
-
-        if (!proposalId) {
-          throw new Error('제안서 ID가 없습니다.');
-        }
-
-        // 1. 제안서 정보를 직접 조회
-        const proposalResponse = await axios.get(`/v1/api/influencer/proposals/${proposalId}`);
-        console.log('Proposal response:', proposalResponse.data);
-
-        if (!proposalResponse.data || !proposalResponse.data.length) {
-          throw new Error('제안서를 찾을 수 없습니다.');
-        }
-
-        const proposal = proposalResponse.data[0]; // json-server는 항상 배열을 반환
-
-        // 2. 캠페인 정보 조회
-        if (proposal.campaign_id) {
-          try {
-            const campaignResponse = await axios.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
-            console.log('Campaign response:', campaignResponse.data);
-            
-            if (campaignResponse.data && campaignResponse.data.length > 0) {
-              proposal.campaign = campaignResponse.data[0];
-            }
-          } catch (error) {
-            console.error('Failed to fetch campaign:', error);
-          }
-        }
-
-        proposalData.value = proposal;
-
-        // 3. 계약 정보가 있다면 조회
-        if (proposal.contractId) {
-          try {
-            const contractResponse = await axios.get(`/v1/api/influencer/contracts/${proposal.contractId}`);
-            if (contractResponse.data && contractResponse.data.length > 0) {
-              proposalData.value.contract = contractResponse.data[0];
-            }
-          } catch (error) {
-            console.error('Failed to fetch contract:', error);
-          }
-        }
-
-      } catch (error) {
-        console.error('Failed to fetch proposal:', error);
-        proposalData.value = null;
-      } finally {
-        loading.value = false;
+    // detailData 변경 감지하여 제안서 정보 설정
+    watch(() => props.detailData, (newData) => {
+      if (newData && newData.proposal) {
+        proposalData.value = newData.proposal;
       }
-    }
+    }, { immediate: true });
 
     const statusClass = computed(() => {
       if (!proposalData.value?.status) return ''
@@ -187,7 +141,7 @@ export default {
           submitted_at: new Date().toISOString()
         })
         
-        await fetchProposal()
+        proposalData.value.content = editingContent.value
         isEditing.value = false
       } catch (error) {
         console.error('Failed to save proposal:', error)
@@ -201,16 +155,12 @@ export default {
         if (!proposalData.value?.id) return
         
         await axios.delete(`/v1/api/influencer/proposals/${proposalData.value.id}`)
-        proposalData.value = null
+        router.push('/mypage?currentMenu=campaign.proposals')
       } catch (error) {
         console.error('Failed to delete proposal:', error)
         alert('제안서 삭제에 실패했습니다.')
       }
     }
-
-    onMounted(() => {
-      fetchProposal()
-    })
 
     return {
       loading,

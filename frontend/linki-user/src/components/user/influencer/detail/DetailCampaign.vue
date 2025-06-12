@@ -41,63 +41,43 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
+import { ref, watch } from 'vue';
 
 export default {
   name: 'DetailCampaign',
   props: {
-    campaignId: {
-      type: String,
-      required: false
+    detailData: {
+      type: Object,
+      required: true
     }
   },
 
   setup(props) {
-    const route = useRoute();
     const loading = ref(true);
     const campaignDetail = ref(null);
 
-    const fetchCampaignDetail = async () => {
-      try {
-        loading.value = true;
-        const proposalId = route.params.id;
-        if (!proposalId) {
-          throw new Error('제안서 ID가 없습니다.');
+    // detailData 변경 감지하여 캠페인 정보 설정
+    watch(() => props.detailData, (newData) => {
+      loading.value = true;
+      console.log('DetailCampaign received data:', newData);
+      
+      if (newData) {
+        // campaign 직접 접근 또는 campaign 속성 접근 시도
+        const campaignData = newData.campaign || newData;
+        if (campaignData) {
+          console.log('Setting campaign detail:', campaignData);
+          campaignDetail.value = campaignData;
+        } else {
+          console.warn('No campaign data found in:', newData);
+          campaignDetail.value = null;
         }
-
-        // 1. proposal_id로 제안서 조회
-        const proposalResponse = await axios.get(`/v1/api/influencer/proposals/${proposalId}`);
-        if (!proposalResponse.data || proposalResponse.data.length === 0) {
-          throw new Error('제안서 정보를 찾을 수 없습니다.');
-        }
-
-        const proposal = proposalResponse.data[0];
-        
-        // 2. 제안서의 campaign_id로 캠페인 조회
-        const campaignResponse = await axios.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
-        if (campaignResponse.data && campaignResponse.data.length > 0) {
-          campaignDetail.value = campaignResponse.data[0];
-
-          // 3. 계약 정보가 있다면 조회
-          if (proposal.contractId) {
-            const contractResponse = await axios.get(`/v1/api/influencer/contracts/${proposal.contractId}`);
-            if (contractResponse.data) {
-              campaignDetail.value.contract = contractResponse.data;
-            }
-          }
-          return;
-        }
-
-        throw new Error('캠페인 정보를 찾을 수 없습니다.');
-      } catch (error) {
-        console.error('Failed to fetch campaign detail:', error);
+      } else {
+        console.warn('No detail data received');
         campaignDetail.value = null;
-      } finally {
-        loading.value = false;
       }
-    };
+      
+      loading.value = false;
+    }, { immediate: true });
 
     const formatDate = (dateString) => {
       if (!dateString) return '';
@@ -108,10 +88,6 @@ export default {
         day: 'numeric'
       });
     };
-
-    onMounted(() => {
-      fetchCampaignDetail();
-    });
 
     return {
       loading,
