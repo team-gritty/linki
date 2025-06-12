@@ -18,9 +18,9 @@
                 type="button"
               >모집중</button>
               <button
-                :class="['status-btn', item.status === 'DRAFT' ? 'inactive private-active' : '']"
-                @click="openStatusModal(idx, 'DRAFT')"
-                :disabled="item.status === 'DRAFT'"
+                :class="['status-btn', item.status === 'HIDDEN' ? 'inactive private-active' : '']"
+                @click="openStatusModal(idx, 'HIDDEN')"
+                :disabled="item.status === 'HIDDEN'"
                 type="button"
               >비공개</button>
             </div>
@@ -133,9 +133,18 @@
     modalOpen.value = true
   }
   
-  function confirmStatusChange() {
+  async function confirmStatusChange() {
     if (targetIdx.value !== null) {
-      campaigns.value[targetIdx.value].status = nextStatus.value
+      const campaign = campaigns.value[targetIdx.value]
+      try {
+        // API를 통해 상태 업데이트
+        await campaignApi.updateCampaignStatus(campaign.id, { campaignStatus: nextStatus.value })
+        // 로컬 상태 업데이트
+        campaigns.value[targetIdx.value].status = nextStatus.value
+      } catch (error) {
+        console.error('Error updating campaign status:', error)
+        alert('상태 변경에 실패했습니다.')
+      }
     }
     modalOpen.value = false
     targetIdx.value = null

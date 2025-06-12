@@ -128,6 +128,17 @@ const campaignApi = {
       console.error('Error updating campaign:', error)
       throw error
     }
+  },
+
+  // 캠페인 공개/비공개 및 모집상태 변경
+  updateCampaignStatus: async (campaignId, statusData) => {
+    try {
+      const response = await httpClient.patch(`/v1/api/advertiser/campaigns/${campaignId}`, statusData)
+      return response.data
+    } catch (error) {
+      console.error('Error updating campaign status:', error)
+      throw error
+    }
   }
 }
 
