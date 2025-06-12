@@ -79,7 +79,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { reviewApi } from '@/api/advertiser/advertiser-review';
-import axios from 'axios';
+import { contractApi } from '@/api/advertiser/advertiser-contract';
 
 const completedContracts = ref([]);
 const showModal = ref(false);
@@ -94,7 +94,7 @@ const router = useRouter();
 const fetchCompletedContracts = async () => {
   try {
     // 1. 모든 완료된 계약 불러오기
-    const contractsResponse = await axios.get('/v1/api/advertiser/contracts');
+    const contractsResponse = await contractApi.getMyContracts();
     let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
     const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
 
