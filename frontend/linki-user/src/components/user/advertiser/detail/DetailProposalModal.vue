@@ -21,8 +21,8 @@
           <textarea v-model="editContent" rows="6" style="width:100%;margin-bottom:12px;"></textarea>
         </div>
       </div>
-      <!-- 버튼 영역 -->
-      <div class="proposal-detail-btns">
+      <!-- 버튼 영역 - 거절 상태가 아닐 때만 표시 -->
+      <div v-if="proposal.status !== 'REJECTED'" class="proposal-detail-btns">
         <template v-if="!isEditMode">
           <button class="proposal-detail-btn" @click="startEdit">수정</button>
           <button class="proposal-detail-btn accept" @click="handleContract">계약</button>
