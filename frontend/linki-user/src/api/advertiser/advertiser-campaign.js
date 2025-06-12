@@ -120,6 +120,7 @@ const campaignApi = {
 
   // 캠페인 수정
   updateCampaign: async (campaignId, campaignData) => {
+    console.log("PUT 요청 왔습니다---------", campaignId, campaignData)
     try {
       const response = await httpClient.put(`/v1/api/advertiser/campaigns/${campaignId}`, campaignData)
       return response.data
