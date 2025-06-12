@@ -100,7 +100,7 @@ export const chatApi = {
   // 제안서 상세 조회
   getProposal: async (proposalId) => {
     try {
-      const response = await httpClient.get(`/v1/ap/chat-service/proposals/${proposalId}`)
+      const response = await httpClient.get(`/v1/api/chat-service/proposals/${proposalId}`)
       return {
         data: Array.isArray(response.data) ? response.data[0] : response.data
       }
