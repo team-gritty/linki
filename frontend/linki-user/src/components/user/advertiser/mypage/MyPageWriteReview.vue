@@ -150,7 +150,6 @@ const submitReview = async () => {
     alert('리뷰가 저장되었습니다.');
     closeModal();
     await fetchCompletedContracts(); // 리뷰 작성 후 최신화
-    router.push({ path: '/mypage/advertiser/', query: { menu: 'review.given' } });
   } catch (error) {
     if (error.response) {
       console.error('리뷰 저장 실패:', error.response.data, error.response.status);
