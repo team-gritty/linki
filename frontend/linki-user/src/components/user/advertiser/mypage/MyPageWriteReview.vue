@@ -59,12 +59,7 @@
             <label>리뷰 내용</label>
             <textarea v-model="review.comment" placeholder="리뷰 내용을 작성해주세요"></textarea>
           </div>
-          <div class="visibility-toggle">
-            <label>
-              <input type="checkbox" v-model="review.visibility">
-              공개하기
-            </label>
-          </div>
+      
         </div>
         <div class="modal-footer">
           <button @click="closeModal" class="cancel-btn">취소</button>
@@ -79,7 +74,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { reviewApi } from '@/api/advertiser/advertiser-review';
-import axios from 'axios';
+import { contractApi } from '@/api/advertiser/advertiser-contract';
 
 const completedContracts = ref([]);
 const showModal = ref(false);
@@ -94,7 +89,7 @@ const router = useRouter();
 const fetchCompletedContracts = async () => {
   try {
     // 1. 모든 완료된 계약 불러오기
-    const contractsResponse = await axios.get('/v1/api/advertiser/contracts');
+    const contractsResponse = await contractApi.getMyContracts();
     let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
     const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
 
@@ -150,7 +145,6 @@ const submitReview = async () => {
     alert('리뷰가 저장되었습니다.');
     closeModal();
     await fetchCompletedContracts(); // 리뷰 작성 후 최신화
-    router.push({ path: '/mypage/advertiser/', query: { menu: 'review.given' } });
   } catch (error) {
     if (error.response) {
       console.error('리뷰 저장 실패:', error.response.data, error.response.status);
