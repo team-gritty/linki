@@ -1,4 +1,5 @@
 {
+  "/categories": "/categories",
   "/v1/api/home/categories": "/categories",
   "/v1/api/home/campaigns": "/campaigns",
   "/v1/api/home/influencers": "/influencers",
@@ -9,9 +10,13 @@
   "/v1/api/campaigns/:id": "/campaigns?productId=:id",
   "/v1/api/campaigns/product/:id": "/campaigns?productId=:id",
   "/v1/api/campaign-list": "/campaigns",
+  
   "/v1/api/influencer/campaigns/:productId/proposals": "/proposals?campaign_id=:productId",
   "/v1/api/influencer/campaigns/:productId": "/campaigns?productId=:productId",
-  "/v1/api/influencer/campaigns*": "/campaigns$1",
+  "/v1/api/influencer/campaigns\\?_page=:page&_limit=:limit&_sort=:sort&_order=:order": "/campaigns?_page=:page&_limit=:limit&_sort=:sort&_order=:order",
+  "/v1/api/influencer/campaigns\\?_page=:page&_limit=:limit": "/campaigns?_page=:page&_limit=:limit",
+  "/v1/api/influencer/campaigns\\?campaignCategory=:category": "/campaigns?campaignCategory=:category",
+  "/v1/api/influencer/campaigns": "/campaigns",
 
   "/api/proposals": "/proposals",
   "/v1/api/proposals": "/proposals",
@@ -167,5 +172,6 @@
   "/v1/api/influencer/reviews/received": "/advertiser-reviews",
   "/v1/api/influencer/reviews/written": "/influencer-reviews",
   "/v1/api/influencer/proposals/:id": "/proposals?proposal_id=:id",
-  "/v1/api/influencer/proposals/campaign/:campaignId": "/proposals?campaign_id=:campaignId"
+  "/v1/api/influencer/proposals/campaign/:campaignId": "/proposals?campaign_id=:campaignId",
+  "/v1/api/campaigns/categories": "/categories"
 }

@@ -1,15 +1,19 @@
 <template>
   <div class="campaign-list">
-    <div class="category-tabs">
+    <nav class="category-tabs" aria-label="Campaign categories">
       <div 
         v-for="category in categories" 
         :key="category.id"
         :class="['category-tab', { active: selectedCategory === category.id }]"
         @click="selectCategory(category.id)"
+        role="button"
+        :aria-selected="selectedCategory === category.id"
+        :tabindex="0"
+        @keyup.enter="selectCategory(category.id)"
       >
         {{ category.name }}
       </div>
-    </div>
+    </nav>
 
     <!-- 로딩 상태 표시 -->
     <div v-if="loading" class="loading-state">
@@ -102,11 +106,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const error = ref(null)
 const campaigns = ref([])
@@ -114,22 +119,38 @@ const popularCampaigns = ref([])
 const currentPage = ref(1)
 const itemsPerPage = 10
 const totalPages = ref(1)
-const selectedCategory = ref('all')
+const selectedCategory = ref('전체')
 const sortBy = ref('createdAt')
+const categories = ref([
+  { id: '전체', name: '전체' }
+])
 
-const categories = [
-  { id: 'all', name: '전체' },
-  { id: 'BEAUTY', name: '뷰티' },
-  { id: 'SPORTS', name: '스포츠' },
-  { id: 'FOOD', name: '음식' },
-  { id: 'IT', name: '전자기기' },
-  { id: 'TRAVEL', name: '여행' },
-  { id: 'EDUCATION', name: '교육' },
-  { id: 'PETS', name: '동물/펫' },
-  { id: 'FASHION', name: '패션' },
-  { id: 'VLOG/LIFESTYLE', name: 'Vlog/라이프스타일' },
-  { id: 'MUSIC', name: '음악' },
-]
+// 카테고리 데이터 불러오기
+const fetchCategories = async () => {
+  try {
+    const response = await campaignAPI.getCategories()
+    categories.value = [
+      { id: '전체', name: '전체' },
+      ...response.map(category => ({
+        id: category.name,
+        name: category.name
+      }))
+    ]
+  } catch (err) {
+    console.error('카테고리 로딩 실패:', err)
+    error.value = '카테고리 목록을 불러오는데 실패했습니다.'
+  }
+}
+
+// URL 쿼리 파라미터로부터 카테고리 설정
+const initializeFromQuery = () => {
+  const categoryFromQuery = route.query.category
+  if (categoryFromQuery) {
+    selectedCategory.value = categoryFromQuery
+  } else {
+    selectedCategory.value = '전체'
+  }
+}
 
 // 인기 캠페인 불러오기 (최신 3개)
 const fetchPopularCampaigns = async () => {
@@ -146,7 +167,7 @@ const fetchPopularCampaigns = async () => {
 }
 
 // 전체 캠페인 불러오기 (페이지네이션 적용)
-const fetchCampaigns = async () => {
+const fetchCampaigns = async (additionalParams = {}) => {
   try {
     loading.value = true
     error.value = null
@@ -155,19 +176,26 @@ const fetchCampaigns = async () => {
       _page: currentPage.value,
       _limit: itemsPerPage,
       _sort: sortBy.value,
-      _order: 'desc'
+      _order: 'desc',
+      ...additionalParams
     }
 
-    if (selectedCategory.value !== 'all') {
+    if (selectedCategory.value && selectedCategory.value !== '전체') {
       params.campaignCategory = selectedCategory.value
     }
+
+    console.log('Fetching with params:', params) // 디버깅용
 
     const response = await campaignAPI.getCampaigns(params)
     campaigns.value = response.campaigns
     totalPages.value = Math.ceil(response.totalItems / itemsPerPage)
+    
+    console.log('Fetched campaigns:', campaigns.value) // 디버깅용
   } catch (err) {
     console.error('캠페인 목록 로딩 실패:', err)
     error.value = '캠페인 목록을 불러오는데 실패했습니다.'
+    campaigns.value = []
+    totalPages.value = 1
   } finally {
     loading.value = false
   }
@@ -176,7 +204,21 @@ const fetchCampaigns = async () => {
 const selectCategory = (categoryId) => {
   selectedCategory.value = categoryId
   currentPage.value = 1 // 카테고리 변경 시 첫 페이지로
-  fetchCampaigns()
+  
+  // URL 업데이트
+  router.push({
+    query: {
+      ...route.query,
+      category: categoryId === '전체' ? undefined : categoryId
+    }
+  })
+  
+  console.log('Selected category:', categoryId) // 디버깅용
+  
+  // 캠페인 데이터 다시 불러오기
+  fetchCampaigns({
+    campaignCategory: categoryId === '전체' ? undefined : categoryId
+  })
 }
 
 const changePage = (page) => {
@@ -197,7 +239,18 @@ const goToCampaignDetail = (campaignId) => {
   router.push(`/campaign/${campaignId}`)
 }
 
+// URL 쿼리 변경 감지
+watch(
+  () => route.query,
+  () => {
+    initializeFromQuery()
+    fetchCampaigns()
+  }
+)
+
 onMounted(() => {
+  fetchCategories()
+  initializeFromQuery()
   fetchPopularCampaigns()
   fetchCampaigns()
 })
@@ -273,23 +326,51 @@ onMounted(() => {
 
 .category-tabs {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
+  padding: 16px 0;
+  margin: 0 0 32px 0;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.category-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .category-tab {
-  padding: 8px 16px;
+  padding: 8px 20px;
   border-radius: 20px;
-  background-color: #f5f5f5;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.2s ease;
+  background-color: #f8f9fa;
+  color: #6b7280;
+  border: 1px solid transparent;
+}
+
+.category-tab:hover {
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
 .category-tab.active {
   background-color: #7c3aed;
   color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.1);
+}
+
+.category-tab.active:hover {
+  background-color: #6d28d9;
 }
 
 .section-title {
