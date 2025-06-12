@@ -112,7 +112,10 @@ onUnmounted(() => {
         <h3>채팅 목록</h3>
       </div>
       <div class="chat-list">
-        <div v-for="chat in sortedChatList" 
+        <div v-if="sortedChatList.length === 0" class="empty-chat">
+          <p>채팅 목록이 존재하지 않습니다</p>
+        </div>
+        <div v-else v-for="chat in sortedChatList" 
              :key="chat.chatId" 
              class="chat-item" 
              @click="goToChat(chat)">
@@ -267,5 +270,21 @@ onUnmounted(() => {
   background-color: #FFD700;
   padding: 2px 6px;
   border-radius: 8px;
+}
+
+.empty-chat {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #999;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-chat p {
+  margin: 0;
+  line-height: 1.5;
 }
 </style> 
