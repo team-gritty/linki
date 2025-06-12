@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
-import { useChatbotStore } from '@/stores/chatbot'
+
 
 const router = useRouter()
+
 const isMobile = ref(false)
-const chatbotStore = useChatbotStore()
 
 const props = defineProps({
   openSidebar: Boolean,
@@ -26,17 +26,6 @@ const goTochannels = () => {
 const goToCampaigns = () => {
   router.push('/campaigns')
 }
-
-const toggleChatbot = () => {
-  if (!chatbotStore.showChatbot) {
-    chatbotStore.toggleChatbot(true)
-  }
-  
-  if (props.openSidebar) {
-    props.toggleSidebar()
-  }
-}
-
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
 }
@@ -79,7 +68,7 @@ watch(() => props.openSidebar, (newValue) => {
         <li class="menu-item" @click="goToHome">홈</li>
         <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-        <li class="menu-item" @click="toggleChatbot">챗봇</li>
+        <li class="menu-item">고객센터</li>
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -99,7 +88,7 @@ watch(() => props.openSidebar, (newValue) => {
             <router-link to="/channels">인플루언서</router-link>
           </li>
           <li class="menu-item" @click="goToCampaigns">캠페인</li>
-          <li class="menu-item" @click="toggleChatbot">챗봇</li>
+          <li class="menu-item">고객센터</li>
           <li class="menu-item" @click="goToMyPage">마이페이지</li>
         </ul>
       </div>
