@@ -8,7 +8,7 @@
           <div class="summary-sub">{{ campaignInfo.companyName }}</div>
         </div>
       </div>
-      <button class="go-list-btn" @click="goToList">캠페인 목록 <span class="arrow">→</span></button>
+      <button class="go-list-btn" @click="goToList">캠페인 목록</button>
     </div>
     <div class="campaign-tabs">
       <div class="tab" 
