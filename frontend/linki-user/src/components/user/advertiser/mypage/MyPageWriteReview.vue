@@ -59,12 +59,7 @@
             <label>리뷰 내용</label>
             <textarea v-model="review.comment" placeholder="리뷰 내용을 작성해주세요"></textarea>
           </div>
-          <div class="visibility-toggle">
-            <label>
-              <input type="checkbox" v-model="review.visibility">
-              공개하기
-            </label>
-          </div>
+      
         </div>
         <div class="modal-footer">
           <button @click="closeModal" class="cancel-btn">취소</button>
