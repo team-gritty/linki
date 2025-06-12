@@ -65,8 +65,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
-import axios from 'axios'
-
+import channelApi from '@/api/advertiser/advertiser-channel'
 import { getReviewStats } from './useReviewStats.js'
 
 const router = useRouter()
@@ -131,10 +130,8 @@ function onCategoryChange(categories) {
 // 카테고리 필터링 채널 데이터 불러오기
 async function fetchChannelsByCategories(categories) {
   try {
-    const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&')
-    const response = await axios.get(`/v1/api/channels?${params}`)
-    listData.value = response.data
-    await fetchAllReviewStats(response.data)
+    listData.value = await channelApi.getChannelsByCategories(categories)
+    await fetchAllReviewStats(listData.value)
   } catch (err) {
     error.value = err.message
   }
@@ -143,9 +140,8 @@ async function fetchChannelsByCategories(categories) {
 // 전체 채널 데이터 추출
 async function fetchChannels() {
   try {
-    const response = await axios.get('/v1/api/channels')
-    listData.value = response.data
-    await fetchAllReviewStats(response.data)
+    listData.value = await channelApi.getAllChannels()
+    await fetchAllReviewStats(listData.value)
   } catch (err) {
     error.value = err.message
   }
