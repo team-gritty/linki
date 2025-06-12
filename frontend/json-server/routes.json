@@ -56,7 +56,17 @@
   "/v1/api/influencer/contracts/:contractId/settlements": "/contract-settlements?contractId=:contractId",
   "/v1/api/influencer/settlements": "/settlements",
 
+  "광고주 - 채널 관련 시작": "광고주의 채널 관련 라우트",
   "/v1/api/channels/:id/reviews": "/channels/:id/reviews",
+
+  "/v1/api/channels": "/channels",
+  "/v1/api/channels/search": "/channels",
+  "/v1/api/channels/search/:type": "/channels",
+  "/v1/api/channels/:id": "/channels/:id",
+  "/v1/api/channels/:id/subscribers": "/subscribers?channelId=:id",
+  "/v1/api/channels/:id/subscriber-history": "/subscriber-history?channelId=:id",
+  "/v1/api/channels/:id/subscriber-history/chart": "/subscriber-history?channelId=:id",
+  "광고주 - 채널 관련 끝": "광고주의 채널 관련 라우트 끝",
 
   "/v1/api/mypage/campaign-list": "/campaign-list",
   "/v1/api/mypage/campaign-detail/:id": "/campaign-detail/:id",
@@ -91,13 +101,6 @@
   "/v1/admin/api/campaigns": "/campaign",
   "/v1/admin/api/campaigns/search": "/campaign",
   "/v1/admin/api/campaigns/search/:type": "/campaign",
-  "/v1/api/channels": "/channels",
-  "/v1/api/channels/search": "/channels",
-  "/v1/api/channels/search/:type": "/channels",
-  "/v1/api/channels/:id": "/channels/:id",
-  "/v1/api/channels/:id/subscribers": "/subscribers?channelId=:id",
-  "/v1/api/channels/:id/subscriber-history": "/subscriber-history?channelId=:id",
-  "/v1/api/channels/:id/subscriber-history/chart": "/subscriber-history?channelId=:id",
   "/v1/admin/api/settlements": "/settlements",
   "/v1/admin/api/settlements/:id": "/settlements/:id",
   "/v1/admin/api/settlements/search": "/settlements",
@@ -171,5 +174,8 @@
   "/v1/api/influencer/reviews/written": "/influencer-reviews",
   "/v1/api/influencer/proposals/:id": "/proposals?proposal_id=:id",
   "/v1/api/influencer/proposals/campaign/:campaignId": "/proposals?campaign_id=:campaignId",
-  "/v1/api/campaigns/categories": "/categories"
+  "/v1/api/campaigns/categories": "/categories",
+
+  "광고주 - 채널 관련": "광고주의 채널 관련 라우트",
+  "/v1/api/advertiser/channels/:id/subscriber-history": "/subscriber-history?channelId=:id"
 }

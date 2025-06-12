@@ -66,7 +66,7 @@ import { useRouter, useRoute } from 'vue-router'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
 import channelApi from '@/api/advertiser/advertiser-channel'
-import { getReviewStats } from './useReviewStats.js'
+import { reviewApi } from '@/api/advertiser/advertiser-review'
 
 const router = useRouter()
 const route = useRoute()
@@ -104,7 +104,7 @@ async function fetchAllReviewStats(channels) {
   const statsArr = await Promise.all(
     channels.map(async c => ({
       id: c.id,
-      ...(await getReviewStats(c.id))
+      ...(await reviewApi.getReviewStats(c.id))
     }))
   )
   const map = {}

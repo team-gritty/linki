@@ -10,7 +10,7 @@
   <script setup>
   import { computed, onMounted, ref } from 'vue'
   import VueApexCharts from 'vue3-apexcharts'
-  import httpClient from '@/utils/httpRequest'
+  import channelApi from '@/api/advertiser/advertiser-channel'
   
   // props : 부모 컴포넌트로부터 데이터를 전달받기 위한 뷰 기능.
   // defineProps는 Vue 3의 Composition API에서 props를 정의하는 함수
@@ -29,15 +29,15 @@
   onMounted(async () => {
     try {
       console.log('Fetching subscriber history for channelId:', props.channelId)
-      const response = await httpClient.get('/subscriber-history')
-      console.log('Response data:', response.data)
+      const data = await channelApi.getSubscriberHistory(props.channelId)
+      console.log('Response data:', data)
       
-      if (Array.isArray(response.data)) {
-        history.value = response.data
+      if (Array.isArray(data)) {
+        history.value = data
           .filter(item => String(item.channelId) === String(props.channelId))
           .sort((a, b) => new Date(a.collectedAt) - new Date(b.collectedAt))
       } else {
-        console.error('Expected array but got:', typeof response.data)
+        console.error('Expected array but got:', typeof data)
         history.value = []
       }
       
