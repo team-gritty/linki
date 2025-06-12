@@ -44,7 +44,7 @@
 
   "광고주 - 계약서 관련 (campaignId로 필터링 지원)": "광고주의 계약서 관련 라우트",
   "/v1/api/advertiser/contracts": "/contracts",
-  "/v1/api/advertiser/contracts/:id": "/contracts/:id",
+  "/v1/api/advertiser/contracts/:contractId": "/contracts/:contractId",
   "/v1/api/advertiser/contracts/:id/document": "/contracts/:id/document",
 
   "/contracts": "/contracts",
@@ -165,7 +165,7 @@
   "/v1/api/advertiser/contracts/:id/sign": "/contracts/:id/sign",
   "광고주": " 광고주가 제안서(:proposalId)를 바탕으로 새로운 계약서를 생성할 때 호출되는 API",
   "/v1/api/advertiser/contracts/:proposalId": "/contracts",
-  "/v1/api/influencer/campaigns/:campaignId": "/campaigns/:campaignId",
+  "/v1/api/influencer/campaigns/:campaignId": "/campaigns?campaignId=:campaignId",
   "/api/influencer/advertiser-reviews": "/advertiser-reviews",
   "/v1/api/influencer/reviews/received": "/advertiser-reviews",
   "/v1/api/influencer/reviews/written": "/influencer-reviews",
