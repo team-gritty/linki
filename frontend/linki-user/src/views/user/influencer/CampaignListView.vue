@@ -102,11 +102,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false)
 const error = ref(null)
 const campaigns = ref([])
@@ -130,6 +131,18 @@ const categories = [
   { id: 'VLOG/LIFESTYLE', name: 'Vlog/라이프스타일' },
   { id: 'MUSIC', name: '음악' },
 ]
+
+// URL 쿼리 파라미터로부터 카테고리 설정
+const initializeFromQuery = () => {
+  const categoryFromQuery = route.query.category
+  if (categoryFromQuery) {
+    // 카테고리 이름으로 ID 찾기
+    const category = categories.find(c => c.name === categoryFromQuery)
+    if (category) {
+      selectedCategory.value = category.id
+    }
+  }
+}
 
 // 인기 캠페인 불러오기 (최신 3개)
 const fetchPopularCampaigns = async () => {
@@ -176,6 +189,14 @@ const fetchCampaigns = async () => {
 const selectCategory = (categoryId) => {
   selectedCategory.value = categoryId
   currentPage.value = 1 // 카테고리 변경 시 첫 페이지로
+  // URL 업데이트
+  const category = categories.find(c => c.id === categoryId)
+  router.push({
+    query: {
+      ...route.query,
+      category: categoryId === 'all' ? undefined : category.name
+    }
+  })
   fetchCampaigns()
 }
 
@@ -197,7 +218,17 @@ const goToCampaignDetail = (campaignId) => {
   router.push(`/campaign/${campaignId}`)
 }
 
+// URL 쿼리 변경 감지
+watch(
+  () => route.query,
+  () => {
+    initializeFromQuery()
+    fetchCampaigns()
+  }
+)
+
 onMounted(() => {
+  initializeFromQuery()
   fetchPopularCampaigns()
   fetchCampaigns()
 })
