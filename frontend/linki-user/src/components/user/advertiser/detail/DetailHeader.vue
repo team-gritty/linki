@@ -69,8 +69,10 @@ const updateTab = (tab) => {
   emit('update:currentTab', tab)
 }
 
+// 캠페인 목록으로 되돌아가기 
+// 라우터를 그냥 뒤로 이동시키기 
 const goToList = () => {
-  router.push('/mypage/advertiser/campaign-list')
+  router.back()
 }
 
 onMounted(() => {
