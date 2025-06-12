@@ -71,7 +71,7 @@ const updateTab = (tab) => {
 
 // 캠페인 목록으로 되돌아가기 
 const goToList = () => {
-  router.push('/mypage/advertiser/campaign-list')
+  router.push('/mypage/advertiser/campaigns')
 }
 
 onMounted(() => {
