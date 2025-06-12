@@ -6,13 +6,10 @@
         <span v-if="!isOpen">💬</span>
         <span v-else>&times;</span>
       </button>
-      <button class="close-button" @click="closeChatbot" title="챗봇 끄기">
-        <span>&times;</span>
-      </button>
     </div>
 
     <!-- 챗봇 메인 창 -->
-    <div class="chat-window" v-show="isOpen">
+    <div class="chat-window" v-show="isOpen" @click.stop>
       <!-- 챗봇 헤더 -->
       <div class="chat-header">
         <div class="chat-title">
@@ -63,6 +60,8 @@
       </div>
     </div>
   </div>
+  <!-- 챗봇이 열려있을 때만 표시되는 오버레이 -->
+  <div v-if="isOpen" class="chatbot-overlay" @click="toggleChat"></div>
 </template>
 
 <script>
@@ -215,29 +214,6 @@ export default {
   background-size: 35px;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.close-button {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s ease;
-}
-
-.close-button:hover {
-  background-color: #ff2222;
 }
 
 .chat-toggle span {
@@ -414,5 +390,15 @@ export default {
 
 .chat-input button:not(:disabled):hover {
   background: #6618c4;
+}
+
+.chatbot-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 999;
 }
 </style> 
