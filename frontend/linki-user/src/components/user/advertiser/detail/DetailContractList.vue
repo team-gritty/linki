@@ -33,7 +33,7 @@
         </div>
       </template>
       <template v-else>
-        <DetailContract :contract="selectedContract" @back="selectedContract = null" />
+        <DetailContract :contract="selectedContract" @back="goBackToList" />
       </template>
     </main>
   </div>
@@ -41,7 +41,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
+import { useRoute, useRouter } from 'vue-router'
 import DetailContract from './DetailContract.vue'
 
 const props = defineProps({
@@ -51,13 +52,15 @@ const props = defineProps({
   }
 })
 
+const route = useRoute()
+const router = useRouter()
 const contracts = ref([])
 const hovered = ref(null)
 const selectedContract = ref(null)
 
 const fetchContracts = async () => {
   try {
-    const response = await axios.get('/v1/api/advertiser/contracts')
+    const response = await contractApi.getMyContracts()
     let contractList = Array.isArray(response.data) ? response.data : []
     contracts.value = contractList
       .filter(contract => contract.campaignId === props.campaignId)
@@ -70,6 +73,15 @@ const fetchContracts = async () => {
         contractAmount: contract.contractAmount,
         ...contract
       }))
+    
+    // URL에서 contractId 파라미터가 있으면 해당 계약서를 선택
+    const contractId = route.query.contractId
+    if (contractId) {
+      const contract = contracts.value.find(c => c.contractId === contractId)
+      if (contract) {
+        selectedContract.value = contract
+      }
+    }
   } catch (error) {
     contracts.value = []
   }
@@ -77,6 +89,26 @@ const fetchContracts = async () => {
 
 function selectContract(contract) {
   selectedContract.value = contract
+  // URL 업데이트 (히스토리에 추가하지 않고)
+  router.replace({
+    path: route.path,
+    query: { 
+      ...route.query,
+      contractId: contract.contractId
+    }
+  })
+}
+
+function goBackToList() {
+  selectedContract.value = null
+  // URL에서 contractId 제거
+  router.replace({
+    path: route.path,
+    query: { 
+      ...route.query,
+      contractId: undefined
+    }
+  })
 }
 
 function formatDate(dateString) {

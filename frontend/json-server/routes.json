@@ -10,7 +10,7 @@
   "/v1/api/campaigns/:id": "/campaigns?productId=:id",
   "/v1/api/campaigns/product/:id": "/campaigns?productId=:id",
   "/v1/api/campaign-list": "/campaigns",
-  
+
   "/v1/api/influencer/campaigns/:productId/proposals": "/proposals?campaign_id=:productId",
   "/v1/api/influencer/campaigns/:productId": "/campaigns?productId=:productId",
   "/v1/api/influencer/campaigns\\?_page=:page&_limit=:limit&_sort=:sort&_order=:order": "/campaigns?_page=:page&_limit=:limit&_sort=:sort&_order=:order",
@@ -43,7 +43,7 @@
 
   "광고주 - 계약서 관련 (campaignId로 필터링 지원)": "광고주의 계약서 관련 라우트",
   "/v1/api/advertiser/contracts": "/contracts",
-  "/v1/api/advertiser/contracts/:id": "/contracts/:id",
+  "/v1/api/advertiser/contracts/:contractId": "/contracts/:contractId",
   "/v1/api/advertiser/contracts/:id/document": "/contracts/:id/document",
 
   "/contracts": "/contracts",
@@ -55,7 +55,17 @@
   "/v1/api/influencer/contracts/:contractId/settlements": "/contract-settlements?contractId=:contractId",
   "/v1/api/influencer/settlements": "/settlements",
 
+  "광고주 - 채널 관련 시작": "광고주의 채널 관련 라우트",
   "/v1/api/channels/:id/reviews": "/channels/:id/reviews",
+
+  "/v1/api/channels": "/channels",
+  "/v1/api/channels/search": "/channels",
+  "/v1/api/channels/search/:type": "/channels",
+  "/v1/api/channels/:id": "/channels/:id",
+  "/v1/api/channels/:id/subscribers": "/subscribers?channelId=:id",
+  "/v1/api/channels/:id/subscriber-history": "/subscriber-history?channelId=:id",
+  "/v1/api/channels/:id/subscriber-history/chart": "/subscriber-history?channelId=:id",
+  "광고주 - 채널 관련 끝": "광고주의 채널 관련 라우트 끝",
 
   "/v1/api/mypage/campaign-list": "/campaign-list",
   "/v1/api/mypage/campaign-detail/:id": "/campaign-detail/:id",
@@ -99,13 +109,6 @@
   "/v1/admin/api/campaigns": "/campaign",
   "/v1/admin/api/campaigns/search": "/campaign",
   "/v1/admin/api/campaigns/search/:type": "/campaign",
-  "/v1/api/channels": "/channels",
-  "/v1/api/channels/search": "/channels",
-  "/v1/api/channels/search/:type": "/channels",
-  "/v1/api/channels/:id": "/channels/:id",
-  "/v1/api/channels/:id/subscribers": "/subscribers?channelId=:id",
-  "/v1/api/channels/:id/subscriber-history": "/subscriber-history?channelId=:id",
-  "/v1/api/channels/:id/subscriber-history/chart": "/subscriber-history?channelId=:id",
   "/v1/admin/api/settlements": "/settlements",
   "/v1/admin/api/settlements/:id": "/settlements/:id",
   "/v1/admin/api/settlements/search": "/settlements",
@@ -159,12 +162,11 @@
   "/v1/admin/api/adminSignUp/search/:type": "/adminSignUp",
 
   "광고주 - 캠페인 관련": "광고주의 캠페인 관련 라우트",
-  "/v1/api/mypage/advertiser/campaigns": "/advertiser-campaigns",
-  "/v1/api/advertiser/campaigns": "/advertiser-campaigns",
-  "/v1/api/advertiser/campaigns/:id": "/advertiser-campaigns?campaignId=:id",
-  "/v1/api/advertiser/campaigns?campaignId=:campaignId": "/advertiser-campaigns?campaignId=:campaignId",
-  "/v1/api/advertiser/mypage/campaign-list": "/advertiser-campaigns",
+  "/v1/api/mypage/advertiser/campaigns": "/campaigns",
+  "/v1/api/advertiser/campaigns": "/campaigns",
+  "/v1/api/advertiser/campaigns/:campaignId": "/campaigns?campaignId=:campaignId",
   "/v1/api/advertiser/proposals": "/proposals",
+  "캠페인에 관련된 제안서만 조회": "캠페인에 관련된 제안서만 조회",
   "/v1/api/advertiser/proposals?campaignId=:campaignId": "/proposals?campaign_id=:campaignId",
 
   "광고주 제안서 관련": "광고주의 제안서 관련 라우트",
@@ -174,11 +176,14 @@
   "/v1/api/advertiser/contracts/:id/sign": "/contracts/:id/sign",
   "광고주": " 광고주가 제안서(:proposalId)를 바탕으로 새로운 계약서를 생성할 때 호출되는 API",
   "/v1/api/advertiser/contracts/:proposalId": "/contracts",
-  "/v1/api/influencer/campaigns/:campaignId": "/campaigns/:campaignId",
+  "/v1/api/influencer/campaigns/:campaignId": "/campaigns?campaignId=:campaignId",
   "/api/influencer/advertiser-reviews": "/advertiser-reviews",
   "/v1/api/influencer/reviews/received": "/advertiser-reviews",
   "/v1/api/influencer/reviews/written": "/influencer-reviews",
   "/v1/api/influencer/proposals/:id": "/proposals?proposal_id=:id",
   "/v1/api/influencer/proposals/campaign/:campaignId": "/proposals?campaign_id=:campaignId",
-  "/v1/api/campaigns/categories": "/categories"
+  "/v1/api/campaigns/categories": "/categories",
+
+  "광고주 - 채널 관련": "광고주의 채널 관련 라우트",
+  "/v1/api/advertiser/channels/:id/subscriber-history": "/subscriber-history?channelId=:id"
 }

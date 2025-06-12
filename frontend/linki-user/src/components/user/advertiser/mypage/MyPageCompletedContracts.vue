@@ -34,11 +34,13 @@
   
   <script setup>
   import { ref, onMounted, defineEmits } from 'vue';
-  import { contractApi } from '@/api/advertiser/advertiser-contract';
+  import { contractApi, CONTRACT_STATUS } from '@/api/advertiser/advertiser-contract';
+  import { useRouter } from 'vue-router';
   
   const contracts = ref([]);
   const hovered = ref(null);
   const emit = defineEmits(['show-detail']);
+  const router = useRouter();
   
   const fetchContracts = async () => {
     try {
@@ -61,7 +63,13 @@
   };
   
   function viewContractDetail(contract) {
-    emit('show-detail', contract);
+    router.push({
+      path: `/mypage/campaign-detail/${contract.campaignId}`,
+      query: { 
+        tab: 'contract.list',
+        contractId: contract.contractId
+      }
+    });
   }
   
   function formatDate(dateString) {
@@ -73,22 +81,23 @@
     return new Intl.NumberFormat('ko-KR').format(amount);
   }
   
-  function getStatusClass(status) {
-    return {
-      'status-pending': status === 'PENDING',
-      'status-active': status === 'ACTIVE',
-      'status-completed': status === 'COMPLETED'
-    };
-  }
-  
   function getStatusText(status) {
     const statusMap = {
-      'PENDING': '진행중',
-      'PENDING_SIGN': '서명 대기중',
-      'ACTIVE': '활성',
-      'COMPLETED': '완료'
+      [CONTRACT_STATUS.PENDING]: '진행중',
+      [CONTRACT_STATUS.PENDING_SIGN]: '서명 대기중',
+      [CONTRACT_STATUS.ACTIVE]: '활성',
+      [CONTRACT_STATUS.COMPLETED]: '완료'
     };
     return statusMap[status] || status;
+  }
+  
+  function getStatusClass(status) {
+    return {
+      'status-pending': status === CONTRACT_STATUS.PENDING,
+      'status-pending-sign': status === CONTRACT_STATUS.PENDING_SIGN,
+      'status-active': status === CONTRACT_STATUS.ACTIVE,
+      'status-completed': status === CONTRACT_STATUS.COMPLETED
+    };
   }
   
   onMounted(() => {

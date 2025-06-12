@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import DetailHeader from '@/components/user/advertiser/detail/DetailHeader.vue'
 import DetailCampaign from '@/components/user/advertiser/detail/DetailCampaign.vue'
@@ -44,6 +44,21 @@ import DetailChat from '@/components/user/advertiser/detail/DetailChat.vue'
 const route = useRoute()
 const campaignId = computed(() => route.params.id)
 const currentTab = ref('campaign.info')
+
+// URL 쿼리 파라미터에서 탭 정보 초기화
+onMounted(() => {
+  const tabFromQuery = route.query.tab
+  if (tabFromQuery) {
+    currentTab.value = tabFromQuery
+  }
+})
+
+// route.query 변경 감지
+watch(() => route.query.tab, (newTab) => {
+  if (newTab) {
+    currentTab.value = newTab
+  }
+})
 </script>
 
 <style>

@@ -1,6 +1,6 @@
 import httpClient from '@/utils/httpRequest'
 
-export const campaignApi = {
+const campaignApi = {
   // 캠페인 목록 조회
   getCampaigns: async (params = {}) => {
     try {
@@ -30,9 +30,7 @@ export const campaignApi = {
   getCampaignDetail: async (campaignId) => {
     try {
       const response = await httpClient.get(`/v1/api/advertiser/campaigns/${campaignId}`)
-      const campaigns = response.data;
-      // 단일 캠페인 반환
-      return Array.isArray(campaigns) ? campaigns[0] : campaigns;
+      return Array.isArray(response.data) ? response.data[0] : response.data
     } catch (error) {
       console.error('Error fetching campaign detail:', error)
       throw error
@@ -42,7 +40,7 @@ export const campaignApi = {
   // 광고주 리뷰 조회
   getAdvertiserReviews: async (advertiserId) => {
     try {
-      const response = await httpClient.get(`v1/api/advertiser/reviews/received`, {
+      const response = await httpClient.get(`/v1/api/advertiser/reviews/received`, {
         params: {
           advertiser_id: String(advertiserId)
         }
@@ -57,7 +55,7 @@ export const campaignApi = {
   // 마이페이지 - 캠페인 목록 조회
   getMyCampaigns: async (params = {}) => {
     try {
-      const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns', {
+      const response = await httpClient.get('/v1/api/advertiser/campaigns', {
         params: {
           _page: params._page || 1,
           _limit: params._limit || 10,
@@ -82,24 +80,26 @@ export const campaignApi = {
   getMyCampaignDetail: async (campaignId) => {
     try {
       console.log('API: Fetching campaign detail for ID:', campaignId)
-      // campaign-list에서 데이터 가져오기
-      const response = await httpClient.get(`v1/api/advertiser/campaigns?campaignId=${campaignId}`)
+      
+      // 쿼리 파라미터 방식으로 호출하면 배열이 반환됨
+      const response = await httpClient.get(`/v1/api/advertiser/campaigns/${campaignId}`)
       console.log('API: Raw response:', response)
       
       if (!response.data || response.data.length === 0) {
         throw new Error('Campaign not found')
       }
 
-      // 응답 데이터 변환
+      // 쿼리 파라미터 방식이므로 배열의 첫 번째 요소를 사용
       const campaign = response.data[0]
+      
       return {
-        productImg: campaign.campaign_img,
-        productName: campaign.campaign_name,
-        companyName: campaign.campaign_brand,
-        productDesc: campaign.campaign_desc,
-        productDeadline: campaign.campaign_deadline,
-        productCondition: campaign.campaign_condition,
-        productCategory: campaign.campaign_category
+        campaignImg: campaign.campaignImg,
+        campaignName: campaign.campaignName,
+        companyName: campaign.companyName,
+        campaignDesc: campaign.campaignDesc,
+        campaignDeadline: campaign.campaignDeadline,
+        campaignCondition: campaign.campaignCondition,
+        campaignCategory: campaign.campaignCategory
       }
     } catch (error) {
       console.error('Error fetching my campaign detail:', error)
@@ -110,11 +110,25 @@ export const campaignApi = {
   // 마이페이지 - 캠페인 등록
   registerCampaign: async (campaignData) => {
     try {
-      const response = await httpClient.post('/v1/api/advertiser/mypage/campaigns', campaignData)
+      const response = await httpClient.post('/v1/api/advertiser/campaigns', campaignData)
       return response.data
     } catch (error) {
       console.error('Error registering campaign:', error)
       throw error
     }
+  },
+
+  // 캠페인 수정
+  updateCampaign: async (campaignId, campaignData) => {
+    console.log("PUT 요청 왔습니다---------", campaignId, campaignData)
+    try {
+      const response = await httpClient.put(`/v1/api/advertiser/campaigns/${campaignId}`, campaignData)
+      return response.data
+    } catch (error) {
+      console.error('Error updating campaign:', error)
+      throw error
+    }
   }
 }
+
+export default campaignApi

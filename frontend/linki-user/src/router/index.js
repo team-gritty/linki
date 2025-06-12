@@ -106,7 +106,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/mypage/advertiser/campaign-list',
+      path: '/mypage/advertiser/campaigns',
       name: 'advertiser-campaign-list',
       component: advertiserMypage
     },
@@ -122,7 +122,7 @@ const router = createRouter({
       component: advertiserMypage
     },
     {
-      path: '/mypage/advertiser/contract-list',
+      path: '/mypage/advertiser/contracts',
       name: 'ContractList',
       component: advertiserMypage
     },
