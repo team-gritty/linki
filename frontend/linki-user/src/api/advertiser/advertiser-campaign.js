@@ -42,7 +42,7 @@ export const campaignApi = {
   // 광고주 리뷰 조회
   getAdvertiserReviews: async (advertiserId) => {
     try {
-      const response = await httpClient.get(`v1/api/advertiser/reviews/received`, {
+      const response = await httpClient.get(`/v1/api/advertiser/reviews/received`, {
         params: {
           advertiser_id: String(advertiserId)
         }
@@ -57,7 +57,7 @@ export const campaignApi = {
   // 마이페이지 - 캠페인 목록 조회
   getMyCampaigns: async (params = {}) => {
     try {
-      const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns', {
+      const response = await httpClient.get('/v1/api/advertiser/campaigns', {
         params: {
           _page: params._page || 1,
           _limit: params._limit || 10,
@@ -82,8 +82,7 @@ export const campaignApi = {
   getMyCampaignDetail: async (campaignId) => {
     try {
       console.log('API: Fetching campaign detail for ID:', campaignId)
-      // campaign-list에서 데이터 가져오기
-      const response = await httpClient.get(`v1/api/advertiser/campaigns?campaignId=${campaignId}`)
+      const response = await httpClient.get(`/v1/api/advertiser/campaigns/${campaignId}`)
       console.log('API: Raw response:', response)
       
       if (!response.data || response.data.length === 0) {
@@ -110,7 +109,7 @@ export const campaignApi = {
   // 마이페이지 - 캠페인 등록
   registerCampaign: async (campaignData) => {
     try {
-      const response = await httpClient.post('/v1/api/advertiser/mypage/campaigns', campaignData)
+      const response = await httpClient.post('/v1/api/advertiser/campaigns', campaignData)
       return response.data
     } catch (error) {
       console.error('Error registering campaign:', error)
