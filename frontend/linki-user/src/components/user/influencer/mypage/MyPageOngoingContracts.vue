@@ -50,14 +50,15 @@ export default {
 
     const fetchContracts = async () => {
       try {
-        const response = await contractApi.getMyContracts();
+        const data = await contractApi.getMyContracts();
         // PENDING 또는 PENDING_SIGN 상태인 계약만 필터링
-        contracts.value = response.data.filter(contract => 
+        contracts.value = data.filter(contract => 
           contract.contractStatus === 'PENDING' || 
           contract.contractStatus === 'PENDING_SIGN'
         );
       } catch (error) {
         console.error('계약 목록 조회 실패:', error);
+        contracts.value = [];
       }
     };
 
@@ -107,7 +108,6 @@ export default {
       const statusMap = {
         'PENDING': '진행중',
         'PENDING_SIGN': '서명 대기중',
-        'ACTIVE': '활성',
         'COMPLETED': '완료'
       };
       return statusMap[status] || status;

@@ -68,7 +68,6 @@ watch(() => props.openSidebar, (newValue) => {
         <li class="menu-item" @click="goToHome"><span>홈</span></li>
         <li class="menu-item" @click="goTochannels"><span>인플루언서</span></li>
         <li class="menu-item" @click="goToCampaigns"><span>캠페인</span></li>
-        
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -89,7 +88,6 @@ watch(() => props.openSidebar, (newValue) => {
             <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
           <li class="menu-item" @click="goToCampaigns"><span>캠페인</span></li>
-          
           <li class="menu-item" @click="goToMyPage"><span>마이페이지</span></li>
         </ul>
       </div>
@@ -102,7 +100,7 @@ watch(() => props.openSidebar, (newValue) => {
   position: fixed;
   top: 48px;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 73px;
   background: #fff;
   display: flex;
@@ -127,7 +125,7 @@ body, html {
   display: flex;
   align-items: center;
   position: relative;
-  width: auto;
+  width: 100%;
   justify-content: center;
 }
 
@@ -140,7 +138,7 @@ body, html {
 
 .logo {
   position: absolute;
-  left: 0;
+  left: 60px;
   color: #7B21E8;
   font-size: 24px;
   font-weight: bold;
@@ -162,9 +160,11 @@ body, html {
 .menu-list.desktop-menu {
   display: flex;
   align-items: center;
-  margin: 0 auto;
+  justify-content: center;
   list-style: none;
   padding: 0;
+  margin: 0 auto;
+  gap: 48px;
 }
 
 .menu-item { 
@@ -173,7 +173,6 @@ body, html {
   cursor: pointer;
   transition: color 0.2s;
   padding: 8px 16px;
-  margin: 0 2em;
   text-align: center;
 }
 
@@ -282,86 +281,149 @@ body, html {
   margin-top: 40px;
 }
 
-@media (max-width: 600px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 13px; 
-    padding: 0 2px;
-    margin: 0 0.5em;
-    min-width: 60px;
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 0 30px;
   }
-  .mypage-button {
-    min-width: unset;
+
+  .logo {
+    left: 30px;
+    font-size: 22px;
+  }
+
+  .menu-list.desktop-menu {
+    gap: 32px;
+  }
+
+  .menu-item {
     padding: 8px;
-  }
-  .mypage-button span { display: none; }
-}
-
-@media (min-width: 601px) and (max-width: 900px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 14px; 
-    padding: 0 4px;
-    margin: 0 1em;
-    min-width: 70px;
-  }
-}
-
-@media (min-width: 901px) and (max-width: 1100px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 14px; 
-    padding: 0 6px;
-    margin: 0 1.5em;
-    min-width: 75px;
-  }
-}
-
-@media (min-width: 1101px) and (max-width: 1399px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 15px; 
-    padding: 0 8px;
-    margin: 0 2em;
-    min-width: 80px;
-  }
-}
-
-@media (min-width: 1400px) and (max-width: 1699px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 15px; 
-    padding: 0 10px;
-    margin: 0 2.5em;
-    min-width: 80px;
-  }
-}
-
-@media (min-width: 1700px) {
-  .menu-list { gap: 0; }
-  .menu-item { 
-    font-size: 16px; 
-    padding: 0 16px;
-    margin: 0 3em;
-    min-width: 90px;
+    font-size: 14px;
   }
 }
 
 @media (max-width: 768px) {
   .navbar {
     padding: 0 16px;
+    height: 60px;
+  }
+  
+  .navbar-left {
+    width: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
   }
   
   .hamburger {
     display: block;
+    background: none;
+    border: none;
+    padding: 8px;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 16px;
+  }
+  
+  .logo {
+    position: static;
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
   }
   
   .desktop-menu {
     display: none;
   }
-  
+
+  .navbar-right {
+    display: flex;
+    gap: 8px;
+  }
+
+  .mypage-button {
+    min-width: unset;
+    padding: 8px;
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mypage-button span {
+    display: none;
+  }
+
+  .mypage-button i {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 12px;
+  }
+
+  .hamburger {
+    margin-right: 12px;
+    padding: 6px;
+    font-size: 20px;
+  }
+
   .logo {
-    margin-right: 0;
+    font-size: 18px;
+  }
+
+  .navbar-right {
+    gap: 6px;
+  }
+
+  .mypage-button {
+    padding: 6px;
+    height: 32px;
+    width: 32px;
+  }
+
+  .mypage-button i {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 8px;
+  }
+
+  .hamburger {
+    margin-right: 8px;
+    padding: 4px;
+    font-size: 18px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .navbar-right {
+    gap: 4px;
+  }
+
+  .mypage-button {
+    padding: 4px;
+    height: 28px;
+    width: 28px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-sidebar-overlay {
+    display: none !important;
+  }
+  
+  .hamburger {
+    display: none;
   }
 }
 </style>
