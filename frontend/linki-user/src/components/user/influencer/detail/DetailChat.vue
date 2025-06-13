@@ -6,8 +6,8 @@
       <div class="chat-header">
         <div class="chat-header-info">
           <span class="header-date">{{ new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
-          <span :class="['nego-status-badge', `nego-status-${chatDetails?.negoStatus?.replace(/ /g, '-')}`]">
-            {{ chatDetails?.negoStatus }}
+          <span :class="['nego-status-badge', `nego-status-${chatRoom?.negoStatus?.replace(/ /g, '-')}`]">
+            {{ chatRoom?.negoStatus }}
           </span>
         </div>
         <div class="chat-header-actions">
@@ -41,19 +41,19 @@
       </div>
 
       <!-- 메시지 입력 -->
-      <div class="message-input-container" :class="{ 'disabled': chatDetails?.chatStatus === 'PENDING' }">
+      <div class="message-input-container" :class="{ 'disabled': chatRoom?.chatStatus === 'PENDING' }">
         <input 
           type="text" 
           v-model="newMessage"
           @keyup.enter="sendMessage"
-          :placeholder="chatDetails?.chatStatus === 'PENDING' ? '제안서 승인 후 채팅 가능합니다' : '메시지를 입력하세요...'"
+          :placeholder="chatRoom?.chatStatus === 'PENDING' ? '제안서 승인 후 채팅 가능합니다' : '메시지를 입력하세요...'"
           class="message-input"
-          :disabled="chatDetails?.chatStatus === 'PENDING'"
+          :disabled="chatRoom?.chatStatus === 'PENDING'"
         >
         <button 
           class="send-button" 
           @click="sendMessage"
-          :disabled="chatDetails?.chatStatus === 'PENDING'"
+          :disabled="chatRoom?.chatStatus === 'PENDING'"
         >전송</button>
       </div>
     </div>
@@ -63,7 +63,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { chatApi } from '@/api/chat'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
@@ -73,7 +73,7 @@ const error = ref(null)
 const currentUserId = 'inf1'
 const chatInfo = ref(null)
 const chatMessages = ref([])
-const chatDetails = ref(null)
+const chatRoom = ref(null)
 
 // 메시지 시간 포맷 함수
 const formatMessageTime = (dateString) => {
@@ -124,8 +124,8 @@ const loadChatInfo = async () => {
     const proposalId = route.params.id
     
     // 채팅 목록 로드
-    const chatListResponse = await chatApi.getChatList()
-    const targetChat = chatListResponse.data.find(chat => chat.proposalId === proposalId)
+    const chatListResponse = await chatApi.getUserChatList(currentUserId)
+    const targetChat = chatListResponse.find(chat => chat.proposalId === proposalId)
     
     if (!targetChat) {
       error.value = '채팅방을 찾을 수 없습니다.'
@@ -134,9 +134,8 @@ const loadChatInfo = async () => {
     chatInfo.value = targetChat
 
     // 채팅 상세 정보 로드
-    const detailsResponse = await chatApi.getChatDetails()
-    const detail = detailsResponse.data.find(d => d.chatId === targetChat.chatId)
-    chatDetails.value = detail
+    const detailResponse = await chatApi.getChatDetails(targetChat.chatId)
+    chatRoom.value = detailResponse.data
 
     // 메시지 로드
     const messagesResponse = await chatApi.getMessages(targetChat.chatId)
@@ -156,7 +155,6 @@ const sendMessage = async () => {
   if (!newMessage.value.trim() || !chatInfo.value) return
 
   const messageObj = {
-    messageId: `msg${Date.now()}`,
     chatId: chatInfo.value.chatId,
     senderId: currentUserId,
     content: newMessage.value,
@@ -166,7 +164,8 @@ const sendMessage = async () => {
   }
 
   try {
-    chatMessages.value.push(messageObj)
+    const response = await chatApi.sendMessage(messageObj)
+    chatMessages.value.push(response.data)
     newMessage.value = ''
     
     setTimeout(() => {

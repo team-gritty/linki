@@ -62,8 +62,8 @@
 </template>
 
 <script>
-// axios 라이브러리 가져오기
-import axios from 'axios'
+// reviewApi 가져오기
+import { reviewApi } from '@/api/advertiser/advertiser-review'
 
 export default {
   name: 'ReviewTab', // 컴포넌트 이름
@@ -87,7 +87,7 @@ export default {
       try {
         this.loading = true
         // API로부터 리뷰 데이터 가져오기 (influencerId로 필터링, camelCase)
-        const response = await axios.get(`/v1/api/advertiser/influencer-reviews?influencerId=${this.channelId}`)
+        const response = await reviewApi.getInfluencerReviews(this.channelId)
         this.reviews = response.data
         // 리뷰 통계 계산
         this.calcStats()

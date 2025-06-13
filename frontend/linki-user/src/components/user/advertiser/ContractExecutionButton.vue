@@ -9,7 +9,7 @@
  // reactive 상태 관리, watch는 props.isExecuted 변화를 감지
 import { ref, watch } from 'vue'
  // HTTP 요청을 위해 axios
-import axios from 'axios'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
 
 // 컴포넌트 속성 (props) 정의
 const props = defineProps({
@@ -39,15 +39,7 @@ watch(() => props.isExecuted, (val) => {
 async function executeAd() {
   if (executed.value) return
   try {
-    // 1. contracts 전체 조회
-    const res = await axios.get('v1/api/advertiser/contracts')
-    const contract = res.data.find(c => c.contractId === props.contractId)
-    if (!contract) {
-      alert('계약서를 찾을 수 없습니다.')
-      return
-    }
-    // 2. id(숫자)로 PATCH, isExecuted true로 변경
-    await axios.patch(`/v1/api/advertiser/contracts/${contract.id}`, { isExecuted: true })
+    await contractApi.executeContract(props.contractId, true)
     executed.value = true
     console.log('[ContractExecutionButton] PATCH 성공:', {
       contractId: props.contractId,

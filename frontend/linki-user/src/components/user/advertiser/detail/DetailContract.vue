@@ -44,9 +44,9 @@
           계약서 조회
         </button>
         <button 
+          v-if="contract.contractStatus === 'PENDING_SIGN'"
           class="action-button sign-contract" 
           @click="signContract"
-          :disabled="contract.contractStatus !== 'PENDING'"
         >
           <i class="fas fa-signature"></i>
           전자 서명
