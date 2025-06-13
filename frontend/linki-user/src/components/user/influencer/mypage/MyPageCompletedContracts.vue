@@ -81,7 +81,7 @@ export default {
 
     const getStatusClass = (status) => {
       return {
-        'status-pending': status === 'PENDING',
+        'status-ongoing': status === 'ONGOING',
         'status-active': status === 'ACTIVE',
         'status-completed': status === 'COMPLETED'
       };
@@ -89,8 +89,7 @@ export default {
 
     const getStatusText = (status) => {
       const statusMap = {
-        'PENDING': '진행중',
-        'PENDING_SIGN': '서명 대기중',
+        'ONGOING': '진행중',
         'ACTIVE': '활성',
         'COMPLETED': '완료'
       };

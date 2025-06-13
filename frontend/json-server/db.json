@@ -612,7 +612,7 @@
     {
       "contractId": "CTR001",
       "contractTitle": "게이밍 마우스 홍보",
-      "contractStatus": "PENDING",
+      "contractStatus": "ONGOING",
       "contractStartDate": "2024-03-20",
       "contractEndDate": "2024-04-20",
       "contractAmount": 1000000,
@@ -622,7 +622,7 @@
     {
       "contractId": "CTR002",
       "contractTitle": "키보드 리뷰",
-      "contractStatus": "PENDING",
+      "contractStatus": "ONGOING",
       "contractStartDate": "2024-03-25",
       "contractEndDate": "2024-04-25",
       "contractAmount": 800000,
