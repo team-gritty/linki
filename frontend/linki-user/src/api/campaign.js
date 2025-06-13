@@ -54,10 +54,13 @@ export const campaignAPI = {
   // 캠페인 상세 정보 조회
   getCampaignDetail: async (campaignId) => {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/campaigns/${campaignId}`)
+      const response = await httpClient.get(`/v1/api/campaigns/${campaignId}`);
       const campaigns = response.data;
-      // 단일 캠페인 반환
-      return Array.isArray(campaigns) ? campaigns[0] : campaigns;
+      const found = Array.isArray(campaigns) ? campaigns.find(c => c.campaignId === campaignId) : null;
+      if (!found) {
+        throw new Error('해당 캠페인을 찾을 수 없습니다.');
+      }
+      return found;
     } catch (error) {
       console.error('Error fetching campaign detail:', error)
       throw error

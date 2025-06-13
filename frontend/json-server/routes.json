@@ -184,5 +184,7 @@
   "/v1/api/campaigns/categories": "/categories",
 
   "광고주 - 채널 관련": "광고주의 채널 관련 라우트",
-  "/v1/api/advertiser/channels/:id/subscriber-history": "/subscriber-history?channelId=:id"
+  "/v1/api/advertiser/channels/:id/subscriber-history": "/subscriber-history?channelId=:id",
+
+  "/api/influencer/reviews/advertiser/campaign/:campaignId": "/advertiser-reviews?campaignId=:campaignId"
 }
