@@ -42,14 +42,14 @@ const selectedProposal = ref(null)
 
 const getStatusText = (status) => {
   const statusMap = {
-    'PENDING': '검토중',
+    'PENDING': '대기중',
     'ACCEPTED': '수락됨',
     'REJECTED': '거절됨',
-    'pending': '검토중',
+    'pending': '대기중',
     'accepted': '수락됨',
     'rejected': '거절됨'
   }
-  return statusMap[status] || '검토중'
+  return statusMap[status] || '대기중'
 }
 
 const getStatusClass = (status) => {

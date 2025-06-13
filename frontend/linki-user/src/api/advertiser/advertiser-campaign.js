@@ -1,28 +1,17 @@
 import httpClient from '@/utils/httpRequest'
 
 const campaignApi = {
-  // 캠페인 목록 조회
-  getCampaigns: async (params = {}) => {
+   /**
+   * 마이페이지 - 캠페인 목록 조회
+   * @returns 
+   */
+   getMyPageCampaigns: async () => {
     try {
-      const response = await httpClient.get('/v1/api/advertiser/campaigns', {
-        params: {
-          _page: params._page || 1,
-          _limit: params._limit || 10,
-          _sort: params._sort || 'createdAt',
-          _order: params._order || 'desc',
-          ...(params.productCategory && params.productCategory !== 'all' ? { productCategory: params.productCategory } : {})
-        }
-      })
-      return {
-        campaigns: response.data,
-        totalItems: parseInt(response.headers['x-total-count'] || '0')
-      }
+      const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns')
+      return response.data
     } catch (error) {
-      console.error('Error fetching campaigns:', error)
-      return {
-        campaigns: [],
-        totalItems: 0
-      }
+      console.error('Error fetching mypage campaigns:', error)
+      throw error
     }
   },
 
@@ -52,29 +41,6 @@ const campaignApi = {
     }
   },
 
-  // 마이페이지 - 캠페인 목록 조회
-  getMyCampaigns: async (params = {}) => {
-    try {
-      const response = await httpClient.get('/v1/api/advertiser/campaigns', {
-        params: {
-          _page: params._page || 1,
-          _limit: params._limit || 10,
-          _sort: params._sort || 'createdAt',
-          _order: params._order || 'desc'
-        }
-      })
-      return {
-        campaigns: response.data,
-        totalItems: parseInt(response.headers['x-total-count'] || '0')
-      }
-    } catch (error) {
-      console.error('Error fetching my campaigns:', error)
-      return {
-        campaigns: [],
-        totalItems: 0
-      }
-    }
-  },
 
   // 마이페이지 - 캠페인 상세 정보 조회
   getMyCampaignDetail: async (campaignId) => {
@@ -118,6 +84,9 @@ const campaignApi = {
     }
   },
 
+ 
+ 
+
   // 캠페인 수정
   updateCampaign: async (campaignId, campaignData) => {
     console.log("PUT 요청 왔습니다---------", campaignId, campaignData)
@@ -126,6 +95,22 @@ const campaignApi = {
       return response.data
     } catch (error) {
       console.error('Error updating campaign:', error)
+      throw error
+    }
+  },
+
+  /**
+   * 마이페이지 - 캠페인 상태 변경
+   * @param {string} campaignId - 캠페인 ID
+   * @param {Object} statusData - 상태 데이터 { campaignStatus: 'ACTIVE' | 'HIDDEN' }
+   * @returns {Promise<Object>} 업데이트된 캠페인 데이터
+   */
+  updateCampaignStatus: async (campaignId, statusData) => {
+    try {
+      const response = await httpClient.put(`/v1/api/mypage/advertiser/campaigns/${campaignId}/status`, statusData)
+      return response.data
+    } catch (error) {
+      console.error('Error updating campaign status:', error)
       throw error
     }
   }

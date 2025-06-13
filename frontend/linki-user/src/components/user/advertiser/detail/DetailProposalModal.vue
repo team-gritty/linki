@@ -61,14 +61,14 @@ const emit = defineEmits(['close', 'reject', 'contract'])
 
 const statusText = computed(() => {
   const statusMap = {
-    'PENDING': '검토중',
+    'PENDING': '대기중',
     'ACCEPTED': '수락됨',
     'REJECTED': '거절됨',
-    'pending': '검토중',
+    'pending': '대기중',
     'accepted': '수락됨',
     'rejected': '거절됨'
   }
-  return statusMap[props.proposal.status] || '검토중'
+  return statusMap[props.proposal.status] || '대기중'
 })
 
 const statusClass = computed(() => {
