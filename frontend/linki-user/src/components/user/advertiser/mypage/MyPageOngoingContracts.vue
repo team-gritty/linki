@@ -48,10 +48,9 @@ const fetchContracts = async () => {
     let contractList = Array.isArray(response.data) ? response.data : [];
     contracts.value = contractList
       .filter(contract => 
-        contract.contractStatus === 'PENDING' || 
+        contract.contractStatus === 'ONGOING' || 
         contract.contractStatus === 'PENDING_SIGN'
       )
-
       .map(contract => ({
         contractId: contract.contractId,
         contractTitle: contract.contractTitle,
@@ -87,18 +86,18 @@ function formatAmount(amount) {
 
 function getStatusText(status) {
   const statusMap = {
-    [CONTRACT_STATUS.ONGOING]: '진행중',
-    [CONTRACT_STATUS.PENDING_SIGN]: '서명 대기중',
-    [CONTRACT_STATUS.COMPLETED]: '완료'
+    'ONGOING': '진행중',
+    'PENDING_SIGN': '서명 대기중',
+    'COMPLETED': '완료'
   };
   return statusMap[status] || status;
 }
 
 function getStatusClass(status) {
   return {
-    'status-ongoing': status === CONTRACT_STATUS.ONGOING,
-    'status-pending-sign': status === CONTRACT_STATUS.PENDING_SIGN,
-    'status-completed': status === CONTRACT_STATUS.COMPLETED
+    'status-ongoing': status === 'ONGOING',
+    'status-pending-sign': status === 'PENDING_SIGN',
+    'status-completed': status === 'COMPLETED'
   };
 }
 
@@ -131,9 +130,9 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.status-pending {
-  background-color: #EEF2FF;
-  color: #6366F1;
+.status-ongoing {
+  background-color: #F3F0FF;
+  color: #7B21E8;
 }
 
 .status-pending-sign {
