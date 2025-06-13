@@ -85,7 +85,7 @@
   "채팅방의 메세지 조회 " : "접속한 채팅방의 기존 메세지 조회",
   "/v1/api/chat-service/messages/:chatId": "/chatMessages?chatId=:chatId",
   "채팅방의 메세지 전송 " : "메세지 전송(프론트)",
-  "/v1/api/chat-service/send/messages": "/chatMessages",
+  "/v1/api/chat-service/messages": "/chatMessages",
   "채팅방 삭제처리 " : "제안서 거절 시 채팅방 소프트 삭제",
   "/v1/api/chat-service/proposals/:proposalId/reject": "/rejectChat",
   "/v1/api/chat-service/proposals/:proposalId" : "/proposals?proposalId=:proposalId",
