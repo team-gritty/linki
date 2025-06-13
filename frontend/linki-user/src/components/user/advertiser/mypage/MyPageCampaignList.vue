@@ -143,8 +143,12 @@
     if (targetIdx.value !== null) {
       const campaign = campaigns.value[targetIdx.value]
       try {
+        // API를 통해 상태 업데이트
         await campaignApi.updateCampaignStatus(campaign.id, { campaignStatus: nextStatus.value })
+        
+        // 로컬 상태 업데이트
         campaigns.value[targetIdx.value].status = nextStatus.value
+        
         // 상태 변경 후 캠페인 목록 새로고침
         await fetchCampaigns()
       } catch (error) {

@@ -97,6 +97,22 @@ const campaignApi = {
       console.error('Error updating campaign:', error)
       throw error
     }
+  },
+
+  /**
+   * 마이페이지 - 캠페인 상태 변경
+   * @param {string} campaignId - 캠페인 ID
+   * @param {Object} statusData - 상태 데이터 { campaignStatus: 'ACTIVE' | 'HIDDEN' }
+   * @returns {Promise<Object>} 업데이트된 캠페인 데이터
+   */
+  updateCampaignStatus: async (campaignId, statusData) => {
+    try {
+      const response = await httpClient.put(`/v1/api/mypage/advertiser/campaigns/${campaignId}/status`, statusData)
+      return response.data
+    } catch (error) {
+      console.error('Error updating campaign status:', error)
+      throw error
+    }
   }
 }
 
