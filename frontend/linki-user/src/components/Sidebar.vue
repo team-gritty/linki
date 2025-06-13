@@ -143,7 +143,7 @@ body, html {
   position: absolute;
   left: 60px;
   color: #7B21E8;
-  font-size: 24px;
+  font-size: 35px;
   font-weight: bold;
   text-decoration: none;
 }
@@ -171,11 +171,11 @@ body, html {
 }
 
 .menu-item { 
-  font-size: 15px;
+  font-size: 20px; 
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.2s;
-  padding: 8px 12px;
+  padding: 8px 100px;
   text-align: center;
   position: relative;
   display: inline-block;
@@ -237,14 +237,13 @@ body, html {
 .mypage-button {
   display: flex;
   align-items: center;
-  gap: 8px;
   background: none;
   border: 1px solid #7B21E8;
   color: #7B21E8;
   padding: 8px 20px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1.3rem;
   transition: all 0.2s;
   white-space: nowrap;
   min-width: 120px;
