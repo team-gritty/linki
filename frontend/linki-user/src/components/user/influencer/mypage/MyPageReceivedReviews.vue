@@ -45,7 +45,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+import httpClient from '../../../../utils/httpRequest';
 
 export default {
   name: 'MyPageReceivedReviews',
@@ -61,7 +61,7 @@ export default {
 
     const fetchReviews = async () => {
       try {
-        const response = await axios.get('/v1/api/influencer/reviews/received');
+        const response = await httpClient.get('/v1/api/influencer/reviews/received');
         reviews.value = response.data;
       } catch (error) {
         console.error('리뷰 목록 조회 실패:', error);

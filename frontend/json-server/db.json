@@ -2,52 +2,6 @@
   "categories": [
     {
       "id": 1,
-      "name": "패션"
-    },
-    {
-      "id": 2,
-      "name": "뷰티"
-    },
-    {
-      "id": 3,
-      "name": "푸드/먹방"
-    },
-    {
-      "id": 4,
-      "name": "엔터테인먼트"
-    },
-    {
-      "id": 5,
-      "name": "여행"
-    },
-    {
-      "id": 6,
-      "name": "음악"
-    },
-    {
-      "id": 7,
-      "name": "전자기기"
-    },
-    {
-      "id": 8,
-      "name": "Vlog/라이프스타일"
-    },
-    {
-      "id": 9,
-      "name": "교육"
-    },
-    {
-      "id": 10,
-      "name": "동물/펫"
-    },
-    {
-      "id": 11,
-      "name": "스포츠"
-    }
-  ],
-  "sidebarCategories": [
-    {
-      "id": 1,
       "name": "패션",
       "count": 120
     },
@@ -1262,20 +1216,22 @@
     {
       "contractId": "CTR001",
       "contractTitle": "게이밍 마우스 홍보",
-      "contractStatus": "PENDING",
+      "contractStatus": "ONGOING",
       "contractStartDate": "2024-03-20",
       "contractEndDate": "2024-04-20",
       "contractAmount": 1000000,
-      "campaignId": "c1"
+      "campaignId": "c1",
+      "proposal_id": "p1"
     },
     {
       "contractId": "CTR002",
       "contractTitle": "키보드 리뷰",
-      "contractStatus": "PENDING",
+      "contractStatus": "ONGOING",
       "contractStartDate": "2024-03-25",
       "contractEndDate": "2024-04-25",
       "contractAmount": 800000,
-      "campaignId": "c2"
+      "campaignId": "c2",
+      "proposal_id": "p2"
     },
     {
       "contractId": "CTR003",
@@ -1284,7 +1240,8 @@
       "contractStartDate": "2024-02-01",
       "contractEndDate": "2024-03-01",
       "contractAmount": 1200000,
-      "campaignId": "c3"
+      "campaignId": "c3",
+      "proposal_id": "p3"
     },
     {
       "contractId": "CTR004",
@@ -1293,7 +1250,8 @@
       "contractStartDate": "2024-02-15",
       "contractEndDate": "2024-03-15",
       "contractAmount": 900000,
-      "campaignId": "c4"
+      "campaignId": "c4",
+      "proposal_id": "p4"
     },
     {
       "contractId": "CTR006",
@@ -1302,7 +1260,8 @@
       "contractStartDate": "2024-02-01",
       "contractEndDate": "2024-03-01",
       "contractAmount": 1200000,
-      "campaignId": "c5"
+      "campaignId": "c5",
+      "proposal_id": "p5"
     }
   ],
   "proposals": [
@@ -1316,7 +1275,6 @@
       "created_at": "2024-03-20",
       "status": "PENDING",
       "img": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
-
       "content": "안녕하세요, 테크리뷰 마스터입니다. 5만 구독자를 보유한 IT 전문 채널을 운영하고 있습니다. 이어폰 리뷰 경험이 풍부하며, 객관적이고 전문적인 리뷰를 제공할 수 있습니다. 제품의 음질, 착용감, 배터리 성능 등을 상세히 분석하여 시청자들에게 유용한 정보를 전달하겠습니다.fg",
       "submitted_at": "2025-06-11T07:09:44.515Z"
     },
@@ -1578,56 +1536,51 @@
   "chatDetails": [
     {
       "chatId": "chat1",
-      "chatPartner": "테크리뷰 마스터",
+      "partnerName": "테크리뷰 마스터",
       "proposalId": "p1",
       "negoStatus": "협의중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "테크리뷰 마스터",
       "channelName": "TechReview Master",
       "partnerId": "inf1"
     },
     {
       "chatId": "chat2",
-      "chatPartner": "게임덕후",
+      "partnerName": "게임덕후",
       "proposalId": "p2",
       "negoStatus": "계약 진행중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "게임덕후",
       "channelName": "GameMaster",
       "partnerId": "inf2"
     },
     {
       "chatId": "chat3",
-      "chatPartner": "IT리뷰어",
+      "partnerName": "IT리뷰어",
       "proposalId": "p3",
       "negoStatus": "제안서 대기",
       "chatStatus": "PENDING",
       "profileImage": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "IT리뷰어",
       "channelName": "TechInsight",
       "partnerId": "inf3"
     },
     {
       "chatId": "chat4",
-      "chatPartner": "사운드마스터",
+      "partnerName": "사운드마스터",
       "proposalId": "p4",
       "negoStatus": "계약 진행중",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "사운드마스터",
       "channelName": "SoundMaster",
       "partnerId": "inf4"
     },
     {
       "chatId": "chat5",
-      "chatPartner": "뷰티여신",
+      "partnerName": "뷰티여신",
       "proposalId": "p5",
       "negoStatus": "계약 완료",
       "chatStatus": "ACTIVE",
       "profileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
-      "name": "뷰티여신",
       "channelName": "BeautyGoddess",
       "partnerId": "1"
     }
@@ -1699,5 +1652,170 @@
       "proposalId": "p5",
       "chatPartner": "정라이프"
     }
+  ],
+    "endingTodayCampaigns": [
+      {
+        "campaignId": "c101",
+        "campaignName": "스마트 워치 체험단 모집",
+        "campaignDesc": "헬스케어에 최적화된 스마트 워치를 직접 사용해보고 리뷰해주세요.",
+        "campaignCondition": "IT/전자기기 유튜버, 구독자 2천명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9",
+        "campaignDeadline": "2025-06-13T23:59:59",
+        "campaignCategory": "전자기기",
+        "campaignStatus": "ACTIVE",
+        "companyName": "FitNow",
+        "reviews": 105,
+        "rating": 4.6
+      },
+      {
+        "campaignId": "c102",
+        "campaignName": "여름용 선크림 리뷰 캠페인",
+        "campaignDesc": "피부에 순한 여름 전용 선크림을 체험하고 후기를 공유해주세요.",
+        "campaignCondition": "뷰티 채널, 구독자 1만명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571",
+        "campaignDeadline": "2025-06-13T18:00:00",
+        "campaignCategory": "뷰티",
+        "campaignStatus": "ACTIVE",
+        "companyName": "PureSkin",
+        "reviews": 89,
+        "rating": 4.9
+      },
+      {
+        "campaignId": "c103",
+        "campaignName": "건강 간편식 리뷰단",
+        "campaignDesc": "맛과 건강을 동시에 잡은 프리미엄 간편식을 체험해주세요.",
+        "campaignCondition": "푸드/먹방 채널, 리뷰 경력자 우대",
+        "campaignImg": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+        "campaignDeadline": "2025-06-13T20:30:00",
+        "campaignCategory": "푸드/먹방",
+        "campaignStatus": "ACTIVE",
+        "companyName": "EatRight",
+        "reviews": 74,
+        "rating": 4.3
+      },
+      {
+        "campaignId": "c104",
+        "campaignName": "방수 블루투스 이어폰 체험단",
+        "campaignDesc": "비 오는 날에도 문제없는 방수 블루투스 이어폰을 사용해보고 영상으로 소개해주세요.",
+        "campaignCondition": "전자기기 리뷰 경력 1회 이상 필수",
+        "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
+        "campaignDeadline": "2025-06-13T16:00:00",
+        "campaignCategory": "전자기기",
+        "campaignStatus": "ACTIVE",
+        "companyName": "AquaSound",
+        "reviews": 62,
+        "rating": 4.7
+      },
+      {
+        "campaignId": "c105",
+        "campaignName": "프리미엄 여행가방 리뷰단",
+        "campaignDesc": "프리미엄 기내용 캐리어를 여행과 함께 리뷰해주세요.",
+        "campaignCondition": "여행 브이로그 유튜버, 구독자 3천명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80",
+        "campaignDeadline": "2025-06-13T21:15:00",
+        "campaignCategory": "여행",
+        "campaignStatus": "ACTIVE",
+        "companyName": "TRAVIA",
+        "reviews": 51,
+        "rating": 4.4
+      },
+      {
+        "campaignId": "c201",
+        "campaignName": "휴대용 선풍기 체험단",
+        "campaignDesc": "올여름을 시원하게 날릴 휴대용 선풍기를 체험해보고 리뷰해주세요.",
+        "campaignCondition": "라이프스타일 유튜버, 구독자 2천명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80",
+        "campaignDeadline": "2025-06-13T23:30:00",
+        "campaignCategory": "Vlog/라이프스타일",
+        "campaignStatus": "ACTIVE",
+        "companyName": "CoolAir",
+        "reviews": 48,
+        "rating": 4.2
+      }
+    ],
+  "monthInfluencers": [
+    {
+      "influencersId": 1,
+      "influencerName": "테크리뷰 마스터",
+      "influencerCategory": "전자기기",
+      "influencerSubscribers": "5.2만",
+      "influencerAvgViewCount": 15000,
+      "influencerReviewsCount": 320,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.6
+    },
+    {
+      "influencersId": 2,
+      "influencerName": "뷰티여신",
+      "influencerCategory": "뷰티",
+      "influencerSubscribers": "8.9만",
+      "influencerAvgViewCount": 25000,
+      "influencerReviewsCount": 450,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.8
+    },
+    {
+      "influencersId": 3,
+      "influencerName": "푸드로거",
+      "influencerCategory": "푸드/먹방",
+      "influencerSubscribers": "3.5만",
+      "influencerAvgViewCount": 12000,
+      "influencerReviewsCount": 280,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.4
+    },
+    {
+      "influencersId": 4,
+      "influencerName": "여행스토리",
+      "influencerCategory": "여행",
+      "influencerSubscribers": "4.2만",
+      "influencerAvgViewCount": 18000,
+      "influencerReviewsCount": 390,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.5
+    },
+    {
+      "influencersId": 5,
+      "influencerName": "패션왕",
+      "influencerCategory": "패션",
+      "influencerSubscribers": "6.7만",
+      "influencerAvgViewCount": 22000,
+      "influencerReviewsCount": 420,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.7
+    },
+    {
+      "influencersId": 6,
+      "influencerName": "인테리어연구소",
+      "influencerCategory": "리빙/인테리어",
+      "influencerSubscribers": "2.8만",
+      "influencerAvgViewCount": 10000,
+      "influencerReviewsCount": 210,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.3
+    },
+    {
+      "influencersId": 7,
+      "influencerName": "헬스남매",
+      "influencerCategory": "헬스/운동",
+      "influencerSubscribers": "7.4만",
+      "influencerAvgViewCount": 27000,
+      "influencerReviewsCount": 510,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1611691549217-d35a644ba3f3?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.9
+    },
+    {
+      "influencersId": 8,
+      "influencerName": "육아천재",
+      "influencerCategory": "키즈/육아",
+      "influencerSubscribers": "3.3만",
+      "influencerAvgViewCount": 9000,
+      "influencerReviewsCount": 190,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1589571894960-20bbe2828a27?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.2
+    }
   ]
 }
+
+
+

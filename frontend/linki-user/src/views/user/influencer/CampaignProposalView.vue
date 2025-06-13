@@ -13,11 +13,13 @@
       <h1>제안서 작성</h1>
       
       <div v-if="campaign" class="campaign-info">
-        <h2>{{ campaign.campaign_name }}</h2>
-        <p class="campaign-meta">
-          <span class="category">{{ campaign.campaign_category }}</span>
-          <span class="deadline">마감일: {{ campaign.campaign_deadline }}</span>
-        </p>
+        <div class="campaign-info-row">
+          <h2>{{ campaign.campaignName }}</h2>
+          <div class="campaign-meta">
+            <span class="category">{{ campaign.campaignCategory }}</span>
+            <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+          </div>
+        </div>
       </div>
 
       <form @submit.prevent="submitProposal" class="proposal-form">
@@ -58,6 +60,16 @@ const error = ref(null)
 const formData = ref({
   contents: '', // 제안 내용
 })
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
 
 onMounted(async () => {
   try {
@@ -107,20 +119,46 @@ h1 {
 
 .campaign-info {
   background: #f8f8f8;
-  padding: 20px;
+  padding: 20px 24px;
   border-radius: 8px;
   margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campaign-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .campaign-info h2 {
   font-size: 1.5rem;
-  margin-bottom: 10px;
+  margin: 0;
+  font-weight: 700;
 }
 
 .campaign-meta {
-  color: #7c3aed;
   display: flex;
-  gap: 20px;
+  gap: 12px;
+  align-items: center;
+}
+
+.category {
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.deadline {
+  color: #7c3aed;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .form-section {

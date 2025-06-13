@@ -36,8 +36,8 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { contractApi } from '@/api/contract';
 import { useRouter } from 'vue-router';
+import httpClient from '../../../../utils/httpRequest';
 
 export default {
   name: 'MyPageCompletedContracts',
@@ -48,9 +48,10 @@ export default {
 
     const fetchContracts = async () => {
       try {
-        const data = await contractApi.getMyContracts();
+        const response = await httpClient.get('/v1/api/influencer/contracts');
         // COMPLETED 상태인 계약만 필터링
-        contracts.value = data.filter(contract => contract.contractStatus === 'COMPLETED');
+        contracts.value = response.data.filter(contract => contract.contractStatus === 'COMPLETED');
+        console.log('Fetched completed contracts:', contracts.value);
       } catch (error) {
         console.error('계약 목록 조회 실패:', error);
         contracts.value = [];
@@ -59,22 +60,10 @@ export default {
 
     const viewContractDetail = async (contract) => {
       try {
-        // 제안서 상세 페이지로 이동하면서 계약 탭으로 설정
+        // 계약서 상세 페이지로 이동 (제안서 상세 페이지와 동일한 라우트 사용)
         router.push({
-          name: 'proposal-detail',
-          // 계약 ID를 params로 전달
-          params: { id: contract.contractId },
-          // 계약서 탭으로 설정
-          query: { 
-            tab: 'contract',
-            // 계약 정보도 함께 전달
-            contractId: contract.contractId,
-            contractTitle: contract.contractTitle,
-            contractStartDate: contract.contractStartDate,
-            contractEndDate: contract.contractEndDate,
-            contractAmount: contract.contractAmount,
-            contractStatus: contract.contractStatus
-          }
+          path: `/proposal/${contract.proposal_id}`,
+          query: { tab: 'contract' }
         });
       } catch (error) {
         console.error('페이지 이동 실패:', error);
@@ -92,17 +81,14 @@ export default {
 
     const getStatusClass = (status) => {
       return {
-        'status-pending': status === 'PENDING',
-        'status-active': status === 'ACTIVE',
+        'status-ongoing': status === 'ONGOING',
         'status-completed': status === 'COMPLETED'
       };
     };
 
     const getStatusText = (status) => {
       const statusMap = {
-        'PENDING': '진행중',
-        'PENDING_SIGN': '서명 대기중',
-        'ACTIVE': '활성',
+        'ONGOING': '진행중',
         'COMPLETED': '완료'
       };
       return statusMap[status] || status;
@@ -148,20 +134,14 @@ export default {
   font-weight: 500;
 }
 
-.status-pending {
-  background-color: #EEF2FF;
-  color: #6366F1;
-}
+
 
 .status-pending-sign {
   background-color: #FEF3C7;
   color: #D97706;
 }
 
-.status-active {
-  background-color: #ECFDF5;
-  color: #059669;
-}
+
 
 .status-completed {
   background-color: #F3F4F6;

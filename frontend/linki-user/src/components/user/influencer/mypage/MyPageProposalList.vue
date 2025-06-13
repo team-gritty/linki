@@ -43,8 +43,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
-import { proposalAPI } from '@/api/proposal';
+import httpClient from '../../../../utils/httpRequest';
 
 export default {
   name: 'MyPageProposalList',
@@ -57,7 +56,7 @@ export default {
     
     const getStatusText = (status) => {
       const statusMap = {
-        'PENDING': '검토중',
+        'PENDING': '대기중',
         'ACCEPTED': '수락됨',
         'REJECTED': '거절됨'
       };
@@ -81,7 +80,7 @@ export default {
       error.value = null;
       try {
         // 1. 먼저 모든 제안서 목록을 가져옵니다
-        const response = await axios.get('/v1/api/influencer/proposals', {
+        const response = await httpClient.get('/v1/api/influencer/proposals', {
           params: {
             _page: 1,
             _limit: 10
@@ -96,7 +95,7 @@ export default {
         }
 
         // 2. 캠페인 목록을 한 번에 가져옵니다
-        const campaignsResponse = await axios.get('/v1/api/influencer/campaigns');
+        const campaignsResponse = await httpClient.get('/v1/api/influencer/campaigns');
         const campaigns = campaignsResponse.data;
         console.log('Fetched campaigns:', campaigns);
 

@@ -36,9 +36,8 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { contractApi } from '@/api/contract';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import httpClient from '../../../../utils/httpRequest';
 
 export default {
   name: 'MyPageOngoingContracts',
@@ -46,16 +45,15 @@ export default {
   setup() {
     const contracts = ref([]);
     const router = useRouter();
-    const BASE_URL = 'http://localhost:3000';
 
     const fetchContracts = async () => {
       try {
-        const data = await contractApi.getMyContracts();
-        // PENDING 또는 PENDING_SIGN 상태인 계약만 필터링
-        contracts.value = data.filter(contract => 
-          contract.contractStatus === 'PENDING' || 
-          contract.contractStatus === 'PENDING_SIGN'
+        const response = await httpClient.get('/v1/api/influencer/contracts');
+        // ONGOING 또는 PENDING_SIGN 상태인 계약만 필터링
+        contracts.value = response.data.filter(contract => 
+          contract.contractStatus === 'ONGOING' || contract.contractStatus === 'PENDING_SIGN'
         );
+        console.log('Fetched contracts:', contracts.value);
       } catch (error) {
         console.error('계약 목록 조회 실패:', error);
         contracts.value = [];
@@ -64,22 +62,10 @@ export default {
 
     const viewContractDetail = async (contract) => {
       try {
-        // 제안서 상세 페이지로 이동하면서 계약 탭으로 설정
+        // 계약서 상세 페이지로 이동 (제안서 상세 페이지와 동일한 라우트 사용)
         router.push({
-          name: 'proposal-detail',
-          // 계약 ID를 params로 전달
-          params: { id: contract.contractId },
-          // 계약서 탭으로 설정
-          query: { 
-            tab: 'contract',
-            // 계약 정보도 함께 전달
-            contractId: contract.contractId,
-            contractTitle: contract.contractTitle,
-            contractStartDate: contract.contractStartDate,
-            contractEndDate: contract.contractEndDate,
-            contractAmount: contract.contractAmount,
-            contractStatus: contract.contractStatus
-          }
+          path: `/proposal/${contract.proposal_id}`,
+          query: { tab: 'contract' }
         });
       } catch (error) {
         console.error('페이지 이동 실패:', error);
@@ -97,16 +83,15 @@ export default {
 
     const getStatusClass = (status) => {
       return {
-        'status-pending': status === 'PENDING',
+        'status-ongoing': status === 'ONGOING',
         'status-pending-sign': status === 'PENDING_SIGN',
-        'status-active': status === 'ACTIVE',
         'status-completed': status === 'COMPLETED'
       };
     };
 
     const getStatusText = (status) => {
       const statusMap = {
-        'PENDING': '진행중',
+        'ONGOING': '진행중',
         'PENDING_SIGN': '서명 대기중',
         'COMPLETED': '완료'
       };
@@ -153,7 +138,7 @@ export default {
   font-weight: 500;
 }
 
-.status-pending {
+.status-ongoing {
   background-color: #EEF2FF;
   color: #6366F1;
 }
@@ -161,11 +146,6 @@ export default {
 .status-pending-sign {
   background-color: #FEF3C7;
   color: #D97706;
-}
-
-.status-active {
-  background-color: #ECFDF5;
-  color: #059669;
 }
 
 .status-completed {
