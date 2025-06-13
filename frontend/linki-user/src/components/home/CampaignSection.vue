@@ -15,13 +15,17 @@ const seconds = ref(0)
 const timerInterval = ref(null)
 
 // 페이지네이션 관련 상태
-const itemsPerPage = 6
+const itemsPerPage = 5
 const currentPage = ref(0)
 
 // 현재 페이지에 표시될 상품들
 const displayedProducts = computed(() => {
   const start = currentPage.value * itemsPerPage
-  return campaignProducts.value.slice(start, start + itemsPerPage)
+  const products = campaignProducts.value.slice(start, start + itemsPerPage)
+  return products.map((product, index) => ({
+    ...product,
+    displayId: `${product.campaignId}-${index}`
+  }))
 })
 
 // 시간 형식 변환 함수 (2자리 숫자로 표시)
@@ -48,21 +52,12 @@ const fetchCampaigns = async () => {
     loading.value = true
     const data = await homeAPI.getEndingTodayCampaigns()
     console.log('Campaign response:', data)
-    campaignProducts.value = data.map(campaign => {
-      return {
-        id: campaign.campaignId,
-        name: campaign.campaignName,
-        image: campaign.campaignImg,
-        category: campaign.campaignCategory,
-        reviews: 0,
-        rating: 4.5,
-        timeLeft: calculateTimeLeft(campaign.campaignDeadline),
-        status: campaign.campaignStatus,
-        advertiser: campaign.companyName,
-        description: campaign.campaignDesc,
-        condition: campaign.campaignCondition
-      }
-    })
+    // 각 캠페인에 timeLeft 추가
+    campaignProducts.value = data.map(campaign => ({
+      ...campaign,
+      timeLeft: calculateTimeLeft(campaign.campaignDeadline)
+    }))
+    console.log('Set campaign products:', campaignProducts.value)
   } catch (err) {
     console.error('캠페인 상품 로딩 실패:', err)
     error.value = '캠페인 상품을 불러오는데 실패했습니다.'
@@ -135,71 +130,66 @@ onUnmounted(() => {
 
 <template>
   <section class="campaign-section">
-    <div class="section-header">
-      <div class="title-content">
-        <div class="title-wrapper">
-          <span class="small-title highlight">
-            <span class="vertical-bar"></span>오늘 마감하는
-          </span>
-          <div class="campaign-title">
-            <h3>캠페인</h3>
-            <div class="timer">
-              <div class="timer-item">
-                <span class="time">{{ formatTimeUnit(hours) }}</span>
-                <span class="label">Hours</span>
-              </div>
-              <span class="timer-divider">:</span>
-              <div class="timer-item">
-                <span class="time">{{ formatTimeUnit(minutes) }}</span>
-                <span class="label">Minutes</span>
-              </div>
-              <span class="timer-divider">:</span>
-              <div class="timer-item">
-                <span class="time">{{ formatTimeUnit(seconds) }}</span>
-                <span class="label">Seconds</span>
-              </div>
-            </div>
+    <div class="campaign-inner">
+      <div class="arrow left-arrow" @click="prevPage" :class="{ disabled: currentPage === 0 }">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="arrow right-arrow" @click="nextPage" :class="{ disabled: currentPage >= Math.ceil(campaignProducts.length / itemsPerPage) - 1 }">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="section-header">
+        <div class="title-content">
+          <div class="title-wrapper">
+           
           </div>
         </div>
       </div>
-      <div class="navigation-arrows">
-        <button class="nav-arrow" @click="prevPage" :disabled="currentPage === 0">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button class="nav-arrow" @click="nextPage" :disabled="currentPage >= Math.ceil(campaignProducts.length / itemsPerPage) - 1">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-    </div>
 
-    <div class="product-grid">
-      <div v-for="product in displayedProducts" 
-           :key="product.id" 
-           class="product-card"
-           @click="router.push(`/campaign/${product.id}`)"
-           style="cursor: pointer;">
-        <div class="product-image">
-          <img :src="product.image" :alt="product.name" @error="handleImageError" />
-        </div>
-        <div class="product-info">
-          <h4 class="product-name">{{ product.name }}</h4>
-          <div class="rating">
-            <div class="stars-container">
-              <div class="stars-bg">★★★★★</div>
-              <div 
-                class="stars-filled" 
-                :style="{ width: `${(product.rating / 5) * 100}%` }"
-              >★★★★★</div>
-            </div>
-            <span class="rating-score">{{ product.rating.toFixed(1) }}</span>
-            <span class="review-count">({{ product.reviews }})</span>
-          </div>
+      <div class="product-grid">
+        <div v-for="product in displayedProducts" 
+             :key="product.displayId" 
+             class="product-card"
+             :style="{ backgroundImage: `url(${product.campaignImg})` }"
+             @click="router.push(`/campaign/${product.campaignId}`)"
+             style="cursor: pointer;">
           <span class="time-remaining">{{ product.timeLeft }}</span>
+          <div class="product-info">
+            <h4 class="product-name">{{ product.campaignName }}</h4>
+            <div class="rating">
+              <div class="stars-container">
+                <div class="stars-bg">★★★★★</div>
+                <div 
+                  class="stars-filled" 
+                  :style="{ width: `${(product.rating / 5) * 100}%` }"
+                >★★★★★</div>
+              </div>
+              <span class="rating-score">{{ product.rating.toFixed(1) }}</span>
+              <span class="review-count">({{ product.reviews }})</span>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="campaign-title">
+        <div class="timer-row">
+          <span class="timer-label">마감까지 남은시간</span>
+          <div class="timer">
+            <div class="timer-item">
+              <span class="time">{{ formatTimeUnit(hours) }}</span>
+              <span class="label">Hours</span>
+            </div>
+            <span class="timer-divider">:</span>
+            <div class="timer-item">
+              <span class="time">{{ formatTimeUnit(minutes) }}</span>
+              <span class="label">Minutes</span>
+            </div>
+            <span class="timer-divider">:</span>
+            <div class="timer-item">
+              <span class="time">{{ formatTimeUnit(seconds) }}</span>
+              <span class="label">Seconds</span>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </div>
   </section>
@@ -207,4 +197,24 @@ onUnmounted(() => {
 
 <style >
 @import '@/assets/css/home.css';
+/* 타이머와 문구 스타일 추가 */
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.timer-label {
+  font-size: 3rem;
+  font-weight: 600;
+  color: #7B21E8;
+  letter-spacing: -0.5px;
+  margin-top: 40px;
+}
+.timer-korean {
+  margin-top: 4px;
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
 </style> 

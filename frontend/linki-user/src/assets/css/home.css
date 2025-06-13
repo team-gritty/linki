@@ -4,14 +4,24 @@
     gap: 20px;
     padding: 20px;
     max-width: 1400px;
-    margin: 0 auto;
+    margin: 0;
+    width: 100vw;
+    max-width: none;
+    padding: 0;
+    box-sizing: border-box;
   }
   
   .main-content {
     flex: 1;
     max-width: 1100px;
-    padding-top: 15px;
+    padding-top: 15px;   
+    width: 100vw;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
+  
   
   .section-divider {
     height: 1px;
@@ -28,7 +38,7 @@
 
 .banner-slider {
   width: 100vw;
-  height: 700px;
+  height: 500px;
   position: relative;
   overflow: hidden;
   margin: 0;
@@ -54,7 +64,7 @@
 /* 동영상/이미지 */
 .banner-image {
   width: 100vw;
-  height: 700px;
+  height: 500px;
   object-fit: cover;
   background: #ffffff;
   display: block;
@@ -76,18 +86,15 @@
   height: 700px;
 }
 
-.banner-texts {
-  margin-top:20px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 32px;
+.banner-texts,
+.banner-content--2 .banner-text-bg {
+  margin-top: 20px;
 }
 
 .banner-content h2 {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 500;
-  margin: 0;
+  margin-left: 90px;
   padding: 0;
   line-height: 1.1;
 }
@@ -95,7 +102,7 @@
 .banner-content p {
   font-size: 1.3rem;
   margin: 0;
-  padding: 30px 0 0 0;
+  padding: 20px 0 0 0;
   align-self: flex-start;
   line-height: 1.5;
   color: #1b1b1b;
@@ -103,9 +110,13 @@
 }
 
 .start-button {
-  margin-top: 520px;
-  align-self: center;
-  font-size: 1.8rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 215px;
+  margin-top: 0;
+  align-self: auto;
+  font-size: 1.2rem;
   padding: 1.2rem 3rem;
   border-radius: 12px;
   background-color: #ffffff;
@@ -158,173 +169,143 @@
 
 /* 캠페인 카테고리 섹션 */
 .category-section {
-  margin: 2rem 0;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
   position: relative;
-}
-
-.section-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  flex-direction: column; /* ← 요소를 세로로 쌓음 */
+  align-items: center;     /* ← 가운데 정렬 */
 }
 
-.title-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.vertical-bar {
-  display: inline-block;
-  width: 4px;
-  height: 16px;
-  background-color: #7B21E8;
-  margin-right: 8px;
-  border-radius: 2px;
-}
-
-.small-title {
-  font-size: 0.9rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-
-.highlight {
-  color: #7B21E8;
-}
-
-.section-header h3 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  margin: 0;
-}
 
 .category-slider {
-  overflow: hidden;
-  position: relative;
-  margin: 0 -1rem;
-  padding: 0 1rem;
+  padding: 0;
 }
 
 .category-grid {
-  display: flex;
-  gap: 1rem;
-  transition: transform 0.3s ease;
+  display: flex ;
+  flex-wrap: wrap ;
+  gap: 8px ;
+  justify-content: center ;
+  align-items: flex-start ;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto 24px auto ;
+  overflow-x: visible !important;
 }
 
 .category-item {
-  flex: 0 0 calc(16.666% - 1rem);
-  min-width: 120px;
-  aspect-ratio: 1;
-  background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 0 0 auto;
+  width: 100px ;
+  height: 100px ;
+  border-radius: 50% ;
+  background: #fff ;
+  border: 2px solid #E0E0E0 ;
+  display: flex ;
+  align-items: center ;
+  justify-content: center ;
+  cursor: pointer ;
+  transition: all 0.18s cubic-bezier(.4,0,.2,1) ;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) ;
+  padding: 0 ;
+  margin: 0 ;
+  position: relative ;
+  flex-direction: row ;
+  z-index: 1;
 }
 
 .category-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.08);
+  border-color: #7B21E8;
+  box-shadow: 0 6px 16px rgba(123, 33, 232, 0.13);
+  z-index: 10;
 }
 
 .category-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 3rem !important;
+  line-height: 1 !important;
 }
 
 .category-name {
-  font-size: 0.9rem;
-  text-align: center;
-  color: #333;
+  display: block !important;
+  text-align: center !important;
+  font-size: 1.1rem !important;
+  color: #333 !important;
+  font-weight: 500 !important;
+  margin-top: 10px !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  width: 100px !important;
+  position: relative;
+  left: 0;
 }
 
 .navigation-arrows {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.nav-arrow {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid #e0e0e0;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.nav-arrow:hover:not(:disabled) {
-  background: #f5f5f5;
-}
-
-.nav-arrow:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  display: none !important;
 }
 
 .center-button-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: 14px;
 }
 
 .more-button {
   background-color: #7B21E8;
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 15px 50px;
+  border-radius: 15px;
+  font-size: 1.5rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  margin-top: 10px;
 }
 
 .more-button:hover {
-  background-color: #6618c4;
+  background-color: #ffffff;
+  color:#7B21E8;
+  border: 1px solid #7B21E8;
 }
 /*캠페인 섹션 */
 
 .campaign-section {
-    margin: 2rem 0;
-  }
-  
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-  
-  .title-wrapper {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  position: relative;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.section-header,
+.product-grid {
+    max-width: 2000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.title-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
   }
   
   .vertical-bar {
     display: inline-block;
-    width: 4px;
-    height: 16px;
+    width: 5px;
+    height: 24px;
     background-color: #7B21E8;
-    margin-right: 8px;
+    margin-right: 10px;
     border-radius: 2px;
   }
   
   .small-title {
-    font-size: 0.9rem;
+    font-size: 1.3rem;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -337,11 +318,11 @@
   .campaign-title {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 32px;
   }
   
   .campaign-title h3 {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: #333;
     margin: 0;
@@ -350,134 +331,110 @@
   .timer {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 20px;
-    margin-top: 4px;
+    gap: 16px;
+    margin: 0 24px;
+    margin-top: 50px;
   }
   
   .timer-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
   }
   
   .timer .time {
-    font-size: 1.2rem;
+    font-size: 2.2rem;
     font-weight: bold;
     color: #333;
   }
   
   .timer .label {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     color: #666;
     text-transform: uppercase;
   }
   
   .timer-divider {
-    font-size: 1.2rem;
+    font-size: 2.2rem;
     font-weight: bold;
     color: #333;
     margin-top: -8px;
   }
   
-  .navigation-arrows {
-    display: flex;
-    gap: 12px;
-  }
-  
-  .nav-arrow {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: white;
-    border: 1px solid #E5E7EB;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #7B21E8;
-  }
-  
-  .nav-arrow:hover:not(:disabled) {
-    background: #7B21E8;
-    color: white;
-    border-color: #7B21E8;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(123, 33, 232, 0.2);
-  }
-  
-  .nav-arrow:disabled {
-    background: #F9FAFB;
-    color: #D1D5DB;
-    border-color: #E5E7EB;
-    cursor: not-allowed;
-  }
-  
   .product-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
     gap: 24px;
-    margin-top: 24px;
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0;
+    overflow-x: visible;
+    justify-content: center;
   }
   
   .product-card {
-    text-decoration: none;
-    border-radius: 12px;
-    overflow: hidden;
-    background: white;
+    width: 240px;
+    height: 320px;
+    min-height: unset;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
+    justify-content: flex-end;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid transparent;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-5px);
-    border-color: #7B21E8;
-    box-shadow: 0 8px 16px rgba(123, 33, 232, 0.15);
+    padding: 0;
   }
   
   .product-image {
-    width: 100%;
-    padding-top: 100%;
-    position: relative;
-  }
-  
-  .product-image img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    display: none;
   }
   
   .product-info {
-    padding: 16px;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    border-radius: 0 0 12px 12px;
+    background: rgba(255,255,255,0.7);
+    padding : 17px;
   }
   
   .product-name {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #333;
     line-height: 1.4;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px) scale(1.04);
+    border-color: #7B21E8;
+    box-shadow: 0 12px 24px rgba(123, 33, 232, 0.18);
+    transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    z-index: 10;
   }
   
   .rating {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
   }
   
   .stars-container {
     position: relative;
     display: inline-block;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     line-height: 1;
   }
   
@@ -497,23 +454,27 @@
   .rating-score {
     font-weight: 600;
     color: #333;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
   }
   
   .review-count {
     color: #666;
-    font-size: 0.8rem;
+    font-size: 1.1rem;
   }
   
   .time-remaining {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 0.9rem;
-    color: white;
-    background-color: #7B21E8;
-    padding: 6px 12px;
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-size: 0.95rem;
+    color: #fff;
+    background: rgba(123,33,232,0.85);
+    padding: 4px 12px;
     border-radius: 6px;
-    font-weight: 500;
+    font-weight: 600;
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    pointer-events: none;
   }
   /*인플루언서 카테고리 */
   
@@ -587,13 +548,29 @@
   }
   
   .arrow {
-    opacity: 0;
-    transition: all 0.2s ease;
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 2rem;
+    border: 2px solid #eee;
+    transition: background 0.2s, border 0.2s;
   }
   
-  .menu-item a:hover .arrow {
-    opacity: 1;
-    transform: translateX(4px);
+  .left-arrow { left: 0; }
+  .right-arrow { right: 0; }
+  .arrow.disabled {
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   /* 인플루언서 섹션 */
@@ -642,23 +619,8 @@
     margin: 0;
   }
   
-  .more-button {
-    padding: 8px 24px;
-    border: 1px solid #7B21E8;
-    border-radius: 4px;
-    background: white;
-    color: #7B21E8;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .more-button:hover {
-    background: #7B21E8;
-    color: white;
-  }
-  
+ 
+ 
   .influencer-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -785,23 +747,11 @@
     margin-top: 4px;
   }
 
-/* 캠페인 카테고리 스타일 */
-.more-button:hover {
-  background-color: #6618c4;
-}
-
-.category-item {
-  transition: transform 0.2s ease;
-  cursor: pointer;
-}
 
 .category-item:hover {
   transform: translateY(-2px);
 }
 
-.category-section {
-  margin-bottom: 40px;
-}
 
 .section-header {
   display: flex;
@@ -859,21 +809,7 @@
   opacity: 0.5;
 }
 
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
 
-.category-item {
-  background: white;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-  transition: all 0.2s ease;
-}
 
 .category-icon {
   font-size: 24px;
@@ -890,16 +826,75 @@
   text-align: center;
 }
 
-.more-button {
-  padding: 12px 24px;
-  background: #7B21E8;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
 
 .banner-content--1 { color: #ffffff; }
-.banner-content--2 { color: #7B21E8; }
+.banner-content--2 { 
+  color: #7B21E8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.banner-content--2 .banner-text-bg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  padding: 25px 32px;
+  margin-top: 0 !important;
+  gap: 8px;
+  text-align: center;
+}
+
+.banner-content--2 h2,
+.banner-content--2 p {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.banner-content--2 .start-button {
+  position: static;
+  left: auto;
+  transform: none;
+  bottom: auto;
+  margin-top: 24px;
+  align-self: center;
+}
+
+.banner-texts {
+  display: flex;
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 32px;
+  margin-top: 20px;
+}
+
+html, body {
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.campaign-inner {
+  max-width: 1500px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.arrow.left-arrow { left: -32px; }
+.arrow.right-arrow { right: -32px; }
+
+.arrow.left-arrow { left: 16px; }
+.arrow.right-arrow { right: 16px; }
+.arrow {
+  top: 40%;
+  transform: translateY(-50%);
+}

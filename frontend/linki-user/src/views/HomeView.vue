@@ -9,7 +9,6 @@ import InfluencerSection from '@/components/home/InfluencerSection.vue'
   <Banner />
   <div class="home">
     <div class="main-content">
-      <div class="section-divider"></div>
       <CampaignCategory />
       <div class="section-divider"></div>
       <CampaignSection />
