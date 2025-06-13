@@ -80,10 +80,6 @@ const calculateTimeLeft = (deadline) => {
   return `${hours}시간 남음`
 }
 
-const handleImageError = (e) => {
-  e.target.src = '/placeholder.png'
-  e.target.classList.add('error')
-}
 
 const nextPage = () => {
   if (currentPage.value < Math.ceil(campaignProducts.value.length / itemsPerPage) - 1) {
@@ -144,7 +140,29 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-
+<div class="campaign-title">
+        <div class="timer-row">
+          <span class="timer-label">마감까지 남은시간</span>
+          <div class="timer">
+            <div class="timer-item">
+              <span class="time">{{ formatTimeUnit(hours) }}</span>
+              <span class="label">Hours</span>
+            </div>
+            <span class="timer-divider">:</span>
+            <div class="timer-item">
+              <span class="time">{{ formatTimeUnit(minutes) }}</span>
+              <span class="label">Minutes</span>
+            </div>
+            <span class="timer-divider">:</span>
+            <div class="timer-item">
+              <span class="time">{{ formatTimeUnit(seconds) }}</span>
+              <span class="label">Seconds</span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
       <div class="product-grid">
         <div v-for="product in displayedProducts" 
              :key="product.displayId" 
@@ -169,28 +187,6 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="campaign-title">
-        <div class="timer-row">
-          <span class="timer-label">마감까지 남은시간</span>
-          <div class="timer">
-            <div class="timer-item">
-              <span class="time">{{ formatTimeUnit(hours) }}</span>
-              <span class="label">Hours</span>
-            </div>
-            <span class="timer-divider">:</span>
-            <div class="timer-item">
-              <span class="time">{{ formatTimeUnit(minutes) }}</span>
-              <span class="label">Minutes</span>
-            </div>
-            <span class="timer-divider">:</span>
-            <div class="timer-item">
-              <span class="time">{{ formatTimeUnit(seconds) }}</span>
-              <span class="label">Seconds</span>
-            </div>
-          </div>
-        </div>
-        
-      </div>
     </div>
   </section>
 </template>
@@ -202,7 +198,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-top: 8px;
+  margin-bottom:60px;
+  margin-top:0;
 }
 .timer-label {
   font-size: 3rem;
@@ -216,5 +213,22 @@ onUnmounted(() => {
   font-size: 1rem;
   color: #333;
   font-weight: 500;
+}
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  cursor: pointer;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
+}
+.left-arrow {
+  left: 0;
+}
+.right-arrow {
+  right: 0;
 }
 </style> 
