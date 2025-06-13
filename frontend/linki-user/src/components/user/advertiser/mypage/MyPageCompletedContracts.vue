@@ -83,9 +83,8 @@
   
   function getStatusText(status) {
     const statusMap = {
-      [CONTRACT_STATUS.PENDING]: '진행중',
+      [CONTRACT_STATUS.ONGOING]: '진행중',
       [CONTRACT_STATUS.PENDING_SIGN]: '서명 대기중',
-      [CONTRACT_STATUS.ACTIVE]: '활성',
       [CONTRACT_STATUS.COMPLETED]: '완료'
     };
     return statusMap[status] || status;
@@ -93,9 +92,8 @@
   
   function getStatusClass(status) {
     return {
-      'status-pending': status === CONTRACT_STATUS.PENDING,
+      'status-ongoing': status === CONTRACT_STATUS.ONGOING,
       'status-pending-sign': status === CONTRACT_STATUS.PENDING_SIGN,
-      'status-active': status === CONTRACT_STATUS.ACTIVE,
       'status-completed': status === CONTRACT_STATUS.COMPLETED
     };
   }
