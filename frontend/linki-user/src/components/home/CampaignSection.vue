@@ -15,7 +15,7 @@ const seconds = ref(0)
 const timerInterval = ref(null)
 
 // 페이지네이션 관련 상태
-const itemsPerPage = 4
+const itemsPerPage = 6
 const currentPage = ref(0)
 
 // 현재 페이지에 표시될 상품들
