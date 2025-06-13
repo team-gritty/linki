@@ -118,6 +118,21 @@ const campaignApi = {
     }
   },
 
+ 
+  /**
+   *  //마이페이지 - 캠페인 목록 조회
+   * @returns 
+   */
+  getMyPageCampaigns: async () => {
+    try {
+      const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns')
+      return response.data
+    } catch (error) {
+      console.error('Error fetching mypage campaigns:', error)
+      throw error
+    }
+  },
+
   // 캠페인 수정
   updateCampaign: async (campaignId, campaignData) => {
     console.log("PUT 요청 왔습니다---------", campaignId, campaignData)
