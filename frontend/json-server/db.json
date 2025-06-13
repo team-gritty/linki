@@ -1216,20 +1216,22 @@
     {
       "contractId": "CTR001",
       "contractTitle": "게이밍 마우스 홍보",
-      "contractStatus": "PENDING",
+      "contractStatus": "ONGOING",
       "contractStartDate": "2024-03-20",
       "contractEndDate": "2024-04-20",
       "contractAmount": 1000000,
-      "campaignId": "c1"
+      "campaignId": "c1",
+      "proposal_id": "p1"
     },
     {
       "contractId": "CTR002",
       "contractTitle": "키보드 리뷰",
-      "contractStatus": "PENDING",
+      "contractStatus": "ONGOING",
       "contractStartDate": "2024-03-25",
       "contractEndDate": "2024-04-25",
       "contractAmount": 800000,
-      "campaignId": "c2"
+      "campaignId": "c2",
+      "proposal_id": "p2"
     },
     {
       "contractId": "CTR003",
@@ -1238,7 +1240,8 @@
       "contractStartDate": "2024-02-01",
       "contractEndDate": "2024-03-01",
       "contractAmount": 1200000,
-      "campaignId": "c3"
+      "campaignId": "c3",
+      "proposal_id": "p3"
     },
     {
       "contractId": "CTR004",
@@ -1247,7 +1250,8 @@
       "contractStartDate": "2024-02-15",
       "contractEndDate": "2024-03-15",
       "contractAmount": 900000,
-      "campaignId": "c4"
+      "campaignId": "c4",
+      "proposal_id": "p4"
     },
     {
       "contractId": "CTR006",
@@ -1256,7 +1260,8 @@
       "contractStartDate": "2024-02-01",
       "contractEndDate": "2024-03-01",
       "contractAmount": 1200000,
-      "campaignId": "c5"
+      "campaignId": "c5",
+      "proposal_id": "p5"
     }
   ],
   "proposals": [

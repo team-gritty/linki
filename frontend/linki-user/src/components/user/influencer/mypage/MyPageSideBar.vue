@@ -39,7 +39,7 @@ export default {
       },
       {
         id: 'campaign',
-        name: '캠페인 관리',
+        name: '제안서 관리',
         children: [
           { id: 'campaign.proposals', name: '제안서 조회' }
         ]

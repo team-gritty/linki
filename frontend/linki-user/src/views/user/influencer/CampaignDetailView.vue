@@ -89,9 +89,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
+import { reviewApi } from '@/api/review'
 
 const route = useRoute()
 const router = useRouter()
@@ -127,9 +128,9 @@ const fetchAdvertiserReviews = async () => {
   try {
     loadingReviews.value = true
     reviewError.value = null
-    // 캠페인의 광고주 ID로 리뷰 조회
-    if (campaign.value?.advertiserId) {
-      const data = await campaignAPI.getAdvertiserReviews(campaign.value.advertiserId)
+    // 캠페인의 campaignId로 리뷰 조회
+    if (campaign.value?.campaignId) {
+      const data = await reviewApi.getAdvertiserReviewsByCampaign(campaign.value.campaignId)
       reviews.value = data
     }
   } catch (err) {
@@ -167,6 +168,11 @@ const goBack = () => {
 }
 
 onMounted(() => {
+  fetchCampaignDetail()
+})
+
+// route.params.id가 바뀔 때마다 캠페인 상세 재조회
+watch(() => route.params.id, () => {
   fetchCampaignDetail()
 })
 </script>

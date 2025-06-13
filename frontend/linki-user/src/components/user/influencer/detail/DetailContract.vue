@@ -57,78 +57,49 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { contractApi } from '@/api/contract';
-import httpClient from '@/utils/httpRequest';
 
 export default {
   name: 'DetailContract',
+  props: {
+    detailData: {
+      type: Object,
+      required: true
+    }
+  },
 
-  setup() {
-    const route = useRoute();
+  setup(props) {
     const router = useRouter();
-    const contract = ref({});
     const loading = ref(true);
     const error = ref(null);
+    const contract = ref({});
 
-    const fetchContractDetail = async () => {
-      try {
-        loading.value = true;
-        error.value = null;
-        
-        // 1. 제안서 ID로 제안서 정보 조회 (p1)
-        const proposalId = route.params.id;
-        console.log('Fetching proposal with ID:', proposalId);
-        
-        const proposalResponse = await httpClient.get(`/v1/api/influencer/proposals?proposal_id=${proposalId}`);
-        if (!proposalResponse.data || proposalResponse.data.length === 0) {
-          throw new Error('제안서 정보를 찾을 수 없습니다.');
+    // detailData 변경 감지하여 계약 정보 설정
+    watch(() => props.detailData, (newData) => {
+      loading.value = true;
+      console.log('DetailContract received data:', newData);
+      
+      if (newData) {
+        // contract 직접 접근 또는 contract 속성 접근 시도
+        const contractData = newData.contract || newData;
+        if (contractData) {
+          console.log('Setting contract detail:', contractData);
+          contract.value = contractData;
+        } else {
+          console.warn('No contract data found in:', newData);
+          contract.value = {};
+          error.value = '계약 정보를 찾을 수 없습니다.';
         }
-
-        const proposal = proposalResponse.data[0];
-        console.log('Found proposal:', proposal);
-
-        // 2. 제안서의 campaign_id로 캠페인 조회 (c1)
-        if (!proposal.campaign_id) {
-          throw new Error('캠페인 정보를 찾을 수 없습니다.');
-        }
-
-        const campaignResponse = await httpClient.get(`/v1/api/influencer/campaigns/${proposal.campaign_id}`);
-        if (!campaignResponse.data || campaignResponse.data.length === 0) {
-          throw new Error('캠페인 정보를 찾을 수 없습니다.');
-        }
-
-        const campaign = campaignResponse.data[0];
-        console.log('Found campaign:', campaign);
-
-        // 3. 캠페인의 계약 정보 조회 (CTR001)
-        const contractData = await contractApi.getContractDetail(proposal.contractId);
-        if (!contractData) {
-          throw new Error('계약 정보를 찾을 수 없습니다.');
-        }
-
-        contract.value = contractData;
-        console.log('Found contract:', contract.value);
-
-      } catch (err) {
-        console.error('계약 상세 조회 실패:', err);
-        error.value = err.message || '계약 정보를 불러오는데 실패했습니다.';
-      } finally {
-        loading.value = false;
+      } else {
+        console.warn('No detail data received');
+        contract.value = {};
+        error.value = '데이터를 받지 못했습니다.';
       }
-    };
-
-    onMounted(() => {
-      fetchContractDetail();
-    });
-
-    const goToContractList = () => {
-      router.push({
-        path: '/mypage',
-        query: { tab: 'contracts' }
-      });
-    };
+      
+      loading.value = false;
+    }, { immediate: true });
 
     const viewContractDocument = async () => {
       try {
@@ -201,8 +172,7 @@ export default {
       formatDate,
       formatAmount,
       getStatusClass,
-      getStatusText,
-      goToContractList
+      getStatusText
     };
   }
 };

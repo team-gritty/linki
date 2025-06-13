@@ -14,13 +14,16 @@
       <DetailCampaign 
         v-if="currentTab === 'campaign'"
         :campaign-id="campaignId"
+        :detailData="{ campaign: campaignDetail }"
       />
       
       <!-- 제안서 -->
       <DetailProposal
-        v-if="currentTab === 'proposal'"
-        :proposal="proposal"
-        :campaignDetail="campaignDetail"
+        v-if="currentTab === 'proposal' && proposal"
+        :detailData="{
+          proposal: proposal,
+          campaign: campaignDetail
+        }"
         @save-proposal="saveProposal"
         @delete-proposal="deleteProposal"
       />
@@ -34,6 +37,13 @@
       <!-- 계약서 -->
       <DetailContract 
         v-if="currentTab === 'contract'"
+        :detailData="{
+          contract: {
+            contractId: contractId,
+            ...proposal?.contract || {}
+          },
+          campaign: campaignDetail
+        }"
       />
     </div>
   </div>
@@ -121,23 +131,30 @@ const fetchData = async () => {
     }
     
     // 캠페인 정보 조회
-    const campaignRes = await axios.get(`/v1/api/influencer/campaigns/${campaignId}`);
-    console.log('Campaign response:', campaignRes.data);
+    const campaignsResponse = await axios.get('/v1/api/influencer/campaigns');
+    const foundCampaign = campaignsResponse.data.find(c => c.campaignId === campaignId);
+    console.log('Found campaign:', foundCampaign);
     
-    if (campaignRes.data && Array.isArray(campaignRes.data)) {
-      campaignDetail.value = campaignRes.data[0];
-    } else if (campaignRes.data) {
-      campaignDetail.value = campaignRes.data;
+    if (foundCampaign) {
+      campaignDetail.value = foundCampaign;
     } else {
       throw new Error('캠페인 정보를 찾을 수 없습니다.');
     }
     
-    // 3. 계약 정보 조회 (있는 경우)
-    if (foundProposal.contractId) {
-      const contractRes = await axios.get(`/v1/api/influencer/contracts?campaignId=${campaignId}`);
-      if (contractRes.data?.length > 0) {
-        contractId.value = contractRes.data[0].contractId;
-      }
+    // 3. 계약 정보 조회
+    const contractsResponse = await axios.get('/v1/api/influencer/contracts');
+    console.log('Fetching contracts for campaign:', campaignId);
+    
+    // campaignId로 계약 찾기
+    const foundContract = contractsResponse.data.find(c => c.campaignId === campaignId);
+    console.log('Found contract:', foundContract);
+    
+    if (foundContract) {
+      contractId.value = foundContract.contractId;
+      // contract 정보를 proposal에 추가
+      proposal.value.contract = foundContract;
+    } else {
+      console.log('No contract found for campaign:', campaignId);
     }
     
   } catch (error) {
@@ -195,6 +212,13 @@ const goToCampaignDetail = () => {
 
 const goToProposalList = () => {
   router.push('/mypage/influencer');
+};
+
+const goToContractDetail = (contractId) => {
+  router.push({
+    path: `/proposal/${contractId}`,
+    query: { tab: 'contract' }
+  });
 };
 
 onMounted(() => {
