@@ -49,9 +49,9 @@ export default {
     const fetchContracts = async () => {
       try {
         const response = await httpClient.get('/v1/api/influencer/contracts');
-        // ONGOING 상태인 계약만 필터링
+        // ONGOING 또는 PENDING_SIGN 상태인 계약만 필터링
         contracts.value = response.data.filter(contract => 
-          contract.contractStatus === 'ONGOING'
+          contract.contractStatus === 'ONGOING' || contract.contractStatus === 'PENDING_SIGN'
         );
         console.log('Fetched contracts:', contracts.value);
       } catch (error) {
@@ -84,7 +84,7 @@ export default {
     const getStatusClass = (status) => {
       return {
         'status-ongoing': status === 'ONGOING',
-        'status-active': status === 'ACTIVE',
+        'status-pending-sign': status === 'PENDING_SIGN',
         'status-completed': status === 'COMPLETED'
       };
     };
@@ -138,7 +138,7 @@ export default {
   font-weight: 500;
 }
 
-.status-pending {
+.status-ongoing {
   background-color: #EEF2FF;
   color: #6366F1;
 }
@@ -146,11 +146,6 @@ export default {
 .status-pending-sign {
   background-color: #FEF3C7;
   color: #D97706;
-}
-
-.status-active {
-  background-color: #ECFDF5;
-  color: #059669;
 }
 
 .status-completed {

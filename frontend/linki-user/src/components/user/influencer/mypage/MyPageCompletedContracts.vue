@@ -82,7 +82,6 @@ export default {
     const getStatusClass = (status) => {
       return {
         'status-ongoing': status === 'ONGOING',
-        'status-active': status === 'ACTIVE',
         'status-completed': status === 'COMPLETED'
       };
     };
@@ -90,7 +89,6 @@ export default {
     const getStatusText = (status) => {
       const statusMap = {
         'ONGOING': '진행중',
-        'ACTIVE': '활성',
         'COMPLETED': '완료'
       };
       return statusMap[status] || status;
@@ -136,20 +134,14 @@ export default {
   font-weight: 500;
 }
 
-.status-pending {
-  background-color: #EEF2FF;
-  color: #6366F1;
-}
+
 
 .status-pending-sign {
   background-color: #FEF3C7;
   color: #D97706;
 }
 
-.status-active {
-  background-color: #ECFDF5;
-  color: #059669;
-}
+
 
 .status-completed {
   background-color: #F3F4F6;
