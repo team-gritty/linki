@@ -46,7 +46,7 @@ const calculateTimeUntilMidnight = () => {
 const fetchCampaigns = async () => {
   try {
     loading.value = true
-    const data = await homeAPI.getCampaigns()
+    const data = await homeAPI.getEndingTodayCampaigns()
     console.log('Campaign response:', data)
     campaignProducts.value = data.map(campaign => {
       return {

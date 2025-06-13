@@ -26,7 +26,9 @@
       />
       
       <!-- 구독 관리 -->
-      <MyPageSubscription v-if="currentMenu === 'subscription.status'" />
+      <MyPageSubscriptionApply v-if="currentMenu === 'subscription.apply'" />
+      <MyPageSubscriptionManage v-if="currentMenu === 'subscription.manage'" />
+      <MyPageSubscriptionRefund v-if="currentMenu === 'subscription.refund'" />
       
       <!-- 리뷰 관리 -->
       <MyPageWrittenReviews v-if="currentMenu === 'review.written'" />
@@ -48,7 +50,9 @@ import MyPageOngoingContracts from '@/components/user/advertiser/mypage/MyPageOn
 import MyPageCompletedContracts from '@/components/user/advertiser/mypage/MyPageCompletedContracts.vue'
 import MyPageWrittenReviews from '@/components/user/advertiser/mypage/MyPageWrittenReviews.vue'
 import MyPageReceivedReviews from '@/components/user/advertiser/mypage/MyPageReceivedReviews.vue'
-import MyPageSubscription from '@/components/user/advertiser/mypage/MyPageSubscription.vue'
+import MyPageSubscriptionApply from '@/components/user/advertiser/mypage/MyPageSubscriptionApply.vue'
+import MyPageSubscriptionManage from '@/components/user/advertiser/mypage/MyPageSubscriptionManage.vue'
+import MyPageSubscriptionRefund from '@/components/user/advertiser/mypage/MyPageSubscriptionRefund.vue'
 import DetailContract from '@/components/user/advertiser/detail/DetailContract.vue'
 import MyPageWriteReview from '@/components/user/advertiser/mypage/MyPageWriteReview.vue'
 

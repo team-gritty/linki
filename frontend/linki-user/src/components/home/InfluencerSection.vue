@@ -16,20 +16,19 @@ const displayedInfluencers = computed(() => {
 const fetchInfluencers = async () => {
   try {
     loading.value = true
-    const data = await homeAPI.getInfluencers()
+    const data = await homeAPI.getmonthInfluencers()
     console.log('Influencers response:', data)
     influencers.value = data.map(influencer => ({
-      id: influencer.id,
-      name: influencer.name,
-      profileImage: influencer.profileImage,
-      category: influencer.category,
-      subscribers: typeof influencer.subscribers === 'string' ? 
-        influencer.subscribers : 
-        influencer.subscribers.toLocaleString(),
-      reviews: influencer.avgCommentCount || 0,
-      rating: 4.5,
-      platform: 'YouTube',
-      averageViews: influencer.avgViewCount
+      id: influencer.influencersId,
+      name: influencer.influencerName,
+      profileImage: influencer.influencerProfileImage,
+      category: influencer.influencerCategory,
+      subscribers: typeof influencer.influencerSubscribers === 'string' ?
+        influencer.influencerSubscribers :
+        influencer.influencerSubscribers.toLocaleString(),
+      reviews: influencer.influencerReviewsCount || 0,
+      rating: influencer.influencerRating,
+      averageViews: influencer.influencerAvgViewCount
     }))
   } catch (err) {
     console.error('인플루언서 로딩 실패:', err)
@@ -67,7 +66,7 @@ onMounted(async () => {
     <div class="influencer-grid">
       <router-link 
         v-for="influencer in displayedInfluencers" 
-        :key="influencer.id" 
+        :key="influencer.id"
         :to="{ name: 'channel-detail', params: { id: influencer.id }}"
         class="influencer-card"
         @click="handleInfluencerClick(influencer.id)"
