@@ -26,7 +26,7 @@ const startAutoSlide = () => {
   }
   autoSlideInterval.value = setInterval(() => {
     nextSlide()
-  }, 6000)
+  }, 10000)
 }
 
 const fetchBanners = async () => {
@@ -90,11 +90,16 @@ onUnmounted(() => {
             <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
           </template>
           <div class="banner-content" :class="`banner-content--${banner.id}`">
-            <div class="banner-texts">
+            <div v-if="banner.id === 2" class="banner-text-bg">
               <h2>{{ banner.title }}</h2>
               <p>{{ banner.description }}</p>
+              <button class="start-button">Start Linki →</button>
             </div>
-            <button class="start-button">Start Linki →</button>
+            <div v-else class="banner-texts">
+              <h2>{{ banner.title }}</h2>
+              <p>{{ banner.description }}</p>
+              <button class="start-button">Start Linki →</button>
+            </div>
           </div>
         </div>
         <div class="slider-dots">
