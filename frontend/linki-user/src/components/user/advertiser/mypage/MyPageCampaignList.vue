@@ -18,9 +18,9 @@
                 type="button"
               >모집중</button>
               <button
-                :class="['status-btn', item.status === 'DRAFT' ? 'inactive private-active' : '']"
-                @click="openStatusModal(idx, 'DRAFT')"
-                :disabled="item.status === 'DRAFT'"
+                :class="['status-btn', item.status === 'HIDDEN' ? 'inactive private-active' : '']"
+                @click="openStatusModal(idx, 'HIDDEN')"
+                :disabled="item.status === 'HIDDEN'"
                 type="button"
               >비공개</button>
             </div>
@@ -73,19 +73,18 @@
   <script setup>
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
-  import httpClient from '@/utils/httpRequest'
   import campaignApi from '@/api/advertiser/advertiser-campaign'
   
   const router = useRouter()
   const campaigns = ref([])
   
-  onMounted(async () => {
+  /**
+   * 광고주 - 마이페이지 - 캠페인 목록 조회
+   */
+  const fetchCampaigns = async () => {
     try {
-      // Use the campaigns endpoint directly to get all campaigns
-      const response = await httpClient.get('/v1/api/mypage/advertiser/campaigns')
-      console.log('Campaign response:', response.data)
-      
-      campaigns.value = response.data.map(item => ({
+      const data = await campaignApi.getMyPageCampaigns()
+      campaigns.value = data.map(item => ({
         id: item.campaignId,
         name: item.campaignName,
         image: item.campaignImg,
@@ -96,6 +95,13 @@
       console.error('Failed to fetch campaigns:', e)
       campaigns.value = []
     }
+  }
+  
+  /**
+   * 마이페이지 - 캠페인 목록 들어왔을때 fetchCampaigns
+   */
+  onMounted(() => {
+    fetchCampaigns()
   })
   
   const modalOpen = ref(false)
@@ -133,9 +139,22 @@
     modalOpen.value = true
   }
   
-  function confirmStatusChange() {
+  async function confirmStatusChange() {
     if (targetIdx.value !== null) {
-      campaigns.value[targetIdx.value].status = nextStatus.value
+      const campaign = campaigns.value[targetIdx.value]
+      try {
+        // API를 통해 상태 업데이트
+        await campaignApi.updateCampaignStatus(campaign.id, { campaignStatus: nextStatus.value })
+        
+        // 로컬 상태 업데이트
+        campaigns.value[targetIdx.value].status = nextStatus.value
+        
+        // 상태 변경 후 캠페인 목록 새로고침
+        await fetchCampaigns()
+      } catch (error) {
+        console.error('Error updating campaign status:', error)
+        alert('상태 변경에 실패했습니다.')
+      }
     }
     modalOpen.value = false
     targetIdx.value = null
