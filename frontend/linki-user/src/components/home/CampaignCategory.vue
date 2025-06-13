@@ -70,18 +70,25 @@ onMounted(async () => {
     <div class="section-header">
     </div>
     <div class="category-slider">
-      <div class="category-grid">
-        <div v-for="category in categories" :key="category.id" style="display: flex; flex-direction: column; align-items: center;">
-          <div :class="['category-item', { active: category.active } ]"
-               @click="handleCategoryClick(category)"
-               style="cursor: pointer;">
+      <transition-group name="category-fade" tag="div" class="category-grid">
+        <div
+          v-for="(category, idx) in categories"
+          :key="category.id"
+          style="display: flex; flex-direction: column; align-items: center;"
+          :style="{ transitionDelay: (idx * 80) + 'ms' }"
+        >
+          <div
+            :class="['category-item', { active: category.active } ]"
+            @click="handleCategoryClick(category)"
+            style="cursor: pointer;"
+          >
             <div class="category-icon">
               {{ category.icon }}
             </div>
           </div>
           <span class="category-name">{{ category.name }}</span>
         </div>
-      </div>
+      </transition-group>
     </div>
     <div class="center-button-wrapper">
       <button class="more-button" @click="handleViewAll">캠페인 전체보기</button>

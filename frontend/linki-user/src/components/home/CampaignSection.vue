@@ -134,12 +134,7 @@ onUnmounted(() => {
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="section-header">
-        <div class="title-content">
-          <div class="title-wrapper">
-           
-          </div>
-        </div>
-      </div>
+        
 <div class="campaign-title">
         <div class="timer-row">
           <span class="timer-label">마감까지 남은시간</span>
@@ -160,7 +155,7 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
-        
+      </div>
       </div>
       
       <div class="product-grid">
@@ -193,42 +188,4 @@ onUnmounted(() => {
 
 <style >
 @import '@/assets/css/home.css';
-/* 타이머와 문구 스타일 추가 */
-.timer-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom:60px;
-  margin-top:0;
-}
-.timer-label {
-  font-size: 3rem;
-  font-weight: 600;
-  color: #7B21E8;
-  letter-spacing: -0.5px;
-  margin-top: 40px;
-}
-.timer-korean {
-  margin-top: 4px;
-  font-size: 1rem;
-  color: #333;
-  font-weight: 500;
-}
-.arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  cursor: pointer;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: box-shadow 0.2s;
-}
-.left-arrow {
-  left: 0;
-}
-.right-arrow {
-  right: 0;
-}
 </style> 
