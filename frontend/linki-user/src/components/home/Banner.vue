@@ -26,7 +26,7 @@ const startAutoSlide = () => {
   }
   autoSlideInterval.value = setInterval(() => {
     nextSlide()
-  }, 10000)
+  }, 5000)
 }
 
 const fetchBanners = async () => {
