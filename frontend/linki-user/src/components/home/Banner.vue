@@ -26,7 +26,7 @@ const startAutoSlide = () => {
   }
   autoSlideInterval.value = setInterval(() => {
     nextSlide()
-  }, 5000)
+  }, 6000)
 }
 
 const fetchBanners = async () => {
@@ -46,6 +46,12 @@ const fetchBanners = async () => {
 const handleImageError = (e) => {
   e.target.src = '/placeholder.png'
   e.target.classList.add('error')
+}
+
+function isVideo(url) {
+  if (!url) return false
+  const videoExtensions = ['.mp4', '.webm', '.ogg']
+  return videoExtensions.some(ext => url.toLowerCase().includes(ext))
 }
 
 onMounted(async () => {
@@ -70,10 +76,24 @@ onUnmounted(() => {
       <template v-else>
         <div v-for="(banner, index) in banners" :key="banner.id" 
              :class="['banner-item', { active: index === currentSlide }]">
-          <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
-          <div class="banner-content">
-            <h2>{{ banner.title }}</h2>
-            <p>{{ banner.description }}</p>
+          <template v-if="isVideo(banner.image)">
+            <video
+              class="banner-image"
+              :src="banner.image"
+              autoplay
+              loop
+              muted
+              playsinline
+            ></video>
+          </template>
+          <template v-else>
+            <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
+          </template>
+          <div class="banner-content" :class="`banner-content--${banner.id}`">
+            <div class="banner-texts">
+              <h2>{{ banner.title }}</h2>
+              <p>{{ banner.description }}</p>
+            </div>
             <button class="start-button">Start Linki →</button>
           </div>
         </div>

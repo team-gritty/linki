@@ -224,14 +224,14 @@
       "id": 1,
       "title": "구독하고 한번에 시작하기",
       "description": "링키와 함께 캠페인을 시작해보세요",
-      "image": "https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=1920&q=80",
+      "image": "/src/assets/videos/banner1.mp4",
       "active": true
     },
     {
       "id": 2,
       "title": "인플루언서 모집",
       "description": "다양한 분야의 인플루언서를 모집합니다",
-      "image": "https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&w=1920&q=80",
+      "image": "/src/assets/videos/banner2.mp4",
       "active": true
     }
   ],
