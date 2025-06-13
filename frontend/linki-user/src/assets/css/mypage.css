@@ -346,8 +346,10 @@
 }
 
 .status-btn.active {
-  background: #9B51E0;
+  background: #7B21E8;
   color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(123, 33, 232, 0.2);
 }
 
 .status-btn.inactive {
