@@ -61,12 +61,9 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-
         <li class="menu-item" @click="goToHome">홈</li>
         <li class="menu-item" @click="goTochannels">인플루언서</li>
         <li class="menu-item" @click="goToCampaigns">캠페인</li>
-
-
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -243,7 +240,7 @@ body, html {
   padding: 8px 20px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1.3rem;
+  font-size: 20px;
   transition: all 0.2s;
   white-space: nowrap;
   min-width: 120px;
@@ -257,6 +254,7 @@ body, html {
 
 .mypage-button i {
   font-size: 1rem;
+  padding: 0 10px 0 0px;
 }
 
 .hamburger {
