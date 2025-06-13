@@ -334,9 +334,6 @@ onMounted(() => {
   scrollbar-width: none;  /* Firefox */
   position: sticky;
   top: 0;
-  background: white;
-  z-index: 10;
-  border-bottom: 1px solid #f3f4f6;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -352,9 +349,9 @@ onMounted(() => {
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
-  background-color: #f8f9fa;
+  background-color: #f3f4f6;
   color: #6b7280;
-  border: 1px solid transparent;
+  border: none;
 }
 
 .category-tab:hover {
