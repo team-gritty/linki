@@ -32,5 +32,16 @@ export const reviewApi = {
       console.error('Error submitting advertiser review:', error);
       throw error;
     }
+  },
+
+  // 특정 캠페인에 대한 광고주 리뷰 조회
+  async getAdvertiserReviewsByCampaign(campaignId) {
+    try {
+      const response = await httpClient.get(`/api/influencer/reviews/advertiser/campaign/${campaignId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching advertiser reviews by campaign:', error);
+      throw error;
+    }
   }
 };
