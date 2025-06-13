@@ -34,22 +34,17 @@ const filteredChats = computed(() => {
   // 검색어가 있을 때는 현재 정렬된 목록에서 필터링
   const query = searchQuery.value.toLowerCase()
   return sortedChatList.value.filter(chat => 
-    chat.opponentName.toLowerCase().includes(query) ||
+    chat.partnerName.toLowerCase().includes(query) ||
     chat.lastMessage.toLowerCase().includes(query)
   )
 })
 
 // 채팅 상세 정보 가져오기
 const getChatDetail = (chatId) => {
-  const detail = chatDetails.value.find(detail => detail.chatId === chatId)
-  return detail
+  const response = chatDetails.value.find(room => room.chatId === chatId)
+  return response || null
 }
 
-// 채팅 프로필 정보 가져오기 (partnerId로 매칭)
-const getChatDetailByPartnerId = (partnerId) => {
-  const detail = chatDetails.value.find(detail => detail.partnerId === partnerId)
-  return detail
-}
 
 // 선택된 채팅방
 const selectedChat = computed(() => 
@@ -64,13 +59,6 @@ const selectedChatMessages = computed(() => {
     .filter(msg => msg.chatId === selectedChatId.value)
     .sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
 })
-
-// 채팅 프로필 가져오기
-const getChatProfile = (userId) => {
-  const profile = chatDetails.value.find(profile => profile.userId === userId)
-  console.log('Getting profile for userId:', userId, 'Found:', profile) // 디버깅용 로그 추가
-  return profile
-}
 
 // 채팅 목록 시간 포맷 함수 (원래 버전으로 복구)
 const formatTime = (dateString) => {
@@ -162,6 +150,32 @@ const sortChats = () => {
   })
 }
 
+// 채팅 목록 로드
+const loadInitialData = async () => {
+  try {
+    // 채팅 목록 로드 - campaignId를 사용하여 해당 캠페인의 채팅 목록을 가져옴
+    const chatListResponse = await chatApi.getChatList(props.campaignId)
+    chatList.value = chatListResponse.data || []
+    console.log('Loaded chat list:', chatList.value)
+    
+    // 채팅방 상세 정보 로드
+    if (chatList.value.length > 0) {
+      const detailPromises = chatList.value.map(chat => 
+        chatApi.getChatDetails(chat.chatId)
+      )
+      const detailResponses = await Promise.all(detailPromises)
+      chatDetails.value = detailResponses.map(response => response.data[0]).filter(Boolean)
+      console.log('Loaded chat details:', chatDetails.value)
+    }
+    
+    // 초기 정렬 수행
+    sortChats()
+  } catch (err) {
+    error.value = '데이터를 불러오는데 실패했습니다.'
+    console.error('Error loading initial data:', err)
+  }
+}
+
 // 채팅방 선택
 const selectChat = async (chatId) => {
   console.log('Selecting chat:', chatId)
@@ -173,25 +187,42 @@ const selectChat = async (chatId) => {
   
   selectedChatId.value = chatId
   
-  // 선택한 채팅방의 안 읽은 메시지 상태 업데이트
-  const chatIndex = chatList.value.findIndex(chat => chat.chatId === chatId)
-  if (chatIndex !== -1 && chatList.value[chatIndex].isNew) {
-    chatList.value[chatIndex] = {
-      ...chatList.value[chatIndex],
-      isNew: false
+  try {
+    // 채팅방 상세 정보 로드
+    const detailResponse = await chatApi.getChatDetails(chatId)
+    const chatDetail = Array.isArray(detailResponse.data) ? detailResponse.data[0] : detailResponse.data
+    
+    // 채팅방 상세 정보 업데이트
+    const existingDetailIndex = chatDetails.value.findIndex(room => room.chatId === chatId)
+    if (existingDetailIndex !== -1) {
+      chatDetails.value[existingDetailIndex] = chatDetail
+    } else {
+      chatDetails.value.push(chatDetail)
     }
-    // sortedChatList에도 동일한 업데이트 적용
-    const sortedIndex = sortedChatList.value.findIndex(chat => chat.chatId === chatId)
-    if (sortedIndex !== -1) {
-      sortedChatList.value[sortedIndex] = {
-        ...sortedChatList.value[sortedIndex],
+    
+    // 선택한 채팅방의 안 읽은 메시지 상태 업데이트
+    const chatIndex = chatList.value.findIndex(chat => chat.chatId === chatId)
+    if (chatIndex !== -1 && chatList.value[chatIndex].isNew) {
+      chatList.value[chatIndex] = {
+        ...chatList.value[chatIndex],
         isNew: false
       }
+      // sortedChatList에도 동일한 업데이트 적용
+      const sortedIndex = sortedChatList.value.findIndex(chat => chat.chatId === chatId)
+      if (sortedIndex !== -1) {
+        sortedChatList.value[sortedIndex] = {
+          ...sortedChatList.value[sortedIndex],
+          isNew: false
+        }
+      }
     }
+    
+    // 메시지 로드
+    await loadMessages(chatId)
+  } catch (err) {
+    error.value = '채팅방 정보를 불러오는데 실패했습니다.'
+    console.error('Error loading chat details:', err)
   }
-  
-  // 메시지 로드
-  await loadMessages(chatId)
 }
 
 // 메시지 로드
@@ -204,6 +235,13 @@ const loadMessages = async (chatId) => {
     const response = await chatApi.getMessages(chatId)
     console.log('Loaded messages for chatId:', chatId, response.data)
     chatMessages.value = response.data
+    
+    // 스크롤을 최하단으로 이동
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 0)
   } catch (err) {
     error.value = '메시지를 불러오는데 실패했습니다.'
     console.error('Error loading messages:', err)
@@ -217,7 +255,6 @@ const sendMessage = async () => {
   if (!newMessage.value.trim() || !selectedChatId.value) return
 
   const messageObj = {
-    messageId: `msg${Date.now()}`,
     chatId: selectedChatId.value,
     senderId: currentUserId,
     content: newMessage.value,
@@ -226,7 +263,11 @@ const sendMessage = async () => {
   }
 
   try {
-    chatMessages.value.push(messageObj)
+    // API를 통해 메시지 전송
+    const response = await chatApi.sendMessage(messageObj)
+    
+    // 로컬 상태 업데이트
+    chatMessages.value.push(response.data)
     
     // 채팅 목록의 마지막 메시지 업데이트
     const chatIndex = chatList.value.findIndex(chat => chat.chatId === selectedChatId.value)
@@ -246,6 +287,7 @@ const sendMessage = async () => {
 
     newMessage.value = ''
     
+    // 스크롤 최하단으로 이동
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
@@ -254,27 +296,6 @@ const sendMessage = async () => {
   } catch (err) {
     error.value = '메시지 전송에 실패했습니다.'
     console.error('Error sending message:', err)
-  }
-}
-
-// 초기 데이터 로드
-const loadInitialData = async () => {
-  try {
-    // 채팅 목록 로드
-    const chatListResponse = await chatApi.getChatList()
-    chatList.value = chatListResponse.data || []
-    console.log('Loaded chat list:', chatList.value)
-    
-    // 채팅 상세 정보 로드
-    const detailsResponse = await chatApi.getChatDetails()
-    chatDetails.value = detailsResponse.data || []
-    console.log('Loaded chat details:', chatDetails.value)
-    
-    // 초기 정렬 수행
-    sortChats()
-  } catch (err) {
-    error.value = '데이터를 불러오는데 실패했습니다.'
-    console.error('Error loading initial data:', err)
   }
 }
 
@@ -364,9 +385,9 @@ const goToInfluencerDetail = (influencerId) => {
           @click="selectChat(chat.chatId)"
         >
           <div class="chat-profile">
-            <img 
-              :src="getChatDetail(chat.chatId)?.profileImage" 
-              :alt="chat.opponentName"
+            <img
+              :src="getChatDetail(chat.chatId)?.profileImage"
+              :alt="getChatDetail(chat.chatId)?.partnerName"
               class="profile-image"
               @click.stop="goToInfluencerDetail(chat.opponentId)"
             >
@@ -374,7 +395,7 @@ const goToInfluencerDetail = (influencerId) => {
           <div class="chat-item-content">
             <div class="chat-item-header">
               <div class="chat-info">
-                <span class="chat-name">{{ chat.opponentName }}</span>
+                <span class="chat-name">{{ getChatDetail(chat.chatId)?.partnerName }}</span>
               </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
@@ -393,15 +414,15 @@ const goToInfluencerDetail = (influencerId) => {
       <div class="chat-header">
         <div class="chat-header-info">
           <div class="chat-profile">
-            <img 
-              :src="getChatDetail(selectedChat?.chatId)?.profileImage" 
-              :alt="selectedChat?.opponentName"
+            <img
+              :src="getChatDetail(selectedChat?.chatId)?.profileImage"
+              :alt="getChatDetail(selectedChat?.chatId)?.partnerName"
               class="profile-image"
               @click="goToInfluencerDetail(selectedChat?.opponentId)"
             >
           </div>
           <div class="chat-user-info">
-            <span class="chat-partner-name">{{ selectedChat?.opponentName }}</span><br>
+            <span class="chat-partner-name">{{ getChatDetail(selectedChat?.chatId)?.partnerName }}</span><br>
             <span class="chat-channel-id">채널명 : {{ getChatDetail(selectedChat?.chatId)?.channelName }}</span>
           </div>
         </div>

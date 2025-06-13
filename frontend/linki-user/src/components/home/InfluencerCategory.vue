@@ -4,16 +4,16 @@ import { useRouter } from 'vue-router'
 import { homeAPI } from '@/api/home'
 
 const router = useRouter()
-const sidebarCategories = ref([])
+const categories = ref([])
 const loading = ref(false)
 const error = ref(null)
 
-const fetchSidebarCategories = async () => {
+const fetchCategories = async () => {
   try {
     loading.value = true
-    const data = await homeAPI.getSidebarCategories()
-    console.log('Sidebar categories response:', data)
-    sidebarCategories.value = data
+    const data = await homeAPI.getCategories()
+    console.log(' categories response:', data)
+    categories.value = data
   } catch (err) {
     console.error('사이드바 카테고리 로딩 실패:', err)
     error.value = '사이드바 카테고리를 불러오는데 실패했습니다.'
@@ -33,7 +33,7 @@ const handleCategoryClick = (category) => {
 }
 
 onMounted(async () => {
-  await fetchSidebarCategories()
+  await fetchCategories()
 })
 </script>
 
@@ -44,7 +44,7 @@ onMounted(async () => {
       전체보기
     </button>
     <ul class="category-menu">
-      <li v-for="category in sidebarCategories" :key="category.id" class="menu-item">
+      <li v-for="category in categories" :key="category.id" class="menu-item">
         <a href="#" 
            :class="{ active: category.active }"
            @click.prevent="handleCategoryClick(category)"
