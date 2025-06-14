@@ -29,14 +29,11 @@
         <span class="error-message" v-if="confirmError">{{ confirmError }}</span>
       </div>
       <div class="button-group">
-        <button type="submit" class="save-button" :disabled="isLoading">
-          {{ isLoading ? '변경 중...' : '변경' }}
-        </button>
-      </div>
-    </form>
-  </div>
+        <div class="save-button" @click="handleSubmit" :disabled="isLoading">
+          <div {{ isLoading ? '변경 중...' : '변경' }} </div>
+        </div>
+        </div>
 </template>
-
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
