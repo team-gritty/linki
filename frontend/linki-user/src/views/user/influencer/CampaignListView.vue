@@ -42,8 +42,8 @@
             <div class="campaign-info">
               <h3>{{ campaign.campaignName }}</h3>
               <p>{{ campaign.campaignCondition }}</p>
-              <div class="campaign-meta">
-                <span class="category">{{ campaign.campaignCategory }}</span>
+              <div class="campaign-meta-row">
+                <span class="campaign-category">{{ campaign.campaignCategory }}</span>
                 <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
               </div>
             </div>
@@ -74,8 +74,8 @@
             <div class="campaign-info">
               <h3>{{ campaign.campaignName }}</h3>
               <p>{{ campaign.campaignCondition }}</p>
-              <div class="campaign-meta">
-                <span class="category">{{ campaign.campaignCategory }}</span>
+              <div class="campaign-meta-row">
+                <span class="campaign-category">{{ campaign.campaignCategory }}</span>
                 <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
               </div>
             </div>
@@ -259,8 +259,9 @@ onMounted(() => {
 <style scoped>
 .campaign-list {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
+  overflow-x: visible;
 }
 
 .popular-section,
@@ -326,7 +327,7 @@ onMounted(() => {
 
 .category-tabs {
   display: flex;
-  gap: 8px;
+  gap: 0px;
   overflow-x: auto;
   padding: 16px 0;
   margin: 0 0 32px 0;
@@ -334,6 +335,7 @@ onMounted(() => {
   scrollbar-width: none;  /* Firefox */
   position: sticky;
   top: 0;
+  min-width: 100%;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -344,7 +346,7 @@ onMounted(() => {
 .category-tab {
   padding: 8px 20px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -378,7 +380,7 @@ onMounted(() => {
 
 .campaign-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 20px;
   margin-bottom: 40px;
 }
@@ -419,18 +421,21 @@ onMounted(() => {
   line-height: 1.4;
 }
 
-.campaign-meta {
+.campaign-meta-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
+  margin-top: 8px;
 }
 
-.category {
+.campaign-category {
+  display: inline-block;
   background: #f3f4f6;
-  padding: 4px 8px;
-  border-radius: 4px;
   color: #374151;
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .deadline {

@@ -475,7 +475,7 @@ export default {
 
 <style scoped>
 .channel-change-container {
-  padding: 40px;
+  padding: 30px 100px 100px 100px;
   background: white;
   border-radius: 4px;
 }
@@ -484,6 +484,7 @@ export default {
   display: flex;
   gap: 20px;
   margin-bottom: 40px;
+  justify-content: center;
 }
 
 .tab-button {
@@ -560,15 +561,16 @@ export default {
 .auth-section {
   display: flex;
   justify-content: flex-start;
+  margin-top: -20px;
 }
 
 .auth-button {
-  padding: 16px 48px;
+  padding: 10px 20px;
   background-color: #7b21e8;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
 }
 

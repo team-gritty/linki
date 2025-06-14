@@ -61,7 +61,7 @@
 .register-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #7B21E8;
+  color: #000000;
   margin-bottom: 40px;
 }
 
@@ -200,8 +200,8 @@
 }
 
 .submit-btn {
-  background: #E1CFFF;
-  color: #7B21E8;
+  background: #7B21E8;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 12px 40px;
@@ -215,7 +215,7 @@
 }
 
 .submit-btn:hover {
-  background: #d1b3ff;
+  background: #6B21E8;
 }
 
 .arrow {
@@ -304,8 +304,8 @@
 
 /* Button Styles */
 .detail-btn {
-  background: #E1CFFF;
-  color: #7B21E8;
+  background: #7B21E8;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 10px 32px;
@@ -317,7 +317,7 @@
 
 .detail-btn:hover,
 .detail-btn.active {
-  background: #7B21E8;
+  background: #6B21E8;
   color: #fff;
 }
 

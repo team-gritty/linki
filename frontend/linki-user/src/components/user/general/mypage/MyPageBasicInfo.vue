@@ -182,6 +182,7 @@ fetchProfile()
   font-weight: 600;
   margin-bottom: 2rem;
   color: #333;
+  text-align: center;
 }
 
 .basic-info-form {
@@ -247,12 +248,12 @@ fetchProfile()
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  background-color: #d6bcf7;
-  color: #000;
+  background-color: #7B21E8;
+  color: #ffffff;
 }
 
 .save-button:hover {
-  background-color: #c4a3f7;
+  background-color: #6B21E8;
 }
 
 .save-button:disabled {

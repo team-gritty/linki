@@ -98,7 +98,7 @@ export default {
 
 <style scoped>
 .settlement-content {
-  padding: 32px;
+  padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
 }

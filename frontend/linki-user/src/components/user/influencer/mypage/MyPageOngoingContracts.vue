@@ -115,6 +115,12 @@ export default {
 </script>
 
 <style scoped>
+.ongoing-contracts-content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .detail-btn {
   padding: 8px 24px;
   background-color: #8B5CF6;

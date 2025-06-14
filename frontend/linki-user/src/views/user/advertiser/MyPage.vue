@@ -1,7 +1,8 @@
 <template>
-  <div class="list-layout">
+  <div class="my-page">
     <MyPageSideBar v-model:currentMenu="currentMenu" @contractsLoaded="onContractsLoaded" />
-    <main class="list-content">
+      
+    <div class="content-area">
       <!-- 프로필/비밀번호 변경 -->
       <MyPageBasicInfo v-if="currentMenu === 'profile.basic'" />
       <MyPagePassword v-if="currentMenu === 'profile.password'" />
@@ -34,7 +35,7 @@
       <MyPageWrittenReviews v-if="currentMenu === 'review.written'" />
       <MyPageReceivedReviews v-if="currentMenu === 'review.received'" />
       <MyPageWriteReview v-if="currentMenu === 'review.write'" />
-    </main>
+    </div>
   </div>
 </template>
 

@@ -163,20 +163,15 @@ const sendMessage = async () => {
     messageType: 'message'
   }
 
-  try {
-    const response = await chatApi.sendMessage(messageObj)
-    chatMessages.value.push(response.data)
-    newMessage.value = ''
-    
-    setTimeout(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    }, 0)
-  } catch (err) {
-    error.value = '메시지 전송에 실패했습니다.'
-    console.error('Error sending message:', err)
-  }
+  // 실제 API 호출 없이 화면에만 메시지 추가
+  chatMessages.value.push(messageObj)
+  newMessage.value = ''
+
+  setTimeout(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  }, 0)
 }
 
 onMounted(() => {

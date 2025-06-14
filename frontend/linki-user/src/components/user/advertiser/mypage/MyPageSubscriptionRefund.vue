@@ -131,21 +131,28 @@ export default {
   resize: vertical;
 }
 .refund-btn {
-  background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
-  color: #fff;
+  padding: 8px 24px;
+  background-color: #8B5CF6;
+  color: white;
   border: none;
-  border-radius: 24px;
-  padding: 12px 0;
-  font-size: 1.08rem;
-  font-weight: bold;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
   margin-top: 8px;
-  transition: background 0.2s, transform 0.15s;
+}
+.refund-btn:hover {
+  background-color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 .refund-btn:disabled {
-  background: #e5e7eb;
-  color: #bdbdbd;
+  background-color: #E5E7EB;
+  color: #9CA3AF;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 .refund-status {
   text-align: center;

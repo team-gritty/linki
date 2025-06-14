@@ -133,18 +133,27 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 .category-list {
-  max-height: 300px;
+  max-height: 192px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  padding: 0;
 }
 .category-item {
-  padding: 10px 20px;
+  width: 100%;
+  border-radius: 0px;
+  box-sizing: border-box;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 8px;
   cursor: pointer;
   transition: background-color 0.2s;
   color: #333;
-  font-size: 15px;
+  font-size: 13px;
+  text-align: left;
+  line-height: 0.5;
+  display: flex;
+  align-items: center;
 }
 .category-item:hover {
   background-color: #F5F0FF;

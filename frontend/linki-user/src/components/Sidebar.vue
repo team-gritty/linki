@@ -1,11 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
-
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import ChatDropdown from '@/components/ChatDropdown.vue'
 
-
 const router = useRouter()
+const route = useRoute()
 const isMobile = ref(false)
 
 const props = defineProps({
@@ -61,12 +60,9 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-
-        <li class="menu-item" @click="goToHome">홈</li>
-        <li class="menu-item" @click="goTochannels">인플루언서</li>
-        <li class="menu-item" @click="goToCampaigns">캠페인</li>
-
-
+        <li class="menu-item" :class="{ active: route.path === '/home' }" @click="goToHome">홈</li>
+        <li class="menu-item" :class="{ active: route.path.startsWith('/channels') }" @click="goTochannels">인플루언서</li>
+        <li class="menu-item" :class="{ active: route.path.startsWith('/campaign') }" @click="goToCampaigns">캠페인</li>
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -80,17 +76,14 @@ watch(() => props.openSidebar, (newValue) => {
     <div :class="['mobile-sidebar-overlay', { 'is-open': openSidebar }]" @click.self="toggleSidebar">
       <div :class="['mobile-sidebar', { 'is-open': openSidebar }]">
         <ul class="menu-list mobile-menu">
-          <li class="menu-item">
+          <li class="menu-item" :class="{ active: route.path === '/home' }">
             <router-link to="/home"><span>홈</span></router-link>
           </li>
-          <li class="menu-item">
+          <li class="menu-item" :class="{ active: route.path.startsWith('/channels') }">
             <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
-
-          <li class="menu-item" @click="goToCampaigns">캠페인</li>
-
-          <li class="menu-item" @click="goToMyPage">마이페이지</li>
-
+          <li class="menu-item" :class="{ active: route.path.startsWith('/campaign') }" @click="goToCampaigns">캠페인</li>
+          <li class="menu-item" :class="{ active: route.path.startsWith('/mypage') }" @click="goToMyPage">마이페이지</li>
         </ul>
       </div>
     </div>
@@ -143,7 +136,7 @@ body, html {
   position: absolute;
   left: 60px;
   color: #7B21E8;
-  font-size: 24px;
+  font-size: 35px;
   font-weight: bold;
   text-decoration: none;
 }
@@ -171,11 +164,11 @@ body, html {
 }
 
 .menu-item { 
-  font-size: 15px;
+  font-size: 20px; 
   white-space: nowrap;
   cursor: pointer;
   transition: color 0.2s;
-  padding: 8px 12px;
+  padding: 8px 100px;
   text-align: center;
   position: relative;
   display: inline-block;
@@ -237,14 +230,13 @@ body, html {
 .mypage-button {
   display: flex;
   align-items: center;
-  gap: 8px;
   background: none;
   border: 1px solid #7B21E8;
   color: #7B21E8;
   padding: 8px 20px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 20px;
   transition: all 0.2s;
   white-space: nowrap;
   min-width: 120px;
@@ -258,6 +250,7 @@ body, html {
 
 .mypage-button i {
   font-size: 1rem;
+  padding: 0 10px 0 0px;
 }
 
 .hamburger {

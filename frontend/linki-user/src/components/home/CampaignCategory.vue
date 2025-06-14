@@ -8,27 +8,6 @@ const categories = ref([])
 const loading = ref(false)
 const error = ref(null)
 
-// 카테고리 슬라이더 관련 상태
-const categorySlideIndex = ref(0)
-const categoriesPerSlide = 6
-
-const displayedCategories = computed(() => {
-  const start = categorySlideIndex.value * categoriesPerSlide
-  return categories.value.slice(start, start + categoriesPerSlide)
-})
-
-const prevCategorySlide = () => {
-  if (categorySlideIndex.value > 0) {
-    categorySlideIndex.value--
-  }
-}
-
-const nextCategorySlide = () => {
-  if (categorySlideIndex.value < Math.ceil(categories.value.length / categoriesPerSlide) - 1) {
-    categorySlideIndex.value++
-  }
-}
-
 const fetchCategories = async () => {
   try {
     loading.value = true
@@ -89,41 +68,30 @@ onMounted(async () => {
 <template>
   <section class="category-section">
     <div class="section-header">
-      <div class="title-wrapper">
-        <span class="small-title highlight">
-          <span class="vertical-bar"></span>종류별로 보는
-        </span>
-        <h3>캠페인 카테고리 선택</h3>
-      </div>
-      <div class="navigation-arrows">
-        <button class="nav-arrow" @click="prevCategorySlide" :disabled="categorySlideIndex === 0">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button class="nav-arrow" @click="nextCategorySlide" 
-                :disabled="categorySlideIndex >= Math.ceil(categories.length / categoriesPerSlide) - 1">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
     </div>
     <div class="category-slider">
-      <div class="category-grid">
-        <div v-for="category in displayedCategories" :key="category.id" 
-             :class="['category-item', { active: category.active }]"
-             @click="handleCategoryClick(category)"
-             style="cursor: pointer;">
-          <div class="category-icon">
-            {{ category.icon }}
+      <transition-group name="category-fade" tag="div" class="category-grid">
+        <div
+          v-for="(category, idx) in categories"
+          :key="category.id"
+          style="display: flex; flex-direction: column; align-items: center;"
+          :style="{ transitionDelay: (idx * 80) + 'ms' }"
+        >
+          <div
+            :class="['category-item', { active: category.active } ]"
+            @click="handleCategoryClick(category)"
+            style="cursor: pointer;"
+          >
+            <div class="category-icon">
+              {{ category.icon }}
+            </div>
           </div>
           <span class="category-name">{{ category.name }}</span>
         </div>
-      </div>
+      </transition-group>
     </div>
     <div class="center-button-wrapper">
-      <button class="more-button" @click="handleViewAll">전체보기</button>
+      <button class="more-button" @click="handleViewAll">캠페인 전체보기</button>
     </div>
   </section>
 </template>
