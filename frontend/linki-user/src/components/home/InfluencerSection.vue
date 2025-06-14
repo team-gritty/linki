@@ -8,10 +8,23 @@ const influencers = ref([])
 const loading = ref(false)
 const error = ref(null)
 
-// 상위 4개 인플루언서만 표시
+// 슬라이더 관련 상태
+const currentIndex = ref(0)
+const visibleCount = 4 // 한 번에 보여줄 카드 수
+
 const displayedInfluencers = computed(() => {
-  return influencers.value.slice(0, 4)
+  return influencers.value.slice(currentIndex.value, currentIndex.value + visibleCount)
 })
+
+const canSlideLeft = computed(() => currentIndex.value > 0)
+const canSlideRight = computed(() => currentIndex.value + visibleCount < influencers.value.length)
+
+const slideLeft = () => {
+  if (canSlideLeft.value) currentIndex.value--
+}
+const slideRight = () => {
+  if (canSlideRight.value) currentIndex.value++
+}
 
 const fetchInfluencers = async () => {
   try {
@@ -54,45 +67,50 @@ onMounted(async () => {
 
 <template>
   <section class="influencer-section">
-    <div class="section-header">
-      <div class="title-wrapper">
-        <span class="small-title highlight">
-          <span class="vertical-bar"></span>이번 달 주목할
-        </span>
-        <h3>인플루언서</h3>
+    <div class="influencer-inner" style="position: relative; max-width: 1500px; margin: 0 auto;">
+      <div class="arrow left-arrow" @click="slideLeft" :class="{ disabled: !canSlideLeft }">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <button class="more-button" @click="$router.push({ name: 'influencer-list' })">전체보기</button>
-    </div>
-    <div class="influencer-grid">
-      <router-link 
-        v-for="influencer in displayedInfluencers" 
-        :key="influencer.id"
-        :to="{ name: 'channel-detail', params: { id: influencer.id }}"
-        class="influencer-card"
-        @click="handleInfluencerClick(influencer.id)"
-      >
-        <div class="influencer-image">
-          <img :src="influencer.profileImage" :alt="influencer.name" @error="handleImageError" />
+      <div class="arrow right-arrow" @click="slideRight" :class="{ disabled: !canSlideRight }">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="section-header">
+        <div class="influencer-title" style="text-align: center; width: 100%;">
+          이번 달, 💫<span class="highlight">LINKI</span>추천 인플루언서
         </div>
-        <div class="influencer-info">
-          <h4 class="influencer-name">{{ influencer.name }}</h4>
-          <div class="rating">
-            <div class="stars-container">
-              <div class="stars-bg">★★★★★</div>
-              <div 
-                class="stars-filled" 
-                :style="{ width: `${(influencer.rating / 5) * 100}%` }"
-              >★★★★★</div>
+      </div>
+      <div class="influencer-grid">
+        <div
+          v-for="influencer in displayedInfluencers"
+          :key="influencer.id"
+          class="influencer-card"
+          :style="{ backgroundImage: `url(${influencer.profileImage})` }"
+          @click="handleInfluencerClick(influencer.id)"
+          style="cursor: pointer;"
+        >
+          <span class="category">{{ influencer.category }}</span>
+          <div class="influencer-info">
+            <h4 class="influencer-name">{{ influencer.name }}</h4>
+            <div class="rating">
+              <div class="stars-container">
+                <div class="stars-bg">★★★★★</div>
+                <div 
+                  class="stars-filled" 
+                  :style="{ width: `${(influencer.rating / 5) * 100}%` }"
+                >★★★★★</div>
+              </div>
+              <span class="rating-score">{{ influencer.rating.toFixed(1) }}</span>
+              <span class="review-count">({{ influencer.reviews }})</span>
             </div>
-            <span class="rating-score">{{ influencer.rating.toFixed(1) }}</span>
-            <span class="review-count">({{ influencer.reviews }})</span>
-          </div>
-          <div class="influencer-stats">
-            <span class="subscribers">구독자 {{ influencer.subscribers }}명</span>
-            <span class="category">{{ influencer.category }}</span>
+            <div class="influencer-stats">
+              <span class="subscribers">구독자 {{ influencer.subscribers }}명</span>
+            </div>
           </div>
         </div>
-      </router-link>
+      </div>
+      <div class="center-button-wrapper">
+        <button class="more-button" @click="$router.push({ name: 'influencer-list' })">인플루언서 전체보기</button>
+      </div>
     </div>
   </section>
 </template>
