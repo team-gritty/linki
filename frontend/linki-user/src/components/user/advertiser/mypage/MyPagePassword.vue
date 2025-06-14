@@ -1,43 +1,60 @@
 <template>
-  <div class="password-container">
-    <h2 class="password-title">비밀번호 변경</h2>
-    <form class="password-form" @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label>현재 비밀번호</label>
-        <input 
-          type="password" 
-          v-model="passwordData.currentPassword"
-          :disabled="isLoading"
-        />
-      </div>
-      <div class="form-group">
-        <label>새 비밀번호</label>
-        <input 
-          type="password" 
-          v-model="passwordData.newPassword"
-          :disabled="isLoading"
-        />
-        <span class="error-message" v-if="passwordError">{{ passwordError }}</span>
-      </div>
-      <div class="form-group">
-        <label>새 비밀번호 확인</label>
-        <input 
-          type="password" 
-          v-model="passwordData.confirmPassword"
-          :disabled="isLoading"
-        />
-        <span class="error-message" v-if="confirmError">{{ confirmError }}</span>
-      </div>
-      <div class="button-group">
-        <div class="save-button" @click="handleSubmit" :disabled="isLoading">
-          <div {{ isLoading ? '변경 중...' : '변경' }} </div>
+  <div :class="$style.myProfileParent">
+    <div :class="$style.myProfile">비밀번호 변경</div>
+    <div :class="$style.formContainer">
+      <div :class="$style.parent">
+        <div :class="$style.div">현재 비밀번호</div>
+        <div :class="$style.placeboxInfo">
+          <div :class="$style.placeToInfoBox"></div>
+          <input
+              type="password"
+              v-model="passwordData.currentPassword"
+              :class="$style.md"
+              :disabled="isLoading"
+          />
         </div>
+      </div>
+      <div :class="$style.parent">
+        <div :class="$style.div">새 비밀번호</div>
+        <div :class="$style.placeboxInfo">
+          <div :class="$style.placeToInfoBox"></div>
+          <input
+              type="password"
+              v-model="passwordData.newPassword"
+              :class="$style.md"
+              :disabled="isLoading"
+          />
         </div>
+        <div v-if="passwordError" :class="$style.errorMessage">{{ passwordError }}</div>
+      </div>
+      <div :class="$style.parent">
+        <div :class="$style.div">새 비밀번호 확인</div>
+        <div :class="$style.placeboxInfo">
+          <div :class="$style.placeToInfoBox"></div>
+          <input
+              type="password"
+              v-model="passwordData.confirmPassword"
+              :class="$style.md"
+              :disabled="isLoading"
+          />
+        </div>
+        <div v-if="confirmError" :class="$style.errorMessage">{{ confirmError }}</div>
+      </div>
+      <div :class="$style.buttonContainer">
+        <div :class="$style.button" @click="handleSubmit" :disabled="isLoading">
+          <div :class="$style.viewAllProducts">{{ isLoading ? '변경 중...' : '변경' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+const router = useRouter()
 const isLoading = ref(false)
 const passwordError = ref('')
 const confirmError = ref('')
@@ -70,12 +87,13 @@ const handleSubmit = async () => {
 
   isLoading.value = true
   try {
-    await axios.post('/api/advertiser/change-password', {
+    await axios.post('/api/user/change-password', {
       currentPassword: passwordData.value.currentPassword,
       newPassword: passwordData.value.newPassword
     })
-    
+
     alert('비밀번호가 성공적으로 변경되었습니다.')
+    router.push('/mypage?currentMenu=profile.basic')
   } catch (error) {
     if (error.response?.status === 401) {
       alert('현재 비밀번호가 올바르지 않습니다.')
@@ -88,92 +106,103 @@ const handleSubmit = async () => {
 }
 </script>
 
-<style scoped>
-.password-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.password-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-  color: #333;
-}
-
-.password-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+<style module>
+.myProfileParent {
+  position: relative;
   width: 100%;
-  background-color: #fffcfc;
+  padding: 40px;
 }
 
-.form-group {
+.myProfile {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+.formContainer {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 24px;
+  max-width: 400px;
 }
 
-.form-group label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #666;
+.div {
+  line-height: 24px;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #000;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
 }
 
-.form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
+.placeToInfoBox {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
   border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  background-color: rgba(245, 245, 245, 0.7);
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: #d6bcf7;
-}
-
-.form-group input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
-.error-message {
-  font-size: 0.8rem;
-  color: #ff4444;
-}
-
-.button-group {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-
-.save-button {
-  min-width: 80px;
-  padding: 0.5rem 1rem;
+.md {
+  position: absolute;
+  top: 13px;
+  left: 16px;
+  line-height: 24px;
+  background: transparent;
   border: none;
+  width: calc(100% - 32px);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.md:focus {
+  outline: none;
+}
+
+.placeboxInfo {
+  position: relative;
+  width: 100%;
+  height: 50px;
+}
+
+.parent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.errorMessage {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.button {
+  padding: 12px 48px;
+  background-color: #1890ff;
   border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  color: white;
   cursor: pointer;
-  transition: all 0.2s;
-  background-color: #8C30F5;
-  color: #fff;
+  font-weight: 500;
 }
 
-.save-button:hover {
-  background-color: #6B21E8;
+.button:hover {
+  background-color: #40a9ff;
 }
 
-.save-button:disabled {
-  background-color: #eee;
-  color: #999;
+.viewAllProducts {
+  line-height: 24px;
+}
+
+[disabled] {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 </style>
