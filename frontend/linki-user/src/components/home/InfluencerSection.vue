@@ -111,7 +111,7 @@ onUnmounted(() => {
           이번 달, 💫<span class="highlight">LINKI</span>추천 인플루언서
         </div>
       </div>
-      <div class="influencer-grid">
+      <div class="influencer-grid" @mouseenter="stopAutoSlide" @mouseleave="startAutoSlide">
         <div
           v-for="influencer in displayedInfluencers"
           :key="influencer.id"
