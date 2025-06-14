@@ -11,9 +11,9 @@ import InfluencerSection from '@/components/home/InfluencerSection.vue'
     <div class="main-content">
       <CampaignCategory />
       <div class="section-divider"></div>
-      <CampaignSection />
-      <div class="section-divider"></div>
       <InfluencerSection />
+      <div class="section-divider"></div>
+      <CampaignSection />
     </div>
   </div>
 </template>
