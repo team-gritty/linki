@@ -163,6 +163,8 @@
   "광고주 - 캠페인 관련": "광고주의 캠페인 관련 라우트",
   "/v1/api/mypage/advertiser/campaigns": "/campaigns",
   "/v1/api/advertiser/campaigns": "/campaigns",
+  "광고주 - 마이페이지 - 캠페인 상태 변경": "광고주 - 마이페이지 - 캠페인 상태 변경",
+  "/v1/api/mypage/advertiser/campaigns/:campaignId/status": "/campaigns/:campaignId",
   "/v1/api/advertiser/campaigns/:campaignId": "/campaigns?campaignId=:campaignId",
   "/v1/api/advertiser/proposals": "/proposals",
   "캠페인에 관련된 제안서만 조회": "캠페인에 관련된 제안서만 조회",
