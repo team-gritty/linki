@@ -90,16 +90,29 @@ onUnmounted(() => {
             <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
           </template>
           <div class="banner-content" :class="`banner-content--${banner.id}`">
-            <div v-if="banner.id === 2" class="banner-text-bg">
-              <h2>{{ banner.title }}</h2>
-              <p>{{ banner.description }}</p>
-              <button class="start-button">Start Linki →</button>
-            </div>
-            <div v-else class="banner-texts">
-              <h2>{{ banner.title }}</h2>
-              <p>{{ banner.description }}</p>
-              <button class="start-button">Start Linki →</button>
-            </div>
+            <template v-if="banner.id === 1">
+              <div class="banner-row">
+                <div class="banner-texts banner-texts--left">
+                  <h2 style="margin-left:0;">{{ banner.title }}</h2>
+                  <p>{{ banner.description }}</p>
+                </div>
+                <button class="start-button">Start Linki →</button>
+              </div>
+            </template>
+            <template v-else-if="banner.id === 2">
+              <div class="banner-text-bg">
+                <h2>{{ banner.title }}</h2>
+                <p>{{ banner.description }}</p>
+                <button class="start-button">Start Linki →</button>
+              </div>
+            </template>
+            <template v-else>
+              <div class="banner-texts">
+                <h2>{{ banner.title }}</h2>
+                <p>{{ banner.description }}</p>
+                <button class="start-button">Start Linki →</button>
+              </div>
+            </template>
           </div>
         </div>
         <div class="slider-dots">
