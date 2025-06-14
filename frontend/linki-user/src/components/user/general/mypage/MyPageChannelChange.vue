@@ -475,7 +475,7 @@ export default {
 
 <style scoped>
 .channel-change-container {
-  padding: 40px;
+  padding: 30px 100px 100px 100px;
   background: white;
   border-radius: 4px;
 }
