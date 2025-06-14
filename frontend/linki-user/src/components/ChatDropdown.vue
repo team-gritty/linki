@@ -156,10 +156,10 @@ onUnmounted(() => {
 
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -15px;
+  right: -5px;
   color: #FFD700;
-  font-size: 1.5rem;
+  font-size: 2rem;
   text-shadow: 0 0 2px rgba(0,0,0,0.2);
 }
 
