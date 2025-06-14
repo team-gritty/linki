@@ -106,16 +106,27 @@ export default {
 </script>
 
 <style scoped>
+.subscription-manage-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 20px 0 20px;
+}
+
+.content-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+  text-align: center;
+}
+
 .content-box {
   background: #faf7ff;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(124,58,237,0.06);
-  padding: 32px 28px 28px 28px;
-  max-width: 420px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(124,58,237,0.08);
+  padding: 32px 24px 28px 24px;
+  margin: 0 auto 48px auto;
+  max-width: 500px;
 }
 .manage-info-wrap {
   display: flex;

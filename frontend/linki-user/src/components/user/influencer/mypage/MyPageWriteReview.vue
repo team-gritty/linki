@@ -283,17 +283,19 @@ export default {
 }
 
 .write-review-btn {
-  background-color: #3b82f6;
+  padding: 8px 24px;
+  background-color: #8B5CF6;
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .write-review-btn:hover {
-  background-color: #2563eb;
+  background-color: #7C3AED;
 }
 
 /* 모달 스타일 */
@@ -388,23 +390,29 @@ export default {
 }
 
 .cancel-btn {
-  padding: 8px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  padding: 8px 24px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
   background-color: white;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .submit-btn {
-  padding: 8px 16px;
-  background-color: #3b82f6;
+  padding: 8px 24px;
+  background-color: #8B5CF6;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .submit-btn:hover {
-  background-color: #2563eb;
+  background-color: #7C3AED;
 }
 </style> 

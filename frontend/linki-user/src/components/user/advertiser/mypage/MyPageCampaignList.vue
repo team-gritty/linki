@@ -1,5 +1,7 @@
 <template>
-    <div class="list-box">
+  <div class="campaign-list-content">
+    <h1 class="content-title">내 캠페인 목록</h1>
+    <div class="content-box">
       <div
         v-for="(item, idx) in campaigns"
         :key="item.id"
@@ -44,6 +46,7 @@
         등록된 캠페인이 없습니다.
       </div>
     </div>
+  </div>
   
     <!-- 상태 변경 모달 -->
     <div v-if="modalOpen" class="modal-overlay" @click="modalOpen = false">
@@ -165,76 +168,114 @@
   }
   </script>
   
-  <style>
+  <style scoped>
   @import '@/assets/css/mypage.css';
 
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
+.campaign-list-content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-  .modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    max-width: 400px;
-    width: 90%;
-  }
+.content-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #1a1a1a;
+}
 
-  .modal-content h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-  }
+.content-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
 
-  .modal-content p {
-    margin: 0 0 1.5rem 0;
-    color: #666;
-  }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
-  .modal-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-  }
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+}
 
-  .cancel-btn, .confirm-btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+.modal-content h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
 
-  .cancel-btn {
-    background: #f3f4f6;
-    color: #374151;
-  }
+.modal-content p {
+  margin: 0 0 1.5rem 0;
+  color: #666;
+}
 
-  .confirm-btn {
-    background: #7c3aed;
-    color: white;
-  }
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
 
-  .confirm-btn.delete {
-    background: #dc2626;
-  }
+.cancel-btn, .confirm-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-  .cancel-btn:hover {
-    background: #e5e7eb;
-  }
+.cancel-btn {
+  background: #f3f4f6;
+  color: #374151;
+}
 
-  .confirm-btn:hover {
-    background: #6d28d9;
-  }
+.confirm-btn {
+  background: #7c3aed;
+  color: white;
+}
 
-  .confirm-btn.delete:hover {
-    background: #b91c1c;
-  }
-  </style> 
+.confirm-btn.delete {
+  background: #dc2626;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.confirm-btn:hover {
+  background: #6d28d9;
+}
+
+.confirm-btn.delete:hover {
+  background: #b91c1c;
+}
+
+.detail-btn {
+  padding: 8px 24px;
+  background-color: #8B5CF6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.detail-btn:hover {
+  background-color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+</style> 

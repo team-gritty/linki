@@ -1,8 +1,7 @@
 <template>
-  <div class="list-layout">
-    <main class="list-content">
-      <h1 class="list-title">내 제안서 목록</h1>
-      <div class="list-box">
+  <div class="proposal-list-content">
+    <h1 class="content-title">내 제안서 목록</h1>
+    <div class="content-box">
         <div v-if="loading" class="loading">
           Loading...
         </div>
@@ -36,7 +35,6 @@
           </div>
         </div>
       </div>
-    </main>
   </div>
 </template>
 
@@ -47,13 +45,13 @@ import httpClient from '../../../../utils/httpRequest';
 
 export default {
   name: 'MyPageProposalList',
-  
+
   setup() {
     const router = useRouter();
     const proposals = ref([]);
     const loading = ref(false);
     const error = ref(null);
-    
+
     const getStatusText = (status) => {
       const statusMap = {
         'PENDING': '대기중',
@@ -62,7 +60,7 @@ export default {
       };
       return statusMap[status] || status;
     };
-    
+
     const formatDate = (dateString) => {
       if (!dateString) return '';
       const date = new Date(dateString);
@@ -74,7 +72,7 @@ export default {
         minute: '2-digit'
       });
     };
-    
+
     const fetchProposals = async () => {
       loading.value = true;
       error.value = null;
@@ -86,7 +84,7 @@ export default {
             _limit: 10
           }
         });
-        
+
         const proposalList = response.data;
         console.log('Fetched proposals:', proposalList);
 
@@ -102,11 +100,11 @@ export default {
         // 3. 제안서와 캠페인 정보를 매칭합니다
         const proposalsWithCampaign = proposalList.map(proposal => {
           const matchingCampaign = campaigns.find(
-            campaign => campaign.campaignId === proposal.campaign_id || campaign.campaignId === proposal.product_id
+              campaign => campaign.campaignId === proposal.campaign_id || campaign.campaignId === proposal.product_id
           );
-          
+
           console.log(`Matching campaign for proposal ${proposal.proposal_id}:`, matchingCampaign);
-          
+
           return {
             ...proposal,
             campaign: matchingCampaign || null
@@ -123,16 +121,16 @@ export default {
         loading.value = false;
       }
     };
-    
+
     const viewDetail = (proposalId) => {
       console.log('Navigating to proposal:', proposalId);
       router.push(`/proposal/${proposalId}`);
     };
-    
+
     onMounted(() => {
       fetchProposals();
     });
-    
+
     return {
       proposals,
       loading,
@@ -144,6 +142,48 @@ export default {
   }
 };
 </script>
-<style>
-@import '@/assets/css/mypage.css';
+<style scoped>
+.proposal-list-content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #1a1a1a;
+}
+
+.content-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.list-layout {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detail-btn {
+  padding: 8px 24px;
+  background-color: #8B5CF6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.detail-btn:hover {
+  background-color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
 </style> 
