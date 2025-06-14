@@ -1,7 +1,7 @@
 <template>
   <div class="password-container">
     <h2 class="password-title">비밀번호 변경</h2>
-    <form class="password-form" @submit.prevent="handleSubmit">
+    <div class="password-form" >
       <div class="form-group">
         <label>현재 비밀번호</label>
         <input 
@@ -27,13 +27,14 @@
           :disabled="isLoading"
         />
         <span class="error-message" v-if="confirmError">{{ confirmError }}</span>
+
+        <div class="button-group">
+          <div  class="save-button" @click="handleSubmit" :disabled="isLoading">
+            {{ isLoading ? '변경 중...' : '변경' }}
+          </div>
+        </div>
       </div>
-      <div class="button-group">
-        <button type="submit" class="save-button" :disabled="isLoading">
-          {{ isLoading ? '변경 중...' : '변경' }}
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 
