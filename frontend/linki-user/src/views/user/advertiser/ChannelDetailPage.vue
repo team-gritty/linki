@@ -251,7 +251,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   width: 100%;
   margin: 0;
   background: #fff;
-  padding: 0;
+  padding: 32px;
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
   box-sizing: border-box;
   min-height: 100vh;
