@@ -1655,7 +1655,7 @@
   ],
     "endingTodayCampaigns": [
       {
-        "campaignId": "c5",
+        "campaignId": "c1",
         "campaignName": "스마트 워치 체험단 모집",
         "campaignDesc": "헬스케어에 최적화된 스마트 워치를 직접 사용해보고 리뷰해주세요.",
         "campaignCondition": "IT/전자기기 유튜버, 구독자 2천명 이상",
@@ -1668,7 +1668,7 @@
         "rating": 4.6
       },
       {
-        "campaignId": "c102",
+        "campaignId": "c2",
         "campaignName": "여름용 선크림 리뷰 캠페인",
         "campaignDesc": "피부에 순한 여름 전용 선크림을 체험하고 후기를 공유해주세요.",
         "campaignCondition": "뷰티 채널, 구독자 1만명 이상",
@@ -1681,7 +1681,7 @@
         "rating": 4.9
       },
       {
-        "campaignId": "c103",
+        "campaignId": "c3",
         "campaignName": "건강 간편식 리뷰단",
         "campaignDesc": "맛과 건강을 동시에 잡은 프리미엄 간편식을 체험해주세요.",
         "campaignCondition": "푸드/먹방 채널, 리뷰 경력자 우대",
@@ -1694,7 +1694,7 @@
         "rating": 4.3
       },
       {
-        "campaignId": "c104",
+        "campaignId": "c4",
         "campaignName": "방수 블루투스 이어폰 체험단",
         "campaignDesc": "비 오는 날에도 문제없는 방수 블루투스 이어폰을 사용해보고 영상으로 소개해주세요.",
         "campaignCondition": "전자기기 리뷰 경력 1회 이상 필수",
@@ -1707,11 +1707,11 @@
         "rating": 4.7
       },
       {
-        "campaignId": "c105",
-        "campaignName": "프리미엄 여행가방 리뷰단",
-        "campaignDesc": "프리미엄 기내용 캐리어를 여행과 함께 리뷰해주세요.",
+        "campaignId": "c5",
+        "campaignName": "리멜 마스카라",
+        "campaignDesc": "신제품 마스카라의 사용감과 지속력을 상세히 보여주실 뷰티 크리에이터를 찾습니다. 메이크업 전/후 비교와 상세한 사용법을 포함해주세요.",
         "campaignCondition": "여행 브이로그 유튜버, 구독자 3천명 이상",
-        "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80",
+        "campaignImg": "https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?auto=format&fit=crop&q=80",
         "campaignDeadline": "2025-06-13T21:15:00",
         "campaignCategory": "여행",
         "campaignStatus": "ACTIVE",
@@ -1720,17 +1720,43 @@
         "rating": 4.4
       },
       {
-        "campaignId": "c201",
-        "campaignName": "휴대용 선풍기 체험단",
-        "campaignDesc": "올여름을 시원하게 날릴 휴대용 선풍기를 체험해보고 리뷰해주세요.",
-        "campaignCondition": "라이프스타일 유튜버, 구독자 2천명 이상",
-        "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80",
-        "campaignDeadline": "2025-06-13T23:30:00",
-        "campaignCategory": "Vlog/라이프스타일",
+        "campaignId": "c6",
+        "campaignName": "프리미엄 커피머신 체험단",
+        "campaignDesc": "홈카페를 완성해줄 프리미엄 커피머신을 사용해보고 리뷰해주세요.",
+        "campaignCondition": "푸드/리빙 유튜버, 구독자 1만명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1504198266280-5c0b1bc3cc28?auto=format&fit=crop&q=80",
+        "campaignDeadline": "2025-06-20T18:00:00",
+        "campaignCategory": "푸드/리빙",
         "campaignStatus": "ACTIVE",
-        "companyName": "CoolAir",
-        "reviews": 48,
-        "rating": 4.2
+        "companyName": "Bean&More",
+        "reviews": 62,
+        "rating": 4.7
+      },
+      {
+        "campaignId": "c7",
+        "campaignName": "스마트 워치 리뷰 캠페인",
+        "campaignDesc": "운동과 일상을 함께할 스마트 워치를 착용하고 리뷰해주세요.",
+        "campaignCondition": "IT/운동 유튜버, 구독자 5천명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1603791440384-56cd371ee9a7?auto=format&fit=crop&q=80",
+        "campaignDeadline": "2025-06-18T22:00:00",
+        "campaignCategory": "전자기기/운동",
+        "campaignStatus": "ACTIVE",
+        "companyName": "FitTech",
+        "reviews": 35,
+        "rating": 4.5
+      },
+      {
+        "campaignId": "c8",
+        "campaignName": "천연 스킨케어 화장품 체험단",
+        "campaignDesc": "자연에서 온 성분으로 만든 스킨케어 제품을 리뷰해주세요.",
+        "campaignCondition": "뷰티 유튜버, 구독자 8천명 이상",
+        "campaignImg": "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&q=80",
+        "campaignDeadline": "2025-06-25T14:30:00",
+        "campaignCategory": "뷰티",
+        "campaignStatus": "ACTIVE",
+        "companyName": "Botanica",
+        "reviews": 79,
+        "rating": 4.8
       }
     ],
   "monthInfluencers": [
@@ -1746,73 +1772,93 @@
     },
     {
       "influencersId": 2,
-      "influencerName": "뷰티여신",
+      "influencerName": "뷰티 인플루언서",
       "influencerCategory": "뷰티",
-      "influencerSubscribers": "8.9만",
-      "influencerAvgViewCount": 25000,
-      "influencerReviewsCount": 450,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerSubscribers": "3.8만",
+      "influencerAvgViewCount": 12000,
+      "influencerReviewsCount": 210,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80&w=400&h=400",
       "influencerRating": 4.8
     },
     {
       "influencersId": 3,
-      "influencerName": "푸드로거",
-      "influencerCategory": "푸드/먹방",
-      "influencerSubscribers": "3.5만",
-      "influencerAvgViewCount": 12000,
-      "influencerReviewsCount": 280,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400&h=400",
-      "influencerRating": 4.4
-    },
-    {
-      "influencersId": 4,
-      "influencerName": "여행스토리",
+      "influencerName": "여행의달인",
       "influencerCategory": "여행",
-      "influencerSubscribers": "4.2만",
-      "influencerAvgViewCount": 18000,
-      "influencerReviewsCount": 390,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400&h=400",
-      "influencerRating": 4.5
-    },
-    {
-      "influencersId": 5,
-      "influencerName": "패션왕",
-      "influencerCategory": "패션",
-      "influencerSubscribers": "6.7만",
-      "influencerAvgViewCount": 22000,
-      "influencerReviewsCount": 420,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerSubscribers": "2.1만",
+      "influencerAvgViewCount": 9000,
+      "influencerReviewsCount": 150,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=400&h=400",
       "influencerRating": 4.7
     },
     {
-      "influencersId": 6,
-      "influencerName": "인테리어연구소",
-      "influencerCategory": "리빙/인테리어",
-      "influencerSubscribers": "2.8만",
-      "influencerAvgViewCount": 10000,
-      "influencerReviewsCount": 210,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&q=80&w=400&h=400",
-      "influencerRating": 4.3
-    },
-    {
-      "influencersId": 7,
-      "influencerName": "헬스남매",
-      "influencerCategory": "헬스/운동",
-      "influencerSubscribers": "7.4만",
-      "influencerAvgViewCount": 27000,
-      "influencerReviewsCount": 510,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1611691549217-d35a644ba3f3?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencersId": 4,
+      "influencerName": "푸드파이터",
+      "influencerCategory": "푸드/먹방",
+      "influencerSubscribers": "4.5만",
+      "influencerAvgViewCount": 20000,
+      "influencerReviewsCount": 400,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&q=80&w=400&h=400",
       "influencerRating": 4.9
     },
     {
+      "influencersId": 5,
+      "influencerName": "패션리더",
+      "influencerCategory": "패션",
+      "influencerSubscribers": "6.3만",
+      "influencerAvgViewCount": 18000,
+      "influencerReviewsCount": 275,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.5
+    },
+    {
+      "influencersId": 6,
+      "influencerName": "스포츠킹",
+      "influencerCategory": "스포츠",
+      "influencerSubscribers": "2.9만",
+      "influencerAvgViewCount": 11000,
+      "influencerReviewsCount": 180,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.4
+    },
+    {
+      "influencersId": 7,
+      "influencerName": "음악여신",
+      "influencerCategory": "음악",
+      "influencerSubscribers": "3.2만",
+      "influencerAvgViewCount": 14000,
+      "influencerReviewsCount": 220,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.7
+    },
+    {
       "influencersId": 8,
-      "influencerName": "육아천재",
-      "influencerCategory": "키즈/육아",
-      "influencerSubscribers": "3.3만",
-      "influencerAvgViewCount": 9000,
-      "influencerReviewsCount": 190,
-      "influencerProfileImage": "https://images.unsplash.com/photo-1589571894960-20bbe2828a27?auto=format&fit=crop&q=80&w=400&h=400",
-      "influencerRating": 4.2
+      "influencerName": "엔터테이너",
+      "influencerCategory": "엔터테인먼트",
+      "influencerSubscribers": "4.0만",
+      "influencerAvgViewCount": 16000,
+      "influencerReviewsCount": 310,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.6
+    },
+    {
+      "influencersId": 9,
+      "influencerName": "라이프Vlogger",
+      "influencerCategory": "Vlog/라이프스타일",
+      "influencerSubscribers": "5.0만",
+      "influencerAvgViewCount": 17000,
+      "influencerReviewsCount": 260,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1465101178521-c1a9136a3c5a?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.8
+    },
+    {
+      "influencersId": 10,
+      "influencerName": "교육멘토",
+      "influencerCategory": "교육",
+      "influencerSubscribers": "1.7만",
+      "influencerAvgViewCount": 8000,
+      "influencerReviewsCount": 130,
+      "influencerProfileImage": "https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&q=80&w=400&h=400",
+      "influencerRating": 4.5
     }
   ]
 }
