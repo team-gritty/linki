@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { homeAPI } from '@/api/home'
 
@@ -11,6 +11,7 @@ const error = ref(null)
 // 슬라이더 관련 상태
 const currentIndex = ref(0)
 const visibleCount = 4 // 한 번에 보여줄 카드 수
+const autoSlideInterval = ref(null)
 
 const displayedInfluencers = computed(() => {
   return influencers.value.slice(currentIndex.value, currentIndex.value + visibleCount)
@@ -24,6 +25,24 @@ const slideLeft = () => {
 }
 const slideRight = () => {
   if (canSlideRight.value) currentIndex.value++
+}
+
+// 자동 슬라이드 시작
+const startAutoSlide = () => {
+  autoSlideInterval.value = setInterval(() => {
+    if (currentIndex.value + visibleCount < influencers.value.length) {
+      currentIndex.value++
+    } else {
+      currentIndex.value = 0
+    }
+  }, 2000)
+}
+
+// 자동 슬라이드 정지
+const stopAutoSlide = () => {
+  if (autoSlideInterval.value) {
+    clearInterval(autoSlideInterval.value)
+  }
 }
 
 const fetchInfluencers = async () => {
@@ -62,16 +81,29 @@ const handleInfluencerClick = (influencerId) => {
 
 onMounted(async () => {
   await fetchInfluencers()
+  startAutoSlide()
+})
+
+onUnmounted(() => {
+  stopAutoSlide()
 })
 </script>
 
 <template>
   <section class="influencer-section">
     <div class="influencer-inner" style="position: relative; max-width: 1500px; margin: 0 auto;">
-      <div class="arrow left-arrow" @click="slideLeft" :class="{ disabled: !canSlideLeft }">
+      <div class="arrow left-arrow" 
+           @click="slideLeft" 
+           @mouseenter="stopAutoSlide"
+           @mouseleave="startAutoSlide"
+           :class="{ disabled: !canSlideLeft }">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="arrow right-arrow" @click="slideRight" :class="{ disabled: !canSlideRight }">
+      <div class="arrow right-arrow" 
+           @click="slideRight" 
+           @mouseenter="stopAutoSlide"
+           @mouseleave="startAutoSlide"
+           :class="{ disabled: !canSlideRight }">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="section-header">
