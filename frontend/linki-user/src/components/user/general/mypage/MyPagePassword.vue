@@ -40,8 +40,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+const router = useRouter()
 const isLoading = ref(false)
 const passwordError = ref('')
 const confirmError = ref('')
@@ -52,7 +54,7 @@ const passwordData = ref({
   confirmPassword: ''
 })
 
-const validatePassword = () => {
+const validatePassword = () => {const router = useRouter()
   passwordError.value = ''
   confirmError.value = ''
 
