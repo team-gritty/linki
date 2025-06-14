@@ -67,6 +67,7 @@ DROP TABLE IF EXISTS redirect_links;
 CREATE TABLE `redirect_links` (
 	`redirect_id`	VARCHAR(25)	NOT NULL,
 	`origin_url`	LONGTEXT	NOT NULL,
+    `short_url`	LONGTEXT	NOT NULL,
 	`redirect_url`	LONGTEXT	NOT NULL,
 	`advertiser_id`	varchar(25)	NOT NULL,
 	`contract_id`	VARCHAR(25)	NOT NULL
