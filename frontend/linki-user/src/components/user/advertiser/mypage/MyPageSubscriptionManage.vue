@@ -1,7 +1,7 @@
 <template>
   <div class="subscription-manage-content">
-    <h1 class="content-title">나의 구독 관리</h1>
-    <div class="content-box">
+    <h2 class="subscription-manage-title">나의 구독 관리</h2>
+    <div class="subscription-manage-form">  
       <div v-if="loading" class="manage-loading">구독 정보를 불러오는 중...</div>
       <div v-else-if="error" class="manage-error">{{ error }}</div>
       <div v-else class="manage-info-wrap">
@@ -25,7 +25,9 @@
           <span class="manage-label">구독 서비스로 성사한 계약</span>
           <span class="manage-value contract-count">{{ info.contractCount }}건</span>
         </div>
+        <div class="button-group">
         <button class="refund-btn" @click="goRefund">구독 환불 신청</button>
+      </div>
       </div>
     </div>
     <div class="benefit-section">
@@ -106,28 +108,28 @@ export default {
 </script>
 
 <style scoped>
-.subscription-manage-content {
-  max-width: 1200px;
+.subscription-manage-container {
+  max-width: 600px;
   margin: 0 auto;
-  padding: 48px 20px 0 20px;
+  padding: 2rem;
 }
 
-.content-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-  letter-spacing: -1px;
+.subscription-manage-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #333;
   text-align: center;
 }
 
-.content-box {
+.subscription-manage-form {
   background: #faf7ff;
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(124,58,237,0.08);
-  padding: 32px 24px 28px 24px;
-  margin: 0 auto 48px auto;
-  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(124,58,237,0.06);
+  padding: 32px 28px 28px 28px;
+  margin-bottom: 2rem;
 }
+
 .manage-info-wrap {
   display: flex;
   flex-direction: column;
@@ -170,21 +172,26 @@ export default {
 .status-canceled {
   color: #dc2626;
 }
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
 .refund-btn {
-  margin-top: 18px;
-  background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
-  color: #fff;
+  padding: 8px 24px;
+  background-color: #8B5CF6;
+  color: white;
   border: none;
-  border-radius: 24px;
-  padding: 13px 0;
-  font-size: 1.08rem;
-  font-weight: bold;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: all 0.2s ease;
 }
 .refund-btn:hover {
-  background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
-  transform: translateY(-2px) scale(1.03);
+  background-color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 .manage-loading, .manage-error {
   text-align: center;
