@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { homeAPI } from '@/api/home'
 
@@ -16,17 +16,44 @@ const timerInterval = ref(null)
 
 // 페이지네이션 관련 상태
 const itemsPerPage = 5
-const currentPage = ref(0)
+const slideOffset = ref(0)
+const autoSlideInterval = ref(null)
+
+const CARD_WIDTH = 240;
+const CARD_GAP = 24;
 
 // 현재 페이지에 표시될 상품들
 const displayedProducts = computed(() => {
-  const start = currentPage.value * itemsPerPage
+  const start = slideOffset.value
   const products = campaignProducts.value.slice(start, start + itemsPerPage)
   return products.map((product, index) => ({
     ...product,
     displayId: `${product.campaignId}-${index}`
   }))
 })
+
+// 페이지 이동
+const canSlideLeft = computed(() => slideOffset.value > 0)
+const canSlideRight = computed(() => slideOffset.value + itemsPerPage < campaignProducts.value.length)
+const slideLeft = () => { if (canSlideLeft.value) slideOffset.value-- }
+const slideRight = () => { if (canSlideRight.value) slideOffset.value++ }
+
+// 자동 슬라이드 시작
+const startAutoSlide = () => {
+  autoSlideInterval.value = setInterval(() => {
+    if (canSlideRight.value) {
+      slideOffset.value++
+    } else {
+      slideOffset.value = 0
+    }
+  }, 2000)
+}
+// 자동 슬라이드 정지
+const stopAutoSlide = () => {
+  if (autoSlideInterval.value) {
+    clearInterval(autoSlideInterval.value)
+  }
+}
 
 // 시간 형식 변환 함수 (2자리 숫자로 표시)
 const formatTimeUnit = (unit) => {
@@ -80,23 +107,10 @@ const calculateTimeLeft = (deadline) => {
   return `${hours}시간 남음`
 }
 
-
-const nextPage = () => {
-  if (currentPage.value < Math.ceil(campaignProducts.value.length / itemsPerPage) - 1) {
-    currentPage.value++
-  }
-}
-
-const prevPage = () => {
-  if (currentPage.value > 0) {
-    currentPage.value--
-  }
-}
-
 onMounted(async () => {
   await fetchCampaigns()
   calculateTimeUntilMidnight()
-  
+  startAutoSlide()
   timerInterval.value = setInterval(() => {
     if (seconds.value > 0) {
       seconds.value--
@@ -121,16 +135,21 @@ onUnmounted(() => {
   if (timerInterval.value) {
     clearInterval(timerInterval.value)
   }
+  stopAutoSlide()
 })
 </script>
 
 <template>
   <section class="campaign-section">
     <div class="campaign-inner">
-      <div class="arrow left-arrow" @click="prevPage" :class="{ disabled: currentPage === 0 }">
+      <div class="arrow left-arrow" 
+           @click="slideLeft"
+           :class="{ disabled: !canSlideLeft }">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="arrow right-arrow" @click="nextPage" :class="{ disabled: currentPage >= Math.ceil(campaignProducts.length / itemsPerPage) - 1 }">
+      <div class="arrow right-arrow" 
+           @click="slideRight"
+           :class="{ disabled: !canSlideRight }">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#7B21E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="section-header">
@@ -158,26 +177,28 @@ onUnmounted(() => {
       </div>
       </div>
       
-      <div class="product-grid">
-        <div v-for="product in displayedProducts" 
-             :key="product.displayId" 
-             class="product-card"
-             :style="{ backgroundImage: `url(${product.campaignImg})` }"
-             @click="router.push(`/campaign/${product.campaignId}`)"
-             style="cursor: pointer;">
-          <span class="time-remaining">{{ product.timeLeft }}</span>
-          <div class="product-info">
-            <h4 class="product-name">{{ product.campaignName }}</h4>
-            <div class="rating">
-              <div class="stars-container">
-                <div class="stars-bg">★★★★★</div>
-                <div 
-                  class="stars-filled" 
-                  :style="{ width: `${(product.rating / 5) * 100}%` }"
-                >★★★★★</div>
+      <div class="slider-viewport" @mouseenter="stopAutoSlide" @mouseleave="startAutoSlide" style="min-height: 370px; margin-top: 30px;">
+        <div class="product-grid">
+          <div v-for="product in displayedProducts" 
+               :key="product.displayId" 
+               class="product-card"
+               :style="{ backgroundImage: `url(${product.campaignImg})` }"
+               @click="router.push(`/campaign/${product.campaignId}`)"
+               style="cursor: pointer;">
+            <span class="time-remaining">{{ product.timeLeft }}</span>
+            <div class="product-info">
+              <h4 class="product-name">{{ product.campaignName }}</h4>
+              <div class="rating">
+                <div class="stars-container">
+                  <div class="stars-bg">★★★★★</div>
+                  <div 
+                    class="stars-filled" 
+                    :style="{ width: `${(product.rating / 5) * 100}%` }"
+                  >★★★★★</div>
+                </div>
+                <span class="rating-score">{{ product.rating.toFixed(1) }}</span>
+                <span class="review-count">({{ product.reviews }})</span>
               </div>
-              <span class="rating-score">{{ product.rating.toFixed(1) }}</span>
-              <span class="review-count">({{ product.reviews }})</span>
             </div>
           </div>
         </div>

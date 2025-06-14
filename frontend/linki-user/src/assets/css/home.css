@@ -364,8 +364,9 @@
     }
     
     .slider-viewport {
-      overflow: hidden;
-      padding: 0 60px;
+      overflow-x: hidden;
+      overflow-y: visible;
+      padding: 30px 60px 0 60px;
       position: relative;
       width: 100%;
       box-sizing: border-box;
@@ -427,7 +428,7 @@
       border-color: #7B21E8;
       box-shadow: 0 12px 24px rgba(123, 33, 232, 0.18);
       transition: all 0.2s cubic-bezier(.4,0,.2,1);
-      z-index: 10;
+      z-index: 20;
     }
     
     .rating {
@@ -967,7 +968,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 60px;
+    margin-bottom: 0px;
     margin-top: 0;
   }
   .timer-label {
