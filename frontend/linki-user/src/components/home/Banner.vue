@@ -92,11 +92,13 @@ onUnmounted(() => {
           <div class="banner-content" :class="`banner-content--${banner.id}`">
             <template v-if="banner.id === 1">
               <div class="banner-row">
-                <div class="banner-texts banner-texts--left">
-                  <h2 style="margin-left:0;">{{ banner.title }}</h2>
-                  <p>{{ banner.description }}</p>
+                <div class="banner-content-wrapper">
+                  <div class="banner-texts banner-texts--left">
+                    <h2 style="margin-left:0;">{{ banner.title }}</h2>
+                    <p>{{ banner.description }}</p>
+                  </div>
+                  <button class="start-button">Start Linki →</button>
                 </div>
-                <button class="start-button">Start Linki →</button>
               </div>
             </template>
             <template v-else-if="banner.id === 2">
