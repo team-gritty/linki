@@ -160,7 +160,7 @@ const handleSubmit = async () => {
 
 .save-button {
   min-width: 80px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2rem;
   border: none;
   border-radius: 4px;
   font-size: 0.9rem;
