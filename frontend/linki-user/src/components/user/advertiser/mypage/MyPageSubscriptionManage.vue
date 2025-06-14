@@ -1,5 +1,5 @@
 <template>
-  <div class="subscription-manage-content">
+  <div class="subscription-manage-container">
     <h2 class="subscription-manage-title">나의 구독 관리</h2>
     <div class="subscription-manage-form">  
       <div v-if="loading" class="manage-loading">구독 정보를 불러오는 중...</div>
@@ -26,10 +26,11 @@
           <span class="manage-value contract-count">{{ info.contractCount }}건</span>
         </div>
         <div class="button-group">
-        <button class="refund-btn" @click="goRefund">구독 환불 신청</button>
-      </div>
+         <button class="refund-btn" @click="goRefund">구독 환불 신청</button>
+        </div>
       </div>
     </div>
+
     <div class="benefit-section">
       <h2 class="benefit-title">구독 혜택</h2>
       <ul class="benefit-list">
