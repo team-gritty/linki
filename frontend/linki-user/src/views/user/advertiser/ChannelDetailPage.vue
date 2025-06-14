@@ -253,6 +253,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   background: #fff;
   padding: 32px;
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+  font-size: 19px;
   box-sizing: border-box;
   min-height: 100vh;
   overflow-x: hidden;
@@ -273,7 +274,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   top: 0;
   left: 0;
   width: 100%;
-  height: 200px;
+  height: 260px;
   background: #8C30F5;
   border-radius: 48px 48px 0 0;
   z-index: 1;
@@ -319,7 +320,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   margin-bottom: 6px;
 }
 .channel-name {
-  font-size: 2.1rem;
+  font-size: 2.6rem;
   font-weight: 800;
   color: #222;
   margin: 0;
@@ -345,6 +346,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   align-items: center;
   gap: 12px;
   margin-bottom: 4px;
+  font-size: 1.25rem;
 }
 .ad-btn {
   background: #8C30F5;
@@ -380,7 +382,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   display: flex;
   gap: 24px;
   color: #444;
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   margin-top: 6px;
 }
 .profile-info-row b {
@@ -483,15 +485,16 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   margin-left: auto;
   margin-right: auto;
   overflow-x: hidden;
+  margin-bottom : 50px;
 }
 .intro-section h2 {
-  font-size: 1.3rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: #222;
   margin-bottom: 18px;
 }
 .intro-text {
-  font-size: 1.08rem;
+  font-size: 1.45rem;
   color: #444;
   margin-bottom: 18px;
   line-height: 1.7;
@@ -499,7 +502,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
 .intro-list {
   list-style: disc inside;
   color: #888;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   margin-left: 18px;
   margin-top: 8px;
 }

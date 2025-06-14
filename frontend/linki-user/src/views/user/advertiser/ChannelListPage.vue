@@ -272,7 +272,7 @@ const goToDetail = (id) => {
   align-items: center;
   border-bottom: 1px solid #E0E0E0;
   background: #fff;
-  height: 120px;
+  height: 140px;
   transition: background 0.2s;
 }
 .td {
