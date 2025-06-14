@@ -1,11 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
-
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import ChatDropdown from '@/components/ChatDropdown.vue'
 
-
 const router = useRouter()
+const route = useRoute()
 const isMobile = ref(false)
 
 const props = defineProps({
@@ -61,9 +60,9 @@ watch(() => props.openSidebar, (newValue) => {
       </button>
       <router-link to="/home" class="logo">LINKI</router-link>
       <ul class="menu-list desktop-menu">
-        <li class="menu-item" @click="goToHome">홈</li>
-        <li class="menu-item" @click="goTochannels">인플루언서</li>
-        <li class="menu-item" @click="goToCampaigns">캠페인</li>
+        <li class="menu-item" :class="{ active: route.path === '/home' }" @click="goToHome">홈</li>
+        <li class="menu-item" :class="{ active: route.path.startsWith('/channels') }" @click="goTochannels">인플루언서</li>
+        <li class="menu-item" :class="{ active: route.path.startsWith('/campaign') }" @click="goToCampaigns">캠페인</li>
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
@@ -77,17 +76,14 @@ watch(() => props.openSidebar, (newValue) => {
     <div :class="['mobile-sidebar-overlay', { 'is-open': openSidebar }]" @click.self="toggleSidebar">
       <div :class="['mobile-sidebar', { 'is-open': openSidebar }]">
         <ul class="menu-list mobile-menu">
-          <li class="menu-item">
+          <li class="menu-item" :class="{ active: route.path === '/home' }">
             <router-link to="/home"><span>홈</span></router-link>
           </li>
-          <li class="menu-item">
+          <li class="menu-item" :class="{ active: route.path.startsWith('/channels') }">
             <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
-
-          <li class="menu-item" @click="goToCampaigns">캠페인</li>
-
-          <li class="menu-item" @click="goToMyPage">마이페이지</li>
-
+          <li class="menu-item" :class="{ active: route.path.startsWith('/campaign') }" @click="goToCampaigns">캠페인</li>
+          <li class="menu-item" :class="{ active: route.path.startsWith('/mypage') }" @click="goToMyPage">마이페이지</li>
         </ul>
       </div>
     </div>
