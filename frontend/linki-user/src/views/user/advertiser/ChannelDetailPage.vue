@@ -20,11 +20,10 @@
                 <path d="M19.5 10.0001C19.5 10.0001 19.5 7.83341 19.2 6.66675C19.0333 6.00008 18.5333 5.50008 17.8667 5.33341C16.7 5.00008 14 5.00008 14 5.00008C14 5.00008 11.3 5.00008 10.1333 5.33341C9.46667 5.50008 8.96667 6.00008 8.8 6.66675C8.5 7.83341 8.5 10.0001 8.5 10.0001C8.5 10.0001 8.5 12.1667 8.8 13.3334C8.96667 14.0001 9.46667 14.5001 10.1333 14.6667C11.3 15.0001 14 15.0001 14 15.0001C14 15.0001 16.7 15.0001 17.8667 14.6667C18.5333 14.5001 19.0333 14.0001 19.2 13.3334C19.5 12.1667 19.5 10.0001 19.5 10.0001ZM12.5 12.5V7.50008L16.5 10.0001L12.5 12.5Z" fill="white"/>
               </svg>
             </span>
-          </div>
+           </div>
           <div class="profile-meta-row">
+            <div class="channel-category">{{ channel.category }}</div>
             <button class="ad-btn">광고 제안</button>
-            <span class="category">{{ channel.category }}</span>
-            
             <span class="star-rating">
               <template v-if="reviewCount > 0">
                 <span v-for="n in 5" :key="n">
@@ -47,7 +46,7 @@
         </div>
       </div>
       <div class="video-stats-box">
-        <div class="video-stats-title">최근 90일 영상 통계 데이터</div>
+        <div class="video-stats-title">✔️ 최근 90일 영상 통계 데이터</div>
         <div class="video-stats-list">
           <div class="video-stat-item">
             <div class="stat-label">영상 수</div>
@@ -70,11 +69,11 @@
       <div class="like-ratio-bar-chart-box">
         <div class="bar-charts-row">
           <div class="bar-chart-item">
-            <h3>조회수 대비 좋아요 비율</h3>
+            <h2>조회수 대비 좋아요 비율</h2>
             <LikeRatioBarChart :channels="channels" :channelId="id" />
           </div>
           <div class="bar-chart-item">
-            <h3>조회수 대비 댓글 비율</h3>
+            <h2>조회수 대비 댓글 비율</h2>
             <CommentRatioBarChart :channels="channels" :channelId="id" />
           </div>
         </div>
@@ -251,7 +250,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   width: 100%;
   margin: 0;
   background: #fff;
-  padding: 32px;
+  padding: 100px;
   font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
   font-size: 19px;
   box-sizing: border-box;
@@ -274,7 +273,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   top: 0;
   left: 0;
   width: 100%;
-  height: 260px;
+  height: 450px;
   background: #8C30F5;
   border-radius: 48px 48px 0 0;
   z-index: 1;
@@ -293,14 +292,14 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   display: flex;
   align-items: flex-end;
   gap: 36px;
-  margin-top: 220px;
+  margin-top: 200px;
   margin-bottom: 32px;
   position: relative;
   z-index: 2;
 }
 .profile-img {
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   background: #ccc;
   border: 6px solid #fff;
@@ -311,7 +310,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 .profile-header-row {
   display: flex;
@@ -321,21 +320,30 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
 }
 .channel-name {
   font-size: 2.6rem;
-  font-weight: 800;
-  color: #222;
+  font-weight: 700;
+  color: #f8f5f5;
   margin: 0;
 }
 .platform-badge {
   background: #FF0000;
   color: #fff;
-  font-size: 1.1rem;
   font-weight: 700;
-  border-radius: 16px;
+  border-radius: 5px;
   padding: 4px 18px;
   margin-left: 8px;
+  margin-top:20px;
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.platform-badge .category {
+  background: none;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 0;
+  padding: 0;
+  font-size: 1.1rem;
+  margin: 0;
 }
 .youtube-icon {
   display: inline-block;
@@ -351,22 +359,25 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
 .ad-btn {
   background: #8C30F5;
   color: #fff;
-  font-weight: 700;
-  border: none;
+  font-weight: 500;
+  border: 1px solid #FFC107;
   border-radius: 8px;
   padding: 7px 28px;
   font-size: 1.1rem;
-  margin-right: 12px;
   cursor: pointer;
 }
-.category {
-  background: #f5f0ff;
+.ad-btn:hover{
+  background: #FFC107;
   color: #8C30F5;
+}
+.channel-category{
+  background-color: #fffeff ;
+  color: #8C30F5;
+  border: 1px solid #8C30F5;
   font-weight: 700;
   border-radius: 8px;
-  padding: 4px 14px;
-  font-size: 1rem;
-  margin-right: 4px;
+  padding: 7px 28px;
+  font-size: 1.1rem;
 }
 .star-rating {
   color: #FFC107;
@@ -457,11 +468,11 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   gap: 16px;
   margin: 48px 0 0 0;
   border-bottom: 2px solid #eee;
-}
+  }
 .tab {
   background: none;
   border: none;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #888;
   padding: 10px 32px 12px 32px;
@@ -546,7 +557,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   margin-bottom: 12px;
 }
 .graph-title {
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: 700;
 }
 .graph-tabs {
@@ -560,7 +571,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   border-radius: 8px;
   padding: 6px 18px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.3rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -570,7 +581,7 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
 }
 .graph-rate-row {
   margin-bottom: 8px;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   color: #FF0050;
   font-weight: 700;
 }
@@ -588,9 +599,9 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   max-width: 100%;
 }
 .video-stats-title {
-  font-size: 1.18rem;
-  font-weight: 800;
-  color: #6B21E8;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0d0d0d;
   margin-bottom: 18px;
   padding-left: 40px;
 }
