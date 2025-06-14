@@ -182,6 +182,7 @@ fetchProfile()
   font-weight: 600;
   margin-bottom: 2rem;
   color: #333;
+  text-align: center;
 }
 
 .basic-info-form {

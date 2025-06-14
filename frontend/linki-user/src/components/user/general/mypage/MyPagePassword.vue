@@ -114,6 +114,7 @@ const handleSubmit = async () => {
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  background-color: #fffcfc;
 }
 .form-group {
   display: flex;
