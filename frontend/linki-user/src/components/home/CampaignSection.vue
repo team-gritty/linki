@@ -46,7 +46,7 @@ const startAutoSlide = () => {
     } else {
       slideOffset.value = 0
     }
-  }, 2000)
+  }, 1500)
 }
 // 자동 슬라이드 정지
 const stopAutoSlide = () => {
