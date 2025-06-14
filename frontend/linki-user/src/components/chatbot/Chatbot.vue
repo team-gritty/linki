@@ -36,9 +36,13 @@
             </div>
           </template>
           <template v-else>
-            <div class="message-content user">
-              {{ message.text }}
-              <div class="message-time user">{{ formatTime(message.timestamp) }}</div>
+            <div class="message-user-wrapper">
+              <div class="message-bubble-group user">
+                <div class="message-content user">
+                  <div class="message-text">{{ message.text }}</div>
+                </div>
+                <div class="message-time user">{{ formatTime(message.timestamp) }}</div>
+              </div>
             </div>
           </template>
         </div>
@@ -292,6 +296,8 @@ export default {
 }
 
 .message.user {
+  background: none !important;
+  box-shadow: none !important;
   align-self: flex-end;
 }
 
@@ -368,15 +374,15 @@ export default {
 
 .message-time {
   font-size: 12px;
-  color: #999;
+  color: #747272;
   margin-top: 4px;
   margin-left: 4px;
-  align-self: flex-start;
+  align-self: flesx-start;
 }
 
 .message-time.user {
-  color: #ddd;
-  margin-left: 0;
+  color: #747272;
+  margin-right: 10px;
   align-self: flex-end;
 }
 
@@ -451,4 +457,27 @@ export default {
 .chat-input button:not(:disabled):hover {
   background: #6618c4;
 }
+
+.message-user-wrapper {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  margin-left: auto;
+  padding-right: 0;
+}
+
+.message-bubble-group.user {
+  align-items: flex-end;
+}
+
+.message-content.user {
+  background: #7b21e8;
+  color: white;
+  align-self: flex-end;
+}
+
+.message-content.user::before {
+  display: none;
+}
+
 </style> 
