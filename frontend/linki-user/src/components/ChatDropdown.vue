@@ -143,9 +143,9 @@ onUnmounted(() => {
   background: none;
   border: none;
   color: #7B21E8;
-  font-size: 1.2rem;
+  font-size: 1.7rem;
   cursor: pointer;
-  padding: 8px;
+  padding: 0;
   position: relative;
   transition: opacity 0.2s;
 }
@@ -156,10 +156,10 @@ onUnmounted(() => {
 
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -15px;
+  right: -5px;
   color: #FFD700;
-  font-size: 1.5rem;
+  font-size: 2rem;
   text-shadow: 0 0 2px rgba(0,0,0,0.2);
 }
 
@@ -171,8 +171,8 @@ onUnmounted(() => {
   backdrop-filter: blur(5px);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  width: 300px;
-  max-height: 340px;
+  width: 400px;
+  max-height: 500px;
   overflow: hidden;
   z-index: 1000;
   display: flex;
@@ -180,7 +180,7 @@ onUnmounted(() => {
 }
 
 .chat-header {
-  padding: 15px;
+  padding: 20px;
   border-bottom: 1px solid rgba(238, 238, 238, 0.8);
   background: rgba(255, 255, 255, 0.98);
   position: sticky;
@@ -190,16 +190,18 @@ onUnmounted(() => {
 
 .chat-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #333;
 }
 
 .chat-list {
   padding: 0;
   overflow-y: auto;
-  max-height: calc(70px * 4); /* 정확히 4개의 채팅방 높이 */
+  max-height: calc(90px * 5);
   scrollbar-width: thin;
   scrollbar-color: #7B21E8 rgba(241, 241, 241, 0.5);
+  
+  width: 100%;
 }
 
 .chat-list::-webkit-scrollbar {
@@ -218,13 +220,15 @@ onUnmounted(() => {
 
 .chat-item {
   display: flex;
-  padding: 12px 15px;
+  padding: 18px 22px;
   border-bottom: 1px solid rgba(238, 238, 238, 0.8);
   cursor: pointer;
   transition: all 0.2s;
-  height: 70px;
+  height: 90px;
   box-sizing: border-box;
   background: transparent;
+  font-size: 1.1rem;
+  width: 100%;
 }
 
 .chat-item:hover {
@@ -237,14 +241,15 @@ onUnmounted(() => {
 }
 
 .chat-name {
-  font-weight: 600;
-  margin-bottom: 5px;
+  font-weight: 700;
+  margin-bottom: 7px;
   color: #333;
+  font-size: 1.15rem;
 }
 
 .chat-message {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -254,33 +259,33 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 5px;
-  min-width: 60px;
+  gap: 7px;
+  min-width: 70px;
 }
 
 .chat-time {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: #999;
 }
 
 .new-badge {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: #7B21E8;
   background-color: #FFD700;
-  padding: 2px 6px;
-  border-radius: 8px;
+  padding: 3px 10px;
+  border-radius: 10px;
 }
 
 .empty-chat {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  height: 250px;
   color: #999;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   text-align: center;
-  padding: 20px;
+  padding: 30px;
 }
 
 .empty-chat p {

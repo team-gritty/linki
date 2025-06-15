@@ -65,9 +65,9 @@ export default {
 }
 .subscribe-hero {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
 }
-.subscribe-title {
+.content-title {
   font-size: 2.2rem;
   font-weight: 800;
   margin-bottom: 10px;
@@ -94,10 +94,10 @@ export default {
   background: linear-gradient(90deg, #a78bfa 0%, #7c3aed 100%);
   color: #fff;
   border: none;
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 14px 36px;
-  font-size: 1.08rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-weight: 100px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(124,58,237,0.10);
   transition: background 0.2s, transform 0.15s;

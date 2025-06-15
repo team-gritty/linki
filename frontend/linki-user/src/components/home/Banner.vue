@@ -48,6 +48,12 @@ const handleImageError = (e) => {
   e.target.classList.add('error')
 }
 
+function isVideo(url) {
+  if (!url) return false
+  const videoExtensions = ['.mp4', '.webm', '.ogg']
+  return videoExtensions.some(ext => url.toLowerCase().includes(ext))
+}
+
 onMounted(async () => {
   await fetchBanners()
   if (banners.value && banners.value.length > 0) {
@@ -70,11 +76,45 @@ onUnmounted(() => {
       <template v-else>
         <div v-for="(banner, index) in banners" :key="banner.id" 
              :class="['banner-item', { active: index === currentSlide }]">
-          <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
-          <div class="banner-content">
-            <h2>{{ banner.title }}</h2>
-            <p>{{ banner.description }}</p>
-            <button class="start-button">Start Linki →</button>
+          <template v-if="isVideo(banner.image)">
+            <video
+              class="banner-image"
+              :src="banner.image"
+              autoplay
+              loop
+              muted
+              playsinline
+            ></video>
+          </template>
+          <template v-else>
+            <img :src="banner.image" :alt="banner.title" class="banner-image" @error="handleImageError" />
+          </template>
+          <div class="banner-content" :class="`banner-content--${banner.id}`">
+            <template v-if="banner.id === 1">
+              <div class="banner-row">
+                <div class="banner-content-wrapper">
+                  <div class="banner-texts banner-texts--left">
+                    <h2 style="margin-left:0;">{{ banner.title }}</h2>
+                    <p>{{ banner.description }}</p>
+                  </div>
+                  <button class="start-button">Start Linki →</button>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="banner.id === 2">
+              <div class="banner-text-bg">
+                <h2>{{ banner.title }}</h2>
+                <p>{{ banner.description }}</p>
+                <button class="start-button">Start Linki →</button>
+              </div>
+            </template>
+            <template v-else>
+              <div class="banner-texts">
+                <h2>{{ banner.title }}</h2>
+                <p>{{ banner.description }}</p>
+                <button class="start-button">Start Linki →</button>
+              </div>
+            </template>
           </div>
         </div>
         <div class="slider-dots">

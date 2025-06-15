@@ -24,13 +24,27 @@
           :key="index"
           :class="['message', message.type]"
         >
-          <div class="message-content">
-            <template v-if="message.type === 'bot'">
+          <template v-if="message.type === 'bot'">
+            <div class="message-bot-wrapper">
               <div class="message-avatar"></div>
-            </template>
-            {{ message.text }}
-          </div>
-          <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+              <div class="message-bubble-group">
+                <div class="message-content">
+                  <div class="message-text">{{ message.text }}</div>
+                </div>
+                <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="message-user-wrapper">
+              <div class="message-bubble-group user">
+                <div class="message-content user">
+                  <div class="message-text">{{ message.text }}</div>
+                </div>
+                <div class="message-time user">{{ formatTime(message.timestamp) }}</div>
+              </div>
+            </div>
+          </template>
         </div>
         <div v-if="isTyping" class="message bot">
           <div class="message-content">
@@ -207,9 +221,9 @@ export default {
 }
 
 .chat-toggle {
-  width: 60px;
-  height: 60px;
-  border-radius: 30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
   background-color: #7b21e8;
   color: white;
   border: none;
@@ -220,8 +234,8 @@ export default {
   justify-content: center;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjUwIDQxNkMxNjcuMTU3IDQxNiAxMDAgMzQ4Ljg0MyAxMDAgMjY2QzEwMCAxODMuMTU3IDE2Ny4xNTcgMTE2IDI1MCAxMTZDMzMyLjg0MyAxMTYgNDAwIDE4My4xNTcgNDAwIDI2NkM0MDAgMzQ4Ljg0MyAzMzIuODQzIDQxNiAyNTAgNDE2Wk0yNTAgNDUwQzE0OC40NTggNDUwIDY2IDM2Ny41NDIgNjYgMjY2QzY2IDE2NC40NTggMTQ4LjQ1OCA4MiAyNTAgODJDMzUxLjU0MiA4MiA0MzQgMTY0LjQ1OCA0MzQgMjY2QzQzNCAzNjcuNTQyIDM1MS41NDIgNDUwIDI1MCA0NTBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjUwIDUwQzI1MCA1MCAyNTAgNTAgMjUwIDUwQzI2MS4wNDYgNTAgMjcwIDU4Ljk1NDMgMjcwIDcwVjkwQzI3MCAxMDEuMDQ2IDI2MS4wNDYgMTEwIDI1MCAxMTBDMjM4Ljk1NCAxMTAgMjMwIDEwMS4wNDYgMjMwIDkwVjcwQzIzMCA1OC45NTQzIDIzOC45NTQgNTAgMjUwIDUwWiIgZmlsbD0id2hpdGUiLz4KPGNpcmNsZSBjeD0iMTgwIiBjeT0iMjMwIiByPSIzMCIgZmlsbD0id2hpdGUiLz4KPGNpcmNsZSBjeD0iMzIwIiBjeT0iMjMwIiByPSIzMCIgZmlsbD0iIzdiMjFlOCIvPgo8cGF0aCBkPSJNMTgwIDMzMEMxODAgMzE4Ljk1NCAxODguOTU0IDMxMCAyMDAgMzEwSDMwMEMzMTEuMDQ2IDMxMCAzMjAgMzE4Ljk1NCAzMjAgMzMwQzMyMCAzNDEuMDQ2IDMxMS4wNDYgMzUwIDMwMCAzNTBIMjAwQzE4OC45NTQgMzUwIDE4MCAzNDEuMDQ2IDE4MCAzMzBaIiBmaWxsPSIjN2IyMWU4Ii8+PC9zdmc+');
-  background-size: 35px;
+  background-image: url('@/assets/images/linkibot.png');
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
@@ -255,14 +269,14 @@ export default {
 }
 
 .bot-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjUwIDQxNkMxNjcuMTU3IDQxNiAxMDAgMzQ4Ljg0MyAxMDAgMjY2QzEwMCAxODMuMTU3IDE2Ny4xNTcgMTE2IDI1MCAxMTZDMzMyLjg0MyAxMTYgNDAwIDE4My4xNTcgNDAwIDI2NkM0MDAgMzQ4Ljg0MyAzMzIuODQzIDQxNiAyNTAgNDE2Wk0yNTAgNDUwQzE0OC40NTggNDUwIDY2IDM2Ny41NDIgNjYgMjY2QzY2IDE2NC40NTggMTQ4LjQ1OCA4MiAyNTAgODJDMzUxLjU0MiA4MiA0MzQgMTY0LjQ1OCA0MzQgMjY2QzQzNCAzNjcuNTQyIDM1MS41NDIgNDUwIDI1MCA0NTBaIiBmaWxsPSIjN2IyMWU4Ii8+CjxwYXRoIGQ9Ik0yNTAgNTBDMjUwIDUwIDI1MCA1MCAyNTAgNTBDMjYxLjA0NiA1MCAyNzAgNTguOTU0MyAyNzAgNzBWOTBDMjcwIDEwMS4wNDYgMjYxLjA0NiAxMTAgMjUwIDExMEMyMzguOTU0IDExMCAyMzAgMTAxLjA0NiAyMzAgOTBWNzBDMjMwIDU4Ljk1NDMgMjM4Ljk1NCA1MCAyNTAgNTBaIiBmaWxsPSIjN2IyMWU4Ii8+CjxjaXJjbGUgY3g9IjE4MCIgY3k9IjIzMCIgcj0iMzAiIGZpbGw9IiM3YjIxZTgiLz4KPGNpcmNsZSBjeD0iMzIwIiBjeT0iMjMwIiByPSIzMCIgZmlsbD0iIzdiMjFlOCIvPgo8cGF0aCBkPSJNMTgwIDMzMEMxODAgMzE4Ljk1NCAxODguOTU0IDMxMCAyMDAgMzEwSDMwMEMzMTEuMDQ2IDMxMCAzMjAgMzE4Ljk1NCAzMjAgMzMwQzMyMCAzNDEuMDQ2IDMxMS4wNDYgMzUwIDMwMCAzNTBIMjAwQzE4OC45NTQgMzUwIDE4MCAzNDEuMDQ2IDE4MCAzMzBaIiBmaWxsPSIjN2IyMWU4Ii8+PC9zdmc+');
-  background-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background-image: url('@/assets/images/linkibot-W.png');
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: white;
 }
 
 .chat-messages {
@@ -271,7 +285,7 @@ export default {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .message {
@@ -282,47 +296,93 @@ export default {
 }
 
 .message.user {
+  background: none !important;
+  box-shadow: none !important;
   align-self: flex-end;
 }
 
 .message.bot {
-  align-self: flex-start;
+  position: static;
+  padding-left: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.message-bot-wrapper {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.message-avatar {
+  min-width: 40px;
+  min-height: 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background-image: url('@/assets/images/linkibot-W.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: static;
+  margin-right: 12px;
+}
+
+.message-bubble-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .message-content {
+  margin-left: 0;
   padding: 12px 16px;
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.4;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.message.user .message-content {
-  background: #7b21e8;
-  color: white;
-}
-
-.message.bot .message-content {
   background: #f5f5f5;
+  position: relative;
   color: #333;
 }
 
-.message-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDUwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjUwIDQxNkMxNjcuMTU3IDQxNiAxMDAgMzQ4Ljg0MyAxMDAgMjY2QzEwMCAxODMuMTU3IDE2Ny4xNTcgMTE2IDI1MCAxMTZDMzMyLjg0MyAxMTYgNDAwIDE4My4xNTcgNDAwIDI2NkM0MDAgMzQ4Ljg0MyAzMzIuODQzIDQxNiAyNTAgNDE2Wk0yNTAgNDUwQzE0OC40NTggNDUwIDY2IDM2Ny41NDIgNjYgMjY2QzY2IDE2NC40NTggMTQ4LjQ1OCA4MiAyNTAgODJDMzUxLjU0MiA4MiA0MzQgMTY0LjQ1OCA0MzQgMjY2QzQzNCAzNjcuNTQyIDM1MS41NDIgNDUwIDI1MCA0NTBaIiBmaWxsPSIjN2IyMWU4Ii8+CjxwYXRoIGQ9Ik0yNTAgNTBDMjUwIDUwIDI1MCA1MCAyNTAgNTBDMjYxLjA0NiA1MCAyNzAgNTguOTU0MyAyNzAgNzBWOTBDMjcwIDEwMS4wNDYgMjYxLjA0NiAxMTAgMjUwIDExMEMyMzguOTU0IDExMCAyMzAgMTAxLjA0NiAyMzAgOTBWNzBDMjMwIDU4Ljk1NDMgMjM4Ljk1NCA1MCAyNTAgNTBaIiBmaWxsPSIjN2IyMWU4Ii8+CjxjaXJjbGUgY3g9IjE4MCIgY3k9IjIzMCIgcj0iMzAiIGZpbGw9IiM3YjIxZTgiLz4KPGNpcmNsZSBjeD0iMzIwIiBjeT0iMjMwIiByPSIzMCIgZmlsbD0iIzdiMjFlOCIvPgo8cGF0aCBkPSJNMTgwIDMzMEMxODAgMzE4Ljk1NCAxODguOTU0IDMxMCAyMDAgMzEwSDMwMEMzMTEuMDQ2IDMxMCAzMjAgMzE4Ljk1NCAzMjAgMzMwQzMyMCAzNDEuMDQ2IDMxMS4wNDYgMzUwIDMwMCAzNTBIMjAwQzE4OC45NTQgMzUwIDE4MCAzNDEuMDQ2IDE4MCAzMzBaIiBmaWxsPSIjN2IyMWU4Ii8+PC9zdmc+');
-  background-size: 20px;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: white;
+.message-content.user {
+  background: #7b21e8;
+  color: white;
+  align-self: flex-end;
+}
+
+.message-text {
+  display: block;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.message-content::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 18px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid #f5f5f5;
 }
 
 .message-time {
   font-size: 12px;
-  color: #999;
+  color: #747272;
+  margin-top: 4px;
+  margin-left: 4px;
+  align-self: flesx-start;
+}
+
+.message-time.user {
+  color: #747272;
+  margin-right: 10px;
   align-self: flex-end;
 }
 
@@ -397,4 +457,27 @@ export default {
 .chat-input button:not(:disabled):hover {
   background: #6618c4;
 }
+
+.message-user-wrapper {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  margin-left: auto;
+  padding-right: 0;
+}
+
+.message-bubble-group.user {
+  align-items: flex-end;
+}
+
+.message-content.user {
+  background: #7b21e8;
+  color: white;
+  align-self: flex-end;
+}
+
+.message-content.user::before {
+  display: none;
+}
+
 </style> 
