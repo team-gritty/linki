@@ -76,6 +76,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// --- JSON & DateTime Handling --- Jackson이 LocalDateTime 처리 가능하도록(직렬화 가능하도록) 
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 dependencyManagement {

@@ -4,3 +4,16 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+# YouTube Data API 설정
+youtube:
+  api:
+    key: AIzaSyA0czx00g45-GYiuduXTynVBlLxkM50zIU
+  scheduler:
+    enabled: true
+
+# 스케줄링 활성화
+spring:
+  task:
+    scheduling:
+      enabled: true

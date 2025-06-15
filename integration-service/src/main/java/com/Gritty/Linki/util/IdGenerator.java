@@ -1,5 +1,12 @@
 package com.Gritty.Linki.util;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * ID 생성기
+ */
 public class IdGenerator {
 
     private static final long EPOCH = 1704067200000L; // 2024-01-01 기준 (기준 시점)
@@ -16,6 +23,8 @@ public class IdGenerator {
 
     private static long lastTimestamp = -1L;
     private static long sequence = 0L;
+
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
     private synchronized static String nextId() {
         long currentTimestamp = currentTime();
@@ -58,58 +67,110 @@ public class IdGenerator {
     }
 
     // 인증 ID 생성 (인플루언서 인증)
-    public static String authId() { return "AUT-" + nextId(); }
+    public static String authId() {
+        return "AUT-" + nextId();
+    }
 
     // 통계 ID 생성 (채널 상세정보)
-    public static String statsId() { return "STD-" + nextId(); }
+    public static String statsId() {
+        return "STD-" + nextId();
+    }
 
     // 채널 ID 생성
-    public static String channelId() { return "CHN-" + nextId(); }
+    public static String channelId() {
+        return "CHN-" + nextId();
+    }
 
     // 인플루언서 ID 생성
-    public static String influencerId() { return "INF-" + nextId(); }
+    public static String influencerId() {
+        return "INF-" + nextId();
+    }
 
     // 광고주 ID 생성
-    public static String advertiserId() { return "ADV-" + nextId(); }
+    public static String advertiserId() {
+        return "ADV-" + nextId();
+    }
 
     // 캠페인 ID 생성
-    public static String campaignId() { return "CMP-" + nextId(); }
+    public static String campaignId() {
+        return "CMP-" + nextId();
+    }
 
     // 제안서 ID 생성
-    public static String proposalId() { return "PRP-" + nextId(); }
+    public static String proposalId() {
+        return "PRP-" + nextId();
+    }
 
     // 계약서 ID 생성
-    public static String contractId() { return "CTR-" + nextId(); }
+    public static String contractId() {
+        return "CTR-" + nextId();
+    }
 
     // 전자서명 ID 생성
-    public static String signatureId() { return "SIG-" + nextId(); }
+    public static String signatureId() {
+        return "SIG-" + nextId();
+    }
 
     // 인플루언서 리뷰 ID 생성
-    public static String influencerReviewId() { return "IRV-" + nextId(); }
+    public static String influencerReviewId() {
+        return "IRV-" + nextId();
+    }
 
     // 광고주 리뷰 ID 생성
-    public static String advertiserReviewId() { return "ARV-" + nextId(); }
+    public static String advertiserReviewId() {
+        return "ARV-" + nextId();
+    }
 
     // 관리자 ID 생성
-    public static String adminId() { return "ADM-" + nextId(); }
+    public static String adminId() {
+        return "ADM-" + nextId();
+    }
 
     // 채팅방 ID 생성
-    public static String chatId() { return "CHT-" + nextId(); }
+    public static String chatId() {
+        return "CHT-" + nextId();
+    }
 
     // 채팅 알람 ID 생성
-    public static String chatAlarmId() { return "CAL-" + nextId(); }
+    public static String chatAlarmId() {
+        return "CAL-" + nextId();
+    }
 
     // 구독 ID 생성
-    public static String subscribeId() { return "SUB-" + nextId(); }
+    public static String subscribeId() {
+        return "SUB-" + nextId();
+    }
 
     // 결제 ID 생성 (구독결제)
-    public static String paymentId() { return "PAY-" + nextId(); }
+    public static String paymentId() {
+        return "PAY-" + nextId();
+    }
 
     // 유저 결제키 ID 생성 (빌링)
-    public static String billingId() { return "BIL-" + nextId(); }
+    public static String billingId() {
+        return "BIL-" + nextId();
+    }
 
     // 환불 ID 생성
-    public static String refundId() { return "REF-" + nextId(); }
+    public static String refundId() {
+        return "REF-" + nextId();
+    }
 
+    // 구독자 수 수집을 위한 ID 생성 메서드들
 
+    // 수집된 채널 ID 생성
+    public static String collectedChannelId() {
+        return generateId("CCH");
+    }
+
+    // 구독자 히스토리 ID 생성
+    public static String subscriberHistoryId() {
+        return generateId("SHI");
+    }
+
+    private static String generateId(String prefix) {
+        String timestamp = LocalDateTime.now().format(formatter);
+        int random = ThreadLocalRandom.current().nextInt(1000000);
+        return String.format("%s-%s%06d", prefix, timestamp, random);
+    }
 }

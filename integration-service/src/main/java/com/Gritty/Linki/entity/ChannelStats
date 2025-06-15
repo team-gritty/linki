@@ -1,0 +1,65 @@
+package com.Gritty.Linki.entity;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.time.LocalDateTime;
+
+/**
+ * 채널 통계 엔티티
+ */
+@Entity
+@Table(name = "channel_stats")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ChannelStats {
+    
+    @Id
+    @Column(name = "stats_id", length = 25)
+    private String statsId;
+    
+    @Column(name = "subscriber_count")
+    private Integer subscriberCount;
+    
+    @Column(name = "num_of_videos")
+    private Integer numOfVideos;
+    
+    @Column(name = "views_per_video")
+    private Integer viewsPerVideo;
+    
+    @Column(name = "data_fetched_at", nullable = false)
+    private LocalDateTime dataFetchedAt;
+    
+    @Column(name = "likes_per_video")
+    private Integer likesPerVideo;
+    
+    @Column(name = "comments_per_video")
+    private Integer commentsPerVideo;
+    
+    // 연관관계 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
+    
+    // 생성자
+    public ChannelStats(String statsId, LocalDateTime dataFetchedAt, Channel channel) {
+        this.statsId = statsId;
+        this.dataFetchedAt = dataFetchedAt;
+        this.channel = channel;
+    }
+    
+    // 통계 업데이트 메서드
+    public void updateStats(Integer subscriberCount, Integer numOfVideos, 
+                           Integer viewsPerVideo, Integer likesPerVideo, 
+                           Integer commentsPerVideo) {
+        this.subscriberCount = subscriberCount;
+        this.numOfVideos = numOfVideos;
+        this.viewsPerVideo = viewsPerVideo;
+        this.likesPerVideo = likesPerVideo;
+        this.commentsPerVideo = commentsPerVideo;
+        this.dataFetchedAt = LocalDateTime.now();
+    }
+}
