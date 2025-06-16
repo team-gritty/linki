@@ -30,7 +30,7 @@ for (let seq = 0; seq < 5000; seq++) {
 
     messages.push({
         _id: "MSG" + seq.toString().padStart(4, '0'),
-        chatroom_id: "CHAT" + Math.floor(seq / 5).toString().padStart(4, '0'),
+        chat_id: "CHAT" + Math.floor(seq / 5).toString().padStart(4, '0'),
         message_sender_id: "USER" + Math.floor(Math.random() * 1500).toString().padStart(4, '0'),
         message_content: "메시지 내용" + seq,
         message_type: ["TEXT", "IMAGE", "FILE"][Math.floor(Math.random() * 3)],
