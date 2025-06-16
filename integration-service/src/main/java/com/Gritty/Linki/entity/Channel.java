@@ -72,6 +72,7 @@ public class Channel {
     private Influencer influencer;
 
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<ChannelStats> channelStats = new ArrayList<>();
 
     @OneToOne(mappedBy = "channel", cascade = CascadeType.ALL)
@@ -81,6 +82,5 @@ public class Channel {
     public void prePersist() {
         this.collectedAt = LocalDateTime.now();
     }
-
 
 }
