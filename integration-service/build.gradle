@@ -76,6 +76,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	implementation 'org.modelmapper:modelmapper:3.1.1'
+
+
 }
 
 dependencyManagement {
