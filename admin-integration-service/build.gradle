@@ -31,6 +31,8 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	implementation 'com.mysql:mysql-connector-j:8.0.33'
+
+	implementation 'org.modelmapper:modelmapper:3.2.0'
 }
 
 tasks.named('test') {
