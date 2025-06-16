@@ -210,7 +210,7 @@ WHERE seq < 5000;  -- 1000개의 리다이렉트 링크 * 5개의 클릭
 -- 채팅방 데이터 생성
 INSERT INTO `chat` (`chat_id`, `chat_date`, `chat_status`, `proposal_id`)
 SELECT 
-    CONCAT('CHAT', LPAD(seq, 4, '0')),
+    CONCAT('CHA-', LPAD(seq, 16, '0')),
     DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 365) DAY),
     CASE FLOOR(RAND() * 4)
         WHEN 0 THEN 'PENDING'
@@ -218,7 +218,7 @@ SELECT
         WHEN 2 THEN 'INACTIVE'
         ELSE 'DELETE'
     END,
-    CONCAT('PROP', LPAD(seq, 4, '0'))  -- proposal_id와 1:1 매칭
+    CONCAT('PRO-', LPAD(seq, 16, '0'))  -- proposal_id와 1:1 매칭
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 AS seq
     FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
@@ -227,30 +227,6 @@ FROM (
 ) numbers
 WHERE seq < 1000;
 
--- 메시지 데이터 생성
-INSERT INTO `message` (`message_id`, `chatroom_id`, `message_sender_id`, `message_content`, `message_type`, `messge_date`, `message_read`)
-SELECT 
-    CONCAT('MSG', LPAD(seq, 4, '0')),
-    CONCAT('CHAT', LPAD(FLOOR(seq/5), 4, '0')),  -- 각 채팅방당 5개의 메시지
-    CONCAT('USER', LPAD(FLOOR(RAND() * 1500), 4, '0')),
-    CONCAT('메시지 내용', seq),
-    CASE FLOOR(RAND() * 3)
-        WHEN 0 THEN 'TEXT'
-        WHEN 1 THEN 'IMAGE'
-        ELSE 'FILE'
-    END,
-    DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 365) DAY),
-    CASE FLOOR(RAND() * 2)
-        WHEN 0 THEN 'READ'
-        ELSE 'UNREAD'
-    END
-FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
-WHERE seq < 5000;  -- 1000개의 채팅방 * 5개의 메시지
 
 -- 채팅 알람 데이터 생성
 INSERT INTO `chat_alarm` (`chat_alarm_id`, `chat_alarm_is_read`, `chat_alarm_read_at`, `chat_id`)
