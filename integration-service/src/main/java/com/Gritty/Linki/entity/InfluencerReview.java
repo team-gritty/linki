@@ -19,7 +19,7 @@ public class InfluencerReview {
     @Column(name = "influencer_review_id", length = 25)
     private String influencerReviewId;
 
-    @Column(name = "influencer_review_score",  nullable = false, precision = 2, scale = 1)
+    @Column(name = "influencer_review_score", nullable = false, precision = 2, scale = 1)
     private BigDecimal influencerReviewScore;
 
     @Column(name = "influencer_review_comment", columnDefinition = "TEXT")
@@ -29,11 +29,12 @@ public class InfluencerReview {
     private LocalDateTime influencerReviewCreatedAt;
 
     @Column(name = "visibility", nullable = false)
+    // 빌더 패턴 사용 시 기본값 설정
+    @Builder.Default
     private Boolean visibility = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
-
 
 }

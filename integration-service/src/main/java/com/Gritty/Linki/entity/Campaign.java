@@ -65,8 +65,8 @@ public class Campaign {
 
     // Proposal와 일대다 관계. 캠페인 삭제 시 모든 제안서 삭제.
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
+    // 빌더 패턴 사용 시 기본값 설정
+    @Builder.Default
     private List<Proposal> proposals = new ArrayList<>();
-
-
 
 }

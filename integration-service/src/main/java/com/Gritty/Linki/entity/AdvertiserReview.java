@@ -28,6 +28,8 @@ public class AdvertiserReview {
     private LocalDateTime advertiserReviewCreatedAt;
 
     @Column(name = "visibility", nullable = false)
+    // 빌더 패턴 사용 시 기본값 설정
+    @Builder.Default
     private Boolean visibility = true;
 
     @ManyToOne(fetch = FetchType.LAZY)

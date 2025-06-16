@@ -16,7 +16,7 @@ import javax.sql.DataSource;
         "com.Gritty.Linki.domain.user.influencer.contract.repository.myBatis",
         "com.Gritty.Linki.domain.user.influencer.proposal.repository.myBatis",
         "com.Gritty.Linki.domain.user.influencer.review.repository.myBatis",
-
+        "com.Gritty.Linki.domain.user.advertiser.repository.myBatis"
 })
 public class MyBatisConfig {
     @Bean
@@ -24,14 +24,12 @@ public class MyBatisConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
 
-        // resources/mapper 경로에 있는 XML 파일 인식하도록 설정
-        Resource[] resources = new PathMatchingResourcePatternResolver()
-                .getResources("classpath:/mapper/**/*.xml");
-        sessionFactory.setMapperLocations(resources);
+        // // resources/mapper 경로에 있는 XML 파일 인식하도록 설정
+        // Resource[] resources = new PathMatchingResourcePatternResolver()
+        // .getResources("classpath:/mapper/**/*.xml");
+        // sessionFactory.setMapperLocations(resources);
 
         return sessionFactory.getObject();
 
-
-   }
+    }
 }
-

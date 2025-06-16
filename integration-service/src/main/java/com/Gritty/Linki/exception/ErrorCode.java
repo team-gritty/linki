@@ -1,7 +1,6 @@
 package com.Gritty.Linki.exception;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -12,8 +11,7 @@ import org.springframework.http.HttpStatus;
  * throw new BusinessException(ErrorCode.USER_NOT_FOUND);
  * throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "잘못된 이메일 형식입니다.");
  */
-@Getter // Lombok: 모든 필드의 getter 메서드를 자동 생성
-@RequiredArgsConstructor // Lombok: final 필드를 파라미터로 받는 생성자를 자동 생성
+@Getter
 public enum ErrorCode {
     // 클라이언트 오류 (4xx)
     // 400 Bad Request - 잘못된 요청
@@ -47,4 +45,9 @@ public enum ErrorCode {
 
     // 클라이언트에게 보여줄 에러 메시지
     private final String message;
+
+    ErrorCode(HttpStatus status, String message) {
+        this.status = status;
+        this.message = message;
+    }
 }
