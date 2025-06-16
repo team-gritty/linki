@@ -25,7 +25,15 @@
       <div v-if="proposal.status !== 'REJECTED'" class="proposal-detail-btns">
         <template v-if="!isEditMode">
           <button class="proposal-detail-btn" @click="startEdit">수정</button>
-          <button class="proposal-detail-btn accept" @click="handleContract">계약</button>
+          <button 
+            class="proposal-detail-btn accept" 
+            :class="{ disabled: !isContractEnabled }"
+            :disabled="!isContractEnabled"
+            @click="isContractEnabled && $emit('contract', proposal)"
+            :title="!isContractEnabled ? '제안서가 승인된 후 계약이 가능합니다' : ''"
+          >
+            계약
+          </button>
         </template>
         <template v-else>
           <button class="proposal-detail-btn" @click="cancelEdit">취소</button>
@@ -48,7 +56,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
-import { contractApi } from '@/api/advertiser/advertiser-contract'
 
 const props = defineProps({
   proposal: {
@@ -74,6 +81,12 @@ const statusText = computed(() => {
 const statusClass = computed(() => {
   const status = props.proposal.status?.toLowerCase() || 'pending'
   return status
+})
+
+// 계약 버튼 활성화 여부
+const isContractEnabled = computed(() => {
+  const status = props.proposal.status?.toUpperCase() || 'PENDING'
+  return status === 'ACCEPTED'
 })
 
 const rejectModalOpen = ref(false)
@@ -108,10 +121,6 @@ async function saveEdit() {
   } catch (e) {
     alert('제안서 수정에 실패했습니다.')
   }
-}
-function handleContract() {
-  contractApi.startContract(props.proposal.id)
-  alert('계약서 작성을 시작합니다')
 }
 </script>
 
@@ -264,8 +273,20 @@ function handleContract() {
   background: #e5e7eb;
 }
 
-.proposal-detail-btn.accept:hover {
+.proposal-detail-btn.accept:hover:not(.disabled) {
   background: #5B10B8;
+}
+
+.proposal-detail-btn.disabled {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.proposal-detail-btn.disabled:hover {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
 }
 
 .modal-backdrop {

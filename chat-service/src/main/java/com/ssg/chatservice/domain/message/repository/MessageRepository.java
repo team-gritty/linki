@@ -1,0 +1,7 @@
+package com.ssg.chatservice.domain.message.repository;
+
+import com.ssg.chatservice.entity.Message;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface MessageRepository extends MongoRepository<Message,String> {
+}

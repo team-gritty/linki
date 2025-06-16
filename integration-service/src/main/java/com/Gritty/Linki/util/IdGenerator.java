@@ -96,6 +96,9 @@ public class IdGenerator {
     // 채팅방 ID 생성
     public static String chatId() { return "CHT-" + nextId(); }
 
+    // 메세지 ID 생성
+    public static String MessageId() { return "MSG-" + nextId(); }
+
     // 채팅 알람 ID 생성
     public static String chatAlarmId() { return "CAL-" + nextId(); }
 
