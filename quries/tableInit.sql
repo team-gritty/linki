@@ -26,18 +26,6 @@ CREATE TABLE `influencer` (
 	`user_id`	VARCHAR(25)	NOT NULL	COMMENT 'UUID or 스노우플레이크'
 );
 
-DROP TABLE IF EXISTS message;
-
-CREATE TABLE `message` (
-	`message_id`	varchar(25)	NOT NULL,
-	`chatroom_id`	varchar(25)	NOT NULL,
-	`message_sender_id`	varchar(25)	NOT NULL,
-	`message_content`	varchar(255)	NOT NULL,
-	`message_type`	VARCHAR(255)	NOT NULL,
-	`messge_date`	datetime	NOT NULL,
-	`message_read`	VARCHAR(25)	NOT NULL
-);
-
 DROP TABLE IF EXISTS settlement;
 
 CREATE TABLE `settlement` (
@@ -224,7 +212,7 @@ DROP TABLE IF EXISTS chat;
 CREATE TABLE `chat` (
 	`chat_id`	varchar(25)	NOT NULL,
 	`chat_date`	datetime	NOT NULL,
-	`chat_status`	Enum('waiting','active','inactive','delete')	NOT NULL	COMMENT '대기/활성/비활성/삭제',
+	`chat_status`	Enum('PENDING','ACTIVE','INACTIVE','DELETE')	NOT NULL	COMMENT '대기/활성/비활성/삭제',
 	`proposal_id`	VARCHAR(25)	NOT NULL	COMMENT '제안서 식별 ID'
 );
 
@@ -358,10 +346,6 @@ ALTER TABLE `refund` ADD CONSTRAINT `PK_REFUND` PRIMARY KEY (
 
 ALTER TABLE `influencer` ADD CONSTRAINT `PK_INFLUENCER` PRIMARY KEY (
 	`influencer_id`
-);
-
-ALTER TABLE `message` ADD CONSTRAINT `PK_MESSAGE` PRIMARY KEY (
-	`message_id`
 );
 
 ALTER TABLE `settlement` ADD CONSTRAINT `PK_SETTLEMENT` PRIMARY KEY (

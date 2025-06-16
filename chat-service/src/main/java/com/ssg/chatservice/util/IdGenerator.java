@@ -1,4 +1,4 @@
-package com.Gritty.Linki.util;
+package com.ssg.chatservice.util;
 
 public class IdGenerator {
 
@@ -97,7 +97,7 @@ public class IdGenerator {
     public static String chatId() { return "CHT-" + nextId(); }
 
     // 메세지 ID 생성
-    public static String MessageId() { return "MSG-" + nextId(); }
+    public static String messageId() { return "MSG-" + nextId(); }
 
     // 채팅 알람 ID 생성
     public static String chatAlarmId() { return "CAL-" + nextId(); }
