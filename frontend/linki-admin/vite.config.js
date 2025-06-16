@@ -19,7 +19,7 @@ export default defineConfig({
     allowedHosts: ['admin.linki.kr','www.admin.linki.kr'],
     proxy: {
       '/v1': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:8080',
         changeOrigin: true
       }
     }

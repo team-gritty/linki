@@ -12,7 +12,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan(basePackages = "com.linki.admin_integration_service.domain.operations.repository")
+@MapperScan(basePackages = "com.linki.admin_integration_service.domain.operations.repository.myBatis")
 public class MyBatisConfig {
 
     @Bean
