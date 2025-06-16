@@ -224,7 +224,7 @@ DROP TABLE IF EXISTS chat;
 CREATE TABLE `chat` (
 	`chat_id`	varchar(25)	NOT NULL,
 	`chat_date`	datetime	NOT NULL,
-	`chat_status`	Enum('waiting','active','inactive','delete')	NOT NULL	COMMENT '대기/활성/비활성/삭제',
+	`chat_status`	Enum('PENDING','ACTIVE','INACTIVE','DELETE')	NOT NULL	COMMENT '대기/활성/비활성/삭제',
 	`proposal_id`	VARCHAR(25)	NOT NULL	COMMENT '제안서 식별 ID'
 );
 

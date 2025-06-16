@@ -213,10 +213,10 @@ SELECT
     CONCAT('CHAT', LPAD(seq, 4, '0')),
     DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 365) DAY),
     CASE FLOOR(RAND() * 4)
-        WHEN 0 THEN 'waiting'
-        WHEN 1 THEN 'active'
-        WHEN 2 THEN 'inactive'
-        ELSE 'delete'
+        WHEN 0 THEN 'PENDING'
+        WHEN 1 THEN 'ACTIVE'
+        WHEN 2 THEN 'INACTIVE'
+        ELSE 'DELETE'
     END,
     CONCAT('PROP', LPAD(seq, 4, '0'))  -- proposal_id와 1:1 매칭
 FROM (
