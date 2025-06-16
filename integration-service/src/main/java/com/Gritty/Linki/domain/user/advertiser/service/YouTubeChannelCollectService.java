@@ -1,7 +1,7 @@
 package com.Gritty.Linki.domain.user.advertiser.service;
 
 import com.Gritty.Linki.domain.user.advertiser.dto.YouTubeChannelDto;
-import com.Gritty.Linki.domain.user.advertiser.repository.ChannelRepository;
+import com.Gritty.Linki.domain.user.advertiser.repository.jpa.ChannelSearchRepository;
 import com.Gritty.Linki.entity.Channel;
 import com.Gritty.Linki.entity.Influencer;
 import com.Gritty.Linki.exception.BusinessException;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * YouTube 채널 수집 및 저장을 담당하는 서비스 클래스
- * 키워드 검색을 통해 채널을 찾고, 상세 정보를 수집하여 데이터베이스에 저장합니다.
+ * 키워드 검색을 통해 채널을 찾고, 상세 정보를 수집하여 데이터베이스에 저장
  */
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class YouTubeChannelCollectService {
 
     private final YouTubeApiService youTubeApiService;
-    private final ChannelRepository channelRepository;
+    private final ChannelSearchRepository channelRepository;
     private final InfluencerRepository influencerRepository;
     private AtomicInteger counter = new AtomicInteger(0);
 

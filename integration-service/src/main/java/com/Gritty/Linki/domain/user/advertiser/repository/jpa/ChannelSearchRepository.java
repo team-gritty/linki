@@ -1,14 +1,12 @@
-package com.Gritty.Linki.domain.user.advertiser.repository;
+package com.Gritty.Linki.domain.user.advertiser.repository.jpa;
 
 import com.Gritty.Linki.entity.Channel;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  * 채널 데이터 접근을 위한 Repository 인터페이스
  */
-@Repository
-public interface ChannelRepository extends JpaRepository<Channel, String> {
+public interface ChannelSearchRepository extends JpaRepository<Channel, String> {
 
     /**
      * YouTube 채널 ID로 채널 존재 여부 확인

@@ -13,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "channel")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
