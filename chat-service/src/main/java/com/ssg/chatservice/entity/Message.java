@@ -38,7 +38,7 @@ public class Message{
     @PrePersist
     public void prePersist() {
         if (this.messageId == null) {
-            this.messageId = IdGenerator.chatId();
+            this.messageId = IdGenerator.messageId();
         }
     }
 
