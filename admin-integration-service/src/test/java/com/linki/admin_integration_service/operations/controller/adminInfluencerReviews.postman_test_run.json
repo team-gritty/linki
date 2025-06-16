@@ -1,0 +1,142 @@
+{
+	"id": "ddd38fd2-f67e-48bc-86ad-0500a17bd28a",
+	"name": "adminInfluencerReviews",
+	"timestamp": "2025-06-16T06:00:56.845Z",
+	"collection_id": "45491549-d6c5ded9-f50d-4f7a-b6e6-0068b2b16a9e",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-16T06:00:55.775Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "214470b8-3574-4f25-b9d6-18c3a86c6104",
+			"name": "관리자 - 인플루언서 리뷰 조회",
+			"url": "localhost:8080/v1/admin/api/influencerReviews",
+			"time": 36,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				52,
+				38,
+				43,
+				39,
+				35,
+				33,
+				28,
+				35,
+				37,
+				36
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "5abd8871-bc54-4d7e-9949-bfcf016b13bd",
+			"name": "관리자 - 인플루언서 리뷰 공개/비공개 변경",
+			"url": "localhost:8080/v1/admin/api/influencerReviews/visibility",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				4,
+				4,
+				5,
+				4,
+				3,
+				4,
+				4,
+				3,
+				3,
+				4
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "53a3059d-9285-4e74-b941-585115363f37",
+			"name": "관리자 인플루언서 리뷰 검색",
+			"url": "localhost:8080/v1/admin/api/influencerReviews/search",
+			"time": 21,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				25,
+				25,
+				24,
+				27,
+				22,
+				26,
+				24,
+				24,
+				25,
+				21
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 657,
+	"collection": {
+		"requests": [
+			{
+				"id": "214470b8-3574-4f25-b9d6-18c3a86c6104",
+				"method": "GET"
+			},
+			{
+				"id": "5abd8871-bc54-4d7e-9949-bfcf016b13bd",
+				"method": "POST"
+			},
+			{
+				"id": "53a3059d-9285-4e74-b941-585115363f37",
+				"method": "POST"
+			}
+		]
+	}
+}

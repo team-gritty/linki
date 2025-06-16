@@ -53,31 +53,162 @@ FROM (
 WHERE seq < 500;  -- 광고주는 0-499까지
 
 -- 채널 데이터 생성
-INSERT INTO `channel` (`channel_id`, `channel_name`, `channel_url`, `channel_category`, `channel_country`, `channel_createdAt`, `influencer_id`)
-SELECT 
-    CONCAT('CH', LPAD(seq, 4, '0')),
-    CONCAT('채널', seq),
-    CONCAT('https://youtube.com/channel', seq),
-    CASE FLOOR(RAND() * 5)
-        WHEN 0 THEN '게임'
-        WHEN 1 THEN '음식'
-        WHEN 2 THEN '여행'
-        WHEN 3 THEN '뷰티'
-        ELSE '교육'
+-- 광고주는 0-499까지
+-- 채널 데이터 생성
+INSERT INTO `channel` (
+        `channel_id`,
+        `channel_name`,
+        `youtube_channel_id`,
+        `channel_url`,
+        `channel_category`,
+        `channel_country`,
+        `channel_description`,
+        `channel_thumbnail_url`,
+        `subscriber_count`,
+        `video_count`,
+        `view_count`,
+        `channel_createdAt`,
+        `like_count`,
+        `comment_count`,
+        `collected_at`,
+        `influencer_id`
+    )
+SELECT CONCAT('CH', LPAD(seq, 4, '0')),
+    Merge change Merge change CONCAT('채널', seq),
+    CONCAT('UC', LPAD(seq, 22, 'X')),
+    -- YouTube 채널 ID 형식 모방
+    CONCAT(
+        'https://youtube.com/channel/UC',
+        LPAD(seq, 22, 'X')
+    ),
+    CASE
+        FLOOR(RAND() * 11)
+        WHEN 0 THEN 'BEAUTY'
+        WHEN 1 THEN 'FASHION'
+        WHEN 2 THEN 'SPORTS'
+        WHEN 3 THEN 'FOOD'
+        WHEN 4 THEN 'VLOG'
+        WHEN 5 THEN 'TRAVEL'
+        WHEN 6 THEN 'MUSIC'
+        WHEN 7 THEN 'EDUCATION'
+        WHEN 8 THEN 'ANIMAL'
+        WHEN 9 THEN 'ELECTRONICS'
+        ELSE 'ENTERTAINMENT'
     END,
-    CASE FLOOR(RAND() * 3)
+    CASE
+        FLOOR(RAND() * 3)
         WHEN 0 THEN '한국'
         WHEN 1 THEN '미국'
         ELSE '일본'
     END,
-    DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 365) DAY),
-    CONCAT('INF', LPAD(seq, 4, '0'))
+    CONCAT(
+        '이 채널은 ',
+        seq,
+        '번째 콘텐츠 크리에이터의 채널입니다. 다양한 ',
+        CASE
+            FLOOR(RAND() * 5)
+            WHEN 0 THEN '라이프스타일'
+            WHEN 1 THEN '엔터테인먼트'
+            WHEN 2 THEN '교육'
+            WHEN 3 THEN '게임'
+            ELSE '요리'
+        END,
+        ' 콘텐츠를 제공합니다.'
+    ),
+    CONCAT(
+        'https://yt3.googleusercontent.com/',
+        LPAD(seq, 10, '0'),
+        '/photo.jpg'
+    ),
+    FLOOR(RAND() * 9000000) + 1000000,
+    -- 구독자 수 (1M-10M)
+    FLOOR(RAND() * 900) + 100,
+    -- 영상 수 (100-1000)
+    FLOOR(RAND() * 900000000) + 100000000,
+    -- 조회수 (100M-1B)
+    DATE_ADD(
+        '2015-01-01',
+        INTERVAL FLOOR(
+            RAND() * TIMESTAMPDIFF(DAY, '2015-01-01', '2023-12-31')
+        ) DAY
+    ),
+    FLOOR(RAND() * 9000000) + 1000000,
+    -- 좋아요 수 (1M-10M)
+    FLOOR(RAND() * 900000) + 100000,
+    -- 댓글 수 (100K-1M)
+    DATE_ADD(
+        '2024-01-01',
+        INTERVAL FLOOR(
+            RAND() * TIMESTAMPDIFF(DAY, '2024-01-01', CURRENT_DATE())
+        ) DAY
+    ),
+    CONCAT('INF', LPAD(FLOOR(seq / 2), 4, '0')) -- 각 인플루언서당 2개의 채널
 FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
+        SELECT a.N + b.N * 10 + c.N * 100 AS seq
+        FROM (
+                SELECT 0 AS N
+                UNION
+                SELECT 1
+                UNION
+                SELECT 2
+                UNION
+                SELECT 3
+                UNION
+                SELECT 4
+                UNION
+                SELECT 5
+                UNION
+                SELECT 6
+                UNION
+                SELECT 7
+                UNION
+                SELECT 8
+                UNION
+                SELECT 9
+            ) a,
+            (
+                SELECT 0 AS N
+                UNION
+                SELECT 1
+                UNION
+                SELECT 2
+                UNION
+                SELECT 3
+                UNION
+                SELECT 4
+                UNION
+                SELECT 5
+                UNION
+                SELECT 6
+                UNION
+                SELECT 7
+                UNION
+                SELECT 8
+                UNION
+                SELECT 9
+            ) b,
+            (
+                SELECT 0 AS N
+                UNION
+                SELECT 1
+                UNION
+                SELECT 2
+                UNION
+                SELECT 3
+                UNION
+                SELECT 4
+                UNION
+                SELECT 5
+                UNION
+                SELECT 6
+                UNION
+                SELECT 7
+                UNION
+                SELECT 8
+                UNION
+                SELECT 9
+            ) c
+    ) numbers
 WHERE seq < 1000;
 
 -- 캠페인 데이터 생성

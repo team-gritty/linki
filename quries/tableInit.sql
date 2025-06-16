@@ -240,13 +240,24 @@ CREATE TABLE `advertiser` (
 DROP TABLE IF EXISTS channel;
 
 CREATE TABLE `channel` (
-	`channel_id`	VARCHAR(25)	NOT NULL	COMMENT '채널 식별 아이디',
-	`channel_name`	VARCHAR(255)	NOT NULL	COMMENT '채널명',
-	`channel_url`	VARCHAR(255)	NOT NULL	COMMENT '채널 URL',
-	`channel_category`	VARCHAR(100)	NOT NULL	COMMENT '채널 카테고리',
-	`channel_country`	VARCHAR(100)	NOT NULL	COMMENT '채널 국가',
-	`channel_createdAt`	DATETIME	NOT NULL	COMMENT '채널 생성 일자',
-	`influencer_id`	varchar(25)	NOT NULL COMMENT '인플루언서 식별 아이디'
+	`channel_id` VARCHAR(25) NOT NULL COMMENT '채널 식별 아이디',
+	`channel_name` VARCHAR(255) NOT NULL COMMENT '채널명',
+	`youtube_channel_id` VARCHAR(255) NOT NULL COMMENT 'YouTube 채널 ID',
+	`channel_url` VARCHAR(255) NOT NULL COMMENT '채널 URL',
+	`channel_category` VARCHAR(100) NOT NULL COMMENT '채널 카테고리',
+	`channel_country` VARCHAR(100) NOT NULL COMMENT '채널 국가',
+	`channel_description` TEXT NULL COMMENT '채널 설명',
+	`channel_thumbnail_url` VARCHAR(255) NULL COMMENT '채널 썸네일 URL',
+	`subscriber_count` BIGINT NULL COMMENT '구독자 수',
+	`video_count` INT NULL COMMENT '동영상 수',
+	`view_count` BIGINT NULL COMMENT '조회수',
+	`like_count` BIGINT NULL COMMENT '좋아요 수',
+	-- 바로 안될수도
+	`comment_count` BIGINT NULL COMMENT '댓글 수',
+	-- 바로 안될수도 
+	`channel_createdAt` DATETIME NOT NULL COMMENT '채널 생성 일자',
+	`collected_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 수집 시간',
+	`influencer_id` varchar(25) NOT NULL COMMENT '인플루언서 식별 아이디'
 );
 
 DROP TABLE IF EXISTS redirect_click;
