@@ -16,12 +16,12 @@ import java.util.List;
 public interface SubscriberHistoryRepository extends JpaRepository<SubscriberHistory, String> {
 
         // 특정 채널의 구독자 히스토리 조회 (최신순)
-        List<SubscriberHistory> findByCollectedChannelCollectedChannelIdOrderByCollectedAtDesc(
+        List<SubscriberHistory> findByCollectedChannelCollectedChannelIdOrderBySnapshotDateDesc(
                         String collectedChannelId);
 
         // 특정 채널의 구독자 히스토리 조회 (기간 내)
         @Query("SELECT h FROM SubscriberHistory h WHERE h.collectedChannel.collectedChannelId = :channelId " +
-                        "AND h.collectedAt BETWEEN :startDate AND :endDate ORDER BY h.collectedAt DESC")
+                        "AND h.snapshotDate BETWEEN :startDate AND :endDate ORDER BY h.snapshotDate DESC")
         List<SubscriberHistory> findByChannelAndDateRange(
                         @Param("channelId") String channelId,
                         @Param("startDate") LocalDateTime startDate,
@@ -29,7 +29,7 @@ public interface SubscriberHistoryRepository extends JpaRepository<SubscriberHis
 
         // 특정 채널의 최근 히스토리 조회 (개수 제한)
         @Query("SELECT h FROM SubscriberHistory h WHERE h.collectedChannel.collectedChannelId = :channelId " +
-                        "ORDER BY h.collectedAt DESC LIMIT :limit")
+                        "ORDER BY h.snapshotDate DESC LIMIT :limit")
         List<SubscriberHistory> findRecentHistoryByChannel(@Param("channelId") String channelId,
                         @Param("limit") int limit);
 }

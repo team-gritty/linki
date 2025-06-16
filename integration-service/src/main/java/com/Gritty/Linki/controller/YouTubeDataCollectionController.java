@@ -1,5 +1,6 @@
 package com.Gritty.Linki.controller;
 
+import com.Gritty.Linki.dto.response.ChannelResponse;
 import com.Gritty.Linki.entity.CollectedChannel;
 import com.Gritty.Linki.entity.SubscriberHistory;
 import com.Gritty.Linki.repository.CollectedChannelRepository;
@@ -13,53 +14,40 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * YouTube 채널 데이터 수집 컨트롤러
  */
 @RestController
-@RequestMapping("/api/youtube")
+@RequestMapping("/api/v1/youtube")
 @RequiredArgsConstructor
 @Slf4j
 public class YouTubeDataCollectionController {
 
-    private final YouTubeChannelCollectionService youTubeChannelCollectionService;
+    private final YouTubeChannelCollectionService youtubeChannelCollectionService;
     private final CollectedChannelRepository collectedChannelRepository;
     private final SubscriberHistoryRepository subscriberHistoryRepository;
 
     /**
      * 키워드로 채널 검색하고 저장
-     * POST /api/youtube/search-and-save?keyword=뷰티&category=BEAUTY&maxResults=10
+     * POST /api/v1/youtube/channels/search?keyword=뷰티&category=BEAUTY&maxResults=15
      */
-    @PostMapping("/search-and-save")
-    public ResponseEntity<?> searchAndSaveChannels(
+    @PostMapping("/channels/search")
+    public ResponseEntity<List<ChannelResponse>> searchAndSaveChannels(
             @RequestParam String keyword,
             @RequestParam String category,
-            @RequestParam(defaultValue = "10") Integer maxResults) {
+            @RequestParam(defaultValue = "15") Integer maxResults) {
 
         log.info("채널 검색 및 저장 요청: keyword={}, category={}, maxResults={}", keyword, category, maxResults);
 
-        try {
-            List<CollectedChannel> savedChannels = youTubeChannelCollectionService
-                    .searchAndSaveChannels(keyword, category, maxResults);
+        List<CollectedChannel> channels = youtubeChannelCollectionService.searchAndSaveChannels(keyword, category,
+                maxResults);
+        List<ChannelResponse> response = channels.stream()
+                .map(ChannelResponse::from)
+                .collect(Collectors.toList());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "채널 수집이 완료되었습니다.");
-            response.put("savedCount", savedChannels.size());
-            response.put("channels", savedChannels);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("채널 검색 및 저장 중 오류: {}", e.getMessage(), e);
-
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "채널 수집 중 오류가 발생했습니다: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(errorResponse);
-        }
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -90,34 +78,19 @@ public class YouTubeDataCollectionController {
     @GetMapping("/subscriber-history/{channelId}")
     public ResponseEntity<List<SubscriberHistory>> getSubscriberHistory(@PathVariable String channelId) {
         List<SubscriberHistory> history = subscriberHistoryRepository
-                .findByCollectedChannelCollectedChannelIdOrderByCollectedAtDesc(channelId);
+                .findByCollectedChannelCollectedChannelIdOrderBySnapshotDateDesc(channelId);
         return ResponseEntity.ok(history);
     }
 
     /**
      * 구독자 수 업데이트 (기존 채널들)
-     * POST /api/youtube/update-subscriber-counts
+     * POST /api/v1/youtube/channels/update
      */
-    @PostMapping("/update-subscriber-counts")
-    public ResponseEntity<?> updateSubscriberCounts() {
-        try {
-            youTubeChannelCollectionService.updateSubscriberCounts();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "구독자 수 업데이트가 완료되었습니다.");
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("구독자 수 업데이트 중 오류: {}", e.getMessage(), e);
-
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "구독자 수 업데이트 중 오류가 발생했습니다: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(errorResponse);
-        }
+    @PostMapping("/channels/update")
+    public ResponseEntity<Void> updateSubscriberCounts() {
+        log.info("채널 구독자 수 업데이트 요청");
+        youtubeChannelCollectionService.updateSubscriberCounts();
+        return ResponseEntity.ok().build();
     }
 
     /**

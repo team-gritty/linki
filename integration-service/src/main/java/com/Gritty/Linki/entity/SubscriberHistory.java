@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "subscriber_history")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class SubscriberHistory {
 
     @Id
@@ -32,9 +32,8 @@ public class SubscriberHistory {
     @Column(name = "view_count")
     private Long viewCount;
 
-    @CreationTimestamp
-    @Column(name = "collected_at", nullable = false, updatable = false)
-    private LocalDateTime collectedAt;
+    @Column(name = "snapshot_date")
+    private LocalDateTime snapshotDate;
 
     // 수집된 채널과 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY)

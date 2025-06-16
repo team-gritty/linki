@@ -21,7 +21,7 @@ import java.util.List;
 @Table(name = "collected_channels")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CollectedChannel {
 
     @Id
@@ -64,11 +64,9 @@ public class CollectedChannel {
     @Column(name = "comment_count")
     private Long commentCount;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "channel_created_at")
     private LocalDateTime channelCreatedAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreationTimestamp
     @Column(name = "collected_at", nullable = false, updatable = false)
     private LocalDateTime collectedAt;

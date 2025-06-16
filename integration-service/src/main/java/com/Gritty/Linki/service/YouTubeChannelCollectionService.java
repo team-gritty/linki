@@ -13,8 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +33,15 @@ public class YouTubeChannelCollectionService {
 
     private final CollectedChannelRepository collectedChannelRepository;
     private final SubscriberHistoryRepository subscriberHistoryRepository;
+    private final ChannelStatisticsService channelStatisticsService;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${youtube.api.key:AIzaSyA0czx00g45-GYiuduXTynVBlLxkM50zIU}")
+    @Value("${youtube.api.key}")
     private String youtubeApiKey;
 
     private static final String YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
+    private static final DateTimeFormatter YOUTUBE_DATE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
     /**
      * 키워드로 채널 검색하고 저장
@@ -47,7 +53,6 @@ public class YouTubeChannelCollectionService {
         List<CollectedChannel> savedChannels = new ArrayList<>();
 
         try {
-            // 1. YouTube Search API로 채널 검색
             List<String> channelIds = searchChannelIds(keyword, maxResults);
 
             if (channelIds.isEmpty()) {
@@ -55,19 +60,12 @@ public class YouTubeChannelCollectionService {
                 return savedChannels;
             }
 
-            // 2. 채널 상세 정보 조회
             List<CollectedChannel> channels = getChannelDetails(channelIds, category, keyword);
 
-            // 3. 중복 제거하고 저장
             for (CollectedChannel channel : channels) {
                 if (!collectedChannelRepository.existsByYoutubeChannelId(channel.getYoutubeChannelId())) {
                     CollectedChannel savedChannel = collectedChannelRepository.save(channel);
-
-                    // 4. 첫 번째 구독자 히스토리 기록
-                    SubscriberHistory initialHistory = channel.createCurrentSnapshot();
-                    initialHistory.setHistoryId(IdGenerator.subscriberHistoryId());
-                    subscriberHistoryRepository.save(initialHistory);
-
+                    channelStatisticsService.createSubscriberSnapshot(savedChannel);
                     savedChannels.add(savedChannel);
                     log.info("새 채널 저장: {} (구독자: {})", channel.getChannelName(), channel.getSubscriberCount());
                 } else {
@@ -91,23 +89,39 @@ public class YouTubeChannelCollectionService {
         List<String> channelIds = new ArrayList<>();
 
         try {
-            String searchUrl = String.format(
-                    "%s/search?part=snippet&type=channel&q=%s&regionCode=KR&maxResults=%d&key=%s",
-                    YOUTUBE_API_BASE_URL, keyword, maxResults, youtubeApiKey);
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+            String searchUrl = UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_BASE_URL + "/search")
+                    .queryParam("part", "snippet")
+                    .queryParam("type", "channel")
+                    .queryParam("q", encodedKeyword)
+                    .queryParam("regionCode", "KR")
+                    .queryParam("maxResults", maxResults)
+                    .queryParam("key", youtubeApiKey)
+                    .build()
+                    .toString();
+
+            log.debug("YouTube API 검색 URL: {}", searchUrl);
 
             String response = restTemplate.getForObject(searchUrl, String.class);
             JsonNode jsonResponse = objectMapper.readTree(response);
             JsonNode items = jsonResponse.get("items");
 
-            if (items != null && items.isArray()) {
-                for (JsonNode item : items) {
-                    JsonNode snippet = item.get("snippet");
-                    if (snippet != null && snippet.has("channelId")) {
-                        String channelId = snippet.get("channelId").asText();
-                        channelIds.add(channelId);
-                    }
+            if (items == null || items.size() == 0) {
+                log.info("키워드 '{}'에 대한 검색 결과가 없습니다.", keyword);
+                return channelIds;
+            }
+
+            for (JsonNode item : items) {
+                JsonNode snippet = item.get("snippet");
+                if (snippet != null && snippet.has("channelId")) {
+                    String channelId = snippet.get("channelId").asText();
+                    channelIds.add(channelId);
+                    log.debug("채널 ID 찾음: {}", channelId);
                 }
             }
+
+            log.info("키워드 '{}'로 {}개의 채널을 찾았습니다.", keyword, channelIds.size());
 
         } catch (Exception e) {
             log.error("YouTube 검색 API 호출 중 오류: {}", e.getMessage(), e);
@@ -157,60 +171,53 @@ public class YouTubeChannelCollectionService {
             JsonNode snippet = item.get("snippet");
             JsonNode statistics = item.get("statistics");
 
-            String channelName = snippet.get("title").asText();
-            String channelUrl = "https://www.youtube.com/channel/" + youtubeChannelId;
-            String description = snippet.has("description") ? snippet.get("description").asText() : "";
-            String country = snippet.has("country") ? snippet.get("country").asText() : "KR";
-            String publishedAt = snippet.get("publishedAt").asText();
+            CollectedChannel channel = new CollectedChannel(
+                    IdGenerator.collectedChannelId(),
+                    youtubeChannelId,
+                    snippet.get("title").asText(),
+                    "https://www.youtube.com/channel/" + youtubeChannelId,
+                    category);
 
-            // 썸네일 URL 추출
-            String thumbnailUrl = null;
+            channel.setChannelDescription(snippet.has("description") ? snippet.get("description").asText() : "");
+            channel.setChannelCountry(snippet.has("country") ? snippet.get("country").asText() : "KR");
+
+            // YouTube API의 publishedAt 날짜 형식 처리
+            String publishedAt = snippet.get("publishedAt").asText();
+            try {
+                // ISO 8601 형식의 날짜 문자열을 ZonedDateTime으로 파싱 후 LocalDateTime으로 변환
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(publishedAt);
+                channel.setChannelCreatedAt(zonedDateTime.toLocalDateTime());
+            } catch (Exception e) {
+                log.warn("채널 생성일 파싱 실패: {}, 현재 시간으로 설정합니다.", publishedAt);
+                channel.setChannelCreatedAt(LocalDateTime.now());
+            }
+
+            channel.setSearchKeyword(keyword);
+
+            // 썸네일 URL 설정
             if (snippet.has("thumbnails")) {
                 JsonNode thumbnails = snippet.get("thumbnails");
                 if (thumbnails.has("high")) {
-                    thumbnailUrl = thumbnails.get("high").get("url").asText();
+                    channel.setChannelThumbnailUrl(thumbnails.get("high").get("url").asText());
                 } else if (thumbnails.has("medium")) {
-                    thumbnailUrl = thumbnails.get("medium").get("url").asText();
+                    channel.setChannelThumbnailUrl(thumbnails.get("medium").get("url").asText());
                 } else if (thumbnails.has("default")) {
-                    thumbnailUrl = thumbnails.get("default").get("url").asText();
+                    channel.setChannelThumbnailUrl(thumbnails.get("default").get("url").asText());
                 }
             }
 
-            // 통계 정보
-            Long subscriberCount = 0L;
-            Integer videoCount = 0;
-            Long viewCount = 0L;
-
+            // 통계 정보 설정
             if (statistics != null) {
                 if (statistics.has("subscriberCount")) {
-                    subscriberCount = statistics.get("subscriberCount").asLong();
+                    channel.setSubscriberCount(statistics.get("subscriberCount").asLong());
                 }
                 if (statistics.has("videoCount")) {
-                    videoCount = statistics.get("videoCount").asInt();
+                    channel.setVideoCount(statistics.get("videoCount").asInt());
                 }
                 if (statistics.has("viewCount")) {
-                    viewCount = statistics.get("viewCount").asLong();
+                    channel.setViewCount(statistics.get("viewCount").asLong());
                 }
             }
-
-            // 채널 생성 시간 파싱
-            LocalDateTime createdAt = LocalDateTime.parse(publishedAt, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-
-            // CollectedChannel 엔티티 생성
-            CollectedChannel channel = new CollectedChannel();
-            channel.setCollectedChannelId(IdGenerator.collectedChannelId());
-            channel.setYoutubeChannelId(youtubeChannelId);
-            channel.setChannelName(channelName);
-            channel.setChannelUrl(channelUrl);
-            channel.setChannelDescription(description);
-            channel.setChannelThumbnailUrl(thumbnailUrl);
-            channel.setChannelCategory(category);
-            channel.setChannelCountry(country);
-            channel.setSubscriberCount(subscriberCount);
-            channel.setVideoCount(videoCount);
-            channel.setViewCount(viewCount);
-            channel.setChannelCreatedAt(createdAt);
-            channel.setSearchKeyword(keyword);
 
             return channel;
 
