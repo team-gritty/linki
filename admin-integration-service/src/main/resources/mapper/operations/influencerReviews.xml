@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.operations.repository.InfluencerReviewsMapper">
+
+    
+    <select id="getAllInfluencerReviews" resultType="com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewDTO">
+        SELECT
+            influencerReviewId,
+            influencer,
+            writer,
+            review,
+            rating,
+            reviewDate,
+            visibility,
+            contractId
+        FROM influencer_reviews_view
+    </select>
+
+</mapper>
