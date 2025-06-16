@@ -5,20 +5,14 @@ spring:
   application:
     name: chat-service
 
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/????serverTimezone=UTC&characterEncoding=UTF-8
-#    username: ???
-#    password: ??
-#
-#  jpa:
-#    hibernate:
-#      ddl-auto: update          # dev: update / prod: validate
-#    open-in-view: false
-#    properties:
-#      hibernate:
-#        format_sql: true
-#        dialect: org.hibernate.dialect.MySQLDialect
+  jpa:
+    hibernate:
+      ddl-auto: update          # dev: update / prod: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
 eureka:
   instance:
