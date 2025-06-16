@@ -133,6 +133,12 @@ const router = createRouter({
       component: DetailContract,
       props: true},
 
+    {
+      path: '/contract/create',
+      name: 'contract-create',
+      component: () => import('../views/user/advertiser/ContractCreate.vue')
+    },
+
     {  // 광고주 마이페이지
       path: '/mypage/advertiser',
       name: 'AdvertiserMypage',

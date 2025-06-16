@@ -44,6 +44,12 @@
   "/v1/api/advertiser/contracts/:contractId": "/contracts/:contractId",
   "/v1/api/advertiser/contracts/:id/document": "/contracts/:id/document",
 
+  "/v1/api/advertiser/contracts/create": "/contracts",
+  "/v1/api/advertiser/contracts/create": {
+    "method": "POST",
+    "url": "/contracts"
+  },
+
   "/contracts": "/contracts",
   "/v1/api/influencer/contracts": "/contracts",
   "/v1/api/influencer/contracts/:contractId": "/contracts/:contractId",

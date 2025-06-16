@@ -19,7 +19,7 @@
         </div>
       </div>
     </template>
-    <DetailProposal v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" @reject="handleRejectProposal" />
+    <DetailProposal v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" @reject="handleRejectProposal" @contract="goToContractCreate" />
   </div>
 </template>
 
@@ -27,6 +27,8 @@
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import DetailProposal from './DetailProposalModal.vue'
+import { useRouter } from 'vue-router'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
 
 const props = defineProps({
   campaignId: {
@@ -39,6 +41,7 @@ const proposals = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedProposal = ref(null)
+const router = useRouter()
 
 const getStatusText = (status) => {
   const statusMap = {
@@ -85,6 +88,10 @@ function handleRejectProposal(proposalId) {
     proposals.value[idx].status = 'REJECTED'
   }
   closeDetail()
+}
+
+function goToContractCreate(proposal) {
+  router.push(`/contract/create?proposalId=${proposal.id}`)
 }
 
 watch(() => props.campaignId, fetchProposals, { immediate: true })

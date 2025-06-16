@@ -356,6 +356,11 @@ const openContractModal = () => {
 const goToInfluencerDetail = (influencerId) => {
   router.push(`/channels/${influencerId}`)
 }
+
+// 계약 작성 페이지로 이동
+const goToContractCreate = (proposal) => {
+  router.push(`/contract/create?proposalId=${proposal.id}`)
+}
 </script>
 
 <template>
@@ -493,6 +498,7 @@ const goToInfluencerDetail = (influencerId) => {
       <DetailProposalModal
         :proposal="selectedProposal"
         @close="closeProposalModal"
+        @contract="goToContractCreate"
       />
     </div>
   </div>
