@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
  * - MongoTemplate 또는 Repository를 사용할 때 Mongo 문서에 자동 추가되는 '_class' 필드를 제거하기 위한 설정
  */
 @Configuration
-public class mongoConfig {
+public class MongoConfig {
     //MongoDB와 java 객체 연결
     @Autowired
     private MongoMappingContext mongoMappingContext;

@@ -7,7 +7,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update          # dev: update / prod: validate
+      #table과 entity 불일치 시 오류
+      ddl-auto: validate          # dev: update / prod: validate
     open-in-view: false
     properties:
       hibernate:
@@ -22,8 +23,4 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
-
-      # ?? ??? ??? config service ? ?? ?????!
-
-
 
