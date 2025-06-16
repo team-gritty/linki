@@ -29,7 +29,7 @@
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="review in pagedReviews" :key="review.influencerReviewId">
         <td>{{ review.influencerReviewId }}</td>
-        <td>{{ review.influencerName }}</td>
+        <td>{{ review.influencer }}</td>
         <td>{{ review.writer }}</td>
         <td>{{ review.rating }}</td>
         <td>{{ review.reviewDate }}</td>
@@ -58,7 +58,7 @@
     <div v-else v-for="review in pagedReviews" :key="review.influencerReviewId" class="member-card">
       <div class="card-header-row">
         <span class="user-id">{{ review.influencerReviewId }}</span>
-        <span class="influencer-name">{{ review.influencerName }}</span>
+        <span class="influencer-name">{{ review.influencer }}</span>
         <button type="button"
                 class="toggle-visibility"
                 :class="(review.visibility === true || review.visibility === 'true') ? 'open' : 'closed'"
@@ -89,7 +89,7 @@
     <div class="modal-content">
       <h3>리뷰 상세</h3>
       <div class="modal-fields">
-        <div class="modal-field"><span class="modal-label">인플루언서</span><span class="modal-value">{{ selectedReview.influencerName }}</span></div>
+        <div class="modal-field"><span class="modal-label">인플루언서</span><span class="modal-value">{{ selectedReview.influencer }}</span></div>
         <div class="modal-field"><span class="modal-label">작성자</span><span class="modal-value">{{ selectedReview.writer }}</span></div>
         <div class="modal-field"><span class="modal-label">평점</span><span class="modal-value">{{ selectedReview.rating }}</span></div>
         <div class="modal-field"><span class="modal-label">작성일</span><span class="modal-value">{{ selectedReview.reviewDate }}</span></div>
@@ -122,7 +122,7 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'influencerName', label: '인플루언서', endpoint: '/v1/admin/api/influencerReviews/search' },
+    { value: 'influencer', label: '인플루언서', endpoint: '/v1/admin/api/influencerReviews/search' },
     { value: 'writer', label: '작성자', endpoint: '/v1/admin/api/influencerReviews/search' },
     { value: 'contractId', label: '계약 ID', endpoint: '/v1/admin/api/influencerReviews/search' }
   ],

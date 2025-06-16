@@ -31,6 +31,13 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	implementation 'com.mysql:mysql-connector-j:8.0.33'
+
+	implementation 'org.modelmapper:modelmapper:3.2.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+
+	implementation group: 'com.github.ckpoint', name: 'toexcel', version: '1.0.8'
 }
 
 tasks.named('test') {

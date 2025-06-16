@@ -6,13 +6,13 @@ export const getInfluencerReviewsList = async () => {
 
 export const searchInfluencerReviews = async (searchType, keyword) => {
   // 스프링 연동 시 사용할 코드
-  // return await httpRequester.post('/v1/admin/api/influencerReviews/search', {
-  //   searchType,
-  //   keyword
-  // })
+  return await httpRequester.post('/v1/admin/api/influencerReviews/search', {
+    searchType,
+    keyword
+  })
 
   // json-server 테스트용 코드
-  return await httpRequester.get(`/v1/admin/api/influencerReviews/search/${searchType}?q=${keyword}`)
+  // return await httpRequester.get(`/v1/admin/api/influencerReviews/search/${searchType}?q=${keyword}`)
 }
 
 export async function exportExcel() {
@@ -20,5 +20,8 @@ export async function exportExcel() {
 }
 
 export const toggleReviewVisibility = async (reviewId, visibility) => {
-  return await httpRequester.post(`/v1/admin/api/influencerReviews/${reviewId}`, { visibility })
+  return await httpRequester.post('/v1/admin/api/advertiserReviews/visibility', { 
+    id: reviewId,
+    visibility: visibility 
+  })
 }

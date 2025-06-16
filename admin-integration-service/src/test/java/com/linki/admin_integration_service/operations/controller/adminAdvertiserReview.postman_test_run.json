@@ -1,0 +1,196 @@
+{
+	"id": "5b03c219-703e-491a-93df-6e688370020a",
+	"name": "adminAdvertiserReview",
+	"timestamp": "2025-06-16T08:17:24.013Z",
+	"collection_id": "45491549-7b1ef3c4-5302-4aff-8ee2-af2714103103",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 20,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-16T08:17:22.609Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "eb60568d-86f3-4cc7-8f6e-72536a0237cf",
+			"name": "관리자 - 광고주 리뷰 조회",
+			"url": "localhost:8080/v1/admin/api/advertisersReviews",
+			"time": 38,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 10,
+					"fail": 0
+				}
+			},
+			"times": [
+				100,
+				47,
+				68,
+				33,
+				37,
+				36,
+				32,
+				32,
+				37,
+				38
+			],
+			"allTests": [
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				},
+				{
+					"Status code is 200": true
+				}
+			]
+		},
+		{
+			"id": "5e89b898-0a6b-4096-803e-3eeb99b02447",
+			"name": "관리자 - 광고주 리뷰 공개/비공개 변경",
+			"url": "localhost:8080/v1/admin/api/advertisersReviews/visibility",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Successful POST request": true
+			},
+			"testPassFailCounts": {
+				"Successful POST request": {
+					"pass": 10,
+					"fail": 0
+				}
+			},
+			"times": [
+				7,
+				4,
+				4,
+				4,
+				4,
+				12,
+				5,
+				4,
+				4,
+				4
+			],
+			"allTests": [
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				},
+				{
+					"Successful POST request": true
+				}
+			]
+		},
+		{
+			"id": "8da59e31-83a6-45ed-a19d-85fb93f18de3",
+			"name": "관리자 광고주 리뷰 검색",
+			"url": "localhost:8080/v1/admin/api/advertisersReviews/search",
+			"time": 38,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				49,
+				49,
+				36,
+				36,
+				36,
+				75,
+				33,
+				35,
+				35,
+				38
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 934,
+	"collection": {
+		"requests": [
+			{
+				"id": "eb60568d-86f3-4cc7-8f6e-72536a0237cf",
+				"method": "GET"
+			},
+			{
+				"id": "5e89b898-0a6b-4096-803e-3eeb99b02447",
+				"method": "POST"
+			},
+			{
+				"id": "8da59e31-83a6-45ed-a19d-85fb93f18de3",
+				"method": "POST"
+			}
+		]
+	}
+}
