@@ -11,7 +11,13 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan(basePackages = "com.Gritty.Linki") // 인터페이스 매퍼 경로
+@MapperScan(basePackages = {
+        "com.Gritty.Linki.domain.user.influencer.campaign.repository.myBatis",
+        "com.Gritty.Linki.domain.user.influencer.contract.repository.myBatis",
+        "com.Gritty.Linki.domain.user.influencer.proposal.repository.myBatis",
+        "com.Gritty.Linki.domain.user.influencer.review.repository.myBatis",
+
+})
 public class MyBatisConfig {
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
