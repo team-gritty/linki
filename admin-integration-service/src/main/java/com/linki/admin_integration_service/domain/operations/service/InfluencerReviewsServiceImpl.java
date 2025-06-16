@@ -102,6 +102,7 @@ public class InfluencerReviewsServiceImpl implements InfluencerReviewsService {
 
         // 4. 정상 검색
         influencerReviewSearchRequestDTO.setSearchType(searchType.trim().toLowerCase(Locale.ROOT));
+        influencerReviewSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<InfluencerReviewDTO> result = influencerReviewsMapper.searchInfluencerReviews(influencerReviewSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
     }
