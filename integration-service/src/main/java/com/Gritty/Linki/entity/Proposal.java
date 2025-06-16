@@ -38,6 +38,7 @@ public class Proposal {
     @JoinColumn(name = "influencer_id", nullable = false)
     private Influencer influencer; // 제안자 (인플루언서)
 
-    @Column(name = "campaign_id", length = 25, nullable = false)
-    private String campaignId; // 캠페인 ID (연결 테이블 없으면 직접 ID로만 처리)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campaign_id", nullable = false)
+    private Campaign campaign;
 }

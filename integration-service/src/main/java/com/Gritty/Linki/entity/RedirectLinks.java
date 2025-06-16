@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 
-public class RedirectLink {
+public class RedirectLinks {
     @Id
     @Column(name = "redirect_id", length = 25, nullable = false)
     private String redirectId; // 리디렉션 링크 ID
@@ -22,8 +22,9 @@ public class RedirectLink {
     @Column(name = "redirected_url", columnDefinition = "LONGTEXT", nullable = false)
     private String redirectedUrl; // 변환된 URL
 
-    @Column(name = "advertiser_id", length = 25, nullable = false)
-    private String advertiserId; // 광고주 ID
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "advertiser_id", nullable = false)
+    private Advertiser advertiser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id", nullable = false)

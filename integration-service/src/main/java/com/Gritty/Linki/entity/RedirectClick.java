@@ -23,5 +23,5 @@ public class RedirectClick {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "redirect_id", nullable = false)
-    private RedirectLink redirectLink; // 어떤 리디렉션 링크에 대한 클릭인지
+    private RedirectLinks redirectLink; // 어떤 리디렉션 링크에 대한 클릭인지
 }
