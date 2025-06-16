@@ -1,4 +1,4 @@
-package com.ssg.chatservice.Domain.message.repository;
+package com.ssg.chatservice.domain.message.repository;
 
 import com.ssg.chatservice.entity.Message;
 import org.springframework.data.mongodb.repository.MongoRepository;
