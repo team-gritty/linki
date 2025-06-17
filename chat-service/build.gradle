@@ -44,6 +44,11 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     //modelmapper 의존성 주입
     implementation 'org.modelmapper:modelmapper:3.1.1'
+
+    //kafka 의존성 주입
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
 }
 
 dependencyManagement {
