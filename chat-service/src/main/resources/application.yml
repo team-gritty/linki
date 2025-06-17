@@ -41,6 +41,12 @@ setting:
     topic: chat.create         # Kafka 토픽명
     group: chat-service        # Consumer Group ID (리스너에서 참조)
 
+  config:
+    import: "optional:application-secret.properties"
+
+  jwt:
+    secret: ${secret-HS256}
+
 
 logging:
   level:
