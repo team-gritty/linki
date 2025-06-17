@@ -11,3 +11,11 @@ spring:
   jwt:
     secret: ${secret-HS256}
 
+
+
+
+
+
+
+
+
