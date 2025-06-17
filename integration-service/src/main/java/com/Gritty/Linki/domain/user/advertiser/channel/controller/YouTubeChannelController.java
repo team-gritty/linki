@@ -1,6 +1,6 @@
-package com.Gritty.Linki.domain.user.advertiser.controller;
+package com.Gritty.Linki.domain.user.advertiser.channel.controller;
 
-import com.Gritty.Linki.domain.user.advertiser.service.YouTubeChannelCollectService;
+import com.Gritty.Linki.domain.user.advertiser.channel.service.YouTubeChannelCollectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

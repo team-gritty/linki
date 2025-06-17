@@ -1,6 +1,6 @@
-package com.Gritty.Linki.user.advertiser.channel.repository;
+package com.Gritty.Linki.user.advertiser.channel.repository.jpa;
 
-import com.Gritty.Linki.domain.user.advertiser.repository.jpa.ChannelJpaRepository;
+import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
 import com.Gritty.Linki.entity.Channel;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;

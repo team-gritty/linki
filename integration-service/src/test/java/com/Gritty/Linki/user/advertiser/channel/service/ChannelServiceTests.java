@@ -1,8 +1,8 @@
 package com.Gritty.Linki.user.advertiser.channel.service;
 
-import com.Gritty.Linki.domain.user.advertiser.request.ChannelSearchRequest;
-import com.Gritty.Linki.domain.user.advertiser.response.ChannelListResponse;
-import com.Gritty.Linki.domain.user.advertiser.service.ChannelService;
+import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.service.ChannelService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

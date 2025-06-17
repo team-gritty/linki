@@ -1,8 +1,8 @@
-package com.Gritty.Linki.domain.user.advertiser.controller;
+package com.Gritty.Linki.domain.user.advertiser.channel.controller;
 
-import com.Gritty.Linki.domain.user.advertiser.request.ChannelSearchRequest;
-import com.Gritty.Linki.domain.user.advertiser.response.ChannelListResponse;
-import com.Gritty.Linki.domain.user.advertiser.service.ChannelService;
+import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

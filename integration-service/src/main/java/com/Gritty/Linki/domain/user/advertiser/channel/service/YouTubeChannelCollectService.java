@@ -1,7 +1,7 @@
-package com.Gritty.Linki.domain.user.advertiser.service;
+package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
-import com.Gritty.Linki.domain.user.advertiser.dto.YouTubeChannelDto;
-import com.Gritty.Linki.domain.user.advertiser.repository.jpa.ChannelSearchRepository;
+import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeChannelDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelSearchRepository;
 import com.Gritty.Linki.entity.Channel;
 import com.Gritty.Linki.entity.Influencer;
 import com.Gritty.Linki.exception.BusinessException;
@@ -76,7 +76,7 @@ public class YouTubeChannelCollectService {
      * 개별 채널을 안전하게 저장하기 (별도 트랜잭션)
      */
     @Transactional
-    private void saveChannelSafely(YouTubeChannelDto.ChannelItem channelItem, String category) {
+    protected void saveChannelSafely(YouTubeChannelDto.ChannelItem channelItem, String category) {
         try {
             if (!channelRepository.existsByYoutubeChannelId(channelItem.getId())) {
                 // 새로운 채널인 경우 저장

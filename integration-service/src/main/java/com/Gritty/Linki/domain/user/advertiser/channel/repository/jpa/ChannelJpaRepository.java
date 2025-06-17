@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.advertiser.repository.jpa;
+package com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa;
 
 import com.Gritty.Linki.entity.Channel;
 import org.springframework.data.domain.Page;
