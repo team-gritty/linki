@@ -4,6 +4,7 @@ import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampai
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.vo.enums.Category;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -47,6 +48,27 @@ public class CampaignServiceTest {
         System.out.println("✅ 캠페인 이름: " + dto.getCampaignName());
         System.out.println("✅ 광고주 회사명: " + dto.getCompanyName());
 
+
+    }
+    @Test
+    void testGetcampaignsByCategory(){
+        // when
+        List<CampaignListResponseDTO> beauties = campaignService.getCampaignsByCategory(Category.BEAUTY);
+
+        // then
+        assertThat(beauties)
+                .isNotNull()
+                .isNotEmpty()
+                .allSatisfy(dto -> assertThat(dto.getCampaignCategory()).isEqualTo(Category.BEAUTY));
+
+        // 출력
+        beauties.forEach(dto ->
+                System.out.println(
+                        "🎨 캠페인ID=" + dto.getCampaignId() +
+                                ", 제목=" + dto.getCampaignName() +
+                                ", 카테고리=" + dto.getCampaignCategory()
+                )
+        );
 
 
     }

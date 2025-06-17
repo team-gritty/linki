@@ -2,6 +2,7 @@ package com.Gritty.Linki.user.influencer.campaign.repository;
 
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.influencerCampaignRepository;
 import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.vo.enums.Category;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -48,6 +49,22 @@ public class CampaignRepositoryTest {
         assertThat(campaign.getAdvertiser()).isNotNull();
         assertThat(campaign.getAdvertiser().getCompanyName()).isNotEmpty();
 
+    }
+
+    @Test
+    void testGetCampaignsByCategory(){
+        // given
+        Category category = Category.BEAUTY;
+
+        // when
+        List<Campaign> beauties = campaignRepository.findAllByCampaignCategory(category);
+
+        // then
+        assertThat(beauties).isNotNull()
+                .isNotEmpty()
+                .allMatch(c->c.getCampaignCategory() == category);
+        beauties.forEach(
+                c-> System.out.println("🎨 [" + c.getCampaignCategory() + "] " + c.getCampaignName()));
 
 
     }

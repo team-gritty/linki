@@ -4,10 +4,12 @@ import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.influence
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.vo.enums.Category;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class InfluencerCampaignServiceImpl implements InfluencerCampaignService {
 
     private final influencerCampaignRepository campaignRepository;
@@ -42,4 +45,38 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
         return responseDTO;
 
     }
+
+    @Override
+    public List<CampaignListResponseDTO> getCampaignsByCategory(Category category) {
+        // 1) repository 호출 분기
+        List<Campaign> entities = (category == null)
+                ? campaignRepository.findAll()
+                : campaignRepository.findAllByCampaignCategory(category);
+
+        // 2) DTO 변환
+        return entities.stream()
+                .map(this::toListDto)
+                .collect(Collectors.toList());
+
+    }
+
+    /**
+     * Entity → CampaignListResponseDTO 변환 헬퍼(타입이 달라서 사용)
+     */
+    private CampaignListResponseDTO toListDto(Campaign campaign) {
+        // 1) 자동 매핑 가능한 필드
+        CampaignListResponseDTO dto = modelMapper.map(campaign, CampaignListResponseDTO.class);
+
+        // 2) 수동 매핑 (STRICT 모드 고려)
+        // - LocalDateTime → LocalDate
+        dto.setCreatedAt(campaign.getCreatedAt().toLocalDate());
+        dto.setCampaignDeadline(campaign.getCampaignDeadline().toLocalDate());
+        // - enum → enum/String
+        dto.setCampaignCategory(campaign.getCampaignCategory());
+        dto.setCampaignPublishStatus(campaign.getCampaignPublishStatus());
+
+        return dto;
+    }
+
+
 }
