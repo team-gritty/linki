@@ -1,6 +1,5 @@
 package com.ssg.chatservice.domain.kafka.listener;
 
-import com.ssg.chatservice.domain.kafka.event.ChatCreatEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -39,16 +38,16 @@ class ChatCreateListenerTest {
          * 키는 문자열, 값은 DTO (ChatCreatDTO)
          * 직렬화 방식: StringSerializer, JsonSerializer
          *  */
-        var producerFactory = new DefaultKafkaProducerFactory<String, ChatCreatEvent>(
-                producerProps, new StringSerializer(), new JsonSerializer<>());
+        var producerFactory = new DefaultKafkaProducerFactory<String, String>(
+                producerProps, new StringSerializer(), new StringSerializer());
         // KafkaTemplate 생성 → 테스트 메시지 발행에 사용
         var kafkaTemplate = new KafkaTemplate<>(producerFactory);
 
         /* 테스트 메세지 이벤트 생성
          * 토픽: chat.create
          * */
-        ChatCreatEvent dto = new ChatCreatEvent("test100","test100","test100");
-        ProducerRecord<String,ChatCreatEvent> record = new ProducerRecord<>("chat.create", dto);
+        String Event = "proposal-456";
+        ProducerRecord<String,String> record = new ProducerRecord<>("chat.create", Event);
 
         // 메시지 발행 → 실제로 Embedded Kafka에 write됨
         kafkaTemplate.send(record);

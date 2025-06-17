@@ -1,6 +1,6 @@
 package com.ssg.chatservice.domain.kafka.listener;
 
-import com.ssg.chatservice.domain.kafka.event.ChatCreatEvent;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -38,7 +38,7 @@ public class ChatCreateListener {
             groupId = "${setting.ksb.group}",        // Kafka consumer group
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void onMessage(ConsumerRecord<String, ChatCreatEvent> consumerRecord,
+    public void onMessage(ConsumerRecord<String, String> consumerRecord,
                           Acknowledgment acknowledgment) {
 
         // Kafka 메시지 내용 확인 (디버깅 또는 로깅 용도)
