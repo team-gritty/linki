@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.user.repository.myBatis.GeneralUserMapper">
+
+
+    <select id="getAllGeneralUsers" resultType="com.linki.admin_integration_service.domain.user.dto.GeneralUSerDTO">
+        SELECT
+            user_id AS userId,
+            user_name AS name,
+            user_email AS email,
+            user_phone AS phone,
+            user_enter_day AS enterDate,
+            user_status AS userStatus
+        FROM user
+    </select>
+
+    <select id="searchGeneralUser"  resultType="com.linki.admin_integration_service.domain.user.dto.GeneralUSerDTO">
+        SELECT
+        user_id AS userId,
+        user_name AS name,
+        user_email AS email,
+        user_phone AS phone,
+        user_enter_day AS enterDate,
+        user_status AS userStatus
+        FROM user
+        WHERE 1 = 1
+
+        <choose>
+            <when test="searchType.toLowerCase() eq 'name'">
+                AND TRIM(LOWER(user_name)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType.toLowerCase() eq 'email'">
+                AND TRIM(LOWER(user_email)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType.toLowerCase() eq 'phone'">
+                AND REPLACE(TRIM(user_phone), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+</mapper>
