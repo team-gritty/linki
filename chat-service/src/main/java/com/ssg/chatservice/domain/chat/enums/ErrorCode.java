@@ -10,7 +10,10 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     CHATROOM_ALREADY_EXIST(HttpStatus.CONFLICT,"이미 존재하는 채팅방 입니다."),
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방이 존재하지 않습니다."),
-    PARTNER_API_FAILED(HttpStatus.BAD_GATEWAY, "파트너 API 호출에 실패했습니다.");
+    PARTNER_API_FAILED(HttpStatus.BAD_GATEWAY, "파트너 API 호출에 실패했습니다."),
+    JWT_TOKEN_END(HttpStatus.UNAUTHORIZED,"토큰 만료"),
+    JWT_TOKEN_FAIL(HttpStatus.UNAUTHORIZED,"토큰 인증 불가");
+
 
 
 
