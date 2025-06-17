@@ -51,9 +51,6 @@ public class ChatCreateListener {
         ObjectMapper mapper = new ObjectMapper();
         //json을 event객체로 변환
         ChatCreateEvent event = mapper.readValue(consumerRecord.value(), ChatCreateEvent.class);
-        //event 객체의 정보로 채팅방 생성
-        chatService.createRoom(event.getProposalId());
-        log.info("채팅방 생성 완료: {}", event.getProposalId());
 
         // 수동 커밋 수행 → 이 시점 이후에만 메시지가 "정상 소비됨"으로 간주됨
         //TODO : 이벤트 객체를 통해 알림객체 생성 + 생성된 알림 메세지/메일발송
