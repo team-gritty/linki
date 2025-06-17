@@ -39,7 +39,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { contractApi } from '@/api/contract';
+import { settlementAPI } from '@/api/settlement';
 
 export default {
   name: 'MyPageSettlement',
@@ -49,7 +49,7 @@ export default {
 
     const fetchSettlements = async () => {
       try {
-        const data = await contractApi.getAllSettlements();
+        const data = await settlementAPI.getAllSettlements();
         settlements.value = data;
       } catch (error) {
         console.error('정산 내역 조회 실패:', error);

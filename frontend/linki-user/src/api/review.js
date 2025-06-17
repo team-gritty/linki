@@ -26,7 +26,7 @@ export const reviewApi = {
   // 광고주에 대한 리뷰 작성
   async submitAdvertiserReview(reviewData) {
     try {
-      const response = await httpClient.post(`/v1/api/influencer/reviews/written`, reviewData);
+      const response = await httpClient.post(`/v1/api/influencer/reviews/advertiser-write`, reviewData);
       return response.data;
     } catch (error) {
       console.error('Error submitting advertiser review:', error);
@@ -37,7 +37,7 @@ export const reviewApi = {
   // 특정 캠페인에 대한 광고주 리뷰 조회
   async getAdvertiserReviewsByCampaign(campaignId) {
     try {
-      const response = await httpClient.get(`/api/influencer/reviews/advertiser/campaign/${campaignId}`);
+      const response = await httpClient.get(`/api/nonuser/reviews/advertiser/campaign/${campaignId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching advertiser reviews by campaign:', error);
