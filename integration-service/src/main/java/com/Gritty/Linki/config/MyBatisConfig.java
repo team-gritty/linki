@@ -16,7 +16,7 @@ import javax.sql.DataSource;
         "com.Gritty.Linki.domain.user.influencer.contract.repository.myBatis",
         "com.Gritty.Linki.domain.user.influencer.proposal.repository.myBatis",
         "com.Gritty.Linki.domain.user.influencer.review.repository.myBatis",
-        "com.Gritty.Linki.domain.user.advertiser.repository.myBatis"
+//        "com.Gritty.Linki.domain.user.advertiser.repository.myBatis"
 })
 public class MyBatisConfig {
     @Bean

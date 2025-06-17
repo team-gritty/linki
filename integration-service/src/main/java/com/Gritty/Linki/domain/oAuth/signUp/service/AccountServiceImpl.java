@@ -3,7 +3,10 @@ package com.Gritty.Linki.domain.oAuth.signUp.service;
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
 import com.Gritty.Linki.domain.oAuth.signUp.repository.AccountRepository;
 import com.Gritty.Linki.entity.User;
+import com.Gritty.Linki.util.AesUtil;
+import com.Gritty.Linki.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,20 +18,21 @@ import java.util.UUID;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
     @Override
     public void save(JoinDTO joinDTO) {
 
         User user = User.builder()
                 .userLoginId(joinDTO.getUserLoginId())
-                .userLoginPw(joinDTO.getUserLoginPw())
+                .userLoginPw(passwordEncoder.encode(joinDTO.getUserLoginPw()))//aes 암호화
                 .userName(joinDTO.getUserName())
                 .userPhone(joinDTO.getUserPhone())
                 .userEmail(joinDTO.getUserEmail())
-                .userId(UUID.randomUUID().toString().replace("-", "").substring(0, 20))
+                .userId(IdGenerator.userId())//id제네레이터 이용
                 .userPayStatus(0)
-                .userStatus(0)
+                .userStatus(1)
                 .userEnterDay(LocalDate.now())
-                .userRole("일반유저")
+                .userRole("ROLE_INFLUENCER")
                 .build();
 
         accountRepository.save(user);
