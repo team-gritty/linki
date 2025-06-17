@@ -2,20 +2,14 @@ package com.Gritty.Linki.domain.oAuth.dto;
 
 import lombok.*;
 
-import java.util.Date;
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class JoinDTO {
-    private String userId;
+public class RequestJoinDto {
     private String userLoginId;
     private String userLoginPw;
     private String userName;
     private String userPhone;
     private String userEmail;
-    private int userStatus;
-    private Date userEnterDay;
-    private String userRole;
 }
