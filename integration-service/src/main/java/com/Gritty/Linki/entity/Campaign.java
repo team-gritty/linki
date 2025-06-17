@@ -24,7 +24,6 @@ public class Campaign {
     @Column(name = "campaign_id", length = 25)
     private String campaignId;
 
-
     // 캠페인 이름. null 불가.
     @Column(name = "campaign_name", length = 100, nullable = false)
     private String campaignName;
@@ -70,8 +69,6 @@ public class Campaign {
     // 빌더 패턴 사용 시 기본값 설정
     @Builder.Default
     private List<Proposal> proposals = new ArrayList<>();
-
-
 
     /**
      * JPA가 DB에 insert하기 직전에 호출되는 메서드

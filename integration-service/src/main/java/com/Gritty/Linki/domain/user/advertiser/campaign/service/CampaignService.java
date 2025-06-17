@@ -28,6 +28,7 @@ public class CampaignService {
 
         /**
          * 캠페인 생성
+         * 
          * @param campaignDto
          * @param advertiserId
          * @return
@@ -58,6 +59,7 @@ public class CampaignService {
 
         /**
          * 광고주 캠페인 수정
+         * 
          * @param campaignId
          * @param campaignDto
          * @param advertiserId
@@ -86,6 +88,7 @@ public class CampaignService {
 
         /**
          * 광고주 캠페인 삭제
+         * 
          * @param campaignId
          * @param advertiserId
          */
@@ -102,6 +105,7 @@ public class CampaignService {
 
         /**
          * 광고주 캠페인 공개/비공개 전환
+         * 
          * @param campaignIds
          * @param makePublic
          * @param advertiserId
@@ -133,6 +137,7 @@ public class CampaignService {
 
         /**
          * 광고주의 모든 캠페인 조회
+         * 
          * @param advertiserId
          * @return
          */
@@ -150,6 +155,7 @@ public class CampaignService {
 
         /**
          * 특정 캠페인 상세 조회
+         * 
          * @param campaignId
          * @param advertiserId
          * @return
@@ -167,6 +173,7 @@ public class CampaignService {
 
         /**
          * Campaign 엔티티를 DTO로 변환
+         * 
          * @param campaign
          * @return
          */
