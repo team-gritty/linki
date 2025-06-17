@@ -1,6 +1,10 @@
 package com.ssg.chatservice.domain.kafka.listener;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssg.chatservice.domain.chat.service.ChatService;
+import com.ssg.chatservice.domain.kafka.event.ChatCreateEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ChatCreateListener {
 
+    private final ChatService chatService;
     /**
      * Kafka에서 chat.create 토픽 메시지를 수신하여 처리하는 메서드
      *
@@ -39,14 +44,20 @@ public class ChatCreateListener {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void onMessage(ConsumerRecord<String, String> consumerRecord,
-                          Acknowledgment acknowledgment) {
+                          Acknowledgment acknowledgment) throws JsonProcessingException {
 
-        // Kafka 메시지 내용 확인 (디버깅 또는 로깅 용도)
-        log.info("메세지 수신: {}", consumerRecord.value());
-        // TODO: 채팅방 생성 로직 처리
-        // ex) chatService.createRoom(dto.getProposalId(), dto.getOpponentId());
+        log.info("메세지 수신 {}",consumerRecord.value());
+        // String 데이터로 받은 내용 json 직렬화
+        ObjectMapper mapper = new ObjectMapper();
+        //json을 event객체로 변환
+        ChatCreateEvent event = mapper.readValue(consumerRecord.value(), ChatCreateEvent.class);
+        //event 객체의 정보로 채팅방 생성
+        chatService.createRoom(event.getProposalId());
+        log.info("채팅방 생성 완료: {}", event.getProposalId());
 
         // 수동 커밋 수행 → 이 시점 이후에만 메시지가 "정상 소비됨"으로 간주됨
+        //TODO : 이벤트 객체를 통해 알림객체 생성 + 생성된 알림 메세지/메일발송
+
         // acknowledgment.acknowledge()를 호출하지 않으면 메시지는 다시 재시도됨
         acknowledgment.acknowledge();
     }
