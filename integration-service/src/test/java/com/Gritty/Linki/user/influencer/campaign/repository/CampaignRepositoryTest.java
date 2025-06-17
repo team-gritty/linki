@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,5 +28,27 @@ public class CampaignRepositoryTest {
         assertThat(campaigns).isNotNull();
         assertThat(campaigns.size()).isGreaterThan(0); // 최소 1개 이상
         campaigns.forEach(c -> System.out.println("📌 캠페인 제목: " + c.getCampaignName()));
+    }
+
+    @Test
+    void getCampaignDetails(){
+        // given
+        String campaignId = "CAMP0001";
+
+        // when
+        Optional<Campaign> result = campaignRepository.findByCampaignIdWithAdvertiser(campaignId);
+
+        //then
+        assertThat(result).isPresent();
+
+        Campaign campaign = result.get();
+        System.out.println("✅ 캠페인 이름: " + campaign.getCampaignName());
+        System.out.println("✅ 광고주 회사명: " + campaign.getAdvertiser().getCompanyName());
+
+        assertThat(campaign.getAdvertiser()).isNotNull();
+        assertThat(campaign.getAdvertiser().getCompanyName()).isNotEmpty();
+
+
+
     }
 }

@@ -1,0 +1,9 @@
+{
+  "campaignId": "CAMP0001",
+  "campaignName": "캠페인1",
+  "campaignCondition": "캠페인 조건1",
+  "campaignImg": "https://example.com/images/1.jpg",
+  "campaignDesc": "캠페인 설명1",
+  "companyName": "회사0",
+  "campaignPublishStatus": "HIDDEN"
+}

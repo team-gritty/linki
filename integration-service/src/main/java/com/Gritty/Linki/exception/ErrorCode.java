@@ -38,13 +38,14 @@ public enum ErrorCode {
     // 서버 오류 (5xx)
     // 500 Internal Server Error - 서버 내부 오류
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Server error"),
-    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed");
+    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed"), CAMPAIGN_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 캠페인을 찾을 수 없습니다." ),;
 
     // HTTP 상태 코드와 이에 대응하는 상태 메시지를 포함하는 HttpStatus 객체
     private final HttpStatus status;
 
     // 클라이언트에게 보여줄 에러 메시지
     private final String message;
+    
 
     ErrorCode(HttpStatus status, String message) {
         this.status = status;
