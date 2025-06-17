@@ -16,12 +16,58 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/api/advertiser/campaigns")
+@RequestMapping("/v1/api/advertiser/mypage/campaigns")
 @RequiredArgsConstructor
 @Slf4j
 public class CampaignController {
 
     private final CampaignService campaignService;
+
+    /**
+     * 광고주 마이페이지 모든 캠페인 조회
+     *
+     * @param req
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<List<CampaignResponse>> getCampaigns(HttpServletRequest req) {
+        log.info("광고주 마이페이지 모든 캠페인 조회--------------------");
+
+        // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
+        String advertiserId = getAdvertiserIdFromRequest(req);
+
+        List<CampaignDto> campaigns = campaignService.getCampaignsByAdvertiserId(advertiserId);
+
+        List<CampaignResponse> responses = campaigns.stream()
+                .map(this::dtoToResponse)
+                .collect(Collectors.toList());
+
+        log.info("캠페인 {}개 조회 완료", responses.size());
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * 광고주의 특정 캠페인 조회
+     *
+     * @param id
+     * @param req
+     * @return
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<CampaignResponse> getCampaign(
+            @PathVariable String id,
+            HttpServletRequest req) {
+
+        log.info("캠페인 {} 조회를 요청받았습니다", id);
+
+        // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
+        String advertiserId = getAdvertiserIdFromRequest(req);
+
+        CampaignDto campaign = campaignService.getCampaignById(id, advertiserId);
+        CampaignResponse response = dtoToResponse(campaign);
+
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * 광고주 새로운 캠페인 등록
@@ -116,7 +162,7 @@ public class CampaignController {
             @RequestParam boolean makePublic,
             @RequestBody List<String> campaignIds) {
 
-        log.info("캠페인들 {}의 공개 상태를 {}로 변경 요청받았습니다", campaignIds, makePublic ? "공개" : "비공개");
+        log.info("캠페인들 {}의 공개 상태를 {}로 변경 요청", campaignIds, makePublic ? "공개" : "비공개");
 
         // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
         String advertiserId = getAdvertiserIdFromRequest(req);
@@ -131,51 +177,7 @@ public class CampaignController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * 광고주의 모든 캠페인 조회
-     *
-     * @param req
-     * @return
-     */
-    @GetMapping
-    public ResponseEntity<List<CampaignResponse>> getCampaigns(HttpServletRequest req) {
-        log.info("캠페인 목록 조회를 요청받았습니다");
 
-        // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
-        String advertiserId = getAdvertiserIdFromRequest(req);
-
-        List<CampaignDto> campaigns = campaignService.getCampaignsByAdvertiserId(advertiserId);
-
-        List<CampaignResponse> responses = campaigns.stream()
-                .map(this::dtoToResponse)
-                .collect(Collectors.toList());
-
-        log.info("캠페인 {}개 조회가 완료되었습니다", responses.size());
-        return ResponseEntity.ok(responses);
-    }
-
-    /**
-     * 광고주의 특정 캠페인 조회
-     *
-     * @param id
-     * @param req
-     * @return
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<CampaignResponse> getCampaign(
-            @PathVariable String id,
-            HttpServletRequest req) {
-
-        log.info("캠페인 {} 조회를 요청받았습니다", id);
-
-        // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
-        String advertiserId = getAdvertiserIdFromRequest(req);
-
-        CampaignDto campaign = campaignService.getCampaignById(id, advertiserId);
-        CampaignResponse response = dtoToResponse(campaign);
-
-        return ResponseEntity.ok(response);
-    }
 
     // Request를 DTO로 변환하는 헬퍼 메소드
     private CampaignDto requestToDto(CampaignRequest request) {
