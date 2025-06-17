@@ -26,7 +26,7 @@ public class ChatServiceImpl implements ChatService{
     //제안서 아이디로 채팅방 조회 및 DTO 반환
     @Override
     public ChatDetailDTO findByProposalId(String proposalId){
-        //제안서 아이디로 파트너 객체 조회
+        //제안서 아이디로 채팅방 조회
         Chat chat =  chatRepository.findByProposalId(proposalId);
         if(chat == null){
             throw new ChatException(ErrorCode.CHATROOM_NOT_FOUND);
@@ -55,7 +55,6 @@ public class ChatServiceImpl implements ChatService{
     public ChatDetailDTO createRoom(String proposalId) {
         //DB에서 제안서 아이디를 기준으로 채팅방 조회
         Chat chat = chatRepository.findByProposalId(proposalId);
-
         //이미 존재하는 채팅방이면 예외처리
         if(chat != null){
             throw new ChatException(ErrorCode.CHATROOM_ALREADY_EXIST);
