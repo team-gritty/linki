@@ -38,7 +38,7 @@ public class ChannelController {
      * @param limit           페이지 크기 (기본값: 10)
      * @return 필터링된 채널 목록
      */
-    @GetMapping("/channels")
+    @GetMapping("/nonuser/channels")
     @ResponseBody
     public ResponseEntity<List<ChannelListResponse>> getChannels(
             @RequestParam(required = false) String keyword,
