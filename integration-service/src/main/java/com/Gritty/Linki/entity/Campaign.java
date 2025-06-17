@@ -1,5 +1,6 @@
 package com.Gritty.Linki.entity;
 
+import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.CampaignPublishStatus;
 import com.Gritty.Linki.vo.enums.Category;
 import jakarta.persistence.*;
@@ -22,6 +23,7 @@ public class Campaign {
     @Id
     @Column(name = "campaign_id", length = 25)
     private String campaignId;
+
 
     // 캠페인 이름. null 불가.
     @Column(name = "campaign_name", length = 100, nullable = false)
@@ -69,4 +71,17 @@ public class Campaign {
     @Builder.Default
     private List<Proposal> proposals = new ArrayList<>();
 
+
+
+    /**
+     * JPA가 DB에 insert하기 직전에 호출되는 메서드
+     * prepersist로 내부에서 자동 생성되어 @Id필드가 널이 안되도록 보장함
+     * // 영속성 저장 시 지정된 아이디가 없으면 생성하여 저장, 있으면 입력값으로 저장
+     */
+    @PrePersist
+    public void prePersist() {
+        if (this.campaignId == null) {
+            this.campaignId = IdGenerator.campaignId();
+        }
+    }
 }

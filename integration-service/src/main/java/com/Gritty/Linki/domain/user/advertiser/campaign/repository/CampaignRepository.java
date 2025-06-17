@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface CampaignRepository extends JpaRepository<Campaign, String> {
 
     /**
-     *
+     * 광고주 PK 로 캠페인 한개 찾기
      * @param advertiserId
      * @return
      */
@@ -24,7 +24,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, String> {
     List<Campaign> findByAdvertiserId(@Param("advertiserId") String advertiserId);
 
     /**
-     *
+     * 캠페인 PK, 광고주 PK 로 캠페인 한개 찾기
      * @param campaignId
      * @param advertiserId
      * @return
@@ -34,7 +34,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, String> {
             @Param("advertiserId") String advertiserId);
 
     /**
-     *
+     * 캠페인 PK, 광고주 PK 로 캠페인 여러개 찾기
      * @param campaignIds
      * @param advertiserId
      * @return
