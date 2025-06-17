@@ -6,7 +6,6 @@
 
     @FeignClient(name="partner-api",url="http://localhost:8080")
     public interface PartnerApiClient{
-
         @GetMapping("/v1/integration-service/api/partners/{id}")
-        PartnerInfoResponse getPartnerInfo(@PathVariable("id") String opponentId);
+        PartnerInfoResponse getPartnerInfo(@PathVariable("id") String partnerId);
     }
