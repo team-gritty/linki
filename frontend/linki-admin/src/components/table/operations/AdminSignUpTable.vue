@@ -15,7 +15,7 @@
         <th>관리자 이름</th>
         <th>관리자 이메일</th>
         <th>관리자 연락처</th>
-        <th>관리자 상태</th>
+        <th>로그인 ID</th>
         <th>관리자 가입 승인</th>
       </tr>
     </thead>
@@ -29,7 +29,7 @@
         <td>{{ user.adminName }}</td>
         <td>{{ user.adminEmail }}</td>
         <td>{{ user.adminPhone }}</td>
-        <td>{{ user.adminStatus }}</td>
+        <td>{{ user.adminSignUpId }}</td>
         <td>
           <button 
             v-if="user.adminStatus === 'PENDING'" 
@@ -69,8 +69,8 @@
           <span class="value">{{ user.adminPhone }}</span>
         </div>
         <div class="info-row">
-          <span class="label">관리자 상태</span>
-          <span class="value">{{ user.adminStatus }}</span>
+          <span class="label">로그인 ID</span>
+          <span class="value">{{ user.adminSignUpId }}</span>
         </div>
         <div class="info-row">
           <span class="value">
@@ -105,11 +105,10 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import httpRequester from '@/libs/httpRequester'
 import { getAdminSignUpList, searchAdminSignUp, exportExcel, approveAdmin, rejectAdmin } from '@/js/operations/AdminSignUp.js'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
-import { useRouter } from 'vue-router'
+
 
 // 회원 데이터 배열
 const users = ref([])
@@ -128,7 +127,7 @@ const searchConfig = {
     { value: 'adminPhone', label: '관리자 연락처', endpoint: '/v1/admin/api/adminSignUp/search' }
   ],
   placeholder: '검색어를 입력하세요',
-  endpoint: '/v1/admin/api/settlements'
+  endpoint: '/v1/admin/api/adminSignUp/search'
 }
 
 // ----------------------
@@ -188,29 +187,6 @@ const pagedUsers = computed(() => {
 // ----------------------
 const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
 
-// ----------------------
-// 정산 처리 버튼 클릭 시 실행되는 함수
-// ----------------------
-const handleProcessSettlement = async (contractId) => {
-  try {
-    console.log('정산 처리 시작:', contractId);
-    const response = await processSettlement(contractId);
-    console.log('정산 처리 응답:', response);
-    window.alert('정산 처리가 완료되었습니다.');
-    // 정산 처리 후 목록 새로고침
-    const res = await getSettlementList(1, 10);
-    users.value = Array.isArray(res.data) ? res.data : [];
-  } catch (error) {
-    console.error('정산 처리 중 오류 발생:', error);
-    console.error('에러 상세:', {
-      message: error.message,
-      response: error.response,
-      status: error.response?.status,
-      data: error.response?.data
-    });
-    window.alert('정산 처리 중 오류가 발생했습니다.');
-  }
-}
 
 // ----------------------
 // approve/reject 핸들러 추가
@@ -420,19 +396,8 @@ tr:last-child td {
   background: #256025;
 }
 
-.process-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
-}
 
-.process-btn:hover {
-  background: #0056b3;
-}
+
 
 .status {
   padding: 4px 8px;
@@ -446,11 +411,7 @@ tr:last-child td {
   color: #155724;
 }
 
-.process-btn.mobile {
-  width: 100%;
-  padding: 8px 12px;
-  margin-top: 4px;
-}
+
 
 /* 버튼 스타일 */
 .approve-btn {
