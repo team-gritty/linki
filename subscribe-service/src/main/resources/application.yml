@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: subscribe-service
+  config:
+    import: "optional:classpath:application-secret.properties"
   jwt:
     secret: ${secret-HS256}
 
