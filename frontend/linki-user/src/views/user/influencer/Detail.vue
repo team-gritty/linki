@@ -52,7 +52,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
+import httpClient from '@/utils/httpRequest'
 import { proposalAPI } from '@/api/proposal'
 
 import DetailHeader from '@/components/user/influencer/detail/DetailHeader.vue'
@@ -109,7 +109,7 @@ const fetchData = async () => {
     }
 
     // 1. 전체 제안서 목록 조회
-    const proposalsResponse = await axios.get('/v1/api/influencer/proposals');
+    const proposalsResponse = await httpClient.get('/v1/api/influencer/proposals');
     console.log('All proposals:', proposalsResponse.data);
     
     // proposal_id로 해당 제안서 찾기
@@ -122,27 +122,26 @@ const fetchData = async () => {
     
     proposal.value = foundProposal;
     
-    // 2. 캠페인 정보 조회
-    const campaignId = foundProposal.campaign_id;
-    console.log('Campaign ID:', campaignId);
-    
-    if (!campaignId) {
-      throw new Error('캠페인 ID를 찾을 수 없습니다.');
-    }
-    
-    // 캠페인 정보 조회
-    const campaignsResponse = await axios.get('/v1/api/influencer/campaigns');
-    const foundCampaign = campaignsResponse.data.find(c => c.campaignId === campaignId);
-    console.log('Found campaign:', foundCampaign);
-    
-    if (foundCampaign) {
-      campaignDetail.value = foundCampaign;
-    } else {
-      throw new Error('캠페인 정보를 찾을 수 없습니다.');
-    }
+   // 2. 캠페인 정보 조회
+const campaignId = foundProposal.campaign_id;
+console.log('Campaign ID:', campaignId);
+
+if (!campaignId) {
+  throw new Error('캠페인 ID를 찾을 수 없습니다.');
+}
+
+try {
+  const campaignResponse = await httpClient.get(`/v1/api/influencer/campaigns/${campaignId}`);
+  console.log('Found campaign:', campaignResponse.data);
+
+  campaignDetail.value = campaignResponse.data;
+} catch (error) {
+  console.error('캠페인 조회 실패:', error);
+  throw new Error('캠페인 정보를 찾을 수 없습니다.');
+}
     
     // 3. 계약 정보 조회
-    const contractsResponse = await axios.get('/v1/api/influencer/contracts');
+    const contractsResponse = await httpClient.get('/v1/api/influencer/contracts');
     console.log('Fetching contracts for campaign:', campaignId);
     
     // campaignId로 계약 찾기

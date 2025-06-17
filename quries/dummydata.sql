@@ -74,7 +74,7 @@ INSERT INTO `channel` (
         `influencer_id`
     )
 SELECT CONCAT('CH', LPAD(seq, 4, '0')),
-    Merge change Merge change CONCAT('채널', seq),
+       CONCAT('채널', seq),
     CONCAT('UC', LPAD(seq, 22, 'X')),
     -- YouTube 채널 ID 형식 모방
     CONCAT(
@@ -344,10 +344,10 @@ SELECT
     CONCAT('CHA-', LPAD(seq, 16, '0')),
     DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 365) DAY),
     CASE FLOOR(RAND() * 4)
-        WHEN 0 THEN 'PENDING'
-        WHEN 1 THEN 'ACTIVE'
-        WHEN 2 THEN 'INACTIVE'
-        ELSE 'DELETE'
+        WHEN 0 THEN 'waiting'
+        WHEN 1 THEN 'active'
+        WHEN 2 THEN 'inactive'
+        ELSE 'delete'
     END,
     CONCAT('PRO-', LPAD(seq, 16, '0'))  -- proposal_id와 1:1 매칭
 FROM (
@@ -357,6 +357,7 @@ FROM (
          (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
 ) numbers
 WHERE seq < 1000;
+
 
 
 -- 채팅 알람 데이터 생성
