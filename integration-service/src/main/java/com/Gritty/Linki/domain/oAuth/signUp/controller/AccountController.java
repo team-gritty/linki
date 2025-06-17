@@ -3,16 +3,18 @@ package com.Gritty.Linki.domain.oAuth.signUp.controller;
 
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
 import com.Gritty.Linki.domain.oAuth.dto.RequestJoinDto;
+import com.Gritty.Linki.domain.oAuth.signUp.repository.RefreshTokenRepository;
 import com.Gritty.Linki.domain.oAuth.signUp.service.AccountService;
+import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     private final AccountService accountService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @PostMapping("signup")
     public ResponseEntity<?> signup(@RequestBody RequestJoinDto requestJoinDto) {
@@ -34,6 +37,24 @@ public class AccountController {
 
         accountService.save(joinDTO);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("logout")
+    @Transactional
+    public ResponseEntity<?> logout (@CookieValue(value = "refresh_token", required = false) String refreshToken, HttpServletResponse response){
+        if(refreshToken != null){
+            // DB에서 삭제
+            refreshTokenRepository.deleteByRefreshToken(refreshToken);
+
+            // 클라이언트 쿠키 삭제
+            Cookie deleteCookie = new Cookie("refresh_token", null);
+            deleteCookie.setHttpOnly(true);
+            deleteCookie.setMaxAge(0);
+            deleteCookie.setPath("/");
+            response.addCookie(deleteCookie);
+        }
+
+        return ResponseEntity.ok("로그아웃 완료");
     }
 
 }

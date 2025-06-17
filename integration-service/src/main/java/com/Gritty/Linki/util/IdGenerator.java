@@ -114,5 +114,8 @@ public class IdGenerator {
     // 환불 ID 생성
     public static String refundId() { return "REF-" + nextId(); }
 
+    // 토큰 ID 생성
+    public static String jwtId() { return "jwt-" + nextId(); }
+
 
 }
