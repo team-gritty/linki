@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.operations.repository.myBatis.AdminSignUpAgreementMapper">
+
+    
+    <select id="getAdminSignUpList" resultType="com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgreementDTO">
+        SELECT
+            admin_login_id AS adminSignUpId,
+            admin_name AS adminName,
+            admin_email AS adminEmail,
+            admin_phone AS adminPhone,
+            admin_status AS adminStatus
+        FROM admin
+        WHERE admin_status = 'PENDING'
+    </select>
+    
+    
+    <select id="searchAdminSignUp"  resultType="com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgreementDTO">
+        SELECT
+        admin_login_id AS adminSignUpId,
+        admin_name AS adminName,
+        admin_email AS adminEmail,
+        admin_phone AS adminPhone,
+        admin_status AS adminStatus
+        FROM admin
+        WHERE 1 = 1 and admin_status = 'PENDING'
+
+        <choose>
+            <when test="searchType.toLowerCase() eq 'adminname'">
+                AND TRIM(LOWER(admin_name)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType.toLowerCase() eq 'adminemail'">
+                AND TRIM(LOWER(admin_email)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType.toLowerCase() eq 'adminphone'">
+                AND REPLACE(TRIM(admin_phone), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+</mapper>

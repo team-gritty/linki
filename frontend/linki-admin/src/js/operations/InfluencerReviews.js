@@ -20,7 +20,7 @@ export async function exportExcel() {
 }
 
 export const toggleReviewVisibility = async (reviewId, visibility) => {
-  return await httpRequester.post('/v1/admin/api/advertiserReviews/visibility', { 
+  return await httpRequester.post('/v1/admin/api/influencerReviews/visibility', { 
     id: reviewId,
     visibility: visibility 
   })
