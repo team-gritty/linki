@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: subscribe-service
+  config:
+    import: "optional:classpath:application-secret.properties"
+  jwt:
+    secret: ${secret-HS256}
+
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -28,5 +33,11 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: TRACE      # JWT 파싱 상세
+
 
 
