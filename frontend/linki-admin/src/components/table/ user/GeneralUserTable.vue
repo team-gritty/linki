@@ -17,7 +17,7 @@
         <th>이메일</th>
         <th>연락처</th>
         <th>가입일</th>
-        <th>회원상태(탈퇴/정지)</th>
+        <th>회원상태(활동/탈퇴)</th>
       </tr>
     </thead>
     <tbody>
@@ -32,7 +32,7 @@
         <td>{{ user.email }}</td>
         <td>{{ user.phone }}</td>
         <td>{{ user.enterDate }}</td>
-        <td>{{ user.user_status }}</td>
+        <td>{{ user.userStatus === 1  ? '활동' : '탈퇴' }}</td>
       </tr>
     </tbody>
   </table>
@@ -47,7 +47,7 @@
     <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
       <div class="card-header">
         <span class="user-id">No. {{ user.userId }}</span>
-        <span class="user-status" :class="user.user_status">{{ user.user_status }}</span>
+        <span class="user-status" :class="user.userStatus === 1 ? '활동' : '탈퇴'">{{ user.userStatus === null ? '활동' : '탈퇴' }}</span>
       </div>
       <div class="card-body">
         <div class="info-row">
@@ -84,7 +84,6 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import httpRequester from '@/libs/httpRequester.js'
 import { getGeneralUserList, searchGeneralUser, exportExcel } from '@/js/user/GeneralUser.js'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
