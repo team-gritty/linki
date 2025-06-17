@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.advertiser.response;
+package com.Gritty.Linki.domain.user.advertiser.channel.response;
 
 import lombok.Builder;
 import lombok.Getter;

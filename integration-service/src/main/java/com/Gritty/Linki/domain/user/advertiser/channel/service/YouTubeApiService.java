@@ -1,7 +1,7 @@
-package com.Gritty.Linki.domain.user.advertiser.service;
+package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
-import com.Gritty.Linki.domain.user.advertiser.dto.YouTubeChannelDto;
-import com.Gritty.Linki.domain.user.advertiser.dto.YouTubeSearchDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeChannelDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeSearchDto;
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

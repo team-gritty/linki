@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.advertiser.repository.jpa;
+package com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa;
 
 import com.Gritty.Linki.entity.Channel;
 import org.springframework.data.domain.Page;
@@ -11,12 +11,6 @@ import org.springframework.data.repository.query.Param;
  * 채널 데이터 접근을 위한 JPA Repository 인터페이스
  */
 public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
-
-    /**
-     * YouTube 채널 ID로 채널 존재 여부 확인
-     * 중복 채널이 테이블에 들어가지 않기 위해 사용함
-     */
-    boolean existsByYoutubeChannelId(String youtubeChannelId);
 
     /**
      * 채널 검색 쿼리

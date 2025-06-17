@@ -1,9 +1,9 @@
-package com.Gritty.Linki.domain.user.advertiser.service;
+package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
-import com.Gritty.Linki.domain.user.advertiser.request.ChannelSearchRequest;
-import com.Gritty.Linki.domain.user.advertiser.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
 import com.Gritty.Linki.entity.Channel;
-import com.Gritty.Linki.domain.user.advertiser.repository.jpa.ChannelJpaRepository;
+import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

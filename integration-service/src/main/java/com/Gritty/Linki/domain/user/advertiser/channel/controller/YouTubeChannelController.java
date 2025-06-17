@@ -1,6 +1,6 @@
-package com.Gritty.Linki.domain.user.advertiser.controller;
+package com.Gritty.Linki.domain.user.advertiser.channel.controller;
 
-import com.Gritty.Linki.domain.user.advertiser.service.YouTubeChannelCollectService;
+import com.Gritty.Linki.domain.user.advertiser.channel.service.YouTubeChannelCollectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,6 @@ public class YouTubeChannelController {
     /**
      * YouTube 채널 검색 및 수집 API (개발전 필요한 api)
      * 키워드와 카테고리를 기반으로 YouTube 채널을 검색하고 데이터베이스에 저장
-     * 
      * 요청 예시:
      * POST /v1/api/youtube/collect?keyword=메이크업&category=BEAUTY&maxResults=15
      * 

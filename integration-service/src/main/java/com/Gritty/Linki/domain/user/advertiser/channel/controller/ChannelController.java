@@ -1,8 +1,8 @@
-package com.Gritty.Linki.domain.user.advertiser.controller;
+package com.Gritty.Linki.domain.user.advertiser.channel.controller;
 
-import com.Gritty.Linki.domain.user.advertiser.request.ChannelSearchRequest;
-import com.Gritty.Linki.domain.user.advertiser.response.ChannelListResponse;
-import com.Gritty.Linki.domain.user.advertiser.service.ChannelService;
+import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.service.ChannelService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class ChannelController {
      * @param limit           페이지 크기 (기본값: 10)
      * @return 필터링된 채널 목록
      */
-    @GetMapping("/channels")
+    @GetMapping("/nonuser/channels")
     @ResponseBody
     public ResponseEntity<List<ChannelListResponse>> getChannels(
             @RequestParam(required = false) String keyword,
