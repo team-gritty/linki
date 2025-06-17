@@ -30,7 +30,7 @@ public class YouTubeChannelCollectService {
     private final YouTubeApiService youTubeApiService;
     private final ChannelSearchRepository channelRepository;
     private final InfluencerRepository influencerRepository;
-    private AtomicInteger counter = new AtomicInteger(0);
+    private final AtomicInteger counter = new AtomicInteger(0);
 
     /**
      * 키워드와 카테고리 기반으로 YouTube 채널을 검색하고 테이블에 insert수집하기

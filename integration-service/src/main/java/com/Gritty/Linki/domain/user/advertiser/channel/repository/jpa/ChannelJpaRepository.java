@@ -13,12 +13,6 @@ import org.springframework.data.repository.query.Param;
 public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
 
     /**
-     * YouTube 채널 ID로 채널 존재 여부 확인
-     * 중복 채널이 테이블에 들어가지 않기 위해 사용함
-     */
-    boolean existsByYoutubeChannelId(String youtubeChannelId);
-
-    /**
      * 채널 검색 쿼리
      * 카테고리, 키워드, 구독자 수, 조회수 등의 조건으로 채널을 검색
      */
