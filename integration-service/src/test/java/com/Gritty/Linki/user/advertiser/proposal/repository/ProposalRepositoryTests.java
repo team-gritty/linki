@@ -18,29 +18,11 @@ import java.util.Optional;
 public class ProposalRepositoryTests {
 
     String testProposalId = "PROP0001";
-    String testProposalId2 = "PROP0002";
-    String testProposalId3 = "PROP0003";
     String testCampaignId = "CAMP0001";
     String testAdvertiserId = "ADV0001";
 
     @Autowired
     private ProposalRepository proposalRepository;
-
-    @Test
-    @DisplayName("전체 제안서 조회 Repository Test")
-    public void findAllProposals() {
-        log.info("전체 제안서 조회 테스트 시작");
-
-        List<Proposal> proposals = proposalRepository.findAll();
-        log.info("전체 제안서 수: {}", proposals.size());
-
-        for (int i = 0; i < Math.min(proposals.size(), 5); i++) {
-            Proposal proposal = proposals.get(i);
-            log.info("제안서 정보: ID={}, 내용={}, 상태={}, 인플루언서ID={}",
-                    proposal.getProposalId(), proposal.getContents(), proposal.getStatus(),
-                    proposal.getInfluencer() != null ? proposal.getInfluencer().getInfluencerId() : "null");
-        }
-    }
 
     @Test
     @DisplayName("제안서 ID와 광고주 ID로 제안서 조회 Repository Test")
@@ -77,29 +59,6 @@ public class ProposalRepositoryTests {
         }
     }
 
-    @Test
-    @DisplayName("제안서 저장 Repository Test")
-    public void saveProposal() {
-        log.info("제안서 저장 테스트 시작");
-
-        try {
-            log.info("제안서 저장 메소드가 정상적으로 존재함");
-        } catch (Exception e) {
-            log.info("제안서 저장 중 오류: {}", e.getMessage());
-        }
-    }
-
-    @Test
-    @DisplayName("제안서 삭제 Repository Test")
-    public void deleteProposal() {
-        log.info("제안서 삭제 테스트 시작");
-
-        try {
-            log.info("제안서 삭제 메소드가 정상적으로 존재함");
-        } catch (Exception e) {
-            log.info("제안서 삭제 중 오류: {}", e.getMessage());
-        }
-    }
 
     @Test
     @DisplayName("제안서 ID로 단일 제안서 조회 Repository Test")
@@ -119,35 +78,4 @@ public class ProposalRepositoryTests {
         }
     }
 
-    @Test
-    @DisplayName("존재하는 제안서 수 확인 Repository Test")
-    public void countProposals() {
-        log.info("전체 제안서 수 확인 테스트 시작");
-
-        long totalCount = proposalRepository.count();
-        log.info("데이터베이스의 전체 제안서 수: {}", totalCount);
-    }
-
-    @Test
-    @DisplayName("특정 캠페인의 상태별 제안서 개수 확인 Repository Test")
-    public void countProposalsByStatus() {
-        log.info("특정 캠페인의 상태별 제안서 개수 확인 테스트 시작");
-
-        List<Proposal> proposals = proposalRepository.findByCampaignIdAndAdvertiserId(testCampaignId, testAdvertiserId);
-
-        long pendingCount = proposals.stream()
-                .filter(p -> "PENDING".equals(p.getStatus().name()))
-                .count();
-
-        long acceptedCount = proposals.stream()
-                .filter(p -> "ACCEPTED".equals(p.getStatus().name()))
-                .count();
-
-        long rejectedCount = proposals.stream()
-                .filter(p -> "REJECTED".equals(p.getStatus().name()))
-                .count();
-
-        log.info("캠페인 {}의 제안서 현황 - 대기: {}개, 수락: {}개, 거절: {}개",
-                testCampaignId, pendingCount, acceptedCount, rejectedCount);
-    }
 }
