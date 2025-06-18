@@ -45,8 +45,8 @@ const labels = computed(() => {
     const months = {}
     allData.value.forEach(item => {
       const month = item.date.slice(0, 7)
-      if (!months[month]) months[month] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 }
-      months[month].newmembers += item.newmembers
+      if (!months[month]) months[month] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 }
+      months[month].newMembers += item.newMembers
       months[month].newAdvertisers += item.newAdvertisers
       months[month].newInfluencers += item.newInfluencers
     })
@@ -55,8 +55,8 @@ const labels = computed(() => {
     const weekMap = {};
     allData.value.forEach(item => {
       const weekLabel = getMonthWeekLabel(item.date);
-      if (!weekMap[weekLabel]) weekMap[weekLabel] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      weekMap[weekLabel].newmembers += item.newmembers;
+      if (!weekMap[weekLabel]) weekMap[weekLabel] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+      weekMap[weekLabel].newMembers += item.newMembers;
       weekMap[weekLabel].newAdvertisers += item.newAdvertisers;
       weekMap[weekLabel].newInfluencers += item.newInfluencers;
     });
@@ -65,8 +65,8 @@ const labels = computed(() => {
     const days = {};
     allData.value.forEach(item => {
       const day = item.date;
-      if (!days[day]) days[day] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      days[day].newmembers += item.newmembers;
+      if (!days[day]) days[day] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+      days[day].newMembers += item.newMembers;
       days[day].newAdvertisers += item.newAdvertisers;
       days[day].newInfluencers += item.newInfluencers;
     });
@@ -79,14 +79,14 @@ const chartData = computed(() => {
     const months = {}
     allData.value.forEach(item => {
       const month = item.date.slice(0, 7)
-      if (!months[month]) months[month] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 }
-      months[month].newmembers += item.newmembers
+      if (!months[month]) months[month] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 }
+      months[month].newMembers += item.newMembers
       months[month].newAdvertisers += item.newAdvertisers
       months[month].newInfluencers += item.newInfluencers
     })
     const arr = Object.values(months)
     return {
-      newmembers: arr.map(i => i.newmembers),
+      newMembers: arr.map(i => i.newMembers),
       newAdvertisers: arr.map(i => i.newAdvertisers),
       newInfluencers: arr.map(i => i.newInfluencers)
     }
@@ -94,14 +94,14 @@ const chartData = computed(() => {
     const weekMap = {};
     allData.value.forEach(item => {
       const weekLabel = getMonthWeekLabel(item.date);
-      if (!weekMap[weekLabel]) weekMap[weekLabel] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      weekMap[weekLabel].newmembers += item.newmembers;
+      if (!weekMap[weekLabel]) weekMap[weekLabel] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+      weekMap[weekLabel].newMembers += item.newMembers;
       weekMap[weekLabel].newAdvertisers += item.newAdvertisers;
       weekMap[weekLabel].newInfluencers += item.newInfluencers;
     });
     const arr = Object.values(weekMap);
     return {
-      newmembers: arr.map(i => i.newmembers),
+      newMembers: arr.map(i => i.newMembers),
       newAdvertisers: arr.map(i => i.newAdvertisers),
       newInfluencers: arr.map(i => i.newInfluencers)
     }
@@ -109,14 +109,14 @@ const chartData = computed(() => {
     const days = {};
     allData.value.forEach(item => {
       const day = item.date;
-      if (!days[day]) days[day] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      days[day].newmembers += item.newmembers;
+      if (!days[day]) days[day] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+      days[day].newMembers += item.newMembers;
       days[day].newAdvertisers += item.newAdvertisers;
       days[day].newInfluencers += item.newInfluencers;
     });
     const arr = Object.values(days);
     return {
-      newmembers: arr.map(i => i.newmembers),
+      newMembers: arr.map(i => i.newMembers),
       newAdvertisers: arr.map(i => i.newAdvertisers),
       newInfluencers: arr.map(i => i.newInfluencers)
     };
@@ -132,7 +132,7 @@ const lineChartOption = computed(() => ({
     { type: 'slider', start: 0, end: 100, xAxisIndex: 0 }
   ],
   series: [
-    { name: '신규 회원', type: 'line', data: chartData.value.newmembers, smooth: true },
+    { name: '신규 회원', type: 'line', data: chartData.value.newMembers, smooth: true },
     { name: '신규 광고주', type: 'line', data: chartData.value.newAdvertisers, smooth: true },
     { name: '신규 인플루언서', type: 'line', data: chartData.value.newInfluencers, smooth: true }
   ]
@@ -185,31 +185,36 @@ onMounted(async () => {
     const res = await getDashboard();
     console.log('대시보드 응답', res.data);
     const data = Array.isArray(res.data) ? res.data[0] : res.data;
-    if (data && data.DashboardSummary) {
-      dashboardSummary.value = data.DashboardSummary;
+    if (data && data.dashboardSummary) {
+      dashboardSummary.value = {
+        ...data.dashboardSummary,
+        MonthlyRevenue: data.dashboardSummary.monthlyRevenue
+      };
     }
-    if (data && data.LLM) {
-      LLM.value = data.LLM;
+    if (data && data.llm) {
+      LLM.value = data.llm;
     }
     if (data && data.contractStatus) {
       contractStatus.value = data.contractStatus;
     }
-    // trendChart 데이터 변환 (json-server와 1:1 매칭)
-    if (data && data.trendChart) {
-      const newmembers = data.trendChart.newmembers['2024'] || {};
-      const newAdvertisers = data.trendChart.newAdvertisers['2024'] || {};
-      const newInfluencers = data.trendChart.newInfluencers['2024'] || {};
+    // trendChart가 null이 아닐 때만 처리
+    if (data && data.trendChart && data.trendChart !== null) {
+      const newMembers = data.trendChart.newMembers?.['2024'] || {};
+      const newAdvertisers = data.trendChart.newAdvertisers?.['2024'] || {};
+      const newInfluencers = data.trendChart.newInfluencers?.['2024'] || {};
       const allDates = Array.from(new Set([
-        ...Object.keys(newmembers),
+        ...Object.keys(newMembers),
         ...Object.keys(newAdvertisers),
         ...Object.keys(newInfluencers)
       ])).sort();
       allData.value = allDates.map(date => ({
         date,
-        newmembers: newmembers[date] ?? 0,
+        newMembers: newMembers[date] ?? 0,
         newAdvertisers: newAdvertisers[date] ?? 0,
         newInfluencers: newInfluencers[date] ?? 0
       }));
+    } else {
+      allData.value = [];
     }
   } catch (e) {
     console.error('대시보드 데이터 불러오기 실패', e);
@@ -234,7 +239,7 @@ onMounted(async () => {
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ dashboardSummary.activeCampaigns }}</div>
-        <div class="stat-label">등록된 제품 수</div>
+        <div class="stat-label">등록된 캠페인 수</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ dashboardSummary.ongoingContracts }}</div>
