@@ -14,7 +14,8 @@ import javax.sql.DataSource;
 @Configuration
 @MapperScan(basePackages = {
         ("com.linki.admin_integration_service.domain.operations.repository.myBatis"),
-        ("com.linki.admin_integration_service.domain.user.repository.myBatis")
+        ("com.linki.admin_integration_service.domain.user.repository.myBatis"),
+        ("com.linki.admin_integration_service.domain.contract.repository.myBatis")
 })
 public class MyBatisConfig {
 

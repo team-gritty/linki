@@ -1,0 +1,102 @@
+{
+	"id": "d8a080a6-be4b-42a8-97a5-d33cee10966b",
+	"name": "관리자 - 캠페인 조회",
+	"timestamp": "2025-06-18T05:35:10.526Z",
+	"collection_id": "45491549-b6a7bbc0-2548-407f-829f-4e4746a8aeaa",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-18T05:35:09.434Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "ebe4461b-df2b-4f05-bc18-1812a5519afb",
+			"name": "관리자 - 캠페인 조회",
+			"url": "localhost:8080/v1/admin/api/campaigns",
+			"time": 32,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				62,
+				41,
+				30,
+				53,
+				31,
+				30,
+				33,
+				31,
+				32,
+				32
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "9ff5632e-fbaa-46c8-9d37-bbddb2272525",
+			"name": "New Request",
+			"url": "localhost:8080/v1/admin/api/campaigns/search",
+			"time": 31,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				34,
+				33,
+				29,
+				36,
+				31,
+				29,
+				30,
+				32,
+				36,
+				31
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 696,
+	"collection": {
+		"requests": [
+			{
+				"id": "ebe4461b-df2b-4f05-bc18-1812a5519afb",
+				"method": "GET"
+			},
+			{
+				"id": "9ff5632e-fbaa-46c8-9d37-bbddb2272525",
+				"method": "POST"
+			}
+		]
+	}
+}
