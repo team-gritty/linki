@@ -1,8 +1,11 @@
 package com.Gritty.Linki.config.security;
 
+import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
+import com.Gritty.Linki.entity.RefreshToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -27,11 +31,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository, RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.refreshTokenService = refreshTokenService;
         super.setFilterProcessesUrl("/v1/api/nonuser/login"); //로그인 경로
     }
 
@@ -76,10 +82,24 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 .map(GrantedAuthority::getAuthority)
                 .orElseThrow(RuntimeException::new);
 
-        String token = jwtUtil.createJwtToken(userId,role,60*60*10L);
+        String accesstoken = jwtUtil.createJwtToken(userId,role,60*60*10L);
+        String refreshToken = jwtUtil.createJwtToken(userId,role, 7*24*60*60*1000L);
+
+        // Save refresh token to database
+        RefreshToken tokenEntity = new RefreshToken();
+        tokenEntity.setRefreshToken(refreshToken);
+        tokenEntity.setCreatedAt(LocalDateTime.now());
+        refreshTokenService.save(tokenEntity);
 
         //토큰 응답 RFC 7235 정의
-        response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader("Authorization", "Bearer " + accesstoken);
+
+        //        // 리프레시 토큰을 HttpOnly 쿠키로 설정
+        Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        response.addCookie(refreshCookie);
     }
 
     //실패시
