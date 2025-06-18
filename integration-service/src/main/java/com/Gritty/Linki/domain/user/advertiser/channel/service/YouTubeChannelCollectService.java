@@ -76,7 +76,7 @@ public class YouTubeChannelCollectService {
      * 개별 채널을 안전하게 저장하기 (별도 트랜잭션)
      */
     @Transactional
-    private void saveChannelSafely(YouTubeChannelDto.ChannelItem channelItem, String category) {
+    protected void saveChannelSafely(YouTubeChannelDto.ChannelItem channelItem, String category) {
         try {
             if (!channelRepository.existsByYoutubeChannelId(channelItem.getId())) {
                 // 새로운 채널인 경우 저장
