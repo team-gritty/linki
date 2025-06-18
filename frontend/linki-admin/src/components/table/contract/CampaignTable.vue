@@ -16,16 +16,16 @@
         <th>광고주</th>
         <th>사업자 번호</th>
         <th>연락처</th>
-        <th>광고 제목</th>
+        <th>캠페인 제목</th>
         <th>등록일</th>
         <th>신청 마감일</th>
-        <th>광고 링크</th>
+        <th>캠페인 링크</th>
       </tr>
     </thead>
     <tbody>
       <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
       <tr v-if="users.length === 0">
-        <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
+        <td colspan="8" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="user in pagedUsers" :key="user.campaignId">
@@ -33,10 +33,10 @@
         <td>{{ user.advertiserName }}</td>
         <td>{{ user.businessNumber }}</td>
         <td>{{ user.phone }}</td>
-        <td>{{ user.adTitle }}</td>
+        <td>{{ user.campaignTitle }}</td>
         <td>{{ user.registerDate }}</td>
         <td>{{ user.applyDeadline }}</td>
-        <td><a :href="user.campaignLink" target="_blank">광고 Link</a></td>
+        <td><a :href="user.campaignLink" target="_blank">캠페인 Link</a></td>
       </tr>
     </tbody>
   </table>
@@ -67,8 +67,8 @@
           <span class="value">{{ user.phone }}</span>
         </div>
         <div class="info-row">
-          <span class="label">광고 제목</span>
-          <span class="value">{{ user.adTitle }}</span>
+          <span class="label">캠페인 제목</span>
+          <span class="value">{{ user.campaignTitle }}</span>
         </div>
         <div class="info-row">
           <span class="label">등록일</span>
@@ -79,8 +79,8 @@
           <span class="value">{{ user.applyDeadline }}</span>
         </div>  
         <div class="info-row">
-          <span class="label">광고 링크</span>
-          <span class="value"><a :href="user.campaignLink" target="_blank">광고 Link</a></span>
+          <span class="label">캠페인 링크</span>
+          <span class="value"><a :href="user.campaignLink" target="_blank">캠페인 Link</a></span>
         </div>
       </div>
     </div>
@@ -120,7 +120,7 @@ const searchConfig = {
     { value: 'advertiserName', label: '광고주', endpoint: '/v1/admin/api/campaigns/search' },
     { value: 'businessNumber', label: '사업자 번호', endpoint: '/v1/admin/api/campaigns/search' },
     { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/campaigns/search' },
-    { value: 'adTitle', label: '광고 제목', endpoint: '/v1/admin/api/campaigns/search' }
+    { value: 'campaignTitle', label: '캠페인 제목', endpoint: '/v1/admin/api/campaigns/search' }
   ],
   placeholder: '검색어를 입력하세요',
   endpoint: '/v1/admin/api/campaigns'
