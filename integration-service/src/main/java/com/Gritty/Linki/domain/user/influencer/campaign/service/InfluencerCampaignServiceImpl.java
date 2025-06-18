@@ -1,11 +1,12 @@
 package com.Gritty.Linki.domain.user.influencer.campaign.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
-import com.Gritty.Linki.domain.user.advertiser.AuthenticationUtil;
+
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerCampaignRepository;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.vo.enums.Category;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
