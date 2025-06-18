@@ -1,0 +1,11 @@
+{
+  "proposalId": "PROP0000",
+  "contents": "제안 내용0",
+  "status": "ACCEPTED",
+  "submittedAt": "2024-08-24T09:00:00",
+  "respondedAt": "2025-06-17T20:12:57.521855",
+  "influencerId": "INF0000",
+  "campaignId": "CAMP0000",
+  "campaignName": "캠페인0",
+  "influencerName": "사용자0"
+}
