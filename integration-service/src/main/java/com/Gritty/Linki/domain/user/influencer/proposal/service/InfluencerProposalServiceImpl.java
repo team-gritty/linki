@@ -5,7 +5,9 @@ import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerCampaignRepository;
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
+import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
 import com.Gritty.Linki.entity.Influencer;
@@ -20,15 +22,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class InfluencerProposalServiceImpl implements InfluencerProposalService {
-    private final ProposalRepository proposalRepository;
+    private final InfluencerProposalRepository proposalRepository;
     private final AuthenticationUtil authenticationUtil;
     private final InfluencerUtilRepository influencerUtilRepository;
-    private final InfluencerCampaignRepository influencerCampaignRepository;
     private final IdGenerator idGenerator;
 
     @Override
@@ -69,5 +71,12 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
 
 
 
+    }
+
+    @Override
+    public List<ProposalListResponseDTO> getMyProposals(CustomUserDetails customUserDetails) {
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(customUserDetails);
+
+        return proposalRepository.findAllByInfluencerId(influencerId);
     }
 }
