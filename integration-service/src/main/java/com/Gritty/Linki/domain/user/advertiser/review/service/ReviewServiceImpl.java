@@ -95,7 +95,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // 계약이 완료된 상태인지 확인 (리뷰는 완료된 계약에 대해서만 작성 가능)
-        if (contract.getContractStatus() != ContractStatus.CONFIRMED) {
+        if (contract.getContractStatus() != ContractStatus.COMPLETED) {
             throw new IllegalArgumentException("완료된 계약에 대해서만 리뷰를 작성할 수 있습니다.");
         }
 
