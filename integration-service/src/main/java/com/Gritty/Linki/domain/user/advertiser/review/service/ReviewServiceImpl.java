@@ -9,6 +9,7 @@ import com.Gritty.Linki.domain.user.advertiser.review.response.ReceivedReviewRes
 import com.Gritty.Linki.domain.user.advertiser.review.response.GivenReviewResponse;
 import com.Gritty.Linki.entity.*;
 import com.Gritty.Linki.util.AuthenticationUtil;
+import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.Gritty.Linki.vo.enums.SettlementStatus;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 리뷰 생성
         InfluencerReview review = InfluencerReview.builder()
-                .influencerReviewId(UUID.randomUUID().toString())
+                .influencerReviewId(IdGenerator.influencerReviewId())
                 .influencerReviewScore(request.getReviewScore())
                 .influencerReviewComment(request.getReviewComment())
                 .influencerReviewCreatedAt(LocalDateTime.now())

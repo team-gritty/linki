@@ -52,12 +52,14 @@ public class ReviewController {
      * 명세서에 따라 POST /v1/api/advertiser/mypage/reviews/ 엔드포인트 사용
      * contractId는 request parameter로 받음
      */
-    @PostMapping("/advertiser/mypage/reviews")
+    @PostMapping("/advertiser/mypage/reviews/{contractId}")
     public ResponseEntity<Void> writeInfluencerReview(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody ReviewWriteRequest request,
-            @RequestParam String contractId) {
-        log.info("인플루언서 리뷰 작성 요청: user={}, contractId={}",
+            @PathVariable String contractId) {
+
+
+        log.info("인플루언서 리뷰 작성 요청됨: user={}, contractId={}",
                 user.getUserId(), contractId);
 
         reviewService.writeInfluencerReview(user, contractId, request);
