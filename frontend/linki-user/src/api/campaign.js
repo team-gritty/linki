@@ -66,7 +66,9 @@ export const campaignAPI = {
       throw error
     }
   },
-
+  submitProposal: async (id, contents) => {
+    return await httpClient.post(`/v1/api/influencer/campaigns/${id}/proposal`, { contents })
+  },
   // 광고주 리뷰 조회
   // getAdvertiserReviews: async (advertiserId) => {
   //   try {

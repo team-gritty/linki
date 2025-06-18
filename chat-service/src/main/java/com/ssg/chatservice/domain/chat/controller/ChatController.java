@@ -20,6 +20,7 @@ public class ChatController {
     private final ModelMapper modelMapper;
     private final PartnerApiClient partnerApiClient;  // PartnerApiClient 주입
 
+    //TODO : 굳이 DTO 반환할 필요 없음
 
     // 제안서 아이디를 받아 채팅방 생성
     @GetMapping("/influencer/rooms/{proposalId}")

@@ -50,6 +50,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
+import Stomp from 'stompjs'
 
 const route = useRoute()
 const router = useRouter()
@@ -85,14 +86,41 @@ const submitProposal = async () => {
   try {
     loading.value = true
     error.value = null
-    
+
     await campaignAPI.submitProposal(route.params.id, formData.value.contents)
-    
+
+
+    //토큰 주입
+    const token = localStorage.getItem('accessToken')
+    const proposalId = route.params.id
+
+    const response = await campaignAPI.createRoom(proposalId, token)
+    //응답 성공 시 제이슨 응답을 chatDetail 에 담음
+    if(!response.ok){
+      throw new Error('채팅방 생성 실패')
+    }
+    const chatDetail = await  response.json()
+
+
+    //소켓 연결
+    const socket = new WebSocket('ws://localhost:8000/v1/chat-service/ws/chat')
+    const stompClient = Stomp.over(socket)
+
+    socket.onopen = () => {
+      stompClient.connect({}, () => {
+        stompClient.subscribe(`/topic/chat/message.${chatDetail.chatId}`, (msg) => {
+          const message = JSON.parse(msg.body)
+          console.log('받은 메세지:', message)
+        })
+      })
+    }
+
     // 성공 알림
-    alert('제안서가 성공적으로 제출되었습니다.')
-    
+    alert('제안서가 성공적으로 제출되었습니다. 광고주의 승낙 후 채팅이 가능합니다.')
+
     // 캠페인 상세 페이지로 돌아가기
     router.push(`/campaign/${route.params.id}`)
+
   } catch (err) {
     error.value = '제안서 제출 중 오류가 발생했습니다. 다시 시도해주세요.'
     console.error(err)
