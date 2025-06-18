@@ -30,7 +30,7 @@ kafka:
   consumer:
     group-id: chat-service  # Consumer Group ID
     key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     properties:
       spring.json.trusted.packages: "*"
       spring.json.use.type.headers: true
@@ -38,11 +38,17 @@ kafka:
 # Kafka 관련 커스텀 설정 (리스너에서 사용)
 setting:
   ksb:
-    topic: chat.create         # Kafka 토픽명
+    topic: chat.proposal         # Kafka 토픽명
     group: chat-service        # Consumer Group ID (리스너에서 참조)
+
+  config:
+    import: "optional:application-secret.properties"
+
+  jwt:
+    secret: ${secret-HS256}
 
 
 logging:
   level:
-    root: info         # 또는 debug
+    root: info
     com.ssg.chatservice: info

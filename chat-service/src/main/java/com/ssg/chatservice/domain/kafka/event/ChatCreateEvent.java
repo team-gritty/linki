@@ -5,10 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ChatCreatEvent {
-    private String opponentId;
-    private String opponentName;
+@NoArgsConstructor
+public class ChatCreateEvent {
     private String proposalId;
 }
