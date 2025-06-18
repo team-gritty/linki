@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.advertiser.service;
 
 import com.Gritty.Linki.domain.user.advertiser.dto.YouTubeChannelDto;
 import com.Gritty.Linki.domain.user.advertiser.repository.jpa.ChannelSearchRepository;
+import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.entity.Channel;
 import com.Gritty.Linki.entity.Influencer;
 import com.Gritty.Linki.exception.BusinessException;

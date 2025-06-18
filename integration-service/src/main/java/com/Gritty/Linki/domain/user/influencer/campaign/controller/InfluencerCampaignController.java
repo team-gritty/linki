@@ -41,7 +41,12 @@ public class InfluencerCampaignController {
     public ResponseEntity<List<CampaignListResponseDTO>> getCampaignsByCategories(@RequestParam(name="category", required=false) Category category){
         return ResponseEntity.ok(influencerCampaignService.getCampaignsByCategory(category));
 
+    }
 
-
+    // 로그인 한 인플루언서의 4개탭 캠페인 상세 조회
+    @GetMapping("/v1/api/influencer/campaigns/{proposalId}")
+    public ResponseEntity<CampaignDetailResponseDTO> getInfluencerCampaignDetail(@PathVariable String proposalId){
+        CampaignDetailResponseDTO dto = influencerCampaignService.getCampaignByProposalId(proposalId);
+        return ResponseEntity.ok(dto);
     }
 }

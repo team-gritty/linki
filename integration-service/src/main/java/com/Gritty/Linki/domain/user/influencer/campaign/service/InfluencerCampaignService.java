@@ -15,4 +15,9 @@ public interface InfluencerCampaignService {
 
     //카테고리별 캠페인 리스트 조회
     List<CampaignListResponseDTO>getCampaignsByCategory(Category category);
+
+    // 인플루언서 본인의 proposaId에 연관된 캠페인만 조회
+    CampaignDetailResponseDTO getCampaignByProposalId(String proposalId);
+
+
 }

@@ -1,14 +1,19 @@
 package com.Gritty.Linki.user.influencer.campaign.service;
 
+import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampaignService;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
 import com.Gritty.Linki.vo.enums.Category;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -19,6 +24,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CampaignServiceTest {
     @Autowired
     private InfluencerCampaignService campaignService;
+
+    @BeforeEach
+    void setUpAuthentication() {
+        // 로그인된 인플루언서를 시뮬레이션
+        CustomUserDetails user =
+                new CustomUserDetails("USER0001", "user1", "$2a$10$abcdefghijklmnopqrstuvwxyz", "인플루언서");
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
 
     @Test
     void testGetAllCampaigns() {
@@ -72,4 +89,21 @@ public class CampaignServiceTest {
 
 
     }
+
+    @Test
+    void testGetCampaignByProposalId() {
+        // given
+        String proposalId = "PROP0002"; // user0001: prop0002
+
+        // when
+        CampaignDetailResponseDTO dto =
+                campaignService.getCampaignByProposalId(proposalId);
+
+        // then
+        assertThat(dto).isNotNull();
+        assertThat(dto.getCampaignId()).isNotBlank();
+        System.out.println("▶ Proposal 기반 캠페인 ID: " + dto.getCampaignId());
+        System.out.println("▶ 광고주 회사명: " + dto.getCompanyName());
+    }
+
 }

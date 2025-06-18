@@ -1,6 +1,8 @@
 package com.Gritty.Linki.domain.user.influencer.campaign.service;
 
-import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.influencerCampaignRepository;
+import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.domain.user.advertiser.AuthenticationUtil;
+import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerCampaignRepository;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
@@ -8,11 +10,11 @@ import com.Gritty.Linki.vo.enums.Category;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,8 +22,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class InfluencerCampaignServiceImpl implements InfluencerCampaignService {
 
-    private final influencerCampaignRepository campaignRepository;
+    private final InfluencerCampaignRepository campaignRepository;
     private final ModelMapper modelMapper;
+    private final AuthenticationUtil authenticationUtil;
 
     @Override
     public List<CampaignListResponseDTO> getAllCampaigns() {
@@ -59,6 +62,34 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
                 .collect(Collectors.toList());
 
     }
+
+
+    /**
+     * 인플루언서 본인의 proposalId 에 연관된 캠페인만 조회
+     */
+    @Override
+    public CampaignDetailResponseDTO getCampaignByProposalId(String proposalId) {
+        // 1) 로그인된 인플루언서 userId (customUserDetails)로 influencerId 조회
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()
+        );
+
+        // 2) proposalId + influencerId 로 Campaign + Advertiser fetch-join 조회
+        Campaign campaign = campaignRepository
+                .findCampaignByProposalIdAndInfluencerId(proposalId, influencerId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "proposalId=" + proposalId +
+                                " 는 influencerId=" + influencerId + " 의 소유가 아닙니다."
+                ));
+
+        // 3) DTO 매핑
+        CampaignDetailResponseDTO dto = modelMapper.map(campaign, CampaignDetailResponseDTO.class);
+        dto.setCompanyName(campaign.getAdvertiser().getCompanyName());
+        return dto;
+    }
+
+
+
 
     /**
      * Entity → CampaignListResponseDTO 변환 헬퍼(타입이 달라서 사용)
