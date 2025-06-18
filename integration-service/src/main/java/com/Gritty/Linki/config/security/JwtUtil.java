@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
+import java.util.Map;
+
+
 
 @Component
 public class JwtUtil {
@@ -41,4 +44,14 @@ public class JwtUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
+    public Map<String, Object> getBody(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+
 }

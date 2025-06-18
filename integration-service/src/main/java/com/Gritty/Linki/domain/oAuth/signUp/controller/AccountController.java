@@ -1,6 +1,7 @@
 package com.Gritty.Linki.domain.oAuth.signUp.controller;
 
 
+import com.Gritty.Linki.config.security.JwtUtil;
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
 import com.Gritty.Linki.domain.oAuth.dto.RequestJoinDto;
 import com.Gritty.Linki.domain.oAuth.signUp.repository.RefreshTokenRepository;
@@ -31,6 +32,7 @@ public class AccountController {
 
     private final AccountService accountService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtUtil jwtUtil;
 
 
     @PostMapping("signup")
@@ -70,14 +72,14 @@ public class AccountController {
         String accessToken = "";
         String refreshToken = HttpUtil.getCookieValue(req, "refresh_Token");
 
-        if (StringUtils.hasLength(refreshToken) && TokenUtil.isValid(refreshToken)) {
-            Map<String, Object> tokenBody = TokenUtil.getBody(refreshToken);
+        if (StringUtils.hasLength(refreshToken) && jwtUtil.isTokenExpired(refreshToken) ) {
+            Map<String, Object> tokenBody = jwtUtil.getBody(refreshToken);
 
             Integer userLoginId = (Integer) tokenBody.get("userLoginId");
 
             accessToken = TokenUtil.generate("access_Token", "userLoginId", userLoginId, 60);
 
-            Map<String, String> responseBody = Map.of("accessToken", accessToken);
+
 
         }
         return new ResponseEntity<>(accessToken, HttpStatus.OK);
