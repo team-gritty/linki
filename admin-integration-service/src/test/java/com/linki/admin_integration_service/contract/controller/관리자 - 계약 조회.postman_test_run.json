@@ -1,0 +1,102 @@
+{
+	"id": "83bff956-ea83-4969-bb27-3fd34ffd08f8",
+	"name": "관리자 - 계약 조회",
+	"timestamp": "2025-06-18T02:54:18.175Z",
+	"collection_id": "45491549-d773c808-d190-41d1-a56f-70f53bf83c46",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-18T02:54:17.062Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "fc7548c9-f951-4757-ac0f-5bd6c63de795",
+			"name": "관리자 - 계약 조회",
+			"url": "localhost:8080/v1/admin/api/contracts",
+			"time": 33,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				67,
+				47,
+				33,
+				33,
+				32,
+				36,
+				32,
+				31,
+				35,
+				33
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "d918e44f-1f01-4448-ad9e-c443d69b9b7d",
+			"name": "관리자 - 계약 검색",
+			"url": "localhost:8080/v1/admin/api/contracts/search",
+			"time": 36,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				37,
+				40,
+				31,
+				35,
+				33,
+				34,
+				33,
+				31,
+				34,
+				36
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 723,
+	"collection": {
+		"requests": [
+			{
+				"id": "fc7548c9-f951-4757-ac0f-5bd6c63de795",
+				"method": "GET"
+			},
+			{
+				"id": "d918e44f-1f01-4448-ad9e-c443d69b9b7d",
+				"method": "POST"
+			}
+		]
+	}
+}

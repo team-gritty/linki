@@ -104,7 +104,7 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'userId', label: '회원번호', endpoint: '/v1/admin/api/advertiserUsers/search' },
+    { value: 'advertiserId', label: '광고주 번호', endpoint: '/v1/admin/api/advertiserUsers/search' },
     { value: 'name', label: '이름', endpoint: '/v1/admin/api/advertiserUsers/search' },
     { value: 'email', label: '이메일', endpoint: '/v1/admin/api/advertiserUsers/search' },
     { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/advertiserUsers/search' },

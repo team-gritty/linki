@@ -1,6 +1,6 @@
 package com.Gritty.Linki.entity;
 
-
+import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.ProposalStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,4 +41,16 @@ public class Proposal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id", nullable = false)
     private Campaign campaign;
+
+    /**
+     * JPA가 DB에 insert하기 직전에 호출되는 메서드
+     * 
+     * @PrePersist로 내부에서 자동 생성되어 @Id필드가 널이 안되도록 보장함
+     */
+    @PrePersist
+    public void prePersist() {
+        if (this.proposalId == null) {
+            this.proposalId = IdGenerator.proposalId();
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.advertiser;
+package com.Gritty.Linki.util;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.advertiser.repository.jpa.AdvertiserRepository;
