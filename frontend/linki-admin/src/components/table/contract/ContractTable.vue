@@ -16,7 +16,7 @@
         <th>광고 시작일</th>
         <th>광고 종료일</th>
         <th>계약 금액</th>
-        <th>결제 방법</th>
+        <th>결제 날짜</th>
         <th>인플루언서</th>
         <th>광고주</th>
         <th>계약 상태</th>
@@ -26,7 +26,7 @@
     <tbody>
       <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
       <tr v-if="users.length === 0">
-        <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
+        <td colspan="9" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="user in pagedUsers" :key="user.userId">
@@ -34,7 +34,7 @@
         <td>{{ user.adStartDate }}</td>
         <td>{{ user.adEndDate }}</td>
         <td>{{ formatNumber(user.contractAmount) }}</td>
-        <td>{{ user.paymentMethod }}</td>
+        <td>{{ user.paymentDate }}</td>
         <td>{{ user.influencerName }}</td>
         <td>{{ user.advertiserName }}</td>
         <td>{{ user.contractStatus }}</td>
@@ -69,8 +69,8 @@
           <span class="value">{{ formatNumber(user.contractAmount) }}</span>
         </div>
         <div class="info-row">
-          <span class="label">결제 방법</span>
-          <span class="value">{{ user.paymentMethod }}</span>
+          <span class="label">결제 날짜</span>
+          <span class="value">{{ user.paymentDate }}</span>
         </div>
         <div class="info-row">
           <span class="label">인플루언서</span>
