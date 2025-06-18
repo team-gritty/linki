@@ -32,9 +32,9 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 //권한별 설정
                 .requestMatchers("/v1/api/nonuser/**").permitAll()
-                .requestMatchers("/v1/api/user/**").hasAnyRole("USER","INFLUENCER","ADVERTISER")
-                .requestMatchers("/v1/api/influencer/**").hasRole("INFLUENCER")
-                .requestMatchers("/v1/api/advertiser/**").hasRole("ADVERTISER")
+                .requestMatchers("/v1/chat-service/api/user/**").hasAnyRole("USER","INFLUENCER","ADVERTISER")
+                .requestMatchers("/v1/chat-service/api/influencer/**").hasRole("INFLUENCER")
+                .requestMatchers("/v1/chat-service/api/advertiser/**").hasRole("ADVERTISER")
                 .anyRequest().authenticated());
         //파싱후 권한 검증
         http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
