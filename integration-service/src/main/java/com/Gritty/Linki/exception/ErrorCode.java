@@ -28,17 +28,27 @@ public enum ErrorCode {
     // 404 Not Found - 리소스를 찾을 수 없음
     ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Entity not found"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
+    CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "Contract not found"),
+    INFLUENCER_NOT_FOUND(HttpStatus.NOT_FOUND, "Influencer not found"),
+    ADVERTISER_NOT_FOUND(HttpStatus.NOT_FOUND, "Advertiser not found"),
 
     // 405 Method Not Allowed - 허용되지 않는 HTTP 메서드
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Invalid method type"),
 
     // 409 Conflict - 리소스 충돌
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "Resource already exists"),
+    DUPLICATE_REVIEW(HttpStatus.CONFLICT, "Review already exists for this contract"),
+
+    // 422 Unprocessable Entity - 요청은 올바르지만 처리할 수 없음
+    CONTRACT_NOT_COMPLETED(HttpStatus.UNPROCESSABLE_ENTITY, "Contract is not completed"),
+    REVIEW_NOT_ALLOWED(HttpStatus.UNPROCESSABLE_ENTITY, "Review is not allowed for this contract"),
+    INVALID_CONTRACT_STATUS(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid contract status for review"),
 
     // 서버 오류 (5xx)
     // 500 Internal Server Error - 서버 내부 오류
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Server error"),
-    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed");
+    FILE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed"),
+    SETTLEMENT_LOOKUP_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to lookup settlement status");
 
     // HTTP 상태 코드와 이에 대응하는 상태 메시지를 포함하는 HttpStatus 객체
     private final HttpStatus status;
