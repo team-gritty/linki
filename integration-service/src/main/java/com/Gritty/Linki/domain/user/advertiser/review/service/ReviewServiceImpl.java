@@ -55,6 +55,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * 광고주가 작성한 리뷰 목록 조회
+     * 
      * @param user 인증된 사용자 정보
      * @return
      */
