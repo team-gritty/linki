@@ -1,7 +1,7 @@
 package com.Gritty.Linki.domain.user.advertiser;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
-import com.Gritty.Linki.domain.user.advertiser.repository.AdvertiserRepository;
+import com.Gritty.Linki.domain.user.advertiser.repository.jpa.AdvertiserRepository;
 import com.Gritty.Linki.entity.Advertiser;
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
@@ -57,6 +57,7 @@ public class AuthenticationUtil {
         }
 
         try {
+            // 디비에 해당 유저아이디 가진 광고주가 있는지 먼저 확인
             Optional<Advertiser> advertiserOpt = advertiserRepository.findByUser_UserId(userId);
 
             if (advertiserOpt.isPresent()) {
