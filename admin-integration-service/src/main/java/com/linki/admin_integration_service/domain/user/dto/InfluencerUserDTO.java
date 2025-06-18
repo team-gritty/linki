@@ -1,0 +1,14 @@
+package com.linki.admin_integration_service.domain.user.dto;
+
+import lombok.Data;
+
+@Data
+public class InfluencerUserDTO {
+
+    private String userId;
+    private String name;
+    private String email;
+    private String phone;
+    private String snsChannelName;
+    private String snsLink;
+}

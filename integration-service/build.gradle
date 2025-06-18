@@ -87,6 +87,12 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation group: 'io.github.openfeign', name: 'feign-gson', version: '11.0'
 
+    // object storage
+	implementation platform('software.amazon.awssdk:bom:2.20.56')
+	implementation 'software.amazon.awssdk:s3:'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.13'
+
+
 }
 
 dependencyManagement {
