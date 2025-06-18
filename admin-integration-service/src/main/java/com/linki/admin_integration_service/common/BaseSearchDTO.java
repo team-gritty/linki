@@ -1,6 +1,5 @@
 package com.linki.admin_integration_service.common;
 
-
 import lombok.Data;
 
 @Data

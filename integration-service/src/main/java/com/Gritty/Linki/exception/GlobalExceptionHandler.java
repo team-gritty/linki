@@ -1,5 +1,6 @@
 package com.Gritty.Linki.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -115,6 +116,26 @@ public class GlobalExceptionHandler {
                 ErrorCode.INTERNAL_SERVER_ERROR,
                 request.getRequestURI());
         return ResponseEntity.internalServerError().body(response);
+    }
+    /**
+     * JPA EntityNotFoundException → 404 매핑
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(
+            EntityNotFoundException e,
+            HttpServletRequest request
+    ) {
+        log.warn("Entity not found: {}", e.getMessage());
+        // ErrorCode.CAMPAIGN_NOT_FOUND 를 새로 정의해도 되고,
+        // HttpStatus.NOT_FOUND 만 써도 됩니다.
+        ErrorResponse response = ErrorResponse.of(
+                HttpStatus.NOT_FOUND,
+                ErrorCode.CAMPAIGN_NOT_FOUND,
+                request.getRequestURI()
+        );
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
     }
 }
 

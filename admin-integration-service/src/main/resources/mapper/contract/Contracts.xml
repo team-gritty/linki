@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.contract.repository.myBatis.ContractMapper">
+
+
+    <select id="getContracts" resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
+        SELECT
+            contractId,
+            adStartDate,
+            adEndDate,
+            contractAmount,
+            paymentDate,
+            influencerName,
+            advertiserName,
+            contractStatus,
+            contractLink
+        FROM contract_view
+    </select>
+
+    <select id="searchContract"  resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
+        SELECT
+        contractId,
+        adStartDate,
+        adEndDate,
+        contractAmount,
+        paymentDate,
+        influencerName,
+        advertiserName,
+        contractStatus,
+        contractLink
+        FROM contract_view
+
+        WHERE 1 = 1
+
+        <choose>
+            <when test="searchType != null and searchType.toLowerCase() eq 'contractid'">
+                AND TRIM(LOWER(contractId)) = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'influencername'">
+                AND TRIM(LOWER(influencerName)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType == 'advertisername'">
+                AND TRIM(LOWER(advertiserName)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+</mapper>

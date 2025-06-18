@@ -21,7 +21,7 @@ public class KafkaConsumerConfig {
      * Kafka Consumer 설정을 담은 Factory Bean 선언
      * - yml 설정이 들어있는 KafkaProperties를 기반으로 ConsumerFactory 생성 */
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(kafkaProperties.buildConsumerProperties());
     }
 
@@ -30,8 +30,8 @@ public class KafkaConsumerConfig {
      * - @KafkaListener가 메시지를 처리할 수 있도록 Listener 컨테이너를 생성
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
         // ConsumerFactory 주입
         factory.setConsumerFactory(consumerFactory());
         // 수동 커밋 모드 설정 → 메시지를 명시적으로 처리한 후에만 커밋
