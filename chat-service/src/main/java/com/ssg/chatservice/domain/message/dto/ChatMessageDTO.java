@@ -1,13 +1,13 @@
 package com.ssg.chatservice.domain.message.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 @Setter
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatMessageDTO {
     private String messageId;
     private String chatId;

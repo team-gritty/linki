@@ -31,7 +31,7 @@ public class Influencer {
 
     /**
      * 인플루언서의 이름을 반환 (User 엔티티의 userName 사용)
-     * 
+     *
      * @return 인플루언서 이름
      */
     public String getInfluencerName() {

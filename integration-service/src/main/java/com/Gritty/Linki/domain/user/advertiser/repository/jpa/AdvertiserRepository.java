@@ -16,7 +16,7 @@ public interface AdvertiserRepository extends JpaRepository<Advertiser, String> 
 
     /**
      * 사용자 ID로 광고주 조회
-     * 
+     *
      * @param userId 사용자 ID
      * @return 광고주 Optional
      */
