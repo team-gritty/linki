@@ -1,5 +1,6 @@
 package com.Gritty.Linki.config.security;
 
+import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,13 +35,13 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 //권한별 설정
                 .requestMatchers("/v1/api/nonuser/**").permitAll()
-                .requestMatchers("/v1/api/user/**").hasAnyRole("USER","INFLUENCER","ADVERTISER")
-                .requestMatchers("/v1/api/influencer/**").hasRole("INFLUENCER")
-                .requestMatchers("/v1/api/advertiser/**").hasRole("ADVERTISER")
-                .anyRequest().authenticated());
+                .requestMatchers("/v1/api/user/**").permitAll()
+                .requestMatchers("/v1/api/influencer/**").permitAll()
+                .requestMatchers("/v1/api/advertiser/**").permitAll()
+                .anyRequest().permitAll());
         //파싱후 권한 검증
         http.addFilterBefore(new JwtFilter(jwtUtil),LoginFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userRepository, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
         //jwt기떄문에 세션 무상태
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
