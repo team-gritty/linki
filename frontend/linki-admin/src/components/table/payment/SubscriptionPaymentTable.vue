@@ -8,6 +8,13 @@
     <button class="export-excel-btn" @click="handleExportExcel">엑셀 내보내기</button>
   </div>
 
+  <!-- 회원 구분 탭 -->
+  <div class="member-type-tabs">
+    <button :class="{active: selectedType === 'ALL'}" @click="selectedType = 'ALL'">전체</button>
+    <button :class="{active: selectedType === 'INFLUENCER'}" @click="selectedType = 'INFLUENCER'">인플루언서</button>
+    <button :class="{active: selectedType === 'ADVERTISER'}" @click="selectedType = 'ADVERTISER'">광고주</button>
+  </div>
+
   <!-- 데스크톱 테이블 뷰: 일반 회원 목록을 표 형태로 보여줌 -->
   <table class="member-table desktop-view">
     <thead>
@@ -24,8 +31,8 @@
     </thead>
     <tbody>
       <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
-      <tr v-if="users.length === 0">
-        <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
+      <tr v-if="filteredUsers.length === 0">
+        <td colspan="8" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
       <tr v-else v-for="user in pagedUsers" :key="user.loginId">
@@ -44,7 +51,7 @@
   <!-- 모바일 카드 뷰: 모바일 환경에서 회원 정보를 카드 형태로 보여줌 -->
   <div class="mobile-view">
     <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
-    <div v-if="users.length === 0" class="no-result-card">
+    <div v-if="filteredUsers.length === 0" class="no-result-card">
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
@@ -88,7 +95,7 @@
 
   <!-- 페이지네이션 컴포넌트: 회원 목록 페이지 이동 -->
   <Pagination 
-    v-if="users.length > 0"
+    v-if="filteredUsers.length > 0"
     :totalPages="totalPages" 
     :currentPage="currentPage" 
     @update:currentPage="val => currentPage = val" 
@@ -110,6 +117,9 @@ const users = ref([])
 const currentPage = ref(1)
 // 한 페이지에 보여줄 회원 수
 const pageSize = 10
+
+// 회원 구분 탭
+const selectedType = ref('ALL')
 
 // ----------------------
 // 검색바 설정
@@ -171,15 +181,20 @@ onMounted(async () => {
 // ----------------------
 // 현재 페이지에 보여줄 회원 데이터 계산
 // ----------------------
+const filteredUsers = computed(() => {
+  if (selectedType.value === 'ALL') return users.value
+  return users.value.filter(user => user.memberType === selectedType.value)
+})
+
 const pagedUsers = computed(() => {
   const start = (currentPage.value - 1) * pageSize
-  return users.value.slice(start, start + pageSize)
+  return filteredUsers.value.slice(start, start + pageSize)
 })
 
 // ----------------------
 // 전체 페이지 수 계산
 // ----------------------
-const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
+const totalPages = computed(() => Math.ceil(filteredUsers.value.length / pageSize))
 
 // 숫자 세자리마다 콤마(,) 포맷 함수
 function formatNumber(num) {
@@ -367,5 +382,32 @@ tr:last-child td {
 
 .export-excel-btn:hover {
   background: #256025;
+}
+
+.member-type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  padding-left: 0;
+  margin-left: 0;
+}
+.member-type-tabs button {
+  padding: 8px 18px;
+  border: 1.5px solid #7C3AED;
+  background: #fff;
+  color: #7C3AED;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.member-type-tabs button.active, .member-type-tabs button:focus {
+  background: #7C3AED;
+  color: #fff;
+  border-color: #7C3AED;
 }
 </style> 
