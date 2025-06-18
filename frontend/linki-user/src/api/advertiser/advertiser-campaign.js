@@ -29,7 +29,7 @@ const campaignApi = {
   // 광고주 리뷰 조회
   getAdvertiserReviews: async (advertiserId) => {
     try {
-      const response = await httpClient.get(`/v1/api/advertiser//mypage/reviews/received`, {
+      const response = await httpClient.get(`/v1/api/advertiser/mypage/reviews/received`, {
         params: {
           advertiser_id: String(advertiserId)
         }
