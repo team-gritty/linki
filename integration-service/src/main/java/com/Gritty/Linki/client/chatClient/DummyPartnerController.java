@@ -11,6 +11,6 @@ public class DummyPartnerController {
 
     @GetMapping("/{id}")
     public PartnerInfoResponse getPartnerInfo(@PathVariable String id) {
-        return new PartnerInfoResponse(id,"test","test","test","test","test");
+        return new PartnerInfoResponse(id,"test","test","test","test","PENDING");
     }
 }
