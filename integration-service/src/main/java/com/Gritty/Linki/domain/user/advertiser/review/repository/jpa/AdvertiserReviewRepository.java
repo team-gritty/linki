@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
 public interface AdvertiserReviewRepository extends JpaRepository<AdvertiserReview, String> {
 
         /**
          * 특정 광고주가 자신이 받은 리뷰 조회 (광고주의 계약을 통해)
+         * 
          * @param advertiserId
          * @return
          */
@@ -27,6 +27,7 @@ public interface AdvertiserReviewRepository extends JpaRepository<AdvertiserRevi
 
         /**
          * 특정 인플루언서가 받은 모든 광고주 리뷰 조회 (특정 인플루언서의 리뷰 조회용 - 채널 상세 페이지에서 필요)
+         * 
          * @param influencerId
          * @return
          */
