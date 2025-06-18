@@ -3,16 +3,24 @@ import httpClient from '@/utils/httpRequest';
 export const chatApi = {
   // 채팅방 생성(비활성)
   createRoom: async (proposalId) => {
-    try {
-      const response = await httpClient.post(`/v1/api/chat-service/rooms/${proposalId}`)
-      alert('채팅방이 생성되었습니다. 광고주의 승낙 후 채팅이 가능합니다.')
-      return response.data;
-    } catch (error) {
-      console.error('Error creating chat room:', error)
-      alert('채팅방 활성화에 실패했습니다.')
-      throw error
-    }
-  },
+  try {
+    const token = localStorage.getItem('accessToken');
+    const response = await httpClient.post(
+        `/v1/api/chat-service/influencer/rooms/${proposalId}`,
+        {}, // POST 바디 없을 경우 빈 객체 전달
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating chat room:', error);
+    alert('채팅방 활성화에 실패했습니다.');
+    throw error;
+  }
+},
 
   // 채팅방 활성화 요청
   activateRoom: async (proposalId) => {
