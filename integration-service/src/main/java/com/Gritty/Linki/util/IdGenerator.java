@@ -115,7 +115,7 @@ public class IdGenerator {
     public static String refundId() { return "REF-" + nextId(); }
 
     // 토큰 ID 생성
-    public static String jwtId() { return "jwt-" + nextId(); }
+    public static String jwtId() { return "JWT-" + nextId(); }
 
 
 }
