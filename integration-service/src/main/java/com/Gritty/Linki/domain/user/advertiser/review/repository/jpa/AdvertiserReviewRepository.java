@@ -25,16 +25,4 @@ public interface AdvertiserReviewRepository extends JpaRepository<AdvertiserRevi
                         "AND ar.visibility = true")
         List<AdvertiserReview> findReceivedReviewsByAdvertiserId(@Param("advertiserId") String advertiserId);
 
-        /**
-         * 특정 인플루언서가 받은 모든 광고주 리뷰 조회 (특정 인플루언서의 리뷰 조회용 - 채널 상세 페이지에서 필요)
-         * 
-         * @param influencerId
-         * @return
-         */
-        @Query("SELECT ar FROM AdvertiserReview ar " +
-                        "JOIN ar.contract c " +
-                        "JOIN c.proposal p " +
-                        "WHERE p.influencer.influencerId = :influencerId " +
-                        "AND ar.visibility = true")
-        List<AdvertiserReview> findByInfluencerId(@Param("influencerId") String influencerId);
 }

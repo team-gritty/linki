@@ -1,12 +1,11 @@
 package com.Gritty.Linki.domain.user.advertiser.review.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.domain.user.advertiser.review.dto.AdvertiserReviewDto;
+import com.Gritty.Linki.domain.user.advertiser.review.dto.InfluencerReviewDto;
 import com.Gritty.Linki.domain.user.advertiser.review.repository.jpa.AdvertiserReviewRepository;
 import com.Gritty.Linki.domain.user.advertiser.review.repository.jpa.InfluencerReviewRepository;
 import com.Gritty.Linki.domain.user.advertiser.review.request.ReviewWriteRequest;
-import com.Gritty.Linki.domain.user.advertiser.review.response.InfluencerReviewRes;
-import com.Gritty.Linki.domain.user.advertiser.review.response.ReceivedReviewResponse;
-import com.Gritty.Linki.domain.user.advertiser.review.response.GivenReviewResponse;
 import com.Gritty.Linki.entity.*;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.util.IdGenerator;
@@ -14,6 +13,7 @@ import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.Gritty.Linki.vo.enums.SettlementStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +32,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final AdvertiserReviewRepository advertiserReviewRepository;
     private final InfluencerReviewRepository influencerReviewRepository;
     private final AuthenticationUtil authenticationUtil;
+    private final ModelMapper modelMapper;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -43,14 +44,14 @@ public class ReviewServiceImpl implements ReviewService {
      * @return
      */
     @Override
-    public List<ReceivedReviewResponse> getReceivedReviews(CustomUserDetails user) {
+    public List<AdvertiserReviewDto> getReceivedReviews(CustomUserDetails user) {
         // JWT에서 광고주 ID 추출
         String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(user);
         log.info("광고주가 받은 리뷰 조회 요청: advertiserId={}", advertiserId);
 
         // 뽑은 광고주 ID로 받은 리뷰 조회
         List<AdvertiserReview> reviews = advertiserReviewRepository.findReceivedReviewsByAdvertiserId(advertiserId);
-        return convertAdvertiserReviewsToResponse(reviews);
+        return convertAdvertiserReviewsToDto(reviews);
     }
 
     /**
@@ -60,13 +61,13 @@ public class ReviewServiceImpl implements ReviewService {
      * @return
      */
     @Override
-    public List<GivenReviewResponse> getGivenReviews(CustomUserDetails user) {
+    public List<InfluencerReviewDto> getGivenReviews(CustomUserDetails user) {
         // JWT에서 광고주 ID 추출
         String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(user);
         log.info("광고주가 작성한 리뷰 조회 요청: advertiserId={}", advertiserId);
 
         List<InfluencerReview> reviews = influencerReviewRepository.findGivenReviewsByAdvertiserId(advertiserId);
-        return convertInfluencerReviewsToResponse(reviews);
+        return convertInfluencerReviewsToDto(reviews);
     }
 
     /**
@@ -78,7 +79,8 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
     @Transactional
-    public void writeInfluencerReview(CustomUserDetails user, String contractId, ReviewWriteRequest request) {
+    public InfluencerReview writeInfluencerReview(CustomUserDetails user, String contractId,
+            ReviewWriteRequest request) {
         // JWT에서 광고주 ID 추출
         String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(user);
         log.info("인플루언서 리뷰 작성 요청: advertiserId={}, contractId={}", advertiserId, contractId);
@@ -121,10 +123,12 @@ public class ReviewServiceImpl implements ReviewService {
 
         influencerReviewRepository.save(review);
         log.info("인플루언서 리뷰 작성 완료: contractId={}, score={}", contractId, request.getReviewScore());
+
+        return review;
     }
 
     @Override
-    public List<InfluencerReviewRes> getInfluencerReviews(String influencerId) {
+    public List<InfluencerReviewDto> getInfluencerReviews(String influencerId) {
         // 인플루언서 정보 조회
         Influencer influencer = entityManager.find(Influencer.class, influencerId);
         if (influencer == null) {
@@ -133,51 +137,38 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 인플루언서가 받은 리뷰 조회
         List<InfluencerReview> reviews = influencerReviewRepository.findByInfluencerId(influencerId);
-        return convertInfluencerReviewsToInfluencerReviewRes(reviews);
+        return convertInfluencerReviewsToDto(reviews);
     }
 
-    private List<ReceivedReviewResponse> convertAdvertiserReviewsToResponse(List<AdvertiserReview> reviews) {
+    private List<AdvertiserReviewDto> convertAdvertiserReviewsToDto(List<AdvertiserReview> reviews) {
         return reviews.stream()
-                .map(review -> ReceivedReviewResponse.builder()
-                        .reviewId(review.getAdvertiserReviewId())
-                        .reviewScore(review.getAdvertiserReviewScore())
-                        .reviewComment(review.getAdvertiserReviewComment())
-                        .reviewCreatedAt(review.getAdvertiserReviewCreatedAt())
-                        .visibility(review.getVisibility())
-                        .contractTitle(review.getContract().getContractTitle())
-                        .contractStartDate(review.getContract().getContractStartDate())
-                        .contractEndDate(review.getContract().getContractEndDate())
-                        .build())
+                .map(review -> {
+                    AdvertiserReviewDto dto = modelMapper.map(review, AdvertiserReviewDto.class);
+                    dto.setReviewId(review.getAdvertiserReviewId());
+                    dto.setReviewScore(review.getAdvertiserReviewScore().intValue());
+                    dto.setReviewComment(review.getAdvertiserReviewComment());
+                    dto.setReviewCreatedAt(review.getAdvertiserReviewCreatedAt());
+                    dto.setContractTitle(review.getContract().getContractTitle());
+                    dto.setContractStartDate(review.getContract().getContractStartDate());
+                    dto.setContractEndDate(review.getContract().getContractEndDate());
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
-    private List<GivenReviewResponse> convertInfluencerReviewsToResponse(List<InfluencerReview> reviews) {
+    private List<InfluencerReviewDto> convertInfluencerReviewsToDto(List<InfluencerReview> reviews) {
         return reviews.stream()
-                .map(review -> GivenReviewResponse.builder()
-                        .reviewId(review.getInfluencerReviewId())
-                        .reviewScore(review.getInfluencerReviewScore())
-                        .reviewComment(review.getInfluencerReviewComment())
-                        .reviewCreatedAt(review.getInfluencerReviewCreatedAt())
-                        .visibility(review.getVisibility())
-                        .contractTitle(review.getContract().getContractTitle())
-                        .contractStartDate(review.getContract().getContractStartDate())
-                        .contractEndDate(review.getContract().getContractEndDate())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private List<InfluencerReviewRes> convertInfluencerReviewsToInfluencerReviewRes(List<InfluencerReview> reviews) {
-        return reviews.stream()
-                .map(review -> InfluencerReviewRes.builder()
-                        .reviewId(review.getInfluencerReviewId())
-                        .reviewScore(review.getInfluencerReviewScore())
-                        .reviewComment(review.getInfluencerReviewComment())
-                        .reviewCreatedAt(review.getInfluencerReviewCreatedAt())
-                        .visibility(review.getVisibility())
-                        .contractTitle(review.getContract().getContractTitle())
-                        .contractStartDate(review.getContract().getContractStartDate())
-                        .contractEndDate(review.getContract().getContractEndDate())
-                        .build())
+                .map(review -> {
+                    InfluencerReviewDto dto = modelMapper.map(review, InfluencerReviewDto.class);
+                    dto.setReviewId(review.getInfluencerReviewId());
+                    dto.setReviewScore(review.getInfluencerReviewScore().intValue());
+                    dto.setReviewComment(review.getInfluencerReviewComment());
+                    dto.setReviewCreatedAt(review.getInfluencerReviewCreatedAt());
+                    dto.setContractTitle(review.getContract().getContractTitle());
+                    dto.setContractStartDate(review.getContract().getContractStartDate());
+                    dto.setContractEndDate(review.getContract().getContractEndDate());
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
