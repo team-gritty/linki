@@ -2,10 +2,10 @@ package com.ssg.chatservice.domain.chat.dto.respone;
 
 import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import com.ssg.chatservice.domain.chat.enums.NegoStatus;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 @Builder

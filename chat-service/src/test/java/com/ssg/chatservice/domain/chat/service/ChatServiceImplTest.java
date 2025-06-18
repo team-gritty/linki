@@ -34,10 +34,10 @@ class ChatServiceImplTest {
     @Test
     @DisplayName("createRoom() - 채팅방 생성 성공 및 응답 DTO 검증")
     void createChatRoomTest() {
-        // given - 테스트에 사용할 제안서 ID 정의
+        // 테스트에 사용할 제안서 ID 정의
         String proposalId = "test1977";
 
-        // given - PartnerApiClient가 반환할 가짜 파트너 정보 정의
+        // PartnerApiClient가 반환할 가짜 파트너 정보 정의
         PartnerInfoResponse fakePartner = new PartnerInfoResponse(
                 "partnerId",
                 "partnerName",
@@ -45,23 +45,23 @@ class ChatServiceImplTest {
                 "profile.png",
                 "채널명",
                 "PENDING");
+        //토큰 전달
+        String token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJVU0VSMDAwMCIsInVzZXJSb2xlIjoiUk9MRV9JTkZMVUVOQ0VSIiwiaWF0IjoxNzUwMjA5Mjg0LCJleHAiOjE3NTAyNDUyODR9.kJwCO-Wd4jsJ8HlpnHbAtiFP0zkgvatyP5vivupRbDk";
+        //제안서 ID로 partner API 호출 시 위 데이터를 반환하도록 mock 세팅
+        given(partnerApiClient.getPartnerInfo(token,proposalId)).willReturn(fakePartner);
 
+        // 채팅방 생성 로직 실행
+        ChatDetailDTO result = chatService.createRoom(token,proposalId);
 
-        // given - 제안서 ID로 partner API 호출 시 위 데이터를 반환하도록 mock 세팅
-        given(partnerApiClient.getPartnerInfo(proposalId)).willReturn(fakePartner);
-
-        // when - 채팅방 생성 로직 실행
-        ChatDetailDTO result = chatService.createRoom(proposalId);
-
-        // then - 반환된 DTO가 null이 아니고, 제안서 ID가 일치하는지 검증
+        //  반환된 DTO가 null이 아니고, 제안서 ID가 일치하는지 검증
         assertThat(result).isNotNull();
         assertThat(result.getProposalId()).isEqualTo(proposalId);
 
-        // then - 파트너 정보가 제대로 포함되었는지 확인
+        //  파트너 정보가 제대로 포함되었는지 확인
         assertThat(result.getPartnerId()).isEqualTo("partnerId");
         assertThat(result.getPartnerName()).isEqualTo("partnerName");
 
-        // then - DB에 채팅방이 실제로 저장되었는지 확인
+        //  DB에 채팅방이 실제로 저장되었는지 확인
         Chat saved = chatRepository.findByProposalId(proposalId);
         assertThat(saved).isNotNull(); // DB에 저장 여부
         assertThat(saved.getProposalId()).isEqualTo(proposalId); // 제안서 ID 일치
