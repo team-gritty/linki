@@ -1,47 +1,32 @@
-package com.Gritty.Linki.domain.user.nonUser.mypage.controller;
+package com.Gritty.Linki.domain.user.User.mypage.controller;
 
-import com.Gritty.Linki.domain.oAuth.signUp.repository.AccountRepository;
-import com.Gritty.Linki.domain.user.nonUser.dto.ChangePwDTO;
-import com.Gritty.Linki.entity.User;
+import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.domain.user.User.mypage.dto.UserPasswordChangeRequestDto;
+import com.Gritty.Linki.domain.user.User.mypage.service.UserMypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/api/advertiser/mypage/campaigns")
+@RequestMapping("v1/api/user")
 @RequiredArgsConstructor
 @Slf4j
 public class ChangePwController {
 
-    private final AccountRepository accountRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserMypageService userMypageService;
 
-    @PostMapping
-    public ResponseEntity<?> changePw(@RequestBody ChangePwDTO changePwDTO, Principal principal){
-        String userLoginId = principal.getName();
-        User user = accountRepository.findByUserLoginId(userLoginId);
-            if(user == null){
-                throw new RuntimeException("사용자 없음");
-            }
-
-        if(!passwordEncoder.matches(changePwDTO.getUserLoginPw(), user.getUserLoginPw())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 틀렸습니다.");
+    @PatchMapping("/password")
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal CustomUserDetails user,
+                                           @RequestBody UserPasswordChangeRequestDto request) {
+        try {
+            userMypageService.changePassword(user.getUserId(), request);
+            return ResponseEntity.ok().body(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-
-        user.setUserLoginPw(passwordEncoder.encode(changePwDTO.getChangeLoginPw()));
-        accountRepository.save(user);
-
-        return ResponseEntity.ok("비밀번호 변경 완료");
-
     }
-
 }

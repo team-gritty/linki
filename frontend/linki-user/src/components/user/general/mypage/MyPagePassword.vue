@@ -1,52 +1,59 @@
 <template>
   <div class="password-container">
     <h2 class="password-title">비밀번호 변경</h2>
-    <div class="password-form" >
+    
+    <form class="password-form" @submit.prevent="handleSubmit">
       <div class="form-group">
         <label>현재 비밀번호</label>
         <input
             type="password"
             v-model="passwordData.currentPassword"
+            placeholder="현재 비밀번호를 입력하세요"
             :disabled="isLoading"
         />
+        <span class="error-message" v-if="errors.currentPassword">{{ errors.currentPassword }}</span>
       </div>
+
       <div class="form-group">
         <label>새 비밀번호</label>
         <input
             type="password"
             v-model="passwordData.newPassword"
+            placeholder="새 비밀번호를 입력하세요"
             :disabled="isLoading"
         />
-        <span class="error-message" v-if="passwordError">{{ passwordError }}</span>
+        <span class="error-message" v-if="errors.newPassword">{{ errors.newPassword }}</span>
       </div>
+
       <div class="form-group">
         <label>새 비밀번호 확인</label>
         <input
             type="password"
             v-model="passwordData.confirmPassword"
+            placeholder="새 비밀번호를 다시 입력하세요"
             :disabled="isLoading"
         />
-        <span class="error-message" v-if="confirmError">{{ confirmError }}</span>
-
-        <div class="button-group">
-          <div  class="save-button" @click="handleSubmit" :disabled="isLoading">
-            {{ isLoading ? '변경 중...' : '변경' }}
-          </div>
-        </div>
+        <span class="error-message" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</span>
       </div>
-    </div>
+
+      <div class="button-group">
+        <button type="submit" class="save-button" :disabled="isLoading || !isFormValid">
+          {{ isLoading ? '변경 중...' : '변경' }}
+        </button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import httpRequest from '@/utils/httpRequest'
+import { useAlert } from '@/composables/alert'
 
 const router = useRouter()
+const { showAlert } = useAlert()
 const isLoading = ref(false)
-const passwordError = ref('')
-const confirmError = ref('')
 
 const passwordData = ref({
   currentPassword: '',
@@ -54,40 +61,114 @@ const passwordData = ref({
   confirmPassword: ''
 })
 
-const validatePassword = () => {const router = useRouter()
-  passwordError.value = ''
-  confirmError.value = ''
+const errors = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
+// 실시간 비밀번호 검증
+const validateNewPassword = () => {
+  if (!passwordData.value.newPassword) {
+    errors.value.newPassword = ''
+    return
+  }
+  
   if (passwordData.value.newPassword.length < 8) {
-    passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
-    return false
+    errors.value.newPassword = '비밀번호는 8자 이상이어야 합니다.'
+    return
   }
-
-  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
-    confirmError.value = '비밀번호가 일치하지 않습니다.'
-    return false
+  
+  if (passwordData.value.currentPassword && passwordData.value.currentPassword === passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+    return
   }
-
-  return true
+  
+  errors.value.newPassword = ''
 }
 
-const handleSubmit = async () => {
-  if (!validatePassword()) return
+const validateConfirmPassword = () => {
+  if (!passwordData.value.confirmPassword) {
+    errors.value.confirmPassword = ''
+    return
+  }
+  
+  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+    errors.value.confirmPassword = '비밀번호가 일치하지 않습니다.'
+    return
+  }
+  
+  errors.value.confirmPassword = ''
+}
 
-  isLoading.value = true
+// 실시간 검증을 위한 watch
+watch(() => passwordData.value.currentPassword, () => {
+  validateNewPassword()
+})
+
+watch(() => passwordData.value.newPassword, () => {
+  validateNewPassword()
+  validateConfirmPassword()
+})
+
+watch(() => passwordData.value.confirmPassword, () => {
+  validateConfirmPassword()
+})
+
+const isFormValid = computed(() => {
+  return (
+    passwordData.value.currentPassword &&
+    passwordData.value.newPassword &&
+    passwordData.value.confirmPassword &&
+    !errors.value.currentPassword &&
+    !errors.value.newPassword &&
+    !errors.value.confirmPassword
+  )
+})
+
+const handleSubmit = async () => {
+  // 현재 비밀번호 필수 입력 검증
+  if (!passwordData.value.currentPassword) {
+    errors.value.currentPassword = '현재 비밀번호를 입력해주세요.'
+    return
+  }
+
+  // 실시간 검증 결과 확인
+  if (errors.value.newPassword || errors.value.confirmPassword) {
+    return
+  }
+
   try {
-    await axios.post('/api/user/change-password', {
+    isLoading.value = true
+    const response = await httpRequest.patch('v1/api/user/password', {
       currentPassword: passwordData.value.currentPassword,
       newPassword: passwordData.value.newPassword
     })
 
-    alert('비밀번호가 성공적으로 변경되었습니다.')
-    router.push('/mypage?currentMenu=profile.basic')
-  } catch (error) {
-    if (error.response?.status === 401) {
-      alert('현재 비밀번호가 올바르지 않습니다.')
+    if (response.status === 200) {
+      showAlert('비밀번호가 성공적으로 변경되었습니다.', 'success')
+      // 입력 필드 초기화
+      passwordData.value = {
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
+      // 에러 메시지 초기화
+      errors.value = {
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
     } else {
-      alert('비밀번호 변경 중 오류가 발생했습니다.')
+      showAlert('비밀번호 변경에 실패했습니다.', 'error')
+    }
+  } catch (error) {
+    console.error('비밀번호 변경 실패:', error)
+    if (error.response?.status === 400) {
+      showAlert('현재 비밀번호가 올바르지 않습니다.', 'error')
+    } else {
+      const errorMessage = error.response?.data?.message || '비밀번호 변경 중 오류가 발생했습니다.'
+      showAlert(errorMessage, 'error')
     }
   } finally {
     isLoading.value = false
@@ -100,9 +181,6 @@ const handleSubmit = async () => {
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .password-title {
@@ -110,14 +188,13 @@ const handleSubmit = async () => {
   font-weight: 600;
   margin-bottom: 2rem;
   color: #333;
+  text-align: center;
 }
 
 .password-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  width: 100%;
-  background-color: #fffcfc;
 }
 
 .form-group {
@@ -163,15 +240,15 @@ const handleSubmit = async () => {
 
 .save-button {
   min-width: 80px;
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  background-color: #8C30F5;
-  color: #fff;
+  background-color: #7B21E8;
+  color: #ffffff;
 }
 
 .save-button:hover {
