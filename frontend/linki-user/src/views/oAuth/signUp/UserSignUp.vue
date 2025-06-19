@@ -380,15 +380,14 @@ const handleSignup = async () => {
   try {
     isLoading.value = true
     const signupData = {
-      userId: userId.value,
-      password: password.value,
-      name: name.value,
-      handphone: handphone.value,
-      email: email.value,
-      marketingAgreed: marketingAgreed.value
+      userLoginId: userId.value,
+      userLoginPw: password.value,
+      userName: name.value,
+      userPhone: handphone.value,
+      userEmail: email.value,
     }
 
-    const response = await axios.post('/api/user/signup', signupData)
+    const response = await axios.post('v1/api/nonuser/signup', signupData)
     
     if (response.data.success) {
       showAlert('회원가입이 완료되었습니다. 로그인해주세요.', 'success')

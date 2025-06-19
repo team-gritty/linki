@@ -26,7 +26,7 @@ const instance = axios.create({
 // 요청 인터셉터
 instance.interceptors.request.use(
     (config) => {
-        console.log('API Request:', config.method.toUpperCase(), config.url, config.params || config.data)
+        console.log('API Request:', config.method?.toUpperCase(), config.url, config.params || config.data)
         return config;
     },
     (error) => {
@@ -40,8 +40,39 @@ instance.interceptors.response.use(
         console.log('API Response:', response.status, response.data)
         return response;
     },
-    (error) => {
+    async (error) => {
         console.error('API Error:', error.response?.status, error.response?.data)
+        if (!error.response) return Promise.reject(error);
+
+        switch (error.response.status) {
+            case 401: {
+                const config = error.config;
+                if (config.retried) {
+                    window.alert("권한이 없습니다.");
+                    window.location.replace("/");
+                    return;
+                }
+                try {
+                    const res = await axios.get("/v1/api/nonuser/token");
+                    const accessToken = res.data.accessToken || res.data;
+                    const accountStore = useAccountStore();
+                    accountStore.setAccessToken(accessToken);
+                    config.headers.authorization = `Bearer ${accessToken}`;
+                    config.retried = true;
+                    return instance(config);
+                } catch (e) {
+                    window.alert("로그인 정보가 만료되었습니다.");
+                    window.location.replace("/login");
+                }
+                break;
+            }
+            case 400:
+                window.alert("잘못된 요청입니다.");
+                break;
+            case 500:
+                window.alert("오류가 있습니다. 관리자에게 문의해주세요.");
+                break;
+        }
         return Promise.reject(error);
     }
 );
@@ -69,10 +100,11 @@ const httpClient = {
      * @param {Object} [params] - URL 쿼리 파라미터
      * @returns {Promise} 
      */
-    get(url, config = {}) {
+    get(url, params = {}, config = {}) {
         const finalConfig = {
             ...generateConfig(),
-            ...config
+            ...config,
+            params
         };
         return instance.get(url, finalConfig);
     },
@@ -83,8 +115,11 @@ const httpClient = {
      * @param {Object} data - 요청 바디 데이터
      * @returns {Promise}
      */
-    post(url, data) {
-        return instance.post(url, data, generateConfig());
+    post(url, data, config = {}) {
+        return instance.post(url, data, {
+            ...generateConfig(),
+            ...config
+        });
     },
 
     /**
@@ -93,8 +128,11 @@ const httpClient = {
      * @param {Object} data - 요청 바디 데이터
      * @returns {Promise}
      */
-    put(url, data) {
-        return instance.put(url, data, generateConfig());
+    put(url, data, config = {}) {
+        return instance.put(url, data, {
+            ...generateConfig(),
+            ...config
+        });
     },
 
     /**
@@ -102,8 +140,11 @@ const httpClient = {
      * @param {string} url - 요청 URL
      * @returns {Promise}
      */
-    delete(url) {
-        return instance.delete(url, generateConfig());
+    delete(url, config = {}) {
+        return instance.delete(url, {
+            ...generateConfig(),
+            ...config
+        });
     },
 
     /**
@@ -112,8 +153,11 @@ const httpClient = {
      * @param {Object} data - 요청 바디 데이터
      * @returns {Promise}
      */
-    patch(url, data) {
-        return instance.patch(url, data, generateConfig());
+    patch(url, data, config = {}) {
+        return instance.patch(url, data, {
+            ...generateConfig(),
+            ...config
+        });
     }
 };
 

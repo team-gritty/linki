@@ -3,16 +3,76 @@ import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAccountStore } from './stores/account'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
+import axios from 'axios'
+import { check } from '@/services/accountService'
 
 const router = useRouter()
+const accountStore = useAccountStore()
 const openSidebar = ref(false)
+
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value
 }
+
+// 로그인 여부 확인 함수
+const checkAccount = async () => {
+  try {
+    const res = await check();
+    if (res.status === 200) {
+      accountStore.setChecked(true);
+      accountStore.setLoggedIn(res.data === true);
+    } else {
+      accountStore.setChecked(false);
+    }
+  } catch {
+    accountStore.setChecked(false);
+  }
+}
+
+// 앱 시작 시 로그인 상태 초기화
+onMounted(() => {
+  // localStorage에서 토큰 확인
+  const token = localStorage.getItem('token')
+  if (token) {
+    try {
+      // JWT 토큰 파싱
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]))
+      const userRole = tokenPayload.userRole
+      const userId = tokenPayload.userId
+      
+      // 토큰 만료 확인
+      const currentTime = Date.now() / 1000
+      if (tokenPayload.exp > currentTime) {
+        // 유효한 토큰이면 Store에 설정
+        let userType = 'general'
+        if (userRole === 'ROLE_INFLUENCER') {
+          userType = 'influencer'
+        } else if (userRole === 'ROLE_ADVERTISER') {
+          userType = 'advertiser'
+        }
+        
+        accountStore.setLoginInfo(token, { userId, userRole }, userType)
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      } else {
+        // 만료된 토큰이면 제거
+        localStorage.removeItem('token')
+        accountStore.clearAuth()
+      }
+    } catch (error) {
+      console.error('Token parsing failed:', error)
+      localStorage.removeItem('token')
+      accountStore.clearAuth()
+    }
+  }
+  
+  // 로그인 체크
+  checkAccount();
+})
 
 // 라우터 변경 감지
 watch(
@@ -20,6 +80,8 @@ watch(
   () => {
     // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo(0, 0)
+    // 라우트 이동 시 로그인 체크
+    checkAccount();
   }
 )
 </script>
