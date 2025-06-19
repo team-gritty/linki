@@ -118,4 +118,22 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
                 .status(proposal.getStatus())
                 .build();
     }
+
+    @Override
+    @Transactional
+    public void deleteProposal(CustomUserDetails user, String propsalId) throws AccessDeniedException {
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(user);
+
+        Proposal proposal = proposalRepository.findById(propsalId)
+                .orElseThrow(()-> new EntityNotFoundException("해당 제안서를 찾을 수 없습니다."));
+
+        if (!proposal.getInfluencer().getInfluencerId().equals(influencerId)) {
+            throw new AccessDeniedException("본인의 제안서만 삭제할 수 있습니다.");
+        }
+
+        proposalRepository.delete(proposal);
+
+
+
+    }
 }

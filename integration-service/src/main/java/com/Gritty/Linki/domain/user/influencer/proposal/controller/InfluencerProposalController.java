@@ -68,7 +68,16 @@ public class InfluencerProposalController {
         ProposalDetailResponseDTO response = influencerProposalService.getProposalDetail(userDetails,proposalId);
         return ResponseEntity.ok(response);
 
+    }
 
+    @DeleteMapping("/v1/api/influencer/mypage/proposals/{proposalId}")
+    public ResponseEntity<String> deleteProposal(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable String proposalId
+    ) throws AccessDeniedException {
 
+        influencerProposalService.deleteProposal(user,proposalId);
+        return ResponseEntity.noContent().build(); // 204 no content
+        
     }
 }

@@ -1,8 +1,7 @@
-package com.Gritty.Linki.user.influencer.campaign.repository;
+package com.Gritty.Linki.user.influencer.proposal.repository;
 
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
-import com.Gritty.Linki.entity.Proposal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

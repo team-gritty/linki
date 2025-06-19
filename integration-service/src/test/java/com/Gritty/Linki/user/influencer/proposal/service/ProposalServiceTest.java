@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -143,6 +144,28 @@ public class ProposalServiceTest {
         assertThat(dto.getProposalId()).isEqualTo(testProoposalId);
         assertThat(dto.getInfluencerId()).isEqualTo(authenticationUtil.getInfluencerIdFromUserDetails(userDetails));
         assertThat(dto.getContents()).isNotBlank(); // 내용이 있을 경우
+
+
+
+    }
+
+    @Test
+    @Transactional
+    void testDeleteProposal(){
+        String loginId = "user1";
+        CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(loginId);
+
+        String proposalId = "PROP0002";
+
+        // when & then
+        assertDoesNotThrow(() -> {
+            influencerProposalService.deleteProposal(userDetails, proposalId);
+        });
+
+        // 삭제 이후 확인 (옵션)
+        Optional<Proposal> deleted = influencerProposalRepository.findById(proposalId);
+        assertThat(deleted).isEmpty();
+
 
 
 

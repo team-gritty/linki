@@ -22,4 +22,7 @@ public interface InfluencerProposalService {
 
     //인플루언서 회원의 특정 제안서 상세조회
     ProposalDetailResponseDTO getProposalDetail(CustomUserDetails user, String propsalId);
+
+    // 인플루언서 회원의 특정 제안서 삭제
+    void deleteProposal(CustomUserDetails user, String propsalId) throws AccessDeniedException;
 }
