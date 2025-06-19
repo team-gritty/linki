@@ -18,8 +18,10 @@
         <img :src="campaign.campaignImg" :alt="campaign.campaignName" class="campaign-image">
         <div class="campaign-info">
           <div class="campaign-meta">
-            <span class="category">{{ campaign.campaignCategory }}</span>
-            <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+            <span class="category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
+            <span class="category" v-else>카테고리 미지정</span>
+            <span class="deadline" v-if="campaign.campaignDeadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+            <span class="deadline" v-else>마감일 미지정</span>
           </div>
           <h1 class="campaign-title">{{ campaign.campaignName }}</h1>
           <p class="company-name">{{ campaign.companyName }}</p>
@@ -40,9 +42,16 @@
         <section class="info-section">
           <h2>캠페인 상태</h2>
           <div class="status-box">
-            <span :class="['status-badge', campaign.campaignStatus.toLowerCase()]">
-              {{ getStatusText(campaign.campaignStatus) }}
+            <span :class="['status-badge', campaign.campaignPublishStatus?.toLowerCase()]">
+              {{ getStatusText(campaign.campaignPublishStatus) }}
             </span>
+          </div>
+        </section>
+
+        <section class="info-section" v-if="campaign.createdAt">
+          <h2>등록일</h2>
+          <div class="condition-box">
+            {{ formatDate(campaign.createdAt) }}
           </div>
         </section>
 
@@ -111,7 +120,10 @@ const fetchCampaignDetail = async () => {
     error.value = null
     const data = await campaignAPI.getCampaignDetail(route.params.id)
     campaign.value = data
-    console.log('Campaign detail:', data)
+    console.log('Campaign detail - Full data:', JSON.stringify(data, null, 2))
+    console.log('Available keys:', Object.keys(data))
+    console.log('CreatedAt:', data.createdAt, typeof data.createdAt)
+    console.log('CampaignDeadline:', data.campaignDeadline, typeof data.campaignDeadline)
     // 캠페인 정보를 가져온 후 광고주 리뷰를 가져옴
     if (data?.advertiserId) {
       await fetchAdvertiserReviews()
@@ -142,7 +154,33 @@ const fetchAdvertiserReviews = async () => {
 }
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
+  if (!dateString) return '';
+  
+  console.log('Formatting date:', dateString, typeof dateString);
+  
+  let date;
+  
+  // 다양한 날짜 형식 처리
+  if (typeof dateString === 'string') {
+    // "YYYY-MM-DD" 형식인 경우
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      date = new Date(dateString + 'T00:00:00');
+    } else {
+      date = new Date(dateString);
+    }
+  } else if (Array.isArray(dateString) && dateString.length >= 3) {
+    // [2024, 6, 19] 형식인 경우 (Java LocalDate가 배열로 올 수 있음)
+    date = new Date(dateString[0], dateString[1] - 1, dateString[2]);
+  } else {
+    date = new Date(dateString);
+  }
+  
+  // 유효한 날짜인지 확인
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date:', dateString);
+    return dateString.toString();
+  }
+  
   return date.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -151,10 +189,10 @@ const formatDate = (dateString) => {
 }
 
 const getStatusText = (status) => {
+  if (!status) return '';
   const statusMap = {
-    'ACTIVE': '진행중',
-    'CLOSED': '마감',
-    'DRAFT': '임시저장'
+    'ACTIVE': '활성',
+    'HIDDEN': '비활성'
   }
   return statusMap[status] || status
 }
@@ -329,14 +367,9 @@ watch(() => route.params.id, () => {
   color: #166534;
 }
 
-.status-badge.closed {
+.status-badge.hidden {
   background: #fee2e2;
   color: #991b1b;
-}
-
-.status-badge.draft {
-  background: #f3f4f6;
-  color: #374151;
 }
 
 .action-buttons {

@@ -1,5 +1,6 @@
 package com.Gritty.Linki.domain.user.influencer.campaign.service;
 
+import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.vo.enums.Category;
@@ -18,6 +19,9 @@ public interface InfluencerCampaignService {
 
     // 인플루언서 본인의 proposaId에 연관된 캠페인만 조회
     CampaignDetailResponseDTO getCampaignByProposalId(String proposalId);
+
+    //카테고리 불러오기
+    List<CampaignCategoryResponseDTO>getCategories();
 
 
 }

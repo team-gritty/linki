@@ -1,6 +1,7 @@
 package com.Gritty.Linki.domain.user.influencer.campaign.controller;
 
 import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampaignService;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.vo.enums.Category;
@@ -38,7 +39,7 @@ public class InfluencerCampaignController {
 
     // 카테고리별 캠페인 리스트 조회
     @GetMapping("/v1/api/nonuser/campaigns/categories/{category}")
-    public ResponseEntity<List<CampaignListResponseDTO>> getCampaignsByCategories(@RequestParam(name="category", required=false) Category category){
+    public ResponseEntity<List<CampaignListResponseDTO>> getCampaignsByCategories(@PathVariable("category") Category category){
         return ResponseEntity.ok(influencerCampaignService.getCampaignsByCategory(category));
 
     }
@@ -48,5 +49,12 @@ public class InfluencerCampaignController {
     public ResponseEntity<CampaignDetailResponseDTO> getInfluencerCampaignDetail(@PathVariable String proposalId){
         CampaignDetailResponseDTO dto = influencerCampaignService.getCampaignByProposalId(proposalId);
         return ResponseEntity.ok(dto);
+    }
+
+    // 카테고리 조회
+    @GetMapping("/v1/api/nonuser/categories")
+    public ResponseEntity<List<CampaignCategoryResponseDTO>> getCategories(){
+        List<CampaignCategoryResponseDTO> categories = influencerCampaignService.getCategories();
+        return ResponseEntity.ok(categories);
     }
 }

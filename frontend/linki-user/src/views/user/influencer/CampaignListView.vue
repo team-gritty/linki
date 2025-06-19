@@ -43,8 +43,10 @@
               <h3>{{ campaign.campaignName }}</h3>
               <p>{{ campaign.campaignCondition }}</p>
               <div class="campaign-meta-row">
-                <span class="campaign-category">{{ campaign.campaignCategory }}</span>
-                <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+                <span class="campaign-category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
+                <span class="campaign-category" v-else>카테고리 미지정</span>
+                <span class="deadline" v-if="campaign.campaignDeadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+                <span class="deadline" v-else>마감일 미지정</span>
               </div>
             </div>
           </div>
@@ -54,7 +56,7 @@
       <!-- 전체 캠페인 섹션 -->
       <section class="all-campaigns-section">
         <div class="list-header">
-          <h2 class="section-title">전체 캠페인</h2>
+          <h2 class="section-title">모든 캠페인</h2>
           <div class="sort-options">
             <select v-model="sortBy" @change="fetchCampaigns">
               <option value="createdAt">최신순</option>
@@ -75,8 +77,10 @@
               <h3>{{ campaign.campaignName }}</h3>
               <p>{{ campaign.campaignCondition }}</p>
               <div class="campaign-meta-row">
-                <span class="campaign-category">{{ campaign.campaignCategory }}</span>
-                <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+                <span class="campaign-category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
+                <span class="campaign-category" v-else>카테고리 미지정</span>
+                <span class="deadline" v-if="campaign.campaignDeadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
+                <span class="deadline" v-else>마감일 미지정</span>
               </div>
             </div>
           </div>
@@ -86,19 +90,50 @@
         <div v-if="totalPages > 1" class="pagination">
           <button 
             :disabled="currentPage === 1" 
+            @click="changePage(1)"
+            class="page-button first-last"
+          >
+            처음
+          </button>
+          <button 
+            :disabled="currentPage === 1" 
             @click="changePage(currentPage - 1)"
-            class="page-button"
+            class="page-button prev-next"
           >
             이전
           </button>
-          <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+          
+          <!-- 페이지 번호들 -->
+          <div class="page-numbers">
+            <button
+              v-for="pageNum in getPageNumbers()"
+              :key="pageNum"
+              @click="changePage(pageNum)"
+              :class="['page-number', { 'active': pageNum === currentPage }]"
+            >
+              {{ pageNum }}
+            </button>
+          </div>
+          
           <button 
             :disabled="currentPage === totalPages" 
             @click="changePage(currentPage + 1)"
-            class="page-button"
+            class="page-button prev-next"
           >
             다음
           </button>
+          <button 
+            :disabled="currentPage === totalPages" 
+            @click="changePage(totalPages)"
+            class="page-button first-last"
+          >
+            마지막
+          </button>
+        </div>
+        
+        <!-- 페이지네이션 정보 (디버깅용) -->
+        <div class="pagination-debug">
+          <span>총 {{ totalPages }}페이지 | 현재: {{ currentPage }}페이지 | 항목: {{ campaigns.length }}개</span>
         </div>
       </section>
     </template>
@@ -117,7 +152,7 @@ const error = ref(null)
 const campaigns = ref([])
 const popularCampaigns = ref([])
 const currentPage = ref(1)
-const itemsPerPage = 10
+const itemsPerPage = 15
 const totalPages = ref(1)
 const selectedCategory = ref('전체')
 const sortBy = ref('createdAt')
@@ -131,10 +166,7 @@ const fetchCategories = async () => {
     const response = await campaignAPI.getCategories()
     categories.value = [
       { id: '전체', name: '전체' },
-      ...response.map(category => ({
-        id: category.name,
-        name: category.name
-      }))
+      ...response
     ]
   } catch (err) {
     console.error('카테고리 로딩 실패:', err)
@@ -152,15 +184,27 @@ const initializeFromQuery = () => {
   }
 }
 
-// 인기 캠페인 불러오기 (최신 3개)
+// 인기 캠페인 불러오기 (선택된 카테고리의 최신 3개)
 const fetchPopularCampaigns = async () => {
   try {
-    const response = await campaignAPI.getCampaigns({
-      _limit: 3,
+    const params = {
       _sort: 'createdAt',
       _order: 'desc'
-    })
-    popularCampaigns.value = response.campaigns
+    }
+
+    // 선택된 카테고리가 있으면 필터링 적용
+    if (selectedCategory.value && selectedCategory.value !== '전체') {
+      params.campaignCategory = selectedCategory.value
+    }
+
+    console.log('Fetching popular campaigns with params:', params) // 디버깅용
+
+    const response = await campaignAPI.getCampaigns(params)
+    
+    // 항상 최신 3개만 가져오기 (백엔드에서 limit를 지원하지 않으므로 프론트에서 처리)
+    popularCampaigns.value = response.campaigns.slice(0, 3)
+    
+    console.log('Fetched popular campaigns:', popularCampaigns.value) // 디버깅용
   } catch (err) {
     console.error('인기 캠페인 로딩 실패:', err)
   }
@@ -173,8 +217,6 @@ const fetchCampaigns = async (additionalParams = {}) => {
     error.value = null
     
     const params = {
-      _page: currentPage.value,
-      _limit: itemsPerPage,
       _sort: sortBy.value,
       _order: 'desc',
       ...additionalParams
@@ -187,10 +229,31 @@ const fetchCampaigns = async (additionalParams = {}) => {
     console.log('Fetching with params:', params) // 디버깅용
 
     const response = await campaignAPI.getCampaigns(params)
-    campaigns.value = response.campaigns
-    totalPages.value = Math.ceil(response.totalItems / itemsPerPage)
+    console.log('Total campaigns from API:', response.campaigns.length) // 디버깅용
     
-    console.log('Fetched campaigns:', campaigns.value) // 디버깅용
+    // 인기 캠페인에 이미 표시된 캠페인들의 ID 목록
+    const popularCampaignIds = popularCampaigns.value.map(campaign => campaign.campaignId)
+    console.log('Popular campaign IDs:', popularCampaignIds) // 디버깅용
+    
+    // 인기 캠페인에 없는 캠페인들만 필터링
+    const filteredCampaigns = response.campaigns.filter(campaign => 
+      !popularCampaignIds.includes(campaign.campaignId)
+    )
+    console.log('Filtered campaigns (excluding popular):', filteredCampaigns.length) // 디버깅용
+    
+    // 전체 아이템 수 계산 (인기 캠페인 제외)
+    const totalFilteredItems = filteredCampaigns.length
+    totalPages.value = Math.ceil(totalFilteredItems / itemsPerPage)
+    console.log(`Total filtered items: ${totalFilteredItems}, Items per page: ${itemsPerPage}, Total pages: ${totalPages.value}`) // 디버깅용
+    
+    // 현재 페이지에 해당하는 캠페인만 추출
+    const startIndex = (currentPage.value - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    campaigns.value = filteredCampaigns.slice(startIndex, endIndex)
+    
+    console.log(`Showing page ${currentPage.value} of ${totalPages.value}`) // 디버깅용
+    console.log(`Start index: ${startIndex}, End index: ${endIndex}`) // 디버깅용
+    console.log('Fetched campaigns (current page):', campaigns.value.length) // 디버깅용
   } catch (err) {
     console.error('캠페인 목록 로딩 실패:', err)
     error.value = '캠페인 목록을 불러오는데 실패했습니다.'
@@ -215,7 +278,8 @@ const selectCategory = (categoryId) => {
   
   console.log('Selected category:', categoryId) // 디버깅용
   
-  // 캠페인 데이터 다시 불러오기
+  // 인기 캠페인과 전체 캠페인 데이터 모두 다시 불러오기
+  fetchPopularCampaigns()
   fetchCampaigns({
     campaignCategory: categoryId === '전체' ? undefined : categoryId
   })
@@ -223,11 +287,68 @@ const selectCategory = (categoryId) => {
 
 const changePage = (page) => {
   currentPage.value = page
-  fetchCampaigns()
+  console.log(`Changing to page: ${page}`) // 디버깅용
+  
+  // 현재 선택된 카테고리를 유지하면서 페이지 변경
+  const additionalParams = {}
+  if (selectedCategory.value && selectedCategory.value !== '전체') {
+    additionalParams.campaignCategory = selectedCategory.value
+  }
+  
+  fetchCampaigns(additionalParams)
+}
+
+// 페이지네이션에 표시할 페이지 번호들 계산
+const getPageNumbers = () => {
+  const total = totalPages.value
+  const current = currentPage.value
+  const delta = 2 // 현재 페이지 좌우로 보여줄 페이지 수
+  
+  let start = Math.max(1, current - delta)
+  let end = Math.min(total, current + delta)
+  
+  // 시작이나 끝 부분에서 더 많은 페이지를 보여주기 위해 조정
+  if (current - delta <= 1) {
+    end = Math.min(total, end + (delta - current + 1))
+  }
+  if (current + delta >= total) {
+    start = Math.max(1, start - (current + delta - total))
+  }
+  
+  const pages = []
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  
+  return pages
 }
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
+  if (!dateString) return '';
+  
+  let date;
+  
+  // 다양한 날짜 형식 처리
+  if (typeof dateString === 'string') {
+    // "YYYY-MM-DD" 형식인 경우
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      date = new Date(dateString + 'T00:00:00');
+    } else {
+      date = new Date(dateString);
+    }
+  } else if (Array.isArray(dateString) && dateString.length >= 3) {
+    // [2024, 6, 19] 형식인 경우 (Java LocalDate가 배열로 올 수 있음)
+    date = new Date(dateString[0], dateString[1] - 1, dateString[2]);
+  } else {
+    date = new Date(dateString);
+  }
+  
+  // 유효한 날짜인지 확인
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date:', dateString);
+    return dateString.toString();
+  }
+  
   return date.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -244,6 +365,7 @@ watch(
   () => route.query,
   () => {
     initializeFromQuery()
+    fetchPopularCampaigns()
     fetchCampaigns()
   }
 )
@@ -446,32 +568,91 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  margin-top: 40px;
+  gap: 8px;
+  margin: 40px 0;
+  padding: 20px 0;
 }
 
 .page-button {
-  padding: 8px 16px;
-  border: 1px solid #7c3aed;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
   background: white;
-  color: #7c3aed;
-  border-radius: 4px;
+  color: #374151;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.page-button:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .page-button:disabled {
-  border-color: #e5e7eb;
-  color: #9ca3af;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #f9fafb;
 }
 
-.page-button:not(:disabled):hover {
+.page-button.first-last {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+
+.page-button.first-last:hover:not(:disabled) {
+  background: #4f46e5;
+}
+
+.page-button.prev-next {
   background: #7c3aed;
   color: white;
+  border-color: #7c3aed;
 }
 
-.page-info {
-  color: #4b5563;
+.page-button.prev-next:hover:not(:disabled) {
+  background: #6d28d9;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 4px;
+  margin: 0 12px;
+}
+
+.page-number {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.page-number:hover {
+  background: #f3f4f6;
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.page-number.active {
+  background: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
+}
+
+.pagination-debug {
+  text-align: center;
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {
