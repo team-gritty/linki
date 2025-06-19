@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("*") // 추후 'https://linki-client.com' 등으로 제한 가능
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(false);
     }
 
     /**

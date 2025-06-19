@@ -6,7 +6,7 @@ import httpClient from '@/utils/httpRequest'
 const channelApi = {
   getAllChannels: async () => {
     try {
-      const response = await httpClient.get('/v1/api/channels')
+      const response = await httpClient.get('/v1/api/nonuser/channels')
       return response.data
     } catch (error) {
       console.error('Error fetching all channels:', error)
