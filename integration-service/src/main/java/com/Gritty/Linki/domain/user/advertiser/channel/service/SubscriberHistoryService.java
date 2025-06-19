@@ -142,7 +142,7 @@ public class SubscriberHistoryService {
                 return mockSubscriberCount;
             }
 
-            // 실제 데이터 수집 모드: YouTube API 호출하기
+            // 실제 데이터 수집 모드: 실제 YouTube API 호출하기
             String youtubeChannelId = youTubeApiService.getYouTubeChannelId(channelId);
 
             // 유튜브 채널 아이디가 널이라면 (디비 컬럼에 값이 없다면)
