@@ -1,0 +1,46 @@
+[
+  {
+    "name": "BEAUTY",
+    "displayName": "뷰티"
+  },
+  {
+    "name": "FASHION",
+    "displayName": "패션"
+  },
+  {
+    "name": "SPORTS",
+    "displayName": "스포츠"
+  },
+  {
+    "name": "FOOD",
+    "displayName": "음식"
+  },
+  {
+    "name": "VLOG",
+    "displayName": "브이로그"
+  },
+  {
+    "name": "TRAVEL",
+    "displayName": "여행"
+  },
+  {
+    "name": "MUSIC",
+    "displayName": "음악"
+  },
+  {
+    "name": "EDUCATION",
+    "displayName": "교육"
+  },
+  {
+    "name": "ANIMAL",
+    "displayName": "동물"
+  },
+  {
+    "name": "ELECTRONICS",
+    "displayName": "전자제품"
+  },
+  {
+    "name": "ENTERTAINMENT",
+    "displayName": "엔터테인먼트"
+  }
+]
