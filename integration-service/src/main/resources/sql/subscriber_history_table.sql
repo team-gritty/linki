@@ -1,0 +1,7 @@
+CREATE TABLE subscriber_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '구독자 히스토리 ID',
+    channel_id BIGINT NOT NULL COMMENT '채널 ID',
+    subscriber_count BIGINT NOT NULL COMMENT '구독자 수',
+    collected_at DATETIME NOT NULL COMMENT '수집 일시',
+    FOREIGN KEY (channel_id) REFERENCES channel(id) -- 채널 테이블의 id를 참조하는 외래키
+);
