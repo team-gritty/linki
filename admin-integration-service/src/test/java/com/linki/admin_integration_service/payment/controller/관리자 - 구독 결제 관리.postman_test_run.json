@@ -1,0 +1,102 @@
+{
+	"id": "b77729c8-763e-451d-b136-2fbed2d161d7",
+	"name": "관리자 - 구독 결제 관리",
+	"timestamp": "2025-06-18T06:45:06.668Z",
+	"collection_id": "45491549-d152e549-0018-4ab4-bb4f-5a25272aed8e",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-18T06:45:05.978Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "d3133260-efc8-4266-94d8-438966f20466",
+			"name": "관리자 - 구독 결제 조회",
+			"url": "localhost:8080/v1/admin/api/subscriptions",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				46,
+				23,
+				20,
+				17,
+				15,
+				15,
+				17,
+				17,
+				15,
+				16
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "a8fb8492-af3f-4ba3-9718-b5a46ae05fa7",
+			"name": "관리자 - 구독 결제 검색",
+			"url": "localhost:8080/v1/admin/api/subscriptions/search",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				22,
+				21,
+				18,
+				17,
+				15,
+				15,
+				16,
+				16,
+				17,
+				14
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 372,
+	"collection": {
+		"requests": [
+			{
+				"id": "d3133260-efc8-4266-94d8-438966f20466",
+				"method": "GET"
+			},
+			{
+				"id": "a8fb8492-af3f-4ba3-9718-b5a46ae05fa7",
+				"method": "POST"
+			}
+		]
+	}
+}

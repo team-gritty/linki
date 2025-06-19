@@ -130,7 +130,7 @@ public class GlobalExceptionHandler {
         // HttpStatus.NOT_FOUND 만 써도 됩니다.
         ErrorResponse response = ErrorResponse.of(
                 HttpStatus.NOT_FOUND,
-                ErrorCode.CAMPAIGN_NOT_FOUND,
+                ErrorCode.ENTITY_NOT_FOUND,
                 request.getRequestURI()
         );
         return ResponseEntity
