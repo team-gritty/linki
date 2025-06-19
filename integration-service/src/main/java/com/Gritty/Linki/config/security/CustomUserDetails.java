@@ -1,12 +1,15 @@
 package com.Gritty.Linki.config.security;
 
 import com.Gritty.Linki.entity.User;
+import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+@Builder
 
 //유저 디테일즈 서비스에서 사용할 객체
 public class CustomUserDetails implements UserDetails {

@@ -1,5 +1,8 @@
 package com.Gritty.Linki.util;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class IdGenerator {
 
     private static final long EPOCH = 1704067200000L; // 2024-01-01 기준 (기준 시점)
