@@ -4,20 +4,12 @@ export const chatApi = {
   // 채팅방 생성(비활성)
   createRoom: async (proposalId) => {
   try {
-    const token = localStorage.getItem('accessToken');
     const response = await httpClient.post(
-        `/v1/api/chat-service/influencer/rooms/${proposalId}`,
-        {}, // POST 바디 없을 경우 빈 객체 전달
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        }
-    );
+        `/v1/chat-service/api/influencer/rooms/${proposalId}`);
     return response.data;
   } catch (error) {
     console.error('Error creating chat room:', error);
-    alert('채팅방 활성화에 실패했습니다.');
+    alert('채팅방 생성에 실패했습니다.');
     throw error;
   }
 },
@@ -56,7 +48,7 @@ export const chatApi = {
   // 인플루언서의 채팅방 조회
   getChatRoom: async (proposalId) => {
     try {
-      const response = await httpClient.get(`/v1/api/chat-service/room/${proposalId}`);
+      const response = await httpClient.get(`/v1/chat-service/api/influencer/room/${proposalId}`);
       return response.data;
     } catch (error) {
       console.error('Error getting chat room:', error);
@@ -67,7 +59,7 @@ export const chatApi = {
   // 사용자별 채팅방 목록 조회
   getUserChatList: async (userId = 'user1') => {
     try {
-      const response = await httpClient.get(`/v1/api/chat-service/user-chat-list/${userId}`)
+      const response = await httpClient.get(`/v1/chat-service/api/user-chat-list/${userId}`)
       return response.data
     } catch (error) {
       console.error('Error getting user chat list:', error)
@@ -78,7 +70,9 @@ export const chatApi = {
   // 메시지 목록 조회
   getMessages: async (chatId) => {
     try {
-      return await httpClient.get(`/v1/api/chat-service/messages/${chatId}`)
+      const response = await httpClient.get(
+          `/v1/chat-service/api/authuser/messages/${chatId}`);
+      return response.data;
     } catch (error) {
       console.error('Error getting messages:', error)
       throw error
@@ -88,7 +82,7 @@ export const chatApi = {
   // 제안서 거절
   rejectChat: async (proposalId) => {
     try {
-      return await httpClient.post(`/v1/api/chat-service/proposals/${proposalId}/reject`)
+      return await httpClient.post(`/v1/chat-service/api/proposals/${proposalId}/reject`)
     } catch (error) {
       console.error('Error rejecting proposal:', error)
       throw error

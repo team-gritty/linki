@@ -37,38 +37,36 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import httpClient from '@/utils/httpRequest';
+import {chatApi} from "@/api/chat.js";
 
-export default {
-  name: 'DetailHeader',
-  props: {
-    currentTab: {
-      type: String,
-      required: true
-    }
+const props = defineProps({
+  currentTab: {
+    type: String,
+    required: true
   },
-  emits: ['update:currentTab', 'update:detailData'],
-  
-  setup(props, { emit }) {
-    const route = useRoute();
-    const router = useRouter();
-    const loading = ref(true);
-    const detailData = ref({
-      proposal: null,
-      campaign: null,
-      contract: null,
-      chat: null
-    });
+  tabs: {
+    type: Array,
+    default: () => []
+  }
+});
 
-    const tabs = [
-      { id: 'campaign', name: '캠페인내용' },
-      { id: 'proposal', name: '제안서' },
-      { id: 'chat', name: '채팅' },
-      { id: 'contract', name: '계약서' }
-    ];
+const emit = defineEmits(['update:currentTab', 'update:detailData', 'update:chatRoom', 'go-to-proposal-list', 'go-to-campaign-detail']);
+
+const route = useRoute();
+const router = useRouter();
+const loading = ref(true);
+const detailData = ref({
+  proposal: null,
+  campaign: null,
+  contract: null,
+  chat: null
+});
+const proposalId = 'PROP0000' // 테스트용 하드코딩
+const chatRoom = ref(null)
 
     const fetchDetailData = async () => {
       try {
@@ -102,15 +100,11 @@ export default {
         }
 
         // 4. 채팅 조회
-        const chatDetailsResponse = await httpClient.get('/v1/api/chat/chat-detail');
-        const foundChat = chatDetailsResponse.data.find(c => c.proposalId === id);
-        if (foundChat) {
-          console.log('Found chat:', foundChat);
-          detailData.value.chat = foundChat;
-        }
+    chatRoom.value = await chatApi.getChatRoom(proposalId)
+    emit('update:chatRoom', chatRoom.value)
 
         // 데이터 로드 후 탭 설정 (route.query.tab이 있는 경우)
-        if (route.query.tab && tabs.some(tab => tab.id === route.query.tab)) {
+        if (route.query.tab && props.tabs.some(tab => tab.id === route.query.tab)) {
           emit('update:currentTab', route.query.tab);
         }
 
@@ -143,14 +137,4 @@ export default {
     onMounted(() => {
       fetchDetailData();
     });
-
-    return {
-      loading,
-      detailData,
-      tabs,
-      goToContractList,
-      goToProposalList,
-    };
-  }
-}
 </script> 
