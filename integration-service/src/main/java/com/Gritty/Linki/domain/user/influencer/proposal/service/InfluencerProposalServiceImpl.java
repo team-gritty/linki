@@ -7,6 +7,7 @@ import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.Influence
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
@@ -98,5 +99,23 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
         // 수정
         proposal.setContents(proposalRequestDTO.getContents());
 
+    }
+
+    @Override
+    public ProposalDetailResponseDTO getProposalDetail(CustomUserDetails user, String propsalId) {
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(user);
+
+        Proposal proposal = proposalRepository.findById(propsalId)
+                .orElseThrow(()->new EntityNotFoundException("해당 제안서를 찾을 수 없습니다"));
+
+        return ProposalDetailResponseDTO.builder()
+                .proposalId(proposal.getProposalId())
+                .campaignId(proposal.getCampaign().getCampaignId())
+                .influencerId(proposal.getInfluencer().getInfluencerId())
+                .contents(proposal.getContents())
+                .submittedAt(proposal.getSubmittedAt())
+                .respondedAt(proposal.getRespondedAt())
+                .status(proposal.getStatus())
+                .build();
     }
 }

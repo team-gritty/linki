@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.influencer.proposal.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
 
@@ -18,4 +19,7 @@ public interface InfluencerProposalService {
 
     //인플루언서 회원의 제안서 수정
     void updateProposal(CustomUserDetails user, String propsalId, ProposalRequestDTO proposalRequestDTO) throws AccessDeniedException;
+
+    //인플루언서 회원의 특정 제안서 상세조회
+    ProposalDetailResponseDTO getProposalDetail(CustomUserDetails user, String propsalId);
 }

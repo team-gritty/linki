@@ -3,6 +3,7 @@ package com.Gritty.Linki.domain.user.influencer.proposal.controller;
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.proposal.service.InfluencerProposalService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,18 @@ public class InfluencerProposalController {
     ) throws AccessDeniedException {
         influencerProposalService.updateProposal(userDetails,prooposalId,proposalRequestDTO);
         return ResponseEntity.ok("ok");
+
+
+
+    }
+
+    @GetMapping("/v1/api/influencer/mypage/proposals/{proposalId}")
+    public ResponseEntity<ProposalDetailResponseDTO> detailProposal(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String proposalId
+    ){
+        ProposalDetailResponseDTO response = influencerProposalService.getProposalDetail(userDetails,proposalId);
+        return ResponseEntity.ok(response);
 
 
 

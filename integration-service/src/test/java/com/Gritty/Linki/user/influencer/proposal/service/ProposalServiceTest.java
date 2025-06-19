@@ -2,11 +2,14 @@ package com.Gritty.Linki.user.influencer.proposal.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.config.security.CustomUserDetailsService;
+import com.Gritty.Linki.domain.user.advertiser.proposal.service.ProposalService;
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.service.InfluencerProposalService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
 import com.Gritty.Linki.entity.Proposal;
+import com.Gritty.Linki.util.AuthenticationUtil;
 import lombok.Builder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +43,10 @@ public class ProposalServiceTest {
 
     private final String influencerId = "INF0001";
     private final String campaignId = "CAMP0001";
+
+    @Autowired
+    private AuthenticationUtil authenticationUtil;
+
 
     @BeforeEach
     void setUp() {
@@ -117,6 +124,25 @@ public class ProposalServiceTest {
                 .orElseThrow(() -> new RuntimeException("제안서를 찾을 수 없습니다"));
 
         assertEquals("수정 내용", updatedProposal.getContents());
+
+
+    }
+    @Test
+    void testGetProposalDetail(){
+        // given
+        String logiinId = "user1";
+        CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(logiinId);
+
+        String testProoposalId = "PROP0002";
+
+        // when
+        ProposalDetailResponseDTO dto = influencerProposalService.getProposalDetail(userDetails,testProoposalId);
+
+        // then
+        assertThat(dto).isNotNull();
+        assertThat(dto.getProposalId()).isEqualTo(testProoposalId);
+        assertThat(dto.getInfluencerId()).isEqualTo(authenticationUtil.getInfluencerIdFromUserDetails(userDetails));
+        assertThat(dto.getContents()).isNotBlank(); // 내용이 있을 경우
 
 
 
