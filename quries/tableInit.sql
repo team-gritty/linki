@@ -46,7 +46,7 @@ CREATE TABLE `advertiser_review` (
 	`advertiser_review_score`	DECIMAL(2,1)	NOT NULL,
 	`advertiser_review_comment`	TEXT	NULL,
 	`advertiser_review_created_at`	DATETIME	NOT NULL,
-	`visivility`	BOOLEAN	NOT NULL	DEFAULT TRUE,
+	`visibility`	BOOLEAN	NOT NULL	DEFAULT TRUE,
 	`contract_id`	VARCHAR(25)	NOT NULL
 );
 
