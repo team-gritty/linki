@@ -23,7 +23,7 @@ public class SubscriberHistoryServiceTests {
     private SubscriberHistoryService subscriberHistoryService;
 
     // 디비에 저장된 IdGenerator로 생성된 채널 데이터
-    String testChannelId = "CH0aa04642885f46c897cfab51";
+    String testChannelId = "CH11c80f9bafd64c4ea9e44b2";
     String testChannelId2 = "CH0a681f104be04e1bbbd0e67";
     Long testSubscriberCount = 50000L;
 
