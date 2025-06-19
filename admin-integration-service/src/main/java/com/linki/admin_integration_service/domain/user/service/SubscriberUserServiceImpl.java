@@ -4,6 +4,7 @@ package com.linki.admin_integration_service.domain.user.service;
 import com.linki.admin_integration_service.domain.user.dto.SubscriberSearchRequestDTO;
 import com.linki.admin_integration_service.domain.user.dto.SubscriberUserDTO;
 import com.linki.admin_integration_service.domain.user.repository.myBatis.SubscriberUserMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Objects;
 public class SubscriberUserServiceImpl implements SubscriberUserService {
 
     private final SubscriberUserMapper subscriberUserMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<SubscriberUserDTO> getAllSubscriberUsers() {
@@ -57,5 +59,11 @@ public class SubscriberUserServiceImpl implements SubscriberUserService {
         subscriberSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<SubscriberUserDTO> result = subscriberUserMapper.searchSubscriberUser(subscriberSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<SubscriberUserDTO> result = subscriberUserMapper.getAllSubscriberUsers();
+        return excelUtil.exportExcel(result,SubscriberUserDTO.class,"SubscriberUserList",null);
     }
 }

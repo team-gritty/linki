@@ -3,6 +3,7 @@ package com.Gritty.Linki.domain.user.influencer.campaign.service;
 import com.Gritty.Linki.config.security.CustomUserDetails;
 
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerCampaignRepository;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,10 +54,14 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
 
     @Override
     public List<CampaignListResponseDTO> getCampaignsByCategory(Category category) {
+       
+        
         // 1) repository 호출 분기
         List<Campaign> entities = (category == null)
                 ? campaignRepository.findAll()
                 : campaignRepository.findAllByCampaignCategory(category);
+
+      
 
         // 2) DTO 변환
         return entities.stream()
@@ -89,7 +95,15 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
         return dto;
     }
 
-
+    @Override
+    public List<CampaignCategoryResponseDTO> getCategories() {
+        return Arrays.stream(Category.values())
+                .map(category -> CampaignCategoryResponseDTO.builder()
+                        .name(category.name())           // "BEAUTY"
+                        .displayName(category.getDisplayName()) // "뷰티"
+                        .build())
+                .collect(Collectors.toList());
+    }
 
 
     /**
@@ -101,8 +115,8 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
 
         // 2) 수동 매핑 (STRICT 모드 고려)
         // - LocalDateTime → LocalDate
-        dto.setCreatedAt(campaign.getCreatedAt().toLocalDate());
-        dto.setCampaignDeadline(campaign.getCampaignDeadline().toLocalDate());
+        dto.setCreatedAt(campaign.getCreatedAt().toLocalDate().atStartOfDay());
+        dto.setCampaignDeadline(campaign.getCampaignDeadline().toLocalDate().atStartOfDay());
         // - enum → enum/String
         dto.setCampaignCategory(campaign.getCampaignCategory());
         dto.setCampaignPublishStatus(campaign.getCampaignPublishStatus());

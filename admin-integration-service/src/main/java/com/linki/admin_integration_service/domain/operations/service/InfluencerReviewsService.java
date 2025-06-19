@@ -13,5 +13,6 @@ public interface InfluencerReviewsService {
     List<InfluencerReviewDTO> getAllInfluencerReviews();
     Boolean updateInfluencerReviewVisibility(InfluencerReviewVisibilityRequestDTO influencerReviewVisibilityRequestDTO);
     List<InfluencerReviewDTO> searchAllInfluencerReviews(InfluencerReviewSearchRequestDTO influencerReviewSearchRequestDTO);
+    String exportExcel();
 
 }

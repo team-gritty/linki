@@ -3,6 +3,7 @@ package com.linki.admin_integration_service.domain.user.service;
 import com.linki.admin_integration_service.domain.user.dto.GeneralUSerDTO;
 import com.linki.admin_integration_service.domain.user.dto.GeneralUserSearchRequestDTO;
 import com.linki.admin_integration_service.domain.user.repository.myBatis.GeneralUserMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.Locale;
 public class GeneralUserServiceImpl implements GeneralUserService {
 
     private final GeneralUserMapper generalUserMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<GeneralUSerDTO> getAllGeneralUsers() {
@@ -53,5 +55,11 @@ public class GeneralUserServiceImpl implements GeneralUserService {
         generalUserSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<GeneralUSerDTO> result = generalUserMapper.searchGeneralUser(generalUserSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<GeneralUSerDTO> result = generalUserMapper.getAllGeneralUsers();
+        return excelUtil.exportExcel(result,GeneralUSerDTO.class,"GeneralUserList",null);
     }
 }

@@ -43,4 +43,9 @@ public class PaymentSubscribeController {
         return ResponseEntity.ok(paymentSubscribeResponseDTOList);
 
     }
+
+    @PostMapping("/v1/admin/api/subscriptions/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(paymentSubscribeService.exportExcel());
+    }
 }

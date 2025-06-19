@@ -43,4 +43,10 @@ public class GeneralUserController {
         return ResponseEntity.ok(generalUserResponseDTOS);
 
     }
+
+
+    @PostMapping("/v1/admin/api/generalUsers/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(generalUserService.exportExcel());
+    }
 }

@@ -1,8 +1,10 @@
 package com.Gritty.Linki.domain.user.influencer.responseDTO;
 
+import com.Gritty.Linki.vo.enums.CampaignPublishStatus;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,9 +16,9 @@ public class CampaignDetailResponseDTO {
     private String campaignName;
     private String campaignCondition;
     private String campaignImg;
-    private LocalDate createdAt;
-    private LocalDate campaignDeadline;
-    private Enum CampaignPublishStatus;
+    private LocalDateTime createdAt;
+    private LocalDateTime campaignDeadline;
+    private CampaignPublishStatus CampaignPublishStatus;
     private String campaignDesc;
     private String companyName;
 }

@@ -16,5 +16,7 @@ export const searchCampaign = async (searchType, keyword) => {
 }
 
 export async function exportExcel() {
-  return await httpRequester.post('/v1/admin/api/campaigns/exportExcel')
+  const res = await httpRequester.post('/v1/admin/api/campaigns/exportExcel');
+  const downloadUrl = res.data;
+  window.open(downloadUrl);
 }

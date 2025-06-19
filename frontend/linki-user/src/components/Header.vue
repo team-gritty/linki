@@ -3,6 +3,7 @@ import { defineProps, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '../stores/account'
 
+
 const router = useRouter()
 const accountStore = useAccountStore()
 const props = defineProps({
@@ -15,14 +16,17 @@ const isLoggedIn = computed(() => accountStore.isLoggedIn)
 const userType = computed(() => accountStore.getUserType)
 
 const goToMyPage = () => {
+
   if (userType.value === 'influencer') {
     router.push('/mypage/influencer')
   } else if (userType.value === 'advertiser') {
+
     router.push('/mypage/advertiser')
   } else {
     router.push('/mypage')
   }
 }
+
 
 const handleLogout = async () => {
   try {
@@ -34,6 +38,7 @@ const handleLogout = async () => {
     accountStore.clearAuth()
     router.push('/login')
   }
+
 }
 
 // 헤더 컴포넌트 로직
@@ -46,6 +51,7 @@ const handleLogout = async () => {
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
       <div class="header-right">
+
         <!-- 로그인하지 않은 경우 -->
         <template v-if="!isLoggedIn">
           <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
@@ -54,15 +60,24 @@ const handleLogout = async () => {
         <!-- 로그인한 경우 -->
         <template v-else>
           <button @click="handleLogout" class="header-button logout-btn">로그아웃</button>
+
         </template>
       </div>
     </div>
   </header>
   <div class="sub-header">
     <div class="sub-header-content">
+
       <button v-if="isLoggedIn" class="mypage-button" @click="goToMyPage">
+
         <i class="fas fa-user"></i>
-        <span>마이페이지</span>
+        <span>
+          {{ 
+            accountStore.getUserType === 'influencer' ? '인플루언서 마이페이지' :
+            accountStore.getUserType === 'advertiser' ? '광고주 마이페이지' :
+            '마이페이지'
+          }}
+        </span>
       </button>
     </div>
   </div>
@@ -170,6 +185,51 @@ const handleLogout = async () => {
   color: black;
 }
 
+.logout-button {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  color: white;
+}
+
+/* 인플루언서 버튼 스타일 */
+.influencer-button {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.influencer-button:hover {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+/* 광고주 버튼 스타일 */
+.advertiser-button {
+  border-color: #4ecdc4;
+  color: #4ecdc4;
+}
+
+.advertiser-button:hover {
+  background-color: #4ecdc4;
+  color: white;
+}
+
+/* 일반 사용자 버튼 스타일 */
+.general-button {
+  border-color: #b162c0;
+  color: #b162c0;
+}
+
+.general-button:hover {
+  background-color: #b162c0;
+  color: white;
+}
+
 .close-sidebar-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -205,10 +265,13 @@ const handleLogout = async () => {
   
   .mypage-button {
     margin-right: 16px;
+    min-width: auto;
+    padding: 8px 12px;
   }
   
   .mypage-button span {
-    display: none;
+    display: block;
+    font-size: 0.8rem;
   }
   
   .header-button {

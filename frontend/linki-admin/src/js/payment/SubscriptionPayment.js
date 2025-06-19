@@ -16,5 +16,7 @@ export const searchSubscriptionPayment = async (searchType, keyword) => {
 }
 
 export async function exportExcel() {
-  return await httpRequester.post('/v1/admin/api/subscriptions/exportExcel')
+  const res = await httpRequester.post('/v1/admin/api/subscriptions/exportExcel');
+  const downloadUrl = res.data;
+  window.open(downloadUrl);
 }
