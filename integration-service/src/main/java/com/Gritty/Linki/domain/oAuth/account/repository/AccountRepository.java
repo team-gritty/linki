@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.oAuth.signUp.repository;
+package com.Gritty.Linki.domain.oAuth.account.repository;
 
 import com.Gritty.Linki.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
