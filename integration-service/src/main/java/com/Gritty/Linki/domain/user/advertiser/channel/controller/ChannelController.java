@@ -10,7 +10,6 @@ import com.Gritty.Linki.domain.user.advertiser.channel.dto.SubscriberHistoryDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  * 검색 필터를 통한 채널 조회 기능 제공
  */
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/v1/api")
 @RequiredArgsConstructor
 public class ChannelController {
@@ -46,7 +45,6 @@ public class ChannelController {
          * @return 필터링된 채널 목록
          */
         @GetMapping("/nonuser/channels")
-        @ResponseBody
         public ResponseEntity<List<ChannelListResponse>> getChannels(
                         @RequestParam(required = false) String keyword,
                         @RequestParam(required = false) String category,
@@ -88,7 +86,6 @@ public class ChannelController {
          * @return 구독자 히스토리 목록
          */
         @GetMapping("/user/channels/{channelId}/subscriber-history")
-        @ResponseBody
         public ResponseEntity<List<SubscriberHistoryResponse>> getChannelSubscriberHistory(
                         @PathVariable String channelId,
                         @RequestParam(defaultValue = "30") Integer days) {
@@ -119,7 +116,6 @@ public class ChannelController {
          * @return 실행 결과
          */
         @PostMapping("/test/scheduler/run-update")
-        @ResponseBody
         public ResponseEntity<Map<String, Object>> testSchedulerUpdate() {
                 log.info("---------수동 스케줄러 테스트 실행 요청");
 
@@ -153,7 +149,6 @@ public class ChannelController {
          * @return 상태 정보
          */
         @GetMapping("/test/scheduler/status")
-        @ResponseBody
         public ResponseEntity<Map<String, Object>> getSchedulerStatus() {
                 log.info("---------- 스케줄러 상태 확인 요청");
 
