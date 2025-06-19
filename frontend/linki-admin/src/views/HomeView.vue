@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import VueECharts from 'vue-echarts'
 import * as echarts from 'echarts'
 import { getDashboard } from '@/js/Dashboard'
@@ -39,102 +39,61 @@ function getMonthWeekLabel(dateStr) {
   return `${year}년 ${month}월 ${week}주차`;
 }
 
-// 월간/주간/일간 단위로 데이터 가공
 const labels = computed(() => {
-  if (viewType.value === 'month') {
-    const months = {}
-    allData.value.forEach(item => {
-      const month = item.date.slice(0, 7)
-      if (!months[month]) months[month] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 }
-      months[month].newmembers += item.newmembers
-      months[month].newAdvertisers += item.newAdvertisers
-      months[month].newInfluencers += item.newInfluencers
-    })
-    return Object.keys(months)
-  } else if (viewType.value === 'week') {
-    const weekMap = {};
-    allData.value.forEach(item => {
-      const weekLabel = getMonthWeekLabel(item.date);
-      if (!weekMap[weekLabel]) weekMap[weekLabel] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      weekMap[weekLabel].newmembers += item.newmembers;
-      weekMap[weekLabel].newAdvertisers += item.newAdvertisers;
-      weekMap[weekLabel].newInfluencers += item.newInfluencers;
-    });
-    return Object.keys(weekMap);
-  } else {
-    const days = {};
-    allData.value.forEach(item => {
-      const day = item.date;
-      if (!days[day]) days[day] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      days[day].newmembers += item.newmembers;
-      days[day].newAdvertisers += item.newAdvertisers;
-      days[day].newInfluencers += item.newInfluencers;
-    });
-    return Object.keys(days);
-  }
+  const months = {}
+  allData.value.forEach(item => {
+    const month = item.date
+    if (!months[month]) months[month] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 }
+    months[month].newMembers += item.newMembers
+    months[month].newAdvertisers += item.newAdvertisers
+    months[month].newInfluencers += item.newInfluencers
+  })
+  return Object.keys(months)
 })
 
 const chartData = computed(() => {
-  if (viewType.value === 'month') {
-    const months = {}
-    allData.value.forEach(item => {
-      const month = item.date.slice(0, 7)
-      if (!months[month]) months[month] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 }
-      months[month].newmembers += item.newmembers
-      months[month].newAdvertisers += item.newAdvertisers
-      months[month].newInfluencers += item.newInfluencers
-    })
-    const arr = Object.values(months)
-    return {
-      newmembers: arr.map(i => i.newmembers),
-      newAdvertisers: arr.map(i => i.newAdvertisers),
-      newInfluencers: arr.map(i => i.newInfluencers)
-    }
-  } else if (viewType.value === 'week') {
-    const weekMap = {};
-    allData.value.forEach(item => {
-      const weekLabel = getMonthWeekLabel(item.date);
-      if (!weekMap[weekLabel]) weekMap[weekLabel] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      weekMap[weekLabel].newmembers += item.newmembers;
-      weekMap[weekLabel].newAdvertisers += item.newAdvertisers;
-      weekMap[weekLabel].newInfluencers += item.newInfluencers;
-    });
-    const arr = Object.values(weekMap);
-    return {
-      newmembers: arr.map(i => i.newmembers),
-      newAdvertisers: arr.map(i => i.newAdvertisers),
-      newInfluencers: arr.map(i => i.newInfluencers)
-    }
-  } else {
-    const days = {};
-    allData.value.forEach(item => {
-      const day = item.date;
-      if (!days[day]) days[day] = { newmembers: 0, newAdvertisers: 0, newInfluencers: 0 };
-      days[day].newmembers += item.newmembers;
-      days[day].newAdvertisers += item.newAdvertisers;
-      days[day].newInfluencers += item.newInfluencers;
-    });
-    const arr = Object.values(days);
-    return {
-      newmembers: arr.map(i => i.newmembers),
-      newAdvertisers: arr.map(i => i.newAdvertisers),
-      newInfluencers: arr.map(i => i.newInfluencers)
-    };
+  const months = {}
+  allData.value.forEach(item => {
+    const month = item.date
+    if (!months[month]) months[month] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 }
+    months[month].newMembers += item.newMembers
+    months[month].newAdvertisers += item.newAdvertisers
+    months[month].newInfluencers += item.newInfluencers
+  })
+  const arr = Object.values(months)
+  return {
+    newMembers: arr.map(i => i.newMembers),
+    newAdvertisers: arr.map(i => i.newAdvertisers),
+    newInfluencers: arr.map(i => i.newInfluencers)
   }
 })
 
 const lineChartOption = computed(() => ({
   tooltip: { trigger: 'axis' },
-  legend: { data: ['신규 회원', '신규 광고주', '신규 인플루언서'] },
-  xAxis: { type: 'category', data: labels.value },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    top: '40px',
+    containLabel: true
+  },
+  xAxis: { 
+    type: 'category', 
+    data: labels.value,
+    axisLabel: {
+      formatter: (value) => {
+        const [year, month] = value.split('-');
+        return `${year}년 ${parseInt(month)}월`;
+      },
+      interval: 0,
+      rotate: 30
+    }
+  },
   yAxis: { type: 'value' },
-  dataZoom: [
-    { type: 'slider', start: 0, end: 100, xAxisIndex: 0 }
-  ],
   series: [
-    { name: '신규 회원', type: 'line', data: chartData.value.newmembers, smooth: true },
-    { name: '신규 광고주', type: 'line', data: chartData.value.newAdvertisers, smooth: true },
-    { name: '신규 인플루언서', type: 'line', data: chartData.value.newInfluencers, smooth: true }
+    { name: '신규 회원', type: 'line', data: chartData.value.newMembers, smooth: true, lineStyle: { color: '#7b5fff', width: 3 }, itemStyle: { color: '#7b5fff' } },
+    { name: '신규 광고주', type: 'line', data: chartData.value.newAdvertisers, smooth: true, lineStyle: { color: '#ffd600', width: 3 }, itemStyle: { color: '#ffd600' } },
+    { name: '신규 인플루언서', type: 'line', data: chartData.value.newInfluencers, smooth: true, lineStyle: { color: '#43a047', width: 3 }, itemStyle: { color: '#43a047' } }
   ]
 }))
 
@@ -151,7 +110,14 @@ const doughnutChartOption = computed(() => ({
       type: 'pie',
       radius: ['60%', '85%'],
       avoidLabelOverlap: false,
-      label: { show: false, position: 'center' },
+      label: {
+        show: true,
+        position: 'inside',
+        formatter: '{c}',
+        fontSize: 16,
+        color: '#ffffff',
+        fontWeight: 'bold'
+      },
       emphasis: {
         label: {
           show: true,
@@ -163,8 +129,8 @@ const doughnutChartOption = computed(() => ({
       labelLine: { show: false },
       data: [
         { value: contractStatus.value.pending, name: '광고 진행 예정', itemStyle: { color: '#7b5fff' } },
-        { value: contractStatus.value.active, name: '광고 진행중', itemStyle: { color: '#ff5f7b' } },
-        { value: contractStatus.value.completed, name: '정산완료', itemStyle: { color: '#5fcfff' } }
+        { value: contractStatus.value.active, name: '광고 진행중', itemStyle: { color: '#ffd600' } },
+        { value: contractStatus.value.completed, name: '정산완료', itemStyle: { color: '#43a047' } }
       ]
     }
   ]
@@ -180,41 +146,142 @@ const dashboardSummary = ref({
   MonthlyRevenue: 0
 })
 
+const chartContainer = ref(null)
+const showLeftButton = ref(false)
+const showRightButton = ref(true)
+
+// 스크롤 버튼 표시 여부 체크
+const checkScrollButtons = () => {
+  if (!chartContainer.value) return;
+  
+  const { scrollLeft, scrollWidth, clientWidth } = chartContainer.value;
+  showLeftButton.value = scrollLeft > 0;
+  showRightButton.value = scrollLeft < (scrollWidth - clientWidth - 1); // 1px 오차 허용
+}
+
+// 스크롤 함수 수정
+const scrollChart = (direction) => {
+  if (!chartContainer.value) return;
+  
+  const scrollAmount = 300;
+  const currentScroll = chartContainer.value.scrollLeft;
+  
+  if (direction === 'left') {
+    chartContainer.value.scrollTo({
+      left: currentScroll - scrollAmount,
+      behavior: 'smooth'
+    });
+  } else {
+    chartContainer.value.scrollTo({
+      left: currentScroll + scrollAmount,
+      behavior: 'smooth'
+    });
+  }
+}
+
 onMounted(async () => {
   try {
     const res = await getDashboard();
     console.log('대시보드 응답', res.data);
     const data = Array.isArray(res.data) ? res.data[0] : res.data;
-    if (data && data.DashboardSummary) {
-      dashboardSummary.value = data.DashboardSummary;
+    if (data && data.dashboardSummary) {
+      dashboardSummary.value = {
+        ...data.dashboardSummary,
+        MonthlyRevenue: data.dashboardSummary.monthlyRevenue
+      };
     }
-    if (data && data.LLM) {
-      LLM.value = data.LLM;
+    if (data && data.llm) {
+      LLM.value = data.llm;
     }
     if (data && data.contractStatus) {
       contractStatus.value = data.contractStatus;
     }
-    // trendChart 데이터 변환 (json-server와 1:1 매칭)
-    if (data && data.trendChart) {
-      const newmembers = data.trendChart.newmembers['2024'] || {};
-      const newAdvertisers = data.trendChart.newAdvertisers['2024'] || {};
-      const newInfluencers = data.trendChart.newInfluencers['2024'] || {};
-      const allDates = Array.from(new Set([
-        ...Object.keys(newmembers),
-        ...Object.keys(newAdvertisers),
-        ...Object.keys(newInfluencers)
-      ])).sort();
-      allData.value = allDates.map(date => ({
+    // trendChart가 null이 아닐 때만 처리
+    if (data && data.trendChart && data.trendChart !== null) {
+      // 2024년과 2025년 데이터 모두 가져오기
+      const years = ['2024', '2025'];
+      const tempData = {};
+      
+      years.forEach(year => {
+        const membersData = data.trendChart.newMembers?.[year] || {};
+        const advertisersData = data.trendChart.newAdvertisers?.[year] || {};
+        const influencersData = data.trendChart.newInfluencers?.[year] || {};
+
+        Object.keys(membersData).forEach(month => {
+          const key = `${year}-${month}`;
+          if (!tempData[key]) tempData[key] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+          tempData[key].newMembers = membersData[month];
+        });
+
+        Object.keys(advertisersData).forEach(month => {
+          const key = `${year}-${month}`;
+          if (!tempData[key]) tempData[key] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+          tempData[key].newAdvertisers = advertisersData[month];
+        });
+
+        Object.keys(influencersData).forEach(month => {
+          const key = `${year}-${month}`;
+          if (!tempData[key]) tempData[key] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
+          tempData[key].newInfluencers = influencersData[month];
+        });
+      });
+
+      // 날짜순으로 정렬
+      const sortedDates = Object.keys(tempData).sort((a, b) => {
+        const [yearA, monthA] = a.split('-').map(Number);
+        const [yearB, monthB] = b.split('-').map(Number);
+        return yearA === yearB ? monthA - monthB : yearA - yearB;
+      });
+
+      allData.value = sortedDates.map(date => ({
         date,
-        newmembers: newmembers[date] ?? 0,
-        newAdvertisers: newAdvertisers[date] ?? 0,
-        newInfluencers: newInfluencers[date] ?? 0
+        newMembers: tempData[date].newMembers,
+        newAdvertisers: tempData[date].newAdvertisers,
+        newInfluencers: tempData[date].newInfluencers
       }));
+
+      console.log('처리된 데이터:', allData.value);
+    } else {
+      allData.value = [];
     }
+
+    // 차트 데이터가 로드된 후 스크롤 위치 설정
+    nextTick(() => {
+      setTimeout(() => {
+        if (chartContainer.value) {
+          chartContainer.value.scrollLeft = chartContainer.value.scrollWidth;
+          checkScrollButtons();
+        }
+      }, 100);
+    });
   } catch (e) {
     console.error('대시보드 데이터 불러오기 실패', e);
   }
 })
+
+// 스크롤 이벤트 리스너 추가
+onMounted(() => {
+  if (chartContainer.value) {
+    chartContainer.value.addEventListener('scroll', checkScrollButtons);
+  }
+})
+
+onUnmounted(() => {
+  if (chartContainer.value) {
+    chartContainer.value.removeEventListener('scroll', checkScrollButtons);
+  }
+})
+
+// 차트가 업데이트될 때마다 스크롤 위치 재설정
+watch(() => allData.value, () => {
+  nextTick(() => {
+    setTimeout(() => {
+      if (chartContainer.value) {
+        chartContainer.value.scrollLeft = chartContainer.value.scrollWidth;
+      }
+    }, 100);
+  });
+});
 </script>
 
 <template>
@@ -234,7 +301,7 @@ onMounted(async () => {
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ dashboardSummary.activeCampaigns }}</div>
-        <div class="stat-label">등록된 제품 수</div>
+        <div class="stat-label">등록된 캠페인 수</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ dashboardSummary.ongoingContracts }}</div>
@@ -252,18 +319,32 @@ onMounted(async () => {
     <div class="charts-row">
       <div class="chart-box">
         <div class="chart-title-row">
-          <div class="chart-title">신규 유입 현황</div>
-          <select v-model="viewType" class="chart-select">
-            <option value="month">월간</option>
-            <option value="week">주간</option>
-            <option value="day">일간</option>
-          </select>
+          <div class="chart-title">월간 신규 유입 현황</div>
         </div>
-        <v-chart
-          :option="lineChartOption"
-          autoresize
-          style="width: 100%; height: 320px"
-        />
+        <div class="chart-legend">
+          <span class="legend-item member">
+            <span class="legend-dot"></span>
+            신규 회원
+          </span>
+          <span class="legend-item advertiser">
+            <span class="legend-dot"></span>
+            신규 광고주
+          </span>
+          <span class="legend-item influencer">
+            <span class="legend-dot"></span>
+            신규 인플루언서
+          </span>
+        </div>
+        <div class="chart-scroll-container">
+          <button class="scroll-button left" @click="scrollChart('left')" :disabled="!showLeftButton">&lt;</button>
+          <div class="chart-container" ref="chartContainer">
+            <v-chart
+              :option="lineChartOption"
+              autoresize
+            />
+          </div>
+          <button class="scroll-button right" @click="scrollChart('right')" :disabled="!showRightButton">&gt;</button>
+        </div>
       </div>
       <div class="chart-box">
         <div class="chart-title">이번달 계약 상태 분포</div>
@@ -284,19 +365,19 @@ onMounted(async () => {
   min-height: 100vh;
 }
 .trend-box {
-  background: #ff7b8a;
+  background: #7b5fff;
   color: #fff;
   border-radius: 16px;
   padding: 36px 0 28px 0;
   text-align: center;
   margin-bottom: 40px;
-  box-shadow: 0 4px 16px rgba(255,123,138,0.08);
+  box-shadow: 0 6px 24px rgba(123,95,255,0.18);
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
-.trend-title { font-size: 1.7rem; font-weight: bold; }
-.trend-desc { margin-top: 10px; font-size: 1.15rem; }
+.trend-title { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+.trend-desc { margin-top: 14px; font-size: 1.18rem; }
 
 .stats-row {
   display: flex; 
@@ -308,19 +389,19 @@ onMounted(async () => {
   margin-right: auto;
 }
 .stat-card {
-  background: #7b5fff;
+  background: #222;
   color: #fff;
   border-radius: 16px;
   padding: 32px 24px;
   text-align: center;
   min-width: 150px;
-  box-shadow: 0 2px 12px rgba(123,95,255,0.08);
+  box-shadow: 0 2px 12px rgba(34,34,34,0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .stat-card.sales {
-  background: #7b5fff;
+  background: #222;
 }
 .stat-value {
   font-size: clamp(1rem, 1vw, 2.5rem);
@@ -355,6 +436,11 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: auto;
+}
+
+.chart-box v-chart {
+  min-width: 800px; /* 최소 너비 설정 */
 }
 
 .chart-title {
@@ -407,5 +493,91 @@ onMounted(async () => {
   .stat-card { min-width: 0; width: 100%; border-radius: 10px; }
   .charts-row { gap: 16px; }
   .chart-box { padding: 12px; border-radius: 10px; }
+}
+
+.chart-scroll-container {
+  position: relative;
+  width: 100%;
+}
+
+.chart-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 0 20px;
+}
+
+.chart-container :deep(.echarts) {
+  min-width: 800px;
+  height: 320px !important;
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #7b5fff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  opacity: 1;
+}
+
+.scroll-button:disabled {
+  opacity: 0;
+  cursor: default;
+  pointer-events: none;
+}
+
+.scroll-button:not(:disabled):hover {
+  background: #6c3fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.scroll-button.left {
+  left: -16px;
+}
+
+.scroll-button.right {
+  right: -16px;
+}
+
+.chart-legend {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.legend-item {
+  margin: 0 8px;
+  display: inline-block;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.legend-item.member .legend-dot {
+  background-color: #7b5fff;
+}
+
+.legend-item.advertiser .legend-dot {
+  background-color: #ffd600;
+}
+
+.legend-item.influencer .legend-dot {
+  background-color: #43a047;
 }
 </style>

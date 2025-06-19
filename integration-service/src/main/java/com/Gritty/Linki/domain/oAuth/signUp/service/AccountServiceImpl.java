@@ -8,7 +8,7 @@ import com.Gritty.Linki.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.util.Optional;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -37,5 +37,15 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(user);
 
+    }
+
+    @Override
+    public User find(String userLoginId, String userLoginPw) {
+        return null;
+    }
+
+    @Override
+    public User find(String userLoginId) {
+        return accountRepository.findByUserLoginId(userLoginId);
     }
 }

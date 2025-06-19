@@ -19,8 +19,8 @@ public class RedirectLinks {
     @Column(name = "origin_url", columnDefinition = "LONGTEXT", nullable = false)
     private String originUrl; // 원본 URL
 
-    @Column(name = "redirected_url", columnDefinition = "LONGTEXT", nullable = false)
-    private String redirectedUrl; // 변환된 URL
+    @Column(name = "redirect_url", columnDefinition = "LONGTEXT", nullable = false)
+    private String redirectUrl; // 변환된 URL
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "advertiser_id", nullable = false)

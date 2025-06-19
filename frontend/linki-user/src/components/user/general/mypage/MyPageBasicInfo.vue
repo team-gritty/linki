@@ -55,13 +55,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import httpRequest from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
-import { useUserStore } from '@/stores/user'
+import { useAccountStore } from '@/stores/account'
 
 const router = useRouter()
 const { showAlert } = useAlert()
-const userStore = useUserStore()
+const  accountStore= useAccountStore()
 const isLoading = ref(false)
 
 const profileData = ref({
@@ -124,7 +124,7 @@ const validateForm = () => {
 const fetchProfile = async () => {
   try {
     isLoading.value = true
-    const response = await axios.get('/api/user/profile')
+    const response = await httpRequest.get('/api/user/profile')
     profileData.value = {
       ...response.data,
       joinDate: new Date(response.data.joinDate)
@@ -142,7 +142,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const response = await axios.patch('/api/user/profile', {
+    const response = await httpRequest.patch('/api/user/profile', {
       name: profileData.value.name,
       phone: profileData.value.phone,
       email: profileData.value.email
@@ -150,8 +150,8 @@ const handleSubmit = async () => {
 
     if (response.data.success) {
       showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
-      userStore.setUserInfo({
-        ...userStore.getUserInfo,
+      accountStore.setUserInfo({
+        ...accountStore.getUserInfo,
         name: profileData.value.name,
         email: profileData.value.email
       })

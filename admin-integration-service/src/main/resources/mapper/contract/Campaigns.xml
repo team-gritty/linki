@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.contract.repository.myBatis.CampaignMapper">
+
+
+    <select id="getCampaigns" resultType="com.linki.admin_integration_service.domain.contract.dto.CampaignDTO">
+        SELECT
+            campaign.campaign_id AS campaignId,
+            CONCAT(advertiser.company_name,'(',user.user_name,')') AS advertiserName,
+            advertiser.business_number AS businessNumber,
+            user.user_phone AS phone,
+            campaign.campaign_name AS campaignTitle,
+            campaign.created_at AS registerDate,
+            campaign.campaign_deadline AS applyDeadline
+
+        FROM campaign
+                 JOIN advertiser
+                      ON campaign.advertiser_id = advertiser.advertiser_id
+                 JOIN user
+                      ON advertiser.user_id = user.user_id
+    </select>
+
+    <select id="searchCampaign"  resultType="com.linki.admin_integration_service.domain.contract.dto.CampaignDTO">
+        SELECT
+        campaign.campaign_id AS campaignId,
+        CONCAT(advertiser.company_name,'(',user.user_name,')') AS advertiserName,
+        advertiser.business_number AS businessNumber,
+        user.user_phone AS phone,
+        campaign.campaign_name AS campaignTitle,
+        campaign.created_at AS registerDate,
+        campaign.campaign_deadline AS applyDeadline
+
+        FROM campaign
+        JOIN advertiser
+        ON campaign.advertiser_id = advertiser.advertiser_id
+        JOIN user
+        ON advertiser.user_id = user.user_id
+        WHERE 1 = 1
+
+        <choose>
+            <when test="searchType != null and searchType.toLowerCase() eq 'campaignid'">
+                AND REPLACE(TRIM(LOWER(campaign.campaign_id)), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'advertisername'">
+                AND TRIM(LOWER(CONCAT(advertiser.company_name,'(',user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'businessnumber'">
+                AND TRIM(LOWER(advertiser.business_number)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'phone'">
+                AND TRIM(LOWER(user.user_phone)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'campaigntitle'">
+                AND TRIM(LOWER(campaign.campaign_name)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+
+
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+</mapper>
