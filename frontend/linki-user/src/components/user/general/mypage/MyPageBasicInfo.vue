@@ -55,7 +55,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import httpRequest from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
 import { useAccountStore } from '@/stores/account'
 
@@ -124,7 +124,7 @@ const validateForm = () => {
 const fetchProfile = async () => {
   try {
     isLoading.value = true
-    const response = await axios.get('/api/user/profile')
+    const response = await httpRequest.get('/api/user/profile')
     profileData.value = {
       ...response.data,
       joinDate: new Date(response.data.joinDate)
@@ -142,7 +142,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const response = await axios.patch('/api/user/profile', {
+    const response = await httpRequest.patch('/api/user/profile', {
       name: profileData.value.name,
       phone: profileData.value.phone,
       email: profileData.value.email
