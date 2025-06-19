@@ -8,4 +8,5 @@ import java.util.List;
 public interface CampaignService {
     List<CampaignDTO> getCampaigns();
     List<CampaignDTO> searchCampaign(CampaignSearchDTO campaignSearchDTO);
+    String exportExcel();
 }

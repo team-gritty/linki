@@ -16,7 +16,7 @@ import javax.sql.DataSource;
         ("com.linki.admin_integration_service.domain.operations.repository.myBatis"),
         ("com.linki.admin_integration_service.domain.user.repository.myBatis"),
         ("com.linki.admin_integration_service.domain.contract.repository.myBatis"),
-        ("com.linki.admin_integration_service.domain.dashboard.repository.myBatis")
+        ("com.linki.admin_integration_service.domain.dashboard.repository.myBatis"),
         ("com.linki.admin_integration_service.domain.payment.repository.myBatis")
 })
 public class MyBatisConfig {

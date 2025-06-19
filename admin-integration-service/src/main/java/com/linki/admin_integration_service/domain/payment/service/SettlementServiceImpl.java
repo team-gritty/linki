@@ -4,6 +4,7 @@ import com.linki.admin_integration_service.domain.payment.dto.SettlementDTO;
 import com.linki.admin_integration_service.domain.payment.dto.SettlementRequestDTO;
 import com.linki.admin_integration_service.domain.payment.dto.SettlementSearchDTO;
 import com.linki.admin_integration_service.domain.payment.repository.myBatis.SettlementMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class SettlementServiceImpl implements SettlementService {
 
 
     private final SettlementMapper settlementMapper;
+    private final ExcelUtil excelUtil;
 
 
     @Override
@@ -94,5 +96,11 @@ public class SettlementServiceImpl implements SettlementService {
     @Override
     public Boolean approveSettlement(SettlementRequestDTO settlementRequestDTO) {
         return true;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<SettlementDTO> result = settlementMapper.getAllSettlements();
+        return excelUtil.exportExcel(result,SettlementDTO.class,"SettlementList",null);
     }
 }

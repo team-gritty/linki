@@ -1,12 +1,9 @@
 package com.linki.admin_integration_service.domain.operations.service;
 
-import com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewDTO;
-import com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewSearchRequestDTO;
-import com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewVisibilityRequestDTO;
-import com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewDTO;
+import com.linki.admin_integration_service.domain.operations.dto.*;
 import com.linki.admin_integration_service.domain.operations.repository.myBatis.AdvertiserReviewsMapper;
 import com.linki.admin_integration_service.entity.AdvertiserReview;
-import com.linki.admin_integration_service.entity.InfluencerReview;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ public class AdvertiserReviewsServiceImpl implements  AdvertiserReviewsService {
     private EntityManager em;
 
     private final AdvertiserReviewsMapper advertiserReviewsMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<AdvertiserReviewDTO> getAllAdvertiserReviews() {
@@ -75,10 +74,16 @@ public class AdvertiserReviewsServiceImpl implements  AdvertiserReviewsService {
         }
 
         // 4. 정상 검색
-        advertiserReviewSearchRequestDTO.setSearchType(searchType.trim().toLowerCase(Locale.ROOT));
+        advertiserReviewSearchRequestDTO.setSearchType(Objects.requireNonNull(searchType).trim().toLowerCase(Locale.ROOT));
         advertiserReviewSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<AdvertiserReviewDTO> result = advertiserReviewsMapper.searchAdvertiserReviews(advertiserReviewSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<AdvertiserReviewDTO> result = advertiserReviewsMapper.getAllAdvertiserReviews();
+        return excelUtil.exportExcel(result,AdvertiserReviewDTO.class,"AdvertiserReviewList",null);
     }
 
 

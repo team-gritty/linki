@@ -6,6 +6,7 @@ import com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgre
 import com.linki.admin_integration_service.domain.operations.repository.jpa.AdminSignUpRepository;
 import com.linki.admin_integration_service.domain.operations.repository.myBatis.AdminSignUpAgreementMapper;
 import com.linki.admin_integration_service.entity.Admin;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -29,6 +30,7 @@ public class AdminSignUpAgreementServiceImpl implements AdminSignUpAgreementServ
 
 
     private final AdminSignUpAgreementMapper adminSignUpAgreementMapper;
+    private final ExcelUtil excelUtil;
 
     @Autowired
     private AdminSignUpRepository adminSignUpRepository;
@@ -95,5 +97,11 @@ public class AdminSignUpAgreementServiceImpl implements AdminSignUpAgreementServ
         List<AdminSignUpAgreementDTO> result = adminSignUpAgreementMapper.searchAdminSignUp(adminSignUpAgreementSearchRequestDTO);
         log.info("result:{}", result);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<AdminSignUpAgreementDTO> result = adminSignUpAgreementMapper.getAdminSignUpList();
+        return excelUtil.exportExcel(result,AdminSignUpAgreementDTO.class,"AdminSignUpAgreementList",null);
     }
 }

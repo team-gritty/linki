@@ -40,4 +40,10 @@ public class AdvertiserUserController {
         return ResponseEntity.ok(advertiserResponseDTOList);
 
     }
+
+
+    @PostMapping("/v1/admin/api/advertiserUsers/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(advertiserUserService.exportExcel());
+    }
 }

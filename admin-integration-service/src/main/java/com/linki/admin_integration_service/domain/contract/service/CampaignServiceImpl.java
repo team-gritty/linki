@@ -3,6 +3,7 @@ package com.linki.admin_integration_service.domain.contract.service;
 import com.linki.admin_integration_service.domain.contract.dto.CampaignDTO;
 import com.linki.admin_integration_service.domain.contract.dto.CampaignSearchDTO;
 import com.linki.admin_integration_service.domain.contract.repository.myBatis.CampaignMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.*;
 public class CampaignServiceImpl implements CampaignService {
 
     private final CampaignMapper campaignMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<CampaignDTO> getCampaigns() {
@@ -97,6 +99,12 @@ public class CampaignServiceImpl implements CampaignService {
         log.info("result:{}", result);
 
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<CampaignDTO> campaignDTOS = campaignMapper.getCampaigns();
+        return excelUtil.exportExcel(campaignDTOS, CampaignDTO.class, "campaignList",null);
     }
 }
 

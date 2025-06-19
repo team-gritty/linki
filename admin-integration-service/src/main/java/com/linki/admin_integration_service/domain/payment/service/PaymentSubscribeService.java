@@ -8,4 +8,5 @@ import java.util.List;
 public interface PaymentSubscribeService {
     List<PaymentSubscribeDTO> getAllPaymentSubscribes();
     List<PaymentSubscribeDTO> searchPaymentSubscribe(PaymentSubscribeSearchDTO searchDTO);
+    String exportExcel();
 }

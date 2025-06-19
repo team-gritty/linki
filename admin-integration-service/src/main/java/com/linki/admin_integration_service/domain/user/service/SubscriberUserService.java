@@ -9,4 +9,5 @@ import java.util.List;
 public interface SubscriberUserService {
     List<SubscriberUserDTO> getAllSubscriberUsers();
     List<SubscriberUserDTO> searchSubscriberUser(SubscriberSearchRequestDTO subscriberSearchRequestDTO);
+    String exportExcel();
 }

@@ -16,7 +16,9 @@ export const searchAdminSignUp = async (searchType, keyword) => {
 }
 
 export async function exportExcel() {
-  return await httpRequester.post('/v1/admin/api/adminSignUp/exportExcel')
+  const res = await httpRequester.post('/v1/admin/api/adminSignUp/exportExcel');
+  const downloadUrl = res.data;
+  window.open(downloadUrl);
 }
 
 export const approveAdmin = async (adminSignUpId) => {
