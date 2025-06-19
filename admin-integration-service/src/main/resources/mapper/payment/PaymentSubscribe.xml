@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.payment.repository.myBatis.PaymentSubscribeMapper">
+
+
+    <select id="getAllPaymentSubscribes" resultType="com.linki.admin_integration_service.domain.payment.dto.PaymentSubscribeDTO">
+        SELECT
+            user.user_role AS memberType,
+            user.user_name AS name,
+            user.user_login_id AS loginId,
+            user.user_phone AS phone
+        FROM user
+        WHERE user.user_pay_status = 1
+    </select>
+
+    <select id="searchPaymentSubscribe"  resultType="com.linki.admin_integration_service.domain.payment.dto.PaymentSubscribeDTO">
+        SELECT
+        user.user_role AS memberType,
+        user.user_name AS name,
+        user.user_login_id AS loginId,
+        user.user_phone AS phone
+        FROM user
+
+        WHERE 1 = 1 and user.user_pay_status = 1
+
+        <choose>
+            <when test="searchType != null and searchType.toLowerCase() eq 'name'">
+                AND REPLACE(TRIM(LOWER(user.user_name)), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'loginId'">
+                AND TRIM(LOWER(user.user_login_id)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'phone'">
+                AND TRIM(LOWER(user.user_phone)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+
+
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+</mapper>
