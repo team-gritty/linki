@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAccountStore } from "@/stores/account";
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080',  // json-server URL
+  // baseURL: 'http://localhost:8080',  // json-server URL
   // baseURL: import.meta.env.VITE_API_BASE_URL,
     timeout: 15000,
     headers: {
@@ -26,7 +26,7 @@ const instance = axios.create({
 // 요청 인터셉터
 instance.interceptors.request.use(
     (config) => {
-        console.log('API Request:', config.method.toUpperCase(), config.url, config.params || config.data)
+        console.log('API Request:', config.method?.toUpperCase(), config.url, config.params || config.data)
         return config;
     },
     (error) => {
@@ -40,8 +40,46 @@ instance.interceptors.response.use(
         console.log('API Response:', response.status, response.data)
         return response;
     },
-    (error) => {
+    async (error) => {
         console.error('API Error:', error.response?.status, error.response?.data)
+        if (!error.response) return Promise.reject(error);
+
+        switch (error.response.status) {
+            case 401: {
+                const config = error.config;
+                if (config.retried) {
+                    // 토큰이 만료되었으므로 로그아웃 처리
+                    const accountStore = useAccountStore();
+                    accountStore.clearAuth();
+                    localStorage.removeItem('token');
+                    window.alert("로그인 정보가 만료되었습니다.");
+                    window.location.replace("/login");
+                    return;
+                }
+                try {
+                    const res = await axios.get("/v1/api/nonuser/token");
+                    const accessToken = res.data.accessToken || res.data;
+                    const accountStore = useAccountStore();
+                    accountStore.setAccessToken(accessToken);
+                    config.headers.authorization = `Bearer ${accessToken}`;
+                    config.retried = true;
+                    return instance(config);
+                } catch (e) {
+                    const accountStore = useAccountStore();
+                    accountStore.clearAuth();
+                    localStorage.removeItem('token');
+                    window.alert("로그인 정보가 만료되었습니다.");
+                    window.location.replace("/login");
+                }
+                break;
+            }
+            case 400:
+                console.log("잘못된 요청입니다.");
+                break;
+            case 500:
+                console.log("오류가 있습니다. 관리자에게 문의해주세요.");
+                break;
+        }
         return Promise.reject(error);
     }
 );
@@ -69,10 +107,11 @@ const httpClient = {
      * @param {Object} [params] - URL 쿼리 파라미터
      * @returns {Promise} 
      */
-    get(url, config = {}) {
+    get(url, params = {}, config = {}) {
         const finalConfig = {
             ...generateConfig(),
-            ...config
+            ...config,
+            params
         };
         return instance.get(url, finalConfig);
     },
@@ -83,8 +122,11 @@ const httpClient = {
      * @param {Object} data - 요청 바디 데이터
      * @returns {Promise}
      */
-    post(url, data) {
-        return instance.post(url, data, generateConfig());
+    post(url, data, config = {}) {
+        return instance.post(url, data, {
+            ...generateConfig(),
+            ...config
+        });
     },
 
     /**
@@ -93,8 +135,11 @@ const httpClient = {
      * @param {Object} data - 요청 바디 데이터
      * @returns {Promise}
      */
-    put(url, data) {
-        return instance.put(url, data, generateConfig());
+    put(url, data, config = {}) {
+        return instance.put(url, data, {
+            ...generateConfig(),
+            ...config
+        });
     },
 
     /**
@@ -102,8 +147,11 @@ const httpClient = {
      * @param {string} url - 요청 URL
      * @returns {Promise}
      */
-    delete(url) {
-        return instance.delete(url, generateConfig());
+    delete(url, config = {}) {
+        return instance.delete(url, {
+            ...generateConfig(),
+            ...config
+        });
     },
 
     /**
@@ -112,8 +160,11 @@ const httpClient = {
      * @param {Object} data - 요청 바디 데이터
      * @returns {Promise}
      */
-    patch(url, data) {
-        return instance.patch(url, data, generateConfig());
+    patch(url, data, config = {}) {
+        return instance.patch(url, data, {
+            ...generateConfig(),
+            ...config
+        });
     }
 };
 

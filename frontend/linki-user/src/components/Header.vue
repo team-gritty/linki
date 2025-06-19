@@ -1,15 +1,39 @@
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAccountStore } from '../stores/account'
 
 const router = useRouter()
+const accountStore = useAccountStore()
 const props = defineProps({
   openSidebar: Boolean,
   toggleSidebar: Function
 })
 
+// 로그인 상태 확인
+const isLoggedIn = computed(() => accountStore.isLoggedIn)
+const userType = computed(() => accountStore.getUserType)
+
 const goToMyPage = () => {
-  router.push('/mypage')
+  if (userType.value === 'influencer') {
+    router.push('/mypage/influencer')
+  } else if (userType.value === 'advertiser') {
+    router.push('/mypage/advertiser')
+  } else {
+    router.push('/mypage')
+  }
+}
+
+const handleLogout = async () => {
+  try {
+    await accountStore.logout()
+    router.push('/login')
+  } catch (error) {
+    console.error('로그아웃 실패:', error)
+    // 에러가 발생해도 로컬 상태는 클리어
+    accountStore.clearAuth()
+    router.push('/login')
+  }
 }
 
 // 헤더 컴포넌트 로직
@@ -22,14 +46,21 @@ const goToMyPage = () => {
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
       <div class="header-right">
-        <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
-        <router-link to="/signup" class="header-button">회원가입</router-link>
+        <!-- 로그인하지 않은 경우 -->
+        <template v-if="!isLoggedIn">
+          <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
+          <router-link to="/signup" class="header-button">회원가입</router-link>
+        </template>
+        <!-- 로그인한 경우 -->
+        <template v-else>
+          <button @click="handleLogout" class="header-button logout-btn">로그아웃</button>
+        </template>
       </div>
     </div>
   </header>
   <div class="sub-header">
     <div class="sub-header-content">
-      <button class="mypage-button" @click="goToMyPage">
+      <button v-if="isLoggedIn" class="mypage-button" @click="goToMyPage">
         <i class="fas fa-user"></i>
         <span>마이페이지</span>
       </button>
