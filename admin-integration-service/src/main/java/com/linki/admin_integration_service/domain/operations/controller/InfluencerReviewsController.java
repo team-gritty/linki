@@ -13,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -51,4 +50,8 @@ public class InfluencerReviewsController {
         return ResponseEntity.ok(influencerResponseDTOList);
     }
 
+    @PostMapping("/v1/admin/api/influencerReviews/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(influencerReviewsService.exportExcel());
+    }
 }

@@ -16,7 +16,9 @@ export const searchInfluencerReviews = async (searchType, keyword) => {
 }
 
 export async function exportExcel() {
-  return await httpRequester.post('/v1/admin/api/influencerReviews/exportExcel')
+  const res = await httpRequester.post('/v1/admin/api/influencerReviews/exportExcel');
+  const downloadUrl = res.data;
+  window.open(downloadUrl);
 }
 
 export const toggleReviewVisibility = async (reviewId, visibility) => {

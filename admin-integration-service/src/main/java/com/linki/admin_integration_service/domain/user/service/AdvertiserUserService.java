@@ -8,4 +8,5 @@ import java.util.List;
 public interface AdvertiserUserService {
     List<AdvertiserUserDTO> getAllAdvertiserUsers();
     List<AdvertiserUserDTO> searchAdvertiserUser(AdvertiserSearchRequestDTO advertiserSearchRequestDTO);
+    String exportExcel();
 }

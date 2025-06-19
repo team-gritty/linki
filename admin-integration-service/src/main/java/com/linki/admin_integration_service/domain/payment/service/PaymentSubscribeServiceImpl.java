@@ -3,6 +3,7 @@ package com.linki.admin_integration_service.domain.payment.service;
 import com.linki.admin_integration_service.domain.payment.dto.PaymentSubscribeDTO;
 import com.linki.admin_integration_service.domain.payment.dto.PaymentSubscribeSearchDTO;
 import com.linki.admin_integration_service.domain.payment.repository.myBatis.PaymentSubscribeMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.*;
 public class PaymentSubscribeServiceImpl implements PaymentSubscribeService {
 
     private final PaymentSubscribeMapper paymentSubscribeMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<PaymentSubscribeDTO> getAllPaymentSubscribes() {
@@ -91,5 +93,11 @@ public class PaymentSubscribeServiceImpl implements PaymentSubscribeService {
                         .toList();
 
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<PaymentSubscribeDTO> result = paymentSubscribeMapper.getAllPaymentSubscribes();
+        return excelUtil.exportExcel(result,PaymentSubscribeDTO.class,"PaymentSubscribeList",null);
     }
 }
