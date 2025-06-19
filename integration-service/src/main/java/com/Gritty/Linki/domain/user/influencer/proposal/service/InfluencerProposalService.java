@@ -5,6 +5,7 @@ import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface InfluencerProposalService {
@@ -14,4 +15,7 @@ public interface InfluencerProposalService {
 
     // 로그인 한 인플루언서 회원의 제안서 조회
     List<ProposalListResponseDTO> getMyProposals(CustomUserDetails customUserDetails);
+
+    //인플루언서 회원의 제안서 수정
+    void updateProposal(CustomUserDetails user, String propsalId, ProposalRequestDTO proposalRequestDTO) throws AccessDeniedException;
 }

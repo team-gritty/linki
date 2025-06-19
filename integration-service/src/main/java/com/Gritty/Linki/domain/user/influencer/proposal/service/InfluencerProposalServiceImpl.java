@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -78,5 +79,24 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
         String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(customUserDetails);
 
         return proposalRepository.findAllByInfluencerId(influencerId);
+    }
+
+    @Override
+    @Transactional
+    public void updateProposal(CustomUserDetails user, String propsalId, ProposalRequestDTO proposalRequestDTO) throws AccessDeniedException {
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(user);
+
+        Proposal proposal = proposalRepository.findById(propsalId)
+                .orElseThrow(()-> new EntityNotFoundException("해당 제안서를 찾을 수 없습니다."));
+
+        // 로그인한 인플루언서
+        // 로그인한 인플루언서 본인의 제안서인지 확인
+        if (!proposal.getInfluencer().getInfluencerId().equals(influencerId)) {
+            throw new AccessDeniedException("본인의 제안서만 수정할 수 있습니다.");
+        }
+
+        // 수정
+        proposal.setContents(proposalRequestDTO.getContents());
+
     }
 }

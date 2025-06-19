@@ -1,6 +1,7 @@
 package com.Gritty.Linki.user.influencer.proposal.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.config.security.CustomUserDetailsService;
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.service.InfluencerProposalService;
@@ -16,10 +17,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -31,6 +34,9 @@ public class ProposalServiceTest {
 
     @Autowired
     private InfluencerProposalRepository influencerProposalRepository;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     private final String influencerId = "INF0001";
     private final String campaignId = "CAMP0001";
@@ -85,6 +91,33 @@ public class ProposalServiceTest {
         System.out.println("✅ 등록된 제안서 ID: " + recent.getProposalId());
         System.out.println("✅ 내용: " + recent.getContents());
         System.out.println("✅ 제출 시각: " + recent.getSubmittedAt());
+
+
+    }
+
+    @Test
+    @Transactional
+    void testUpdateProposal(){
+        // 1. 테스트용 유저 생성
+        String loginId = "user1";
+        CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(loginId);
+
+        //2. 해당 인플루언서가 제출한 제안서 ID 하나 가져오기
+        String existingProposalId = "PROP0002";
+
+        //3. 수정 요청 dto 구성
+        ProposalRequestDTO dto = new ProposalRequestDTO();
+        dto.setContents("수정 내용");
+
+        //4. 실행
+        assertDoesNotThrow(() -> influencerProposalService.updateProposal(userDetails, existingProposalId, dto));
+
+        //5. 결과 검증
+        Proposal updatedProposal = influencerProposalRepository.findById(existingProposalId)
+                .orElseThrow(() -> new RuntimeException("제안서를 찾을 수 없습니다"));
+
+        assertEquals("수정 내용", updatedProposal.getContents());
+
 
 
     }

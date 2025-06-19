@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -35,12 +36,25 @@ public class InfluencerProposalController {
 
     }
 
-    @GetMapping("v1/api/influencer/mypage/proposals")
+    @GetMapping("/v1/api/influencer/mypage/proposals")
     public ResponseEntity<List<ProposalListResponseDTO>> getMyProposals(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         List<ProposalListResponseDTO>list = influencerProposalService.getMyProposals(customUserDetails);
         return ResponseEntity.ok(list);
+
+
+    }
+
+    @PutMapping("/v1/api/influencer/mypage/proposals/{prooposalId}")
+    public ResponseEntity<String>updateProposal(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable String prooposalId,
+            @RequestBody ProposalRequestDTO proposalRequestDTO
+    ) throws AccessDeniedException {
+        influencerProposalService.updateProposal(userDetails,prooposalId,proposalRequestDTO);
+        return ResponseEntity.ok("ok");
+
 
 
     }
