@@ -1,0 +1,62 @@
+{
+	"id": "832de506-f4df-4f7e-ba63-1e56f318d0cf",
+	"name": "관리자 - 대시보드",
+	"timestamp": "2025-06-19T02:21:43.747Z",
+	"collection_id": "45491549-a3e6e115-6445-4cf8-b06d-f7a0a935fdf4",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-19T02:21:42.950Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "61d073a0-99cc-4149-986c-e3f7657e6fe9",
+			"name": "대시보드",
+			"url": "localhost:8080/v1/admin/api/dashboard",
+			"time": 43,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				95,
+				58,
+				56,
+				46,
+				44,
+				43,
+				45,
+				42,
+				44,
+				43
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 516,
+	"collection": {
+		"requests": [
+			{
+				"id": "61d073a0-99cc-4149-986c-e3f7657e6fe9",
+				"method": "GET"
+			}
+		]
+	}
+}
