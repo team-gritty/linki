@@ -9,6 +9,7 @@ import { useAccountStore } from './stores/account'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
 import axios from 'axios'
+import { check } from '@/services/accountService'
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -16,6 +17,21 @@ const openSidebar = ref(false)
 
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value
+}
+
+// 로그인 여부 확인 함수
+const checkAccount = async () => {
+  try {
+    const res = await check();
+    if (res.status === 200) {
+      accountStore.setChecked(true);
+      accountStore.setLoggedIn(res.data === true);
+    } else {
+      accountStore.setChecked(false);
+    }
+  } catch {
+    accountStore.setChecked(false);
+  }
 }
 
 // 앱 시작 시 로그인 상태 초기화
@@ -54,8 +70,8 @@ onMounted(() => {
     }
   }
   
-  // 로그인 상태 확인 완료
-  accountStore.setChecked(true)
+  // 로그인 체크
+  checkAccount();
 })
 
 // 라우터 변경 감지
@@ -64,6 +80,8 @@ watch(
   () => {
     // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo(0, 0)
+    // 라우트 이동 시 로그인 체크
+    checkAccount();
   }
 )
 </script>

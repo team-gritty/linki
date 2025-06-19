@@ -147,14 +147,9 @@ const handleLogin = async () => {
         // axios 기본 헤더에 토큰 설정
         axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
         
-        // 사용자 타입에 따라 다른 페이지로 리다이렉트
-        if (userType === 'influencer') {
-          router.push('/mypage/influencer')
-        } else if (userType === 'advertiser') {
-          router.push('/mypage/advertiser')
-        } else {
-          router.push('/mypage')
-        }
+
+          router.push('/v1/api/nonuser/login')
+
         
       } catch (tokenError) {
         console.error('Token parsing failed:', tokenError)
