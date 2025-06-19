@@ -365,19 +365,19 @@ watch(() => allData.value, () => {
   min-height: 100vh;
 }
 .trend-box {
-  background: #ff7b8a;
+  background: #7b5fff;
   color: #fff;
   border-radius: 16px;
   padding: 36px 0 28px 0;
   text-align: center;
   margin-bottom: 40px;
-  box-shadow: 0 4px 16px rgba(255,123,138,0.08);
+  box-shadow: 0 6px 24px rgba(123,95,255,0.18);
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
-.trend-title { font-size: 1.7rem; font-weight: bold; }
-.trend-desc { margin-top: 10px; font-size: 1.15rem; }
+.trend-title { font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+.trend-desc { margin-top: 14px; font-size: 1.18rem; }
 
 .stats-row {
   display: flex; 
@@ -389,19 +389,19 @@ watch(() => allData.value, () => {
   margin-right: auto;
 }
 .stat-card {
-  background: #7b5fff;
+  background: #222;
   color: #fff;
   border-radius: 16px;
   padding: 32px 24px;
   text-align: center;
   min-width: 150px;
-  box-shadow: 0 2px 12px rgba(123,95,255,0.08);
+  box-shadow: 0 2px 12px rgba(34,34,34,0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .stat-card.sales {
-  background: #7b5fff;
+  background: #222;
 }
 .stat-value {
   font-size: clamp(1rem, 1vw, 2.5rem);
