@@ -40,4 +40,9 @@ public class InfluencerUserController {
         return ResponseEntity.ok(influencerUserResponseDTOList);
 
     }
+
+    @PostMapping("/v1/admin/api/influencerUsers/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(influencerUserService.exportExcel());
+    }
 }
