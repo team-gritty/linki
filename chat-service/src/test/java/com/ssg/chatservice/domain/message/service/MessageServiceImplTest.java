@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
+
 @Slf4j
 @SpringBootTest
 class MessageServiceImplTest {
@@ -75,4 +76,26 @@ class MessageServiceImplTest {
             log.info("메시지: {}", message);
         }
     }
+    @Test
+    @DisplayName("MongoDB 채팅 ID로 메시지 조회 테스트 - with 저장")
+    void findByChatId_withSave() {
+        String chatId = "chat-find-test";
+
+        ChatMessageDTO chatMessageDTO = ChatMessageDTO.builder()
+                .chatId(chatId)
+                .messageDate(LocalDateTime.now())
+                .content("조회용 테스트 메시지")
+                .messageType("TEXT")
+                .senderId("user-test")
+                .messageRead(false)
+                .build();
+
+        messageService.saveMessage(chatMessageDTO);
+
+        List<ChatMessageDTO> messages = messageService.findByChatId(chatId);
+
+        assertThat(messages).isNotEmpty();
+        assertThat(messages.get(0).getChatId()).isEqualTo(chatId);
+    }
+
 }
