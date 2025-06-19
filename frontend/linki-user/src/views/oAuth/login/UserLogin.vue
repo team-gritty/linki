@@ -66,9 +66,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAccountStore } from '../../../stores/account'
 import axios from 'axios'
 
 const router = useRouter()
+const accountStore = useAccountStore()
 const userId = ref('')
 const password = ref('')
 const isLoading = ref(false)
@@ -122,15 +124,11 @@ const handleLogin = async () => {
     const accessToken = response.data.accessToken || response.headers['authorization']?.replace('Bearer ', '')
     
     if (accessToken) {
-      // 토큰 저장
-      localStorage.setItem('token', accessToken)
-      // axios 기본 헤더에 토큰 설정
-      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
-      
       // JWT 토큰에서 사용자 정보 추출
       try {
         const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]))
         const userRole = tokenPayload.userRole || response.data.role
+        const userId = tokenPayload.userId || response.data.userId
         
         // 백엔드 role을 프론트엔드 userType으로 매핑
         let userType = 'general'
@@ -140,6 +138,15 @@ const handleLogin = async () => {
           userType = 'advertiser'
         }
         
+        // Store에 로그인 정보 저장
+        accountStore.setLoginInfo(accessToken, { userId, userRole }, userType)
+        
+        // localStorage에도 토큰 저장 (앱 재시작 시 복원용)
+        localStorage.setItem('token', accessToken)
+        
+        // axios 기본 헤더에 토큰 설정
+        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+        
         // 사용자 타입에 따라 다른 페이지로 리다이렉트
         if (userType === 'influencer') {
           router.push('/mypage/influencer')
@@ -148,9 +155,11 @@ const handleLogin = async () => {
         } else {
           router.push('/mypage')
         }
+        
       } catch (tokenError) {
         console.error('Token parsing failed:', tokenError)
-        // 토큰 파싱 실패 시 기본 페이지로 이동
+        // 토큰 파싱 실패 시 기본 정보로 Store 설정
+        accountStore.setLoginInfo(accessToken, null, 'general')
         router.push('/mypage')
       }
     } else {

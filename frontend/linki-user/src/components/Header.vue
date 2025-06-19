@@ -1,15 +1,36 @@
 <script setup>
 import { defineProps } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAccountStore } from '../stores/account'
+import axios from 'axios'
 
 const router = useRouter()
+const accountStore = useAccountStore()
 const props = defineProps({
   openSidebar: Boolean,
   toggleSidebar: Function
 })
 
 const goToMyPage = () => {
-  router.push('/mypage')
+  const userType = accountStore.getUserType
+  
+  // 사용자 타입에 따라 다른 페이지로 이동
+  if (userType === 'influencer') {
+    router.push('/mypage/influencer')
+  } else if (userType === 'advertiser') {
+    router.push('/mypage/advertiser')
+  } else {
+    router.push('/mypage')
+  }
+}
+
+const handleLogout = () => {
+  accountStore.clearAuth()
+  // localStorage에서 토큰 제거
+  localStorage.removeItem('token')
+  // axios 헤더에서 토큰 제거
+  delete axios.defaults.headers.common['Authorization']
+  router.push('/login')
 }
 
 // 헤더 컴포넌트 로직
@@ -22,16 +43,42 @@ const goToMyPage = () => {
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
       <div class="header-right">
-        <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
-        <router-link to="/signup" class="header-button">회원가입</router-link>
+        <!-- 로그인하지 않은 경우: 로그인/회원가입 버튼 표시 -->
+        <template v-if="!accountStore.isLoggedIn">
+          <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
+          <router-link to="/signup" class="header-button">회원가입</router-link>
+        </template>
+        
+        <!-- 로그인한 경우: 로그아웃 버튼 표시 -->
+        <template v-else>
+          <button @click="handleLogout" class="header-button logout-button">
+            로그아웃
+          </button>
+        </template>
       </div>
     </div>
   </header>
   <div class="sub-header">
     <div class="sub-header-content">
-      <button class="mypage-button" @click="goToMyPage">
+      <!-- 로그인한 경우에만 마이페이지 버튼 표시 -->
+      <button 
+        v-if="accountStore.isLoggedIn" 
+        class="mypage-button"
+        :class="{
+          'influencer-button': accountStore.getUserType === 'influencer',
+          'advertiser-button': accountStore.getUserType === 'advertiser',
+          'general-button': !accountStore.getUserType || accountStore.getUserType === 'general'
+        }"
+        @click="goToMyPage"
+      >
         <i class="fas fa-user"></i>
-        <span>마이페이지</span>
+        <span>
+          {{ 
+            accountStore.getUserType === 'influencer' ? '인플루언서 마이페이지' :
+            accountStore.getUserType === 'advertiser' ? '광고주 마이페이지' :
+            '마이페이지'
+          }}
+        </span>
       </button>
     </div>
   </div>
@@ -139,6 +186,51 @@ const goToMyPage = () => {
   color: black;
 }
 
+.logout-button {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  color: white;
+}
+
+/* 인플루언서 버튼 스타일 */
+.influencer-button {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.influencer-button:hover {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+/* 광고주 버튼 스타일 */
+.advertiser-button {
+  border-color: #4ecdc4;
+  color: #4ecdc4;
+}
+
+.advertiser-button:hover {
+  background-color: #4ecdc4;
+  color: white;
+}
+
+/* 일반 사용자 버튼 스타일 */
+.general-button {
+  border-color: #b162c0;
+  color: #b162c0;
+}
+
+.general-button:hover {
+  background-color: #b162c0;
+  color: white;
+}
+
 .close-sidebar-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -174,10 +266,13 @@ const goToMyPage = () => {
   
   .mypage-button {
     margin-right: 16px;
+    min-width: auto;
+    padding: 8px 12px;
   }
   
   .mypage-button span {
-    display: none;
+    display: block;
+    font-size: 0.8rem;
   }
   
   .header-button {
