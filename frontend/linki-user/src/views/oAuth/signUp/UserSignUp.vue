@@ -201,8 +201,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+
 import { useAlert } from '@/composables/alert'
+import httpClient from '../../../utils/httpRequest'
 
 const router = useRouter()
 const { showAlert } = useAlert()
@@ -380,25 +381,32 @@ const handleSignup = async () => {
   try {
     isLoading.value = true
     const signupData = {
-      userId: userId.value,
-      password: password.value,
-      name: name.value,
-      handphone: handphone.value,
-      email: email.value,
-      marketingAgreed: marketingAgreed.value
+      userLoginId: userId.value,
+      userLoginPw: password.value,
+      userName: name.value,
+      userPhone: handphone.value,
+      userEmail: email.value,
+
     }
 
-    const response = await axios.post('/api/user/signup', signupData)
+    const response = await httpClient.post('v1/api/nonuser/signup', signupData)
     
-    if (response.data.success) {
-      showAlert('회원가입이 완료되었습니다. 로그인해주세요.', 'success')
+    if (response.status === 200) {
+      showAlert(response.data.message || '회원가입이 완료되었습니다. 로그인해주세요.', 'success')
       router.push('/login')
     } else {
       showAlert(response.data.message || '회원가입에 실패했습니다.', 'error')
     }
   } catch (error) {
     console.error('Signup failed:', error)
-    const errorMessage = error.response?.data?.message || '회원가입 중 오류가 발생했습니다.'
+    let errorMessage = '회원가입 중 오류가 발생했습니다.'
+    
+    if (error.response?.data?.message === '아이디 중복') {
+      errorMessage = '이미 사용중인 아이디입니다.'
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message
+    }
+    
     showAlert(errorMessage, 'error')
   } finally {
     isLoading.value = false
@@ -408,7 +416,7 @@ const handleSignup = async () => {
 const handleGoogleSignup = async () => {
   try {
     isLoading.value = true
-    const response = await axios.get('/api/user/auth/google')
+    const response = await httpClient.get('/api/user/auth/google')
     window.location.href = response.data.authUrl
   } catch (error) {
     console.error('Google signup failed:', error)

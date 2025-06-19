@@ -32,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
                 .userPayStatus(0)
                 .userStatus(1)
                 .userEnterDay(LocalDate.now())
-                .userRole("ROLE_INFLUENCER")
+                .userRole("ROLE_USER")
                 .build();
 
         accountRepository.save(user);
