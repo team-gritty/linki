@@ -52,7 +52,7 @@ public class ChatServiceImpl implements ChatService{
     //채팅방 생성
     @Override
     @Transactional
-    public ChatDetailDTO createRoom(String token,String proposalId) {
+    public String createRoom(String proposalId) {
         //DB에서 제안서 아이디를 기준으로 채팅방 조회
         Chat chat = chatRepository.findByProposalId(proposalId);
         //이미 존재하는 채팅방이면 예외처리
@@ -67,8 +67,7 @@ public class ChatServiceImpl implements ChatService{
                 .build();
         chatRepository.save(chat);
 
-        //제안서 아이디로 ChatDetailDTO 생성
-        return findByProposalId(token,proposalId);
+        return chat.getChatId();
     }
 
 }
