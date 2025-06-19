@@ -36,7 +36,7 @@
         <td>{{ user.adAmount.toLocaleString() }}원</td>
         <td>
           <button 
-            v-if="!user.isSettled" 
+            v-if="user.isSettled === 'PENDING'" 
             class="process-btn" 
             @click="handleProcessSettlement(user.contractId)"
           >
@@ -85,7 +85,7 @@
           <span class="label">정산 상태</span>
           <span class="value">
             <button 
-              v-if="!user.isSettled" 
+              v-if="user.isSettled === 'PENDING'" 
               class="process-btn mobile" 
               @click="handleProcessSettlement(user.contractId)"
             >
@@ -112,11 +112,10 @@
 // import 및 변수 선언
 // ----------------------
 import { ref, computed, onMounted } from 'vue'
-import httpRequester from '@/libs/httpRequester.js'
 import { getSettlementList, searchSettlement, exportExcel, processSettlement } from '@/js/payment/Settlement.js'
 import Pagination from '@/components/common/Pagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
-import { useRouter } from 'vue-router'
+
 
 // 회원 데이터 배열
 const users = ref([])
@@ -130,10 +129,9 @@ const pageSize = 10
 // ----------------------
 const searchConfig = {
   options: [
+    { value: 'contractId', label: '계약 ID', endpoint: '/v1/admin/api/settlements/search' },
     { value: 'advertiserName', label: '광고주명', endpoint: '/v1/admin/api/settlements/search' },
-    { value: 'influencerName', label: '인플루언서명', endpoint: '/v1/admin/api/settlements/search' },
-    { value: 'adStartDate', label: '광고 시작일', endpoint: '/v1/admin/api/settlements/search' },
-    { value: 'adEndDate', label: '광고 종료일', endpoint: '/v1/admin/api/settlements/search' }
+    { value: 'influencerName', label: '인플루언서명', endpoint: '/v1/admin/api/settlements/search' }
   ],
   placeholder: '검색어를 입력하세요',
   endpoint: '/v1/admin/api/settlements'

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.payment.repository.myBatis.SettlementMapper">
+
+
+    <select id="getAllSettlements" resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">
+
+        SELECT
+            contract.contract_id AS contractId,
+            CONCAT(advertiser.company_name,'(',advertiser_user.user_name,')') AS advertiserName,
+            CONCAT(channel.channel_name,'(',influencer_user.user_name,')') AS influencerName,
+            contract.contract_start_date AS adStartDate,
+            contract.contract_end_date AS adEndDate,
+            contract.contract_amount AS adAmount
+        FROM contract
+                 JOIN proposal
+                      ON contract.proposal_id = proposal.proposal_id
+                 JOIN campaign
+                      ON proposal.campaign_id = campaign.campaign_id
+                 JOIN advertiser
+                      ON campaign.advertiser_id = advertiser.advertiser_id
+                 JOIN user AS advertiser_user
+                      ON advertiser.user_id = advertiser_user.user_id
+                 JOIN influencer
+                      ON influencer.influencer_id = proposal.influencer_id
+                 JOIN user AS influencer_user
+                      ON influencer.user_id = influencer_user.user_id
+                 JOIN channel
+                      ON channel.influencer_id = influencer.influencer_id
+    </select>
+
+    <select id="searchSettlement"  resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">
+        SELECT
+        contract.contract_id AS contractId,
+        CONCAT(advertiser.company_name,'(',advertiser_user.user_name,')') AS advertiserName,
+        CONCAT(channel.channel_name,'(',influencer_user.user_name,')') AS influencerName,
+        contract.contract_start_date AS adStartDate,
+        contract.contract_end_date AS adEndDate,
+        contract.contract_amount AS adAmount
+        FROM contract
+        JOIN proposal
+        ON contract.proposal_id = proposal.proposal_id
+        JOIN campaign
+        ON proposal.campaign_id = campaign.campaign_id
+        JOIN advertiser
+        ON campaign.advertiser_id = advertiser.advertiser_id
+        JOIN user AS advertiser_user
+        ON advertiser.user_id = advertiser_user.user_id
+        JOIN influencer
+        ON influencer.influencer_id = proposal.influencer_id
+        JOIN user AS influencer_user
+        ON influencer.user_id = influencer_user.user_id
+        JOIN channel
+        ON channel.influencer_id = influencer.influencer_id
+
+        WHERE 1 = 1
+
+        <choose>
+            <when test="searchType != null and searchType.toLowerCase() eq 'contractid'">
+                AND REPLACE(TRIM(LOWER(contract.contract_id)), '-', '') LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'advertisername'">
+                AND TRIM(LOWER(CONCAT(advertiser.company_name,'(',advertiser_user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'influencername'">
+                AND TRIM(LOWER(CONCAT(channel.channel_name,'(',influencer_user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+
+
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+</mapper>

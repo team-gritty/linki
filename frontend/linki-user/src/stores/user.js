@@ -1,55 +1,27 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import {defineStore} from 'pinia'
 
-export const useUserStore = defineStore('user', () => {
-  const user = ref({
-    id: null,
-    email: '',
-    nickname: '',
-    name: '',
-    phone: '',
-    type: '',
-    profileImage: '',
-    businessRegistrationNumber: '',
-    businessRegistrationImage: '',
-    isInfluencer: false,
-    isAdvertiser: false
-  })
-
-  const setUser = (userData) => {
-    user.value = {
-      ...user.value,
-      ...userData
-    }
-  }
-
-  const clearUser = () => {
-    user.value = {
-      id: null,
-      email: '',
-      nickname: '',
-      name: '',
-      phone: '',
-      type: '',
-      profileImage: '',
-      businessRegistrationNumber: '',
-      businessRegistrationImage: '',
-      isInfluencer: false,
-      isAdvertiser: false
-    }
-  }
-
-  const updateUserProfile = (profileData) => {
-    user.value = {
-      ...user.value,
-      ...profileData
-    }
-  }
-
-  return {
-    user,
-    setUser,
-    clearUser,
-    updateUserProfile
-  }
-}) 
+export const useAccountStore = defineStore("account", {
+    state: () => ({
+        checked: false,
+        loggedIn: false,
+        accessToken: "",
+    }),
+    actions: {
+        setChecked(val) {
+            this.checked = val;
+        },
+        setLoggedIn(val) {
+            this.loggedIn = val;
+        },
+        setAccessToken(val) {
+            this.accessToken = val;
+            this.loggedIn = !!val;
+            this.checked = true;
+        },
+        logout() {
+            this.accessToken = "";
+            this.loggedIn = false;
+            this.checked = false;
+        }
+    },
+});

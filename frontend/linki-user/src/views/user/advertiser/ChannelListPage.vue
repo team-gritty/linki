@@ -22,23 +22,23 @@
       </div>
       <div v-for="(item, idx) in pagedListData" :key="idx" class="table-row">
         <div class="td td-profile">
-          <img :src="item.profileImage" class="profile-img" />
+          <img :src="item.thubnailUrl" class="profile-img" />
         </div>
         <div class="td td-detail">
           <div class="channel-info">
-            <div class="channel-name">{{ item.name }}</div>
+            <div class="channel-channelName">{{ item.channelName }}</div>
             <div class="review-row">
               <span class="stars">
-                <template v-if="reviewStatsMap[item.id] && reviewStatsMap[item.id].count > 0">
+                <template v-if="reviewStatsMap[item.channelId] && reviewStatsMap[item.channelId].count > 0">
                   <span v-for="n in 5" :key="n">
-                    <svg v-if="reviewStatsMap[item.id].avg >= n" width="16" height="16" viewBox="0 0 20 20" fill="#FFC107"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
-                    <svg v-else-if="reviewStatsMap[item.id].avg >= n-0.5" width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient :id="'half'+item.id+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5" :fill="'url(#half'+item.id+n+')'"/></svg>
+                    <svg v-if="reviewStatsMap[item.channelId].avg >= n" width="16" height="16" viewBox="0 0 20 20" fill="#FFC107"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
+                    <svg v-else-if="reviewStatsMap[item.channelId].avg >= n-0.5" width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient :channelId="'half'+item.channelId+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5" :fill="'url(#half'+item.channelId+n+')'"/></svg>
                     <svg v-else width="16" height="16" viewBox="0 0 20 20" fill="#eee"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
                   </span>
-                  <span class="review-avg">{{ reviewStatsMap[item.id].avg.toFixed(1) }}</span>
+                  <span class="review-avg">{{ reviewStatsMap[item.channelId].avg.toFixed(1) }}</span>
                 </template>
               </span>
-              <span class="review-count" v-if="reviewStatsMap[item.id] && reviewStatsMap[item.id].count > 0">({{ reviewStatsMap[item.id].count }} Reviews)</span>
+              <span class="review-count" v-if="reviewStatsMap[item.channelId] && reviewStatsMap[item.channelId].count > 0">({{ reviewStatsMap[item.channelId].count }} Reviews)</span>
             </div>
           </div>
         </div>
@@ -48,7 +48,7 @@
         <div class="td td-subscribers">{{ item.subscribers }}</div>
         <div class="td td-views">{{ item.avgViewCount }}</div>
         <div class="td td-analysis">
-          <button class="analysis-btn" @click="goToDetail(item.id)">상세 분석</button>
+          <button class="analysis-btn" @click="goToDetail(item.channelId)">상세 분석</button>
         </div>
       </div>
     </div>
@@ -104,12 +104,12 @@ const reviewStatsMap = ref({}) // { [channelId]: { avg, count } }
 async function fetchAllReviewStats(channels) {
   const statsArr = await Promise.all(
     channels.map(async c => ({
-      id: c.id,
-      ...(await reviewApi.getReviewStats(c.id))
+      channelId: c.channelId,
+      ...(await reviewApi.getReviewStats(c.channelId))
     }))
   )
   const map = {}
-  statsArr.forEach(s => { map[s.id] = { avg: s.avg, count: s.count } })
+  statsArr.forEach(s => { map[s.channelId] = { avg: s.avg, count: s.count } })
   reviewStatsMap.value = map
 }
 
@@ -189,8 +189,8 @@ onMounted(() => {
 })
 
 // 채널 상세 페이지로 이동
-const goToDetail = (id) => {
-  router.push(`/channels/${id}`)
+const goToDetail = (channelId) => {
+  router.push(`/channels/${channelId}`)
 }
 </script>
 
@@ -308,7 +308,7 @@ const goToDetail = (id) => {
   flex-direction: column;
   gap: 4px;
 }
-.channel-name {
+.channel-channelName {
   font-size: 22px;
   font-weight: 700;
   color: #2D3A8C;
