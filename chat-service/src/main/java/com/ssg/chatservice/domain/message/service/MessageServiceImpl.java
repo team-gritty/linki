@@ -20,6 +20,7 @@ public class MessageServiceImpl implements MessageService{
     //메세지를 DB에 저장
     public Message saveMessage(ChatMessageDTO messageDTO){
         Message message = modelMapper.map(messageDTO, Message.class);
+        message.initializeIdIfNull();  // ID 자동 생성
         return messageRepository.save(message);
     }
 

@@ -24,7 +24,7 @@ class MessageServiceImplTest {
     void saveMessage() {
         // given: 저장할 메시지 DTO 생성
         ChatMessageDTO chatMessageDTO = ChatMessageDTO.builder()
-                .chatId("100")
+                .chatId("1200")
                 .messageDate(LocalDateTime.now())  // 현재 시간
                 .content("테스트 메시지")
                 .messageType("TEXT")
@@ -36,7 +36,7 @@ class MessageServiceImplTest {
         messageService.saveMessage(chatMessageDTO);
 
         // then
-        List<ChatMessageDTO> messages = messageService.findByChatId("100");
+        List<ChatMessageDTO> messages = messageService.findByChatId("1200");
 
         // 메시지가 존재해야 함
         assertThat(messages).isNotEmpty();
