@@ -57,11 +57,11 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAlert } from '@/composables/alert'
-import { useUserStore } from '@/stores/user'
+import { useAccountStore } from '@/stores/account'
 
 const router = useRouter()
 const { showAlert } = useAlert()
-const userStore = useUserStore()
+const  accountStore= useAccountStore()
 const isLoading = ref(false)
 
 const profileData = ref({
@@ -150,8 +150,8 @@ const handleSubmit = async () => {
 
     if (response.data.success) {
       showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
-      userStore.setUserInfo({
-        ...userStore.getUserInfo,
+      accountStore.setUserInfo({
+        ...accountStore.getUserInfo,
         name: profileData.value.name,
         email: profileData.value.email
       })
