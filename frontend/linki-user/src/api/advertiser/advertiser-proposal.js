@@ -1,33 +1,26 @@
 import httpClient from '@/utils/httpRequest'
 
 export const proposalAPI = {
-  // 광고주가 받은 제안서 목록 조회
-  getMyProposals: async (params = {}) => {
+
+  /**
+   * 특정 캠페인의 제안서 목록 조회 (광고주용)
+   * @param campaignId
+   * @returns {Promise<*>}
+   */
+  getProposalsByCampaign: async (campaignId) => {
     try {
-      const response = await httpClient.get('/v1/api/influencer/proposals', {
-        params: {
-          _page: params._page || 1,
-          _limit: params._limit || 10
-        }
-      });
-      
-      // 응답 데이터가 배열인지 확인
-      const proposals = Array.isArray(response.data) ? response.data : [];
-      
-      return {
-        proposals,
-        totalItems: parseInt(response.headers['x-total-count'] || '0')
-      };
+      const response = await httpClient.get(`/v1/api/advertiser/proposals?campaignId=${campaignId}`);
+      return response.data;
     } catch (error) {
-      console.error('Failed to fetch proposals:', error);
+      console.error('Failed to fetch proposals by campaign:', error);
       throw error;
     }
   },
 
-  // 제안서 상세 조회
-  getProposalDetail: async (proposalId) => {
+  // 캠페인에 속한 제안서들 중 특정 제안서 상세 조회
+  getProposalDetail: async (proposalId, campaignId) => {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/proposals/${proposalId}`);
+      const response = await httpClient.get(`/v1/api/advertiser/mypage/campaigns/{campaignId}/proposals/{proposalId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch proposal detail:', error);
@@ -35,7 +28,7 @@ export const proposalAPI = {
     }
   },
 
-  // 광고주가 제안서 승낙한다음 제안서 수정
+  // 광고주 - 제안서 수정 (승낙한 다음만 가능)
   updateProposal: async (proposalId, proposalData) => {
     try {
       const response = await httpClient.put(`/v1/api/advertiser/proposals/${proposalId}`, proposalData);
@@ -46,38 +39,4 @@ export const proposalAPI = {
     }
   },
 
-  // 제안서 삭제
-  deleteProposal: async (proposalId) => {
-    try {
-      const response = await httpClient.delete(`/v1/api/influencer/proposals/${proposalId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Failed to delete proposal:', error);
-      throw error;
-    }
-  },
-
-  // 캠페인별 제안서 목록 조회
-  getCampaignProposals: async (campaignId, params = {}) => {
-    try {
-      const response = await httpClient.get(`/v1/api/influencer/campaigns/${campaignId}/proposals`, {
-        params: {
-          _page: params._page || 1,
-          _limit: params._limit || 10,
-          _sort: params._sort || 'createdAt',
-          _order: params._order || 'desc'
-        }
-      });
-      return {
-        proposals: response.data,
-        totalItems: parseInt(response.headers['x-total-count'] || '0')
-      };
-    } catch (error) {
-      console.error('Failed to fetch campaign proposals:', error);
-      return {
-        proposals: [],
-        totalItems: 0
-      };
-    }
-  }
 } 
