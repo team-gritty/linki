@@ -100,6 +100,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
         response.addCookie(refreshCookie);
+
+        // ✅ JSON 응답 바디 작성
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String json = String.format("{\"accessToken\":\"%s\", \"userId\":\"%s\", \"role\":\"%s\"}", accesstoken, userId, role);
+        response.getWriter().write(json);
     }
 
     //실패시

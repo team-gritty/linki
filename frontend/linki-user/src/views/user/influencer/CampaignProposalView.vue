@@ -50,10 +50,13 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
+import { proposalAPI } from '@/api/proposal'
+import { useAccountStore } from '@/stores/account'
 import {chatApi} from "@/api/chat.js";
 
 const route = useRoute()
 const router = useRouter()
+const accountStore = useAccountStore()
 const campaign = ref(null)
 const loading = ref(false)
 const error = ref(null)
@@ -86,6 +89,16 @@ const submitProposal = async () => {
   try {
     loading.value = true
     error.value = null
+    
+    // 로그인 상태 확인
+    if (!accountStore.isLoggedIn) {
+      alert('제안서 작성은 로그인 후 이용 가능합니다.')
+      router.push('/login')
+      return
+    }
+
+    await proposalAPI.submitProposal(route.params.id, formData.value.contents)
+    
 
     await campaignAPI.submitProposal(route.params.id, formData.value.contents)
 
@@ -97,10 +110,18 @@ const submitProposal = async () => {
 
     // 캠페인 상세 페이지로 돌아가기
     router.push(`/campaign/${route.params.id}`)
-
   } catch (err) {
-    error.value = '제안서 제출 중 오류가 발생했습니다. 다시 시도해주세요.'
-    console.error(err)
+    console.error('제안서 제출 에러:', err)
+
+    // 인증 에러인 경우
+    if (err.response?.status === 401 || err.response?.status === 403) {
+      error.value = '로그인이 필요합니다. 다시 로그인해주세요.'
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+    } else {
+      error.value = '제안서 제출 중 오류가 발생했습니다. 다시 시도해주세요.'
+    }
   } finally {
     loading.value = false
   }
