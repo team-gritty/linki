@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import httpRequest from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
@@ -67,54 +67,6 @@ const errors = ref({
   confirmPassword: ''
 })
 
-// 실시간 비밀번호 검증
-const validateNewPassword = () => {
-  if (!passwordData.value.newPassword) {
-    errors.value.newPassword = ''
-    return
-  }
-  
-  if (passwordData.value.newPassword.length < 8) {
-    errors.value.newPassword = '비밀번호는 8자 이상이어야 합니다.'
-    return
-  }
-  
-  if (passwordData.value.currentPassword && passwordData.value.currentPassword === passwordData.value.newPassword) {
-    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
-    return
-  }
-  
-  errors.value.newPassword = ''
-}
-
-const validateConfirmPassword = () => {
-  if (!passwordData.value.confirmPassword) {
-    errors.value.confirmPassword = ''
-    return
-  }
-  
-  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
-    errors.value.confirmPassword = '비밀번호가 일치하지 않습니다.'
-    return
-  }
-  
-  errors.value.confirmPassword = ''
-}
-
-// 실시간 검증을 위한 watch
-watch(() => passwordData.value.currentPassword, () => {
-  validateNewPassword()
-})
-
-watch(() => passwordData.value.newPassword, () => {
-  validateNewPassword()
-  validateConfirmPassword()
-})
-
-watch(() => passwordData.value.confirmPassword, () => {
-  validateConfirmPassword()
-})
-
 const isFormValid = computed(() => {
   return (
     passwordData.value.currentPassword &&
@@ -126,17 +78,48 @@ const isFormValid = computed(() => {
   )
 })
 
-const handleSubmit = async () => {
-  // 현재 비밀번호 필수 입력 검증
-  if (!passwordData.value.currentPassword) {
-    errors.value.currentPassword = '현재 비밀번호를 입력해주세요.'
-    return
+const validateForm = () => {
+  errors.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   }
 
-  // 실시간 검증 결과 확인
-  if (errors.value.newPassword || errors.value.confirmPassword) {
-    return
+  if (!passwordData.value.currentPassword) {
+    errors.value.currentPassword = '현재 비밀번호를 입력해주세요.'
+    return false
   }
+
+  if (!passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호를 입력해주세요.'
+    return false
+  }
+
+  if (passwordData.value.newPassword.length < 8) {
+    errors.value.newPassword = '비밀번호는 8자 이상이어야 합니다.'
+    return false
+  }
+
+  if (passwordData.value.currentPassword === passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+    return false
+  }
+
+  if (!passwordData.value.confirmPassword) {
+    errors.value.confirmPassword = '새 비밀번호 확인을 입력해주세요.'
+    return false
+  }
+
+  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+    errors.value.confirmPassword = '비밀번호가 일치하지 않습니다.'
+    return false
+  }
+
+  return true
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) return
 
   try {
     isLoading.value = true
@@ -149,12 +132,6 @@ const handleSubmit = async () => {
       showAlert('비밀번호가 성공적으로 변경되었습니다.', 'success')
       // 입력 필드 초기화
       passwordData.value = {
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      }
-      // 에러 메시지 초기화
-      errors.value = {
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
