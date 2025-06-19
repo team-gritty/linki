@@ -9,7 +9,7 @@ import com.Gritty.Linki.domain.oAuth.signUp.service.AccountService;
 import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
 import com.Gritty.Linki.util.HttpUtil;
 
-import com.Gritty.Linki.util.TokenUtil;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -75,15 +75,18 @@ public class AccountController {
         if (StringUtils.hasLength(refreshToken) && jwtUtil.isTokenExpired(refreshToken) ) {
             Map<String, Object> tokenBody = jwtUtil.getBody(refreshToken);
 
-            Integer userLoginId = (Integer) tokenBody.get("userLoginId");
+            String userId = (String) tokenBody.get("userId");
+            String role = (String) tokenBody.get("userRole");
 
-            accessToken = TokenUtil.generate("access_Token", "userLoginId", userLoginId, 60);
+            accessToken = jwtUtil.createJwtToken(userId, role, 60 * 60L);
 
 
 
         }
         return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
+
+
 }
 
 //    @GetMapping("/token")
