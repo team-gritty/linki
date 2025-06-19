@@ -1,8 +1,8 @@
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '../stores/account'
-import axios from 'axios'
+
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -11,26 +11,34 @@ const props = defineProps({
   toggleSidebar: Function
 })
 
+// 로그인 상태 확인
+const isLoggedIn = computed(() => accountStore.isLoggedIn)
+const userType = computed(() => accountStore.getUserType)
+
 const goToMyPage = () => {
-  const userType = accountStore.getUserType
-  
-  // 사용자 타입에 따라 다른 페이지로 이동
-  if (userType === 'influencer') {
+
+  if (userType.value === 'influencer') {
     router.push('/mypage/influencer')
-  } else if (userType === 'advertiser') {
+  } else if (userType.value === 'advertiser') {
+
     router.push('/mypage/advertiser')
   } else {
     router.push('/mypage')
   }
 }
 
-const handleLogout = () => {
-  accountStore.clearAuth()
-  // localStorage에서 토큰 제거
-  localStorage.removeItem('token')
-  // axios 헤더에서 토큰 제거
-  delete axios.defaults.headers.common['Authorization']
-  router.push('/login')
+
+const handleLogout = async () => {
+  try {
+    await accountStore.logout()
+    router.push('/login')
+  } catch (error) {
+    console.error('로그아웃 실패:', error)
+    // 에러가 발생해도 로컬 상태는 클리어
+    accountStore.clearAuth()
+    router.push('/login')
+  }
+
 }
 
 // 헤더 컴포넌트 로직
@@ -43,34 +51,25 @@ const handleLogout = () => {
         <button v-if="openSidebar" class="close-sidebar-btn" @click="toggleSidebar">☰</button>
       </div>
       <div class="header-right">
-        <!-- 로그인하지 않은 경우: 로그인/회원가입 버튼 표시 -->
-        <template v-if="!accountStore.isLoggedIn">
+
+        <!-- 로그인하지 않은 경우 -->
+        <template v-if="!isLoggedIn">
           <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
           <router-link to="/signup" class="header-button">회원가입</router-link>
         </template>
-        
-        <!-- 로그인한 경우: 로그아웃 버튼 표시 -->
+        <!-- 로그인한 경우 -->
         <template v-else>
-          <button @click="handleLogout" class="header-button logout-button">
-            로그아웃
-          </button>
+          <button @click="handleLogout" class="header-button logout-btn">로그아웃</button>
+
         </template>
       </div>
     </div>
   </header>
   <div class="sub-header">
     <div class="sub-header-content">
-      <!-- 로그인한 경우에만 마이페이지 버튼 표시 -->
-      <button 
-        v-if="accountStore.isLoggedIn" 
-        class="mypage-button"
-        :class="{
-          'influencer-button': accountStore.getUserType === 'influencer',
-          'advertiser-button': accountStore.getUserType === 'advertiser',
-          'general-button': !accountStore.getUserType || accountStore.getUserType === 'general'
-        }"
-        @click="goToMyPage"
-      >
+
+      <button v-if="isLoggedIn" class="mypage-button" @click="goToMyPage">
+
         <i class="fas fa-user"></i>
         <span>
           {{ 

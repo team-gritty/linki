@@ -1,10 +1,12 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, watch, defineProps, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAccountStore } from '../stores/account'
 import ChatDropdown from '@/components/ChatDropdown.vue'
 
 const router = useRouter()
 const route = useRoute()
+const accountStore = useAccountStore()
 const isMobile = ref(false)
 
 const props = defineProps({
@@ -12,9 +14,20 @@ const props = defineProps({
   toggleSidebar: Function
 })
 
+// 로그인 상태 및 사용자 타입 확인
+const isLoggedIn = computed(() => accountStore.isLoggedIn)
+const userType = computed(() => accountStore.getUserType)
+
 const goToMyPage = () => {
-  router.push('/mypage')
+  if (userType.value === 'influencer') {
+    router.push('/mypage/influencer')
+  } else if (userType.value === 'advertiser') {
+    router.push('/mypage/advertiser')
+  } else {
+    router.push('/mypage')
+  }
 }
+
 const goToHome = () => {
   router.push('/home')
 }
@@ -26,6 +39,7 @@ const goTochannels = () => {
 const goToCampaigns = () => {
   router.push('/campaigns')
 }
+
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768
 }
@@ -66,7 +80,7 @@ watch(() => props.openSidebar, (newValue) => {
       </ul>
     </div>
     <div class="navbar-right" v-show="!isMobile">
-      <button class="mypage-button" @click="goToMyPage">
+      <button v-if="isLoggedIn" class="mypage-button" @click="goToMyPage">
         <i class="fas fa-user"></i>
         <span>마이페이지</span>
       </button>
@@ -83,7 +97,7 @@ watch(() => props.openSidebar, (newValue) => {
             <router-link to="/channels"><span>인플루언서</span></router-link>
           </li>
           <li class="menu-item" :class="{ active: route.path.startsWith('/campaign') }" @click="goToCampaigns">캠페인</li>
-          <li class="menu-item" :class="{ active: route.path.startsWith('/mypage') }" @click="goToMyPage">마이페이지</li>
+          <li v-if="isLoggedIn" class="menu-item" :class="{ active: route.path.startsWith('/mypage') }" @click="goToMyPage">마이페이지</li>
         </ul>
       </div>
     </div>
