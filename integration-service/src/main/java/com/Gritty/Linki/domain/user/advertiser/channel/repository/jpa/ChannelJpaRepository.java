@@ -47,14 +47,25 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
 
         /**
          * 특정 번호 이상의 모든 채널 ID 조회 (구독자 수집용)
-         * 더미 데이터의 채널 ID 패턴이 CH0001, CH0002... 형식임
+         * 더미 데이터(CH0001 형태)와 실제 수집 데이터(CHN- 형태) 모두 처리
          * 
          * @param startNumber 시작 번호 (예: 1007)
          * @return 채널 ID 목록
          */
-        @Query("SELECT c.channelId FROM Channel c WHERE " +
-                        "CAST(SUBSTRING(c.channelId, 3) AS INTEGER) >= :startNumber " +
-                        "ORDER BY CAST(SUBSTRING(c.channelId, 3) AS INTEGER)")
+        @Query(value = "SELECT channel_id FROM (" +
+                        "  SELECT channel_id, " +
+                        "         @row_number := @row_number + 1 as row_num " +
+                        "  FROM channel, (SELECT @row_number := 0) r " +
+                        "  ORDER BY " +
+                        "    CASE " +
+                        "      WHEN channel_id REGEXP '^CH[0-9]{4}$' THEN CAST(SUBSTRING(channel_id, 3) AS UNSIGNED) " +
+                        "      WHEN channel_id LIKE 'CHN-%' THEN 50000 + UNIX_TIMESTAMP(collected_at) " +
+                        "      ELSE 99999 + UNIX_TIMESTAMP(collected_at) " +
+                        "    END, " +
+                        "    channel_id " +
+                        ") numbered " +
+                        "WHERE row_num >= :startNumber " +
+                        "ORDER BY row_num", nativeQuery = true)
         List<String> findChannelIdsFromNumber(@Param("startNumber") Integer startNumber);
 
         /**
