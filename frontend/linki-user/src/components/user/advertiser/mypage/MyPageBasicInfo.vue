@@ -57,11 +57,11 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAlert } from '@/composables/alert'
-import { useUserStore } from '@/stores/user'
+import { useAccountStore } from '@/stores/user'
 
 const router = useRouter()
 const { showAlert } = useAlert()
-const userStore = useUserStore()
+const userStore = useAccountStore()
 const isLoading = ref(false)
 
 const profileData = ref({

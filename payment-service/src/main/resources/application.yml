@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: payment-service
+  config:
+    import: "optional:classpath:application-secret.properties"
+  jwt:
+    secret: ${secret-HS256}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -29,5 +33,7 @@ eureka:
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
 
-
+toss:
+  api:
+    clientkey: test_ck_AQ92ymxN342adlxYQPByrajRKXvd;
 
