@@ -36,16 +36,18 @@ public class ChatServiceImpl implements ChatService{
 
     private final ModelMapper modelMapper;
 
-    //제안서 아이디로 채팅방 조회 및 DTO 반환
-    @Override
-    public ChatDetailDTO findByProposalId(String token,String proposalId){
-        //제안서 아이디로 채팅방 조회
-        Chat chat =  chatRepository.findByProposalId(proposalId);
-        if(chat == null){
-            throw new ChatException(ErrorCode.CHATROOM_NOT_FOUND);
-        }
-       PartnerInfoResponse partner = partnerApiClient.getPartnerInfo(token, chat.getProposalId());
+    //제안서아이디로  채팅방 조회
+    public Chat findByProposalId(String proposalId){
+        return chatRepository.findByProposalId(proposalId);
+    }
 
+    //제안서 아이디로 ChatDetailDTO 반환
+    @Override
+    public ChatDetailDTO getChatDtoByProposalId(String token,String proposalId){
+        //제안서 아이디로 채팅방 조회 (Optional 예외처리)
+        Chat chat = findByProposalId(proposalId);
+        //feign client : partner Info 조회
+        PartnerInfoResponse partner = partnerApiClient.getPartnerInfo(token, chat.getProposalId());
         if(partner == null){
             throw new ChatException(ErrorCode.PARTNER_API_FAILED);
         }
@@ -65,9 +67,9 @@ public class ChatServiceImpl implements ChatService{
     //채팅방 생성
     @Override
     @Transactional
-    public String createRoom(String proposalId) {
+    public ChatDTO createRoom(String proposalId) {
         //DB에서 제안서 아이디를 기준으로 채팅방 조회
-        Chat chat = chatRepository.findByProposalId(proposalId);
+        Chat chat = findByProposalId(proposalId);
         //이미 존재하는 채팅방이면 예외처리
         if(chat != null){
             throw new ChatException(ErrorCode.CHATROOM_ALREADY_EXIST);
@@ -80,7 +82,7 @@ public class ChatServiceImpl implements ChatService{
                 .build();
         chatRepository.save(chat);
 
-        return chat.getChatId();
+        return modelMapper.map(chat,ChatDTO.class);
     }
 
 
@@ -93,7 +95,6 @@ public class ChatServiceImpl implements ChatService{
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
         return chatDTOs(chats,chatInfos,lastMessages);
-
     }
 
 
@@ -135,6 +136,25 @@ public class ChatServiceImpl implements ChatService{
         return advertiserChatList;
     }
 
+    //제안서에 해당하는 채팅방 상태를 활성으로 변경
+    public Chat activateRoomByProposal(String proposalId){
+        Chat chat = findByProposalId(proposalId);
+        chat.setChatStatus(ChatStatus.ACTIVE);
+        return chatRepository.save(chat);
+    }
+
+    //채팅아이디로 채팅방 조회
+    public ChatDetailDTO getChatDtoByChatId(String token,String chatId){
+        Chat chat = chatRepository.findById(chatId).orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
+        return getChatDtoByProposalId(token,chat.getProposalId());
+    }
+
+    //제안서에 해당하는 채팅방 소프트삭제
+    public Chat softDeleteChat(String proposalId){
+        Chat chat = findByProposalId(proposalId);
+        chat.setChatStatus(ChatStatus.DELETE);
+        return chatRepository.save(chat);
+    }
 
 
 

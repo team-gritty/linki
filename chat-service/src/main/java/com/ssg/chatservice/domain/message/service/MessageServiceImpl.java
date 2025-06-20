@@ -1,9 +1,11 @@
 package com.ssg.chatservice.domain.message.service;
 
+import com.ssg.chatservice.domain.chat.enums.ErrorCode;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.repository.MessageRepository;
 import com.ssg.chatservice.entity.Chat;
 import com.ssg.chatservice.entity.Message;
+import com.ssg.chatservice.exception.ChatException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -41,11 +43,16 @@ public class MessageServiceImpl implements MessageService{
     //메세지 테이블에서 마지막 메세지 조회(DateType 변환을 위해 DTO로 변환)
     public Map<String,ChatMessageDTO> lastMessage(List<Chat> chats){
         Map<String,ChatMessageDTO> lastMessageMap = new HashMap<>();
+        try {
         chats.stream().forEach(chat -> {
             Message lastMessage = messageRepository.findTop1ByChatIdOrderByMessageDateDesc(chat.getChatId());
-            ChatMessageDTO chatLastMessageDTO = modelMapper.map(lastMessage,ChatMessageDTO.class);
-            lastMessageMap.put(chat.getChatId(),chatLastMessageDTO);
+
+               ChatMessageDTO chatLastMessageDTO = modelMapper.map(lastMessage, ChatMessageDTO.class);
+               lastMessageMap.put(chat.getChatId(), chatLastMessageDTO);
         });
+        }catch (Exception  e){
+            throw new ChatException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
         return lastMessageMap;
     }
 

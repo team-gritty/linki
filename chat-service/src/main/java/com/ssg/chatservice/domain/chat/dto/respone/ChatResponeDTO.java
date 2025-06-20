@@ -1,14 +1,14 @@
 package com.ssg.chatservice.domain.chat.dto.respone;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatResponeDTO {
     private String chatId;
     private String opponentId;
