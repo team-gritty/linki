@@ -1,9 +1,6 @@
 package com.ssg.chatservice.domain.chat.service;
 
-import com.ssg.chatservice.client.ChatApiClient;
-import com.ssg.chatservice.client.ChatInfoResponse;
-import com.ssg.chatservice.client.PartnerApiClient;
-import com.ssg.chatservice.client.PartnerInfoResponse;
+import com.ssg.chatservice.client.*;
 import com.ssg.chatservice.domain.chat.dto.ChatDTO;
 import com.ssg.chatservice.domain.chat.dto.ChatDetailDTO;
 import com.ssg.chatservice.domain.chat.enums.ChatStatus;
@@ -18,6 +15,8 @@ import com.ssg.chatservice.exception.ChatException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -31,7 +30,6 @@ public class ChatServiceImpl implements ChatService{
     private final ChatRepository chatRepository;
     private final MessageService messageService;
     //feign client
-    private final PartnerApiClient partnerApiClient;
     private final ChatApiClient chatApiClient;
 
     private final ModelMapper modelMapper;
@@ -47,7 +45,7 @@ public class ChatServiceImpl implements ChatService{
         //제안서 아이디로 채팅방 조회 (Optional 예외처리)
         Chat chat = findByProposalId(proposalId);
         //feign client : partner Info 조회
-        PartnerInfoResponse partner = partnerApiClient.getPartnerInfo(token, chat.getProposalId());
+        PartnerInfoResponse partner = chatApiClient.getPartnerInfo(token, chat.getProposalId());
         if(partner == null){
             throw new ChatException(ErrorCode.PARTNER_API_FAILED);
         }
@@ -90,7 +88,17 @@ public class ChatServiceImpl implements ChatService{
     //광고주의 채팅 목록 조회 (캠페인 아이디로 채팅방 조회)
     @Override
     public List<ChatDTO> campaignToChatList (String token, String campaignId){
-        List<ChatInfoResponse> chatInfos = chatInfoResponses(token, campaignId);
+        List<ChatInfoResponse> chatInfos = campaignToChatInfo(token, campaignId);
+        List<Chat> chats = chatInfoGetChat(chatInfos);
+        //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
+        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
+        return chatDTOs(chats,chatInfos,lastMessages);
+    }
+
+    //로그인 유저의 채팅 목록 조회 (유저 아이디로 채팅방 조회)
+    @Override
+    public List<ChatDTO> userToChatList (String token){
+        List<ChatInfoResponse> chatInfos = userChatinfo(token);
         List<Chat> chats = chatInfoGetChat(chatInfos);
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
@@ -100,14 +108,14 @@ public class ChatServiceImpl implements ChatService{
 
     // feign client : 캠페인 아이디로 채팅 정보 조회
     @Override
-    public List<ChatInfoResponse> chatInfoResponses(String token, String campaignId) {
+    public List<ChatInfoResponse> campaignToChatInfo(String token, String campaignId) {
         return chatApiClient.getChatInfo(token, campaignId);
     }
 
     //채팅 정보리스트에서 proposalId 추출하여 채팅방 조회
     @Override
-    public List<Chat> chatInfoGetChat(List<ChatInfoResponse> chatInfoResponses){
-        List<String> proposalIds = chatInfoResponses.stream()
+    public List<Chat> chatInfoGetChat(List<ChatInfoResponse> campaignToChatInfo){
+        List<String> proposalIds = campaignToChatInfo.stream()
                 .map(ChatInfoResponse::getProposalId)
                 .collect(Collectors.toList());
         return chatRepository.findByProposalIdIn(proposalIds);
@@ -136,6 +144,7 @@ public class ChatServiceImpl implements ChatService{
         return advertiserChatList;
     }
 
+    @Override
     //제안서에 해당하는 채팅방 상태를 활성으로 변경
     public Chat activateRoomByProposal(String proposalId){
         Chat chat = findByProposalId(proposalId);
@@ -143,17 +152,28 @@ public class ChatServiceImpl implements ChatService{
         return chatRepository.save(chat);
     }
 
+
+    @Override
     //채팅아이디로 채팅방 조회
     public ChatDetailDTO getChatDtoByChatId(String token,String chatId){
         Chat chat = chatRepository.findById(chatId).orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
         return getChatDtoByProposalId(token,chat.getProposalId());
     }
 
+
+    @Override
     //제안서에 해당하는 채팅방 소프트삭제
     public Chat softDeleteChat(String proposalId){
         Chat chat = findByProposalId(proposalId);
         chat.setChatStatus(ChatStatus.DELETE);
         return chatRepository.save(chat);
+    }
+
+
+    @Override
+    //유저 아이디로 채팅정보 조회
+    public List<ChatInfoResponse> userChatinfo(String token){
+       return chatApiClient.getUserChatInfo(token);
     }
 
 
