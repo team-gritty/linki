@@ -100,8 +100,6 @@ const submitProposal = async () => {
     await proposalAPI.submitProposal(route.params.id, formData.value.contents)
     
 
-    await campaignAPI.submitProposal(route.params.id, formData.value.contents)
-
     //채팅방 생성
     await chatApi.createRoom(route.params.id)
 
