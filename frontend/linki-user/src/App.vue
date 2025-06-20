@@ -3,18 +3,22 @@ import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
-import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAccountStore } from './stores/account'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
 
 const router = useRouter()
+const route = useRoute()
 const accountStore = useAccountStore()
 const openSidebar = ref(false)
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value
 }
+
+// /go 경로인지 확인하는 computed 속성
+const isRedirectRoute = computed(() => route.name === 'redirect-url')
 
 // JWT 토큰 파싱 함수
 const parseJwtToken = (token) => {
@@ -97,17 +101,17 @@ watch(
 
 <template>
   <div class="app">
-    <Header :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
-    <Sidebar :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
-    <div class="main-container">
+    <Header v-if="!isRedirectRoute" :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
+    <Sidebar v-if="!isRedirectRoute" :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
+    <div class="main-container" :class="{ 'no-padding': isRedirectRoute }">
       <main class="content">
         <RouterView v-slot="{ Component }">
           <component :is="Component" :key="$route.fullPath" />
         </RouterView>
       </main>
     </div>
-    <Footer />
-    <Chatbot />
+    <Footer v-if="!isRedirectRoute" />
+    <Chatbot v-if="!isRedirectRoute" />
     <Alert />
   </div>
 </template>
@@ -132,6 +136,10 @@ watch(
   padding-top: 121px; /* Header(48) + Navbar(73) */
   padding-bottom: 60px; /* Footer 높이 */
   box-sizing: border-box;
+}
+
+.main-container.no-padding {
+  padding: 0;
 }
 
 .content {

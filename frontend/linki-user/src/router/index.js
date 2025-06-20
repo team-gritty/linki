@@ -144,6 +144,11 @@ const router = createRouter({
       name: 'AdvertiserMypage',
       component: MyPage
 
+    },
+    {
+      path: '/go',
+      name: 'redirect-url',
+      component: () => import('../views/common/RedirectUrl.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {
