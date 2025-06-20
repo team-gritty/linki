@@ -66,6 +66,14 @@ const initializeAuth = () => {
     localStorage.removeItem('token')
   }
 }
+// 계정 체크 함수 정의
+const checkAccount = async () => {
+  try {
+    await check()
+  } catch (error) {
+    console.error('계정 체크 실패:', error)
+  }
+}
 
 onMounted(() => {
   initializeAuth()
@@ -77,6 +85,12 @@ watch(
   () => {
     // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo(0, 0)
+
+    // 로그인된 상태일 때만 계정 체크
+    if (accountStore.isLoggedIn) {
+      checkAccount();
+    }
+
   }
 )
 </script>

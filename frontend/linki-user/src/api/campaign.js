@@ -19,22 +19,22 @@ export const campaignAPI = {
       if (params.campaignCategory && params.campaignCategory !== '전체') {
         console.log('Fetching campaigns by category:', params.campaignCategory) // 디버깅용
         const response = await httpClient.get(`/v1/api/nonuser/campaigns/categories/${params.campaignCategory}`)
-        
+
         let allCampaigns = response.data;
         console.log('Received campaigns by category:', allCampaigns.length) // 디버깅용
-        
+
         // 정렬 처리
         if (params._sort) {
           allCampaigns.sort((a, b) => {
             let aValue = a[params._sort];
             let bValue = b[params._sort];
-            
+
             // 날짜 정렬
             if (params._sort === 'createdAt' || params._sort === 'campaignDeadline') {
               aValue = new Date(aValue);
               bValue = new Date(bValue);
             }
-            
+
             if (params._order === 'desc') {
               return bValue > aValue ? 1 : -1;
             } else {
@@ -42,7 +42,7 @@ export const campaignAPI = {
             }
           });
         }
-        
+
         // 프론트엔드에서 페이지네이션을 처리하므로 모든 데이터 반환
         return {
           campaigns: allCampaigns,
@@ -104,6 +104,9 @@ export const campaignAPI = {
     }
   },
 
+  submitProposal: async (id, contents) => {
+    return await httpClient.post(`/v1/api/influencer/campaigns/${id}/proposal`, { contents })
+  },
   // 광고주 리뷰 조회
   // getAdvertiserReviews: async (advertiserId) => {
   //   try {
@@ -139,7 +142,7 @@ export const campaignAPI = {
     try {
       const response = await httpClient.get('/v1/api/nonuser/categories');
       console.log('Categories from API:', response.data); // 디버깅용
-      
+
       // 백엔드에서 받은 데이터를 프론트엔드 형식에 맞게 변환
       return response.data.map(category => ({
         id: category.name,        // enum 이름 (BEAUTY, FASHION 등) - API 요청에 사용
@@ -147,7 +150,7 @@ export const campaignAPI = {
       }));
     } catch (error) {
       console.error('Error fetching categories:', error)
-      
+
       // API 실패 시 폴백으로 하드코딩된 카테고리 사용
       const fallbackCategories = [
         { id: 'BEAUTY', name: '뷰티' },
@@ -162,7 +165,7 @@ export const campaignAPI = {
         { id: 'ELECTRONICS', name: '전자제품' },
         { id: 'ANIMAL', name: '동물' }
       ];
-      
+
       return fallbackCategories;
     }
   }
