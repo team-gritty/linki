@@ -73,11 +73,19 @@ const props = defineProps({
   chatRoom: Object
 })
 
+<<<<<<< HEAD
+const accountStore = useAccountStore()
+const currentUserId = computed(() => {
+  // 임시로 하드코딩된 사용자 ID 사용 (실제로는 로그인된 사용자 정보에서 가져와야 함)
+  return 'USER0000'
+})
+=======
 // const accountStore = useAccountStore()
 // const currentUserId = computed(() => {
 //   // 임시로 하드코딩된 사용자 ID 사용 (실제로는 로그인된 사용자 정보에서 가져와야 함)
 //   return 'USER0000'
 // })
+>>>>>>> 8d6bf02a132a4e74a62cada50b000b5266771968
 
 const newMessage = ref('')
 const loading = ref(false)
