@@ -13,6 +13,7 @@ import com.ssg.chatservice.domain.chat.repository.ChatRepository;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
 import com.ssg.chatservice.entity.Chat;
+import com.ssg.chatservice.entity.Message;
 import com.ssg.chatservice.exception.ChatException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -84,25 +85,42 @@ public class ChatServiceImpl implements ChatService{
 
 
 
-
-    //광고주의 채팅 목록 조회
+    //광고주의 채팅 목록 조회 (캠페인 아이디로 채팅방 조회)
     @Override
-    public List<ChatDTO> AdvertiserChatList(String token, String campaignId) {
+    public List<ChatDTO> campaignToChatList (String token, String campaignId){
+        List<ChatInfoResponse> chatInfos = chatInfoResponses(token, campaignId);
+        List<Chat> chats = chatInfoGetChat(chatInfos);
+        //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
+        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
+        return chatDTOs(chats,chatInfos,lastMessages);
+
+    }
+
+
+    // feign client : 캠페인 아이디로 채팅 정보 조회
+    @Override
+    public List<ChatInfoResponse> chatInfoResponses(String token, String campaignId) {
+        return chatApiClient.getChatInfo(token, campaignId);
+    }
+
+    //채팅 정보리스트에서 proposalId 추출하여 채팅방 조회
+    @Override
+    public List<Chat> chatInfoGetChat(List<ChatInfoResponse> chatInfoResponses){
+        List<String> proposalIds = chatInfoResponses.stream()
+                .map(ChatInfoResponse::getProposalId)
+                .collect(Collectors.toList());
+        return chatRepository.findByProposalIdIn(proposalIds);
+    }
+
+
+    //chatDto List 빌더
+    @Override
+    public List<ChatDTO> chatDTOs (List<Chat> chats ,
+                                   List<ChatInfoResponse> chatInfos,
+                                   Map<String, ChatMessageDTO>  lastMessages){
         List<ChatDTO> advertiserChatList = new ArrayList<>();
 
-        // 1. 채팅 정보 조회
-        List<ChatInfoResponse> chatInfos = chatApiClient.getChatInfo(token, campaignId);
-        List<String> proposalIds = chatInfos.stream()
-            .map(ChatInfoResponse::getProposalId)
-            .collect(Collectors.toList());
-
-        // 2. 채팅방 조회 및 맵핑
-        List<Chat> chats = chatRepository.findByProposalIdIn(proposalIds);
-        // 3. 마지막 메시지 조회
-        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
-
-        // 4. ChatDTO 리스트 생성
-        for(int i = 0; i< chatInfos.size(); i++){
+        for(int i = 0; i< chats.size(); i++){
             ChatDTO chatdto = ChatDTO.builder()
                     .chatId((chats.get(i).getChatId()))
                     .opponentId(chatInfos.get(i).getOpponentId())
@@ -116,6 +134,8 @@ public class ChatServiceImpl implements ChatService{
         }
         return advertiserChatList;
     }
+
+
 
 
 }

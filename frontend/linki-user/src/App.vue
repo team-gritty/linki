@@ -8,17 +8,13 @@ import { useRouter } from 'vue-router'
 import { useAccountStore } from './stores/account'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
-import axios from 'axios'
-import { check } from '@/services/accountService'
 
 const router = useRouter()
 const accountStore = useAccountStore()
 const openSidebar = ref(false)
-
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value
 }
-
 
 // JWT 토큰 파싱 함수
 const parseJwtToken = (token) => {
@@ -70,10 +66,17 @@ const initializeAuth = () => {
     localStorage.removeItem('token')
   }
 }
+// 계정 체크 함수 정의
+const checkAccount = async () => {
+  try {
+    await check()
+  } catch (error) {
+    console.error('계정 체크 실패:', error)
+  }
+}
 
 onMounted(() => {
   initializeAuth()
-
 })
 
 // 라우터 변경 감지
@@ -82,8 +85,12 @@ watch(
   () => {
     // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo(0, 0)
-    // 라우트 이동 시 로그인 체크
-    checkAccount();
+
+    // 로그인된 상태일 때만 계정 체크
+    if (accountStore.isLoggedIn) {
+      checkAccount();
+    }
+
   }
 )
 </script>
