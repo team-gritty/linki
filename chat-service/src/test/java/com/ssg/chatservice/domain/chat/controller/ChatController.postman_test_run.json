@@ -1,0 +1,176 @@
+{
+	"id": "04cf6c90-27ed-4ad9-bdec-562e361b9a01",
+	"name": "ChatController",
+	"timestamp": "2025-06-20T12:30:12.599Z",
+	"collection_id": "43490002-3260adef-3bf1-4d8e-b5f1-fdfd6b32ec8e",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-20T12:30:11.164Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "5e932c90-9600-4054-8643-42f43c660233",
+			"name": "Create Room Copy",
+			"url": "http://localhost:8000/v1/chat-service/api/influencer/rooms/PRP-0000000000000000",
+			"time": 122,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				122
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "c2ad9b45-502a-47dd-b743-ef3d82d22655",
+			"name": "enterRoomByProposal",
+			"url": "http://localhost:8000/v1/chat-service/api/influencer/room/PRP-0000000000000002",
+			"time": 59,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				59
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "d4b1fe52-3815-4ec6-9731-417b5ced93cd",
+			"name": "chatListByCampaign",
+			"url": "http://localhost:8000/v1/chat-service/api/advertiser/list/CMP-0000000000000000",
+			"time": 76,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				76
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "8b860a80-757d-4eab-9572-1cae4caf26e8",
+			"name": "activateRoomByProposal",
+			"url": "http://localhost:8000/v1/chat-service/api/advertiser/rooms/activate/PRP-0000000000000002",
+			"time": 60,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				60
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "1eafd815-92b1-4ef7-ae21-5f64291d8409",
+			"name": "chatRoomByCampign",
+			"url": "http://localhost:8000/v1/chat-service/api/advertiser/chat-detail/CHT-0000000000000002",
+			"time": 42,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				42
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2c632cac-3e7d-45d6-99a1-7fab6c5188f8",
+			"name": "rejectProposal",
+			"url": "http://localhost:8000/v1/chat-service/api/advertiser/proposals/PRP-0000000000000002/reject",
+			"time": 34,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				34
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "caf02e1f-62fb-4823-beee-16a447ec2afc",
+			"name": "userChatList",
+			"url": "http://localhost:8000/v1/chat-service/api/authuser/user-chat-list",
+			"time": 40,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				40
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 433,
+	"collection": {
+		"requests": [
+			{
+				"id": "5e932c90-9600-4054-8643-42f43c660233",
+				"method": "POST"
+			},
+			{
+				"id": "c2ad9b45-502a-47dd-b743-ef3d82d22655",
+				"method": "GET"
+			},
+			{
+				"id": "d4b1fe52-3815-4ec6-9731-417b5ced93cd",
+				"method": "GET"
+			},
+			{
+				"id": "8b860a80-757d-4eab-9572-1cae4caf26e8",
+				"method": "POST"
+			},
+			{
+				"id": "1eafd815-92b1-4ef7-ae21-5f64291d8409",
+				"method": "GET"
+			},
+			{
+				"id": "2c632cac-3e7d-45d6-99a1-7fab6c5188f8",
+				"method": "POST"
+			},
+			{
+				"id": "caf02e1f-62fb-4823-beee-16a447ec2afc",
+				"method": "GET"
+			}
+		]
+	}
+}
