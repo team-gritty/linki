@@ -21,7 +21,7 @@ const channelApi = {
    */
   getChannelById: async (channelId) => {
     try {
-      const response = await httpClient.get(`/v1/api/channels/${channelId}`)
+      const response = await httpClient.get(`/v1/api/user/channels/${channelId}`)
       return response.data
     } catch (error) {
       console.error('Error fetching channel by ID:', error)
