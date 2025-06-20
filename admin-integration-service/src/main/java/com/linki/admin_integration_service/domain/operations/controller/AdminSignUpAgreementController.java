@@ -55,4 +55,9 @@ public class AdminSignUpAgreementController {
                 .toList();
         return ResponseEntity.ok(adminSignUpAgreementResponseDTOList);
     }
+
+    @PostMapping("/v1/admin/api/adminSignUp/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(adminSignUpAgreementService.exportExcel());
+    }
 }

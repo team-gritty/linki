@@ -19,7 +19,7 @@ export default defineConfig({
     allowedHosts: ['linki.kr', 'www.linki.kr'],
     proxy: {
       '/v1/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:8000',
         changeOrigin: true
       },
       '/v1/chat-service/api/': {

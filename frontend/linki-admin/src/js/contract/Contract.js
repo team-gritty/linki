@@ -16,5 +16,7 @@ export const searchContract = async (searchType, keyword) => {
 }
 
 export async function exportExcel() {
-  return await httpRequester.post('/v1/admin/api/contracts/exportExcel')
+  const res = await httpRequester.post('/v1/admin/api/contracts/exportExcel');
+  const downloadUrl = res.data;
+  window.open(downloadUrl);
 }

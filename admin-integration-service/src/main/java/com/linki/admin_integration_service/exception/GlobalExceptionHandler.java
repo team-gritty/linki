@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        log.error(e.getMessage());
+        log.error("Unhandled Exception", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("서버 오류: " + e.getMessage());
     }
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
-        log.error(e.getMessage());
+        log.error("Illegal Argument", e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("잘못된 요청: " + e.getMessage());
     }
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<String> handleNPE(NullPointerException e) {
-        log.error(e.getMessage());
+        log.error("Null Pointer Exception", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("서버 오류(NPE): " + e.getMessage());
     }
