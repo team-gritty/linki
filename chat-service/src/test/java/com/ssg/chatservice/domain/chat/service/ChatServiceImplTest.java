@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -88,6 +87,13 @@ class ChatServiceImplTest {
 
     }
 
+    @Test
+    @DisplayName("로그인 유저의 채팅 목록 조회 (유저 아이디로 채팅방 조회)")
+    void userToChatList(){
+        String token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJVU1ItMDAwMDAwMDAwMDAwMDAwMiIsInVzZXJSb2xlIjoiUk9MRV9BRFZFUlRJU0VSIiwiaWF0IjoxNzUwNDA3MTgzLCJleHAiOjE3NTA0NDMxODN9.jjojs_8C3b36deWJgFFijvtCAru-1JpodxuWxvqi204";
+        List<ChatDTO> chatDTOs = chatService.userToChatList(token);
+        chatDTOs.forEach(chatDTO -> log.info("chatDTO={}",chatDTO.toString()));
+    }
 
 
     @Test
@@ -100,7 +106,7 @@ class ChatServiceImplTest {
         String token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJVU1ItMDAwMDAwMDAwMDAwMDAwMCIsInVzZXJSb2xlIjoiUk9MRV9JTkZMVUVOQ0VSIiwiaWF0IjoxNzUwMzg3NjQ2LCJleHAiOjE3NTA0MjM2NDZ9.zI8qCp_QrrKF7cYIBAdMuHPi1ht5uyS_pqWgEwdqf88";
 
         //파트너 객체 호출
-        List<ChatInfoResponse> chatInfoResponses = chatService.chatInfoResponses(token, campaignId);
+        List<ChatInfoResponse> chatInfoResponses = chatService.campaignToChatInfo(token, campaignId);
         //반환된 DTO가 null이 아니고, 제안서 ID가 일치하는지 검증
         assertThat(chatInfoResponses).isNotNull();
         log.info(chatInfoResponses.toString());

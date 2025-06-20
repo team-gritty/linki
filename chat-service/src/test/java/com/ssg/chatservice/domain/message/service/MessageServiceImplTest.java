@@ -134,14 +134,6 @@ class MessageServiceImplTest {
         assertThat(lastMessage.get("CHT-0000000000000001").getContent()).isEqualTo(chatMessageDTO2.getContent());
 
 
-        for (Chat chat : chats) {
-            String chatId = chat.getChatId();
-            if (!lastMessage.containsKey(chatId)) {
-                log.error("❌ lastMessage map에 chatId={} 없음", chatId);
-            } else {
-                log.info("chatId={} → lastMessage={}", chatId, lastMessage.get(chatId).getContent());
-            }
-        }
     }
 
 }
