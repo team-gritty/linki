@@ -5,6 +5,7 @@ import com.Gritty.Linki.vo.enums.Category;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class CampaignListResponseDTO {
     private String campaignCondition;
     private String campaignImg;
     private Category campaignCategory;
-    private LocalDate createdAt;
-    private LocalDate campaignDeadline;
+    private LocalDateTime createdAt;
+    private LocalDateTime campaignDeadline;
     private CampaignPublishStatus CampaignPublishStatus;
 }

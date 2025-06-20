@@ -9,7 +9,7 @@ import com.Gritty.Linki.domain.oAuth.signUp.service.AccountService;
 import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
 import com.Gritty.Linki.util.HttpUtil;
 
-import com.Gritty.Linki.util.TokenUtil;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,10 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
+import org.springframework.security.core.Authentication;
 
 import java.util.Map;
 
@@ -33,6 +35,21 @@ public class AccountController {
     private final AccountService accountService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
+
+
+
+    @GetMapping("/check")
+    public ResponseEntity<?> check() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()
+                || auth.getPrincipal().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("로그인 안됨");
+        }
+
+        String username = auth.getName();
+        return ResponseEntity.ok("로그인된 사용자: " + username);
+    }
 
 
     @PostMapping("signup")
@@ -75,15 +92,18 @@ public class AccountController {
         if (StringUtils.hasLength(refreshToken) && jwtUtil.isTokenExpired(refreshToken) ) {
             Map<String, Object> tokenBody = jwtUtil.getBody(refreshToken);
 
-            Integer userLoginId = (Integer) tokenBody.get("userLoginId");
+            String userId = (String) tokenBody.get("userId");
+            String role = (String) tokenBody.get("userRole");
 
-            accessToken = TokenUtil.generate("access_Token", "userLoginId", userLoginId, 60);
+            accessToken = jwtUtil.createJwtToken(userId, role, 60 * 60L);
 
 
 
         }
         return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
+
+
 }
 
 //    @GetMapping("/token")

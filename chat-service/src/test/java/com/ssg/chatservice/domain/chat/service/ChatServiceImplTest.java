@@ -2,8 +2,6 @@ package com.ssg.chatservice.domain.chat.service;
 
 import com.ssg.chatservice.client.PartnerApiClient;
 import com.ssg.chatservice.client.PartnerInfoResponse;
-import com.ssg.chatservice.domain.chat.dto.ChatDetailDTO;
-import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import com.ssg.chatservice.domain.chat.repository.ChatRepository;
 import com.ssg.chatservice.entity.Chat;
 import org.junit.jupiter.api.DisplayName;
@@ -51,15 +49,10 @@ class ChatServiceImplTest {
         given(partnerApiClient.getPartnerInfo(token,proposalId)).willReturn(fakePartner);
 
         // 채팅방 생성 로직 실행
-        ChatDetailDTO result = chatService.createRoom(token,proposalId);
+        String result = chatService.createRoom(proposalId);
 
         //  반환된 DTO가 null이 아니고, 제안서 ID가 일치하는지 검증
         assertThat(result).isNotNull();
-        assertThat(result.getProposalId()).isEqualTo(proposalId);
-
-        //  파트너 정보가 제대로 포함되었는지 확인
-        assertThat(result.getPartnerId()).isEqualTo("partnerId");
-        assertThat(result.getPartnerName()).isEqualTo("partnerName");
 
         //  DB에 채팅방이 실제로 저장되었는지 확인
         Chat saved = chatRepository.findByProposalId(proposalId);

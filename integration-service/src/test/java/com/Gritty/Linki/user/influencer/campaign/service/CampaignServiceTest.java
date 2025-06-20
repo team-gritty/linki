@@ -2,6 +2,7 @@ package com.Gritty.Linki.user.influencer.campaign.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampaignService;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
@@ -45,12 +46,12 @@ public class CampaignServiceTest {
         //then
         assertThat(campaigns).isNotNull();
         assertThat(campaigns.size()).isGreaterThan(0);
-        campaigns.forEach(dto-> System.out.println("📢 캠페인 제목: " + dto.getCampaignName()));
+        campaigns.forEach(dto -> System.out.println("📢 캠페인 제목: " + dto.getCampaignName()));
 
     }
 
     @Test
-    void testGetCampaignDetailsById(){
+    void testGetCampaignDetailsById() {
         // given
         String campaignId = "CAMP0001";
 
@@ -67,8 +68,9 @@ public class CampaignServiceTest {
 
 
     }
+
     @Test
-    void testGetcampaignsByCategory(){
+    void testGetcampaignsByCategory() {
         // when
         List<CampaignListResponseDTO> beauties = campaignService.getCampaignsByCategory(Category.BEAUTY);
 
@@ -106,4 +108,27 @@ public class CampaignServiceTest {
         System.out.println("▶ 광고주 회사명: " + dto.getCompanyName());
     }
 
+    @Test
+    void testGetCategories() {
+        // when
+        List<CampaignCategoryResponseDTO> categories = campaignService.getCategories();
+
+        // then
+        assertThat(categories).isNotNull();
+        assertThat(categories).isNotEmpty();
+        assertThat(categories.size()).isEqualTo(Category.values().length);
+
+        // 각 항목이 enum 기반으로 잘 매핑되었는지 확인
+        for (Category category : Category.values()) {
+            boolean matched = categories.stream()
+                    .anyMatch(dto -> dto.getName().equals(category.name())
+                            && dto.getDisplayName().equals(category.getDisplayName()));
+            assertThat(matched)
+                    .as("카테고리 %s 가 올바르게 매핑되어야 함", category.name())
+                    .isTrue();
+
+
+        }
+
+    }
 }

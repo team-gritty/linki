@@ -6,7 +6,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import com.ssg.chatservice.domain.message.dto.respone.ChatMessageResponeDTO;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -19,18 +19,31 @@ public class ModelMapperConfig {
     public ModelMapper MessageDateMapper(){
         ModelMapper modelMapper = new ModelMapper();
 
-        Converter<Instant, LocalDateTime> instantLocalDateTime =
-                ctx -> ctx.getSource() == null? null : ctx.getSource().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
-        modelMapper.typeMap(Message.class, ChatMessageDTO.class).addMappings(mapper->mapper.using(instantLocalDateTime)
-                .map(Message::getMessageDate,ChatMessageDTO::setMessageDate));
+        // Entity → DTO: Instant → LocalDateTime
+        Converter<Instant, LocalDateTime> instantToLocalDateTime =
+                ctx -> ctx.getSource() == null ? null :
+                        ctx.getSource().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
 
-        Converter<LocalDateTime, Instant> localDateTimeToInstant  =
-                ctx -> ctx.getSource() == null? null : ctx.getSource().atZone(ZoneId.of("Asia/Seoul")).toInstant();
-        modelMapper.typeMap(Message.class, ChatMessageDTO.class).addMappings(mapper->mapper.using(localDateTimeToInstant)
-                .map(Message::getMessageDate,ChatMessageDTO::setMessageDate));
+        // Message → ChatMessageDTO
+        modelMapper.typeMap(Message.class, ChatMessageDTO.class)
+                .addMappings(mapper -> mapper.using(instantToLocalDateTime)
+                        .map(Message::getMessageDate, ChatMessageDTO::setMessageDate));
+
+        // Message → ChatMessageResponeDTO
+        modelMapper.typeMap(Message.class, ChatMessageResponeDTO.class)
+                .addMappings(mapper -> mapper.using(instantToLocalDateTime)
+                        .map(Message::getMessageDate, ChatMessageResponeDTO::setMessageDate));
+
+        // DTO → Entity: LocalDateTime → Instant
+        Converter<LocalDateTime, Instant> localDateTimeToInstant =
+                ctx -> ctx.getSource() == null ? null :
+                        ctx.getSource().atZone(ZoneId.of("Asia/Seoul")).toInstant();
+
+        modelMapper.typeMap(ChatMessageDTO.class, Message.class)
+                .addMappings(mapper -> mapper.using(localDateTimeToInstant)
+                        .map(ChatMessageDTO::getMessageDate, Message::setMessageDate));
 
         return modelMapper;
     }
-
 
 }
