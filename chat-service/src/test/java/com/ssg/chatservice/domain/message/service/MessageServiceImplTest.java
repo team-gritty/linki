@@ -1,14 +1,18 @@
 package com.ssg.chatservice.domain.message.service;
 
+import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
+import com.ssg.chatservice.entity.Chat;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -64,12 +68,11 @@ class MessageServiceImplTest {
         // when: 채팅 ID로 메시지 조회
         List<ChatMessageDTO> messages = messageService.findByChatId(chatId);
 
-        // then
-        assertThat(messages).isNotNull();    // 리스트가 null이 아님
-        assertThat(messages.size()).isGreaterThan(0); // 최소 1개 이상 존재
+        assertThat(messages).isNotNull();
+        assertThat(messages.size()).isGreaterThan(0);
 
         ChatMessageDTO first = messages.get(0);
-        assertThat(first.getChatId()).isEqualTo(chatId); // chatId 일치 여부
+        assertThat(first.getChatId()).isEqualTo(chatId);
 
         log.info("조회된 메시지 개수: {}", messages.size());
         for (ChatMessageDTO message : messages) {
@@ -96,6 +99,49 @@ class MessageServiceImplTest {
 
         assertThat(messages).isNotEmpty();
         assertThat(messages.get(0).getChatId()).isEqualTo(chatId);
+    }
+
+    @Test
+    @DisplayName("해당 채팅방의 마지막 메세지 조회")
+    void lastMessage(){
+        List<Chat> chats = List.of(
+                new Chat("CHT-0000000000000000", Instant.now(), ChatStatus.PENDING,"PRP-0000000000000000"),
+                new Chat("CHT-0000000000000001", Instant.now(), ChatStatus.PENDING,"PRP-0000000000000001")
+        );
+        ChatMessageDTO chatMessageDTO1 = ChatMessageDTO.builder()
+                .chatId("CHT-0000000000000000")
+                .messageDate(LocalDateTime.now())
+                .content("CHT-0000000000000000의 마지막메시지")
+                .messageType("TEXT")
+                .senderId("user-test")
+                .messageRead(false)
+                .build();
+
+        ChatMessageDTO chatMessageDTO2 = ChatMessageDTO.builder()
+                .chatId("CHT-0000000000000001")
+                .messageDate(LocalDateTime.now())
+                .content("CHT-0000000000000001의 마지막메시지")
+                .messageType("TEXT")
+                .senderId("user-test")
+                .messageRead(false)
+                .build();
+
+        messageService.saveMessage(chatMessageDTO1);
+        messageService.saveMessage(chatMessageDTO2);
+
+        Map<String,ChatMessageDTO> lastMessage = messageService.lastMessage(chats);
+        assertThat(lastMessage.get("CHT-0000000000000000").getContent()).isEqualTo(chatMessageDTO1.getContent());
+        assertThat(lastMessage.get("CHT-0000000000000001").getContent()).isEqualTo(chatMessageDTO2.getContent());
+
+
+        for (Chat chat : chats) {
+            String chatId = chat.getChatId();
+            if (!lastMessage.containsKey(chatId)) {
+                log.error("❌ lastMessage map에 chatId={} 없음", chatId);
+            } else {
+                log.info("chatId={} → lastMessage={}", chatId, lastMessage.get(chatId).getContent());
+            }
+        }
     }
 
 }
