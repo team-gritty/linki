@@ -42,4 +42,9 @@ public class CampaignController {
         return ResponseEntity.ok(campaignResponseDTOList);
 
     }
+
+    @PostMapping("/v1/admin/api/campaigns/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(campaignService.exportExcel());
+    }
 }

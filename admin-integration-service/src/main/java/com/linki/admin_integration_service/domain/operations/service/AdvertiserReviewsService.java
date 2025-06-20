@@ -10,5 +10,6 @@ public interface AdvertiserReviewsService {
     List<AdvertiserReviewDTO> getAllAdvertiserReviews();
     Boolean updateAdvertiserReviewVisibility(AdvertiserReviewVisibilityRequestDTO advertiserReviewVisibilityRequestDTO);
     List<AdvertiserReviewDTO> searchAllAdvertiserReviews(AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO);
+    String exportExcel();
 
 }

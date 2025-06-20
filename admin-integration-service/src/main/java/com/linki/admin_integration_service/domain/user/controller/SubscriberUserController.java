@@ -42,4 +42,9 @@ public class SubscriberUserController {
         return ResponseEntity.ok(subscriberUserResponseDTOS);
 
     }
+
+    @PostMapping("/v1/admin/api/subscriberUsers/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(subscriberUserService.exportExcel());
+    }
 }

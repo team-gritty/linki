@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: chat-service
+  jwt:
+    secret: ${secret-HS256}
+
 
   jpa:
     hibernate:
@@ -23,17 +26,17 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
-
-kafka:
-  bootstrap-servers: localhost:9092  # Kafka 브로커 주소(임시)
-
-  consumer:
-    group-id: chat-service  # Consumer Group ID
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    properties:
-      spring.json.trusted.packages: "*"
-      spring.json.use.type.headers: true
+#
+#kafka:
+#  bootstrap-servers: localhost:9092  # Kafka 브로커 주소(임시)
+#
+#  consumer:
+#    group-id: chat-service  # Consumer Group ID
+#    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#    properties:
+#      spring.json.trusted.packages: "*"
+#      spring.json.use.type.headers: true
 
 # Kafka 관련 커스텀 설정 (리스너에서 사용)
 setting:
@@ -44,8 +47,6 @@ setting:
   config:
     import: "optional:application-secret.properties"
 
-  jwt:
-    secret: ${secret-HS256}
 
 
 logging:

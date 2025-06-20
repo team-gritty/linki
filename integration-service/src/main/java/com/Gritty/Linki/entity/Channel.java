@@ -1,5 +1,6 @@
 package com.Gritty.Linki.entity;
 
+import com.Gritty.Linki.domain.user.advertiser.channel.entity.SubscriberHistoryEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -86,6 +87,11 @@ public class Channel {
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
     @Builder.Default
     private List<ChannelStats> channelStats = new ArrayList<>();
+
+    // 구독자 히스토리와의 일대다 관계
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<SubscriberHistoryEntity> subscriberHistories = new ArrayList<>();
 
     @OneToOne(mappedBy = "channel", cascade = CascadeType.ALL)
     private InfluencerAuth influencerAuth;

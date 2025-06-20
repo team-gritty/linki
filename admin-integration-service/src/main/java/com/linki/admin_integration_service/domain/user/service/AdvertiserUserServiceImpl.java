@@ -3,6 +3,7 @@ package com.linki.admin_integration_service.domain.user.service;
 import com.linki.admin_integration_service.domain.user.dto.AdvertiserSearchRequestDTO;
 import com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO;
 import com.linki.admin_integration_service.domain.user.repository.myBatis.AdvertiserUserMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Locale;
 public class AdvertiserUserServiceImpl implements AdvertiserUserService {
 
     private final AdvertiserUserMapper advertiserUserMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<AdvertiserUserDTO> getAllAdvertiserUsers() {
@@ -54,5 +56,11 @@ public class AdvertiserUserServiceImpl implements AdvertiserUserService {
         advertiserSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<AdvertiserUserDTO> result = advertiserUserMapper.searchAdvertiserUser(advertiserSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<AdvertiserUserDTO> result = advertiserUserMapper.getAllAdvertiserUsers();
+        return excelUtil.exportExcel(result,AdvertiserUserDTO.class,"AdvertiserList",null);
     }
 }

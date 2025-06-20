@@ -9,4 +9,5 @@ public interface AdminSignUpAgreementService {
     Boolean approveAdminSignUp(AdminSignUpAgreementRequestDTO adminSignUpAgreementRequestDTO);
     Boolean rejectAdminSignUp(AdminSignUpAgreementRequestDTO adminSignUpAgreementRequestDTO);
     List<AdminSignUpAgreementDTO> searchAdminSignUp(AdminSignUpAgreementSearchRequestDTO adminSignUpAgreementSearchRequestDTO);
+    String exportExcel();
 }

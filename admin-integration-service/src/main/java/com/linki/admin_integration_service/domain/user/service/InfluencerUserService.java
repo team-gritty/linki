@@ -8,4 +8,5 @@ import java.util.List;
 public interface InfluencerUserService {
     List<InfluencerUserDTO> getAllInfluencerUsers();
     List<InfluencerUserDTO> searchInfluencerUser(InfluencerUserSearchRequestDTO influencerUserSearchRequestDTO);
+    String exportExcel();
 }

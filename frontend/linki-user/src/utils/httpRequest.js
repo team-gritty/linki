@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAccountStore } from "@/stores/account";
 
 const instance = axios.create({
-//   baseURL: 'http://localhost:8080',  // json-server URL
+  // baseURL: 'http://localhost:8080',  // json-server URL
   // baseURL: import.meta.env.VITE_API_BASE_URL,
     timeout: 15000,
     headers: {
@@ -48,8 +48,12 @@ instance.interceptors.response.use(
             case 401: {
                 const config = error.config;
                 if (config.retried) {
-                    window.alert("권한이 없습니다.");
-                    window.location.replace("/");
+                    // 토큰이 만료되었으므로 로그아웃 처리
+                    const accountStore = useAccountStore();
+                    accountStore.clearAuth();
+                    localStorage.removeItem('token');
+                    window.alert("로그인 정보가 만료되었습니다.");
+                    window.location.replace("/login");
                     return;
                 }
                 try {
@@ -61,16 +65,19 @@ instance.interceptors.response.use(
                     config.retried = true;
                     return instance(config);
                 } catch (e) {
+                    const accountStore = useAccountStore();
+                    accountStore.clearAuth();
+                    localStorage.removeItem('token');
                     window.alert("로그인 정보가 만료되었습니다.");
                     window.location.replace("/login");
                 }
                 break;
             }
             case 400:
-                window.alert("잘못된 요청입니다.");
+                console.log("잘못된 요청입니다.");
                 break;
             case 500:
-                window.alert("오류가 있습니다. 관리자에게 문의해주세요.");
+                console.log("오류가 있습니다. 관리자에게 문의해주세요.");
                 break;
         }
         return Promise.reject(error);

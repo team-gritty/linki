@@ -211,7 +211,7 @@ WHERE seq < 1000;
 
 -- 채널 통계 데이터 생성
 INSERT INTO `channel_stats` (`stats_id`, `subscriber_count`, `num_of_videos`, `views_per_video`, `data_fetched_at`, `likes_per_video`, `comments_per_video`, `channel_id`)
-SELECT 
+SELECT
     CONCAT('STD-', LPAD(seq, 16, '0')),
     FLOOR(RAND() * 1000000),
     FLOOR(RAND() * 1000),
@@ -230,7 +230,7 @@ WHERE seq < 1000;
 
 -- 인플루언서 인증 데이터 생성
 INSERT INTO `influencer_auth` (`inf_auth_id`, `inf_auth_token`, `inf_auth_email`, `inf_auth_date`, `channel_id`)
-SELECT 
+SELECT
     CONCAT('AUT-', LPAD(seq, 16, '0')),
     CONCAT('token_', seq),
     CONCAT('auth', seq, '@example.com'),
@@ -319,7 +319,7 @@ SELECT
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 30 DAY),
     FLOOR(RAND() * 1000000) + 100000,
-    CASE 
+    CASE
         WHEN seq % 3 = 0 THEN DATE_ADD('2025-06-01', INTERVAL FLOOR(RAND() * 19) DAY)  -- 이번달(6월)에 1/3 생성
         ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY)
     END,
@@ -449,7 +449,7 @@ SELECT
         WHEN 0 THEN 'PENDING'
         ELSE 'COMPLETED'
     END,
-    CASE 
+    CASE
         WHEN seq % 4 = 0 THEN DATE_ADD('2025-06-01', INTERVAL FLOOR(RAND() * 19) DAY)  -- 이번달(6월)에 1/4 완료
         WHEN FLOOR(RAND() * 2) = 0 THEN NULL
         ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY)
@@ -592,7 +592,7 @@ WHERE seq < 1500;  -- 모든 사용자에 대해 결제 ID 생성
 INSERT INTO `payments` (`payment_id`, `payed_at`, `payment_method`, `payment_approve_status`, `billing_id`, `subs_detail_id`)
 SELECT 
     CONCAT('PAY-', LPAD(seq, 16, '0')),
-    CASE 
+    CASE
         WHEN seq % 5 = 0 THEN DATE_ADD('2025-06-01', INTERVAL FLOOR(RAND() * 19) DAY)  -- 이번달(6월)에 1/5 결제
         ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY)
     END,

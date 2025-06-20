@@ -8,70 +8,75 @@ import { useRouter } from 'vue-router'
 import { useAccountStore } from './stores/account'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
-import axios from 'axios'
-import { check } from '@/services/accountService'
 
 const router = useRouter()
 const accountStore = useAccountStore()
 const openSidebar = ref(false)
-
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value
 }
 
-// 로그인 여부 확인 함수
-const checkAccount = async () => {
+// JWT 토큰 파싱 함수
+const parseJwtToken = (token) => {
   try {
-    const res = await check();
-    if (res.status === 200) {
-      accountStore.setChecked(true);
-      accountStore.setLoggedIn(res.data === true);
-    } else {
-      accountStore.setChecked(false);
-    }
-  } catch {
-    accountStore.setChecked(false);
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('JWT 파싱 실패:', error)
+    return null
   }
 }
 
-// 앱 시작 시 로그인 상태 초기화
-onMounted(() => {
-  // localStorage에서 토큰 확인
-  const token = localStorage.getItem('token')
-  if (token) {
-    try {
-      // JWT 토큰 파싱
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]))
-      const userRole = tokenPayload.userRole
-      const userId = tokenPayload.userId
-      
-      // 토큰 만료 확인
-      const currentTime = Date.now() / 1000
-      if (tokenPayload.exp > currentTime) {
-        // 유효한 토큰이면 Store에 설정
-        let userType = 'general'
-        if (userRole === 'ROLE_INFLUENCER') {
-          userType = 'influencer'
-        } else if (userRole === 'ROLE_ADVERTISER') {
-          userType = 'advertiser'
-        }
-        
-        accountStore.setLoginInfo(token, { userId, userRole }, userType)
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      } else {
-        // 만료된 토큰이면 제거
-        localStorage.removeItem('token')
-        accountStore.clearAuth()
-      }
-    } catch (error) {
-      console.error('Token parsing failed:', error)
-      localStorage.removeItem('token')
-      accountStore.clearAuth()
-    }
-  }
+// 토큰 만료 확인 함수
+const isTokenExpired = (token) => {
+  const payload = parseJwtToken(token)
+  if (!payload || !payload.exp) return true
   
-  // 로그인 체크
-  checkAccount();
+  const currentTime = Math.floor(Date.now() / 1000)
+  return payload.exp < currentTime
+}
+
+// 앱 초기화 시 토큰 복원
+const initializeAuth = () => {
+  const token = localStorage.getItem('token')
+  
+  if (token && !isTokenExpired(token)) {
+    const payload = parseJwtToken(token)
+    if (payload) {
+      const userRole = payload.userRole
+      const userId = payload.userId
+      
+      // 백엔드 role을 프론트엔드 userType으로 매핑
+      let userType = 'general'
+      if (userRole === 'ROLE_INFLUENCER') {
+        userType = 'influencer'
+      } else if (userRole === 'ROLE_ADVERTISER') {
+        userType = 'advertiser'
+      }
+      
+      // Store에 로그인 정보 복원
+      accountStore.setLoginInfo(token, { userId, userRole }, userType)
+    }
+  } else if (token) {
+    // 토큰이 만료된 경우 제거
+    localStorage.removeItem('token')
+  }
+}
+// 계정 체크 함수 정의
+const checkAccount = async () => {
+  try {
+    await check()
+  } catch (error) {
+    console.error('계정 체크 실패:', error)
+  }
+}
+
+onMounted(() => {
+  initializeAuth()
 })
 
 // 라우터 변경 감지
@@ -80,8 +85,12 @@ watch(
   () => {
     // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo(0, 0)
-    // 라우트 이동 시 로그인 체크
-    checkAccount();
+
+    // 로그인된 상태일 때만 계정 체크
+    if (accountStore.isLoggedIn) {
+      checkAccount();
+    }
+
   }
 )
 </script>

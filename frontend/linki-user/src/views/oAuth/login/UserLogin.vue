@@ -67,7 +67,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '../../../stores/account'
-import axios from 'axios'
+import httpClient from '../../../utils/httpRequest'
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -91,6 +91,21 @@ const focusPasswordInput = () => {
   }
 }
 
+// JWT 토큰 파싱 함수
+const parseJwtToken = (token) => {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('JWT 파싱 실패:', error)
+    return null
+  }
+}
+
 const handleLogin = async () => {
   // 입력 유효성 검사 강화
   if (!userId.value.trim()) {
@@ -108,14 +123,14 @@ const handleLogin = async () => {
     return
   }
   
-  if (password.value.length < 6) {
+  if (password.value.length < 4) {
     alert('비밀번호는 6자 이상 입력해주세요.')
     return
   }
 
   try {
     isLoading.value = true
-    const response = await axios.post('v1/api/nonuser/login', {
+    const response = await httpClient.post('v1/api/nonuser/login', {
       userLoginId: userId.value.trim(),
       userLoginPw: password.value
     })
@@ -125,10 +140,11 @@ const handleLogin = async () => {
     
     if (accessToken) {
       // JWT 토큰에서 사용자 정보 추출
-      try {
-        const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]))
-        const userRole = tokenPayload.userRole || response.data.role
-        const userId = tokenPayload.userId || response.data.userId
+      const tokenPayload = parseJwtToken(accessToken)
+      
+      if (tokenPayload) {
+        const userRole = tokenPayload.userRole
+        const userId = tokenPayload.userId
         
         // 백엔드 role을 프론트엔드 userType으로 매핑
         let userType = 'general'
@@ -144,18 +160,17 @@ const handleLogin = async () => {
         // localStorage에도 토큰 저장 (앱 재시작 시 복원용)
         localStorage.setItem('token', accessToken)
         
-        // axios 기본 헤더에 토큰 설정
-        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+        // 콘솔에 사용자 정보 출력
+        console.log('로그인 성공!')
+        // console.log('User ID:', userId)
+        // console.log('User Role:', userRole)
+        // console.log('User Type:', userType)
+        // console.log('Account Store User Role:', accountStore.getUser?.userRole)
         
-
-          router.push('/v1/api/nonuser/login')
-
-        
-      } catch (tokenError) {
-        console.error('Token parsing failed:', tokenError)
-        // 토큰 파싱 실패 시 기본 정보로 Store 설정
-        accountStore.setLoginInfo(accessToken, null, 'general')
-        router.push('/mypage')
+        // 홈 페이지로 리다이렉트
+        router.push('/home')
+      } else {
+        alert('토큰 파싱에 실패했습니다.')
       }
     } else {
       alert('로그인에 실패했습니다. 토큰을 받지 못했습니다.')
@@ -185,7 +200,7 @@ const handleLogin = async () => {
 const handleGoogleLogin = async () => {
   try {
     isLoading.value = true
-    const response = await axios.get('/api/user/auth/google')
+    const response = await httpClient.get('/api/user/auth/google')
     
     if (response.data.success) {
       // Google OAuth URL로 리다이렉트

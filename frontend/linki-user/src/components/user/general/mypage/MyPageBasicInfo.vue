@@ -18,7 +18,7 @@
         <label>연락처</label>
         <input 
           type="tel" 
-          v-model="profileData.phone"
+          v-model="formattedPhone"
           placeholder="000-0000-0000"
           pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
           title="000-0000-0000 형식으로 입력해주세요"
@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import httpRequest from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
@@ -61,8 +61,11 @@ import { useAccountStore } from '@/stores/account'
 
 const router = useRouter()
 const { showAlert } = useAlert()
-const  accountStore= useAccountStore()
+const accountStore = useAccountStore()
 const isLoading = ref(false)
+
+// 원본 연락처 데이터 (숫자만)
+const rawPhone = ref('')
 
 const profileData = ref({
   name: '',
@@ -71,11 +74,80 @@ const profileData = ref({
   joinDate: null
 })
 
+// 포맷된 연락처 (표시용)
+const formattedPhone = computed({
+  get: () => {
+    return formatPhoneNumber(rawPhone.value)
+  },
+  set: (value) => {
+    // 숫자만 추출하여 저장
+    rawPhone.value = value.replace(/[^\d]/g, '')
+  }
+})
+
 const errors = ref({
   name: '',
   phone: '',
   email: ''
 })
+
+// JWT 토큰 파싱 함수 (UserLogin.vue와 동일)
+const parseJwtToken = (token) => {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    return JSON.parse(jsonPayload)
+  } catch (error) {
+    console.error('JWT 파싱 실패:', error)
+    return null
+  }
+}
+
+// 연락처 포맷팅 함수
+const formatPhoneNumber = (value) => {
+  if (!value) return ''
+  
+  // 숫자만 추출
+  const numbers = value.replace(/[^\d]/g, '')
+  
+  // 길이에 따라 포맷팅
+  if (numbers.length <= 3) {
+    return numbers
+  } else if (numbers.length <= 7) {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3)}`
+  } else {
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`
+  }
+}
+
+// rawPhone이 변경될 때 profileData.phone도 업데이트
+watch(rawPhone, (newValue) => {
+  profileData.value.phone = formatPhoneNumber(newValue)
+})
+
+// 로그인된 사용자 정보 가져오기
+const loadUserInfo = async () => {
+  try {
+    isLoading.value = true
+    const response = await httpRequest.get('v1/api/user/mypage')
+    profileData.value = {
+      name: response.data.userName || '',
+      phone: response.data.userPhone || '',
+      email: response.data.userEmail || '',
+      joinDate: response.data.userEnterDay ? new Date(response.data.userEnterDay) : null
+    }
+    // rawPhone 설정 (숫자만 추출)
+    rawPhone.value = (response.data.userPhone || '').replace(/[^\d]/g, '')
+  } catch (error) {
+    console.error('마이페이지 정보 로딩 실패:', error)
+    showAlert('마이페이지 정보를 불러오는데 실패했습니다.', 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const isFormValid = computed(() => {
   return (
@@ -121,53 +193,45 @@ const validateForm = () => {
   return true
 }
 
-const fetchProfile = async () => {
-  try {
-    isLoading.value = true
-    const response = await httpRequest.get('/api/user/profile')
-    profileData.value = {
-      ...response.data,
-      joinDate: new Date(response.data.joinDate)
-    }
-  } catch (error) {
-    console.error('프로필 정보 로딩 실패:', error)
-    showAlert('프로필 정보를 불러오는데 실패했습니다.', 'error')
-  } finally {
-    isLoading.value = false
-  }
-}
-
 const handleSubmit = async () => {
   if (!validateForm()) return
 
   try {
     isLoading.value = true
-    const response = await httpRequest.patch('/api/user/profile', {
-      name: profileData.value.name,
-      phone: profileData.value.phone,
-      email: profileData.value.email
+    const response = await httpRequest.patch('v1/api/user/mypage', {
+      userName: profileData.value.name,
+      userPhone: profileData.value.phone,
+      userEmail: profileData.value.email
     })
 
-    if (response.data.success) {
-      showAlert('프로필이 성공적으로 업데이트되었습니다.', 'success')
-      accountStore.setUserInfo({
-        ...accountStore.getUserInfo,
-        name: profileData.value.name,
-        email: profileData.value.email
-      })
+    if (response.status === 200) {
+      showAlert('마이페이지 정보가 성공적으로 업데이트되었습니다.', 'success')
+      // Store의 사용자 정보도 업데이트
+      const currentUser = accountStore.getUser
+      if (currentUser) {
+        accountStore.setUser({
+          ...currentUser,
+          userName: profileData.value.name,
+          userEmail: profileData.value.email,
+          userPhone: profileData.value.phone
+        })
+      }
     } else {
-      showAlert(response.data.message || '프로필 업데이트에 실패했습니다.', 'error')
+      showAlert('마이페이지 정보 업데이트에 실패했습니다.', 'error')
     }
   } catch (error) {
-    console.error('프로필 업데이트 실패:', error)
-    const errorMessage = error.response?.data?.message || '프로필 업데이트 중 오류가 발생했습니다.'
+    console.error('마이페이지 정보 업데이트 실패:', error)
+    const errorMessage = error.response?.data?.message || '마이페이지 정보 업데이트 중 오류가 발생했습니다.'
     showAlert(errorMessage, 'error')
   } finally {
     isLoading.value = false
   }
 }
 
-fetchProfile()
+// 컴포넌트 마운트 시 사용자 정보 로드
+onMounted(() => {
+  loadUserInfo()
+})
 </script>
 
 <style scoped>

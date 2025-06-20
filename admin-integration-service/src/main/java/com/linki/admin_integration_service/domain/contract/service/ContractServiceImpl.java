@@ -3,10 +3,9 @@ package com.linki.admin_integration_service.domain.contract.service;
 import com.linki.admin_integration_service.domain.contract.dto.ContractDTO;
 import com.linki.admin_integration_service.domain.contract.dto.ContractSearchDTO;
 import com.linki.admin_integration_service.domain.contract.repository.myBatis.ContractMapper;
-import com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.lang.Contract;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,6 +16,7 @@ import java.util.*;
 public class ContractServiceImpl implements ContractService {
 
     private final ContractMapper contractMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<ContractDTO> getContracts() {
@@ -77,5 +77,13 @@ public class ContractServiceImpl implements ContractService {
         log.info("result:{}", result);
 
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+
+
+    @Override
+    public String exportExcel(){
+        List<ContractDTO> contractDTOList = contractMapper.getContracts();
+        return excelUtil.exportExcel(contractDTOList, ContractDTO.class, "contractList",null);
     }
 }

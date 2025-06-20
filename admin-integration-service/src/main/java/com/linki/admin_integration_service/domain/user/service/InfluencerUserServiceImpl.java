@@ -4,6 +4,7 @@ package com.linki.admin_integration_service.domain.user.service;
 import com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO;
 import com.linki.admin_integration_service.domain.user.dto.InfluencerUserSearchRequestDTO;
 import com.linki.admin_integration_service.domain.user.repository.myBatis.InfluencerUserMapper;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Objects;
 public class InfluencerUserServiceImpl implements InfluencerUserService {
 
     private final InfluencerUserMapper influencerUserMapper;
+    private final ExcelUtil excelUtil;
 
     @Override
     public List<InfluencerUserDTO> getAllInfluencerUsers() {
@@ -55,5 +57,11 @@ public class InfluencerUserServiceImpl implements InfluencerUserService {
         influencerUserSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<InfluencerUserDTO> result = influencerUserMapper.searchInfluencerUser(influencerUserSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<InfluencerUserDTO> result = influencerUserMapper.getAllInfluencerUsers();
+        return excelUtil.exportExcel(result,InfluencerUserDTO.class,"InfluencerUserList",null);
     }
 }

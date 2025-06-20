@@ -10,4 +10,5 @@ public interface SettlementService {
     List<SettlementDTO> getAllSettlements();
     List<SettlementDTO> searchSettlement(SettlementSearchDTO settlementSearchDTO);
     Boolean approveSettlement(SettlementRequestDTO settlementRequestDTO);
+    String exportExcel();
 }
