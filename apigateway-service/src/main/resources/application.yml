@@ -17,6 +17,23 @@ spring:
 #          uri: lb://INTEGRATION-SERVICE
 #          predicates:
 #            - Path=/v1/api/**
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3002"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
 
 eureka:
   client:

@@ -3,7 +3,6 @@ package com.linki.admin_integration_service.domain.operations.controller;
 
 import com.linki.admin_integration_service.domain.operations.dto.*;
 import com.linki.admin_integration_service.domain.operations.service.AdvertiserReviewsService;
-import com.linki.admin_integration_service.domain.operations.service.InfluencerReviewsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -47,6 +46,11 @@ public class AdvertiserReviewsController {
                 .map(dto -> modelMapper.map(dto, AdvertiserResponseDTO.class))
                 .toList();
         return ResponseEntity.ok(advertiserResponseDTOList);
+    }
+
+    @PostMapping("/v1/admin/api/advertisersReviews/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(advertiserReviewsService.exportExcel());
     }
 
 }

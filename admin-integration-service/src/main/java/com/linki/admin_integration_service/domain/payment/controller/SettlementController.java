@@ -54,4 +54,9 @@ public class SettlementController {
 
         return ResponseEntity.ok("OK");
     }
+
+    @PostMapping("/v1/admin/api/settlements/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(settlementService.exportExcel());
+    }
 }

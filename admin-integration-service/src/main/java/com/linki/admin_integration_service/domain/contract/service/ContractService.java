@@ -8,4 +8,5 @@ import java.util.List;
 public interface ContractService {
     List<ContractDTO> getContracts();
     List<ContractDTO> searchContract(ContractSearchDTO contractSearchDTO);
+    String exportExcel();
 }

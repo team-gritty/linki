@@ -7,6 +7,7 @@ import com.Gritty.Linki.entity.Influencer;
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
 import com.Gritty.Linki.repository.InfluencerRepository;
+import com.Gritty.Linki.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -146,7 +146,7 @@ public class YouTubeChannelCollectService {
      * 채널 ID 생성
      */
     private String generateChannelId() {
-        return "CH" + UUID.randomUUID().toString().replace("-", "").substring(0, 23);
+        return IdGenerator.channelId();
     }
 
     /**

@@ -43,4 +43,9 @@ public class ContractController {
         return ResponseEntity.ok(contractResponseDTOList);
 
     }
+
+    @PostMapping("/v1/admin/api/contracts/exportExcel")
+    public ResponseEntity<String> exportExcel(){
+        return ResponseEntity.ok(contractService.exportExcel());
+    }
 }

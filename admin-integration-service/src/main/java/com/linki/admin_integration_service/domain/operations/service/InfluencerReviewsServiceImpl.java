@@ -5,6 +5,7 @@ import com.linki.admin_integration_service.domain.operations.dto.InfluencerRevie
 import com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewVisibilityRequestDTO;
 import com.linki.admin_integration_service.domain.operations.repository.myBatis.InfluencerReviewsMapper;
 import com.linki.admin_integration_service.entity.InfluencerReview;
+import com.linki.admin_integration_service.util.excel.ExcelUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.Locale;
 public class InfluencerReviewsServiceImpl implements InfluencerReviewsService {
 
     private final InfluencerReviewsMapper influencerReviewsMapper;
+    private final ExcelUtil excelUtil;
 
     @PersistenceContext
     private EntityManager em;
@@ -105,6 +107,12 @@ public class InfluencerReviewsServiceImpl implements InfluencerReviewsService {
         influencerReviewSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
         List<InfluencerReviewDTO> result = influencerReviewsMapper.searchInfluencerReviews(influencerReviewSearchRequestDTO);
         return result.isEmpty() ? Collections.emptyList() : result;
+    }
+
+    @Override
+    public String exportExcel() {
+        List<InfluencerReviewDTO> result = influencerReviewsMapper.getAllInfluencerReviews();
+        return excelUtil.exportExcel(result,InfluencerReviewDTO.class,"InfluencerReviewList",null);
     }
 
 
