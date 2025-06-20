@@ -120,5 +120,8 @@ public class IdGenerator {
     // 토큰 ID 생성
     public static String jwtId() { return "JWT-" + nextId(); }
 
+    // redirect Url 생성
+    public static String redirectId() { return "RDR-" + nextId(); }
+
 
 }
