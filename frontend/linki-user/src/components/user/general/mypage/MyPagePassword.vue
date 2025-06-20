@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import httpRequest from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
@@ -67,11 +67,41 @@ const errors = ref({
   confirmPassword: ''
 })
 
+// 실시간 비밀번호 유효성 검사
+watch(() => passwordData.value.newPassword, (newValue) => {
+  if (newValue && newValue.length < 8) {
+    errors.value.newPassword = '비밀번호는 8자 이상이어야 합니다.'
+  } else if (newValue && passwordData.value.currentPassword === newValue) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+  } else {
+    errors.value.newPassword = ''
+  }
+})
+
+watch(() => passwordData.value.confirmPassword, (newValue) => {
+  if (newValue && passwordData.value.newPassword !== newValue) {
+    errors.value.confirmPassword = '비밀번호가 일치하지 않습니다.'
+  } else {
+    errors.value.confirmPassword = ''
+  }
+})
+
+watch(() => passwordData.value.currentPassword, (newValue) => {
+  if (newValue && passwordData.value.newPassword && newValue === passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+  } else if (passwordData.value.newPassword && !errors.value.newPassword.includes('8자 이상')) {
+    errors.value.newPassword = ''
+  }
+})
+
 const isFormValid = computed(() => {
   return (
     passwordData.value.currentPassword &&
     passwordData.value.newPassword &&
     passwordData.value.confirmPassword &&
+    passwordData.value.newPassword.length >= 8 &&
+    passwordData.value.newPassword === passwordData.value.confirmPassword &&
+    passwordData.value.currentPassword !== passwordData.value.newPassword &&
     !errors.value.currentPassword &&
     !errors.value.newPassword &&
     !errors.value.confirmPassword
@@ -148,6 +178,7 @@ const handleSubmit = async () => {
       showAlert(errorMessage, 'error')
     }
   } finally {
+    // 항상 로딩 상태를 false로 설정
     isLoading.value = false
   }
 }

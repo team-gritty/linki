@@ -25,9 +25,13 @@ public class FindPasswordController {
     @PostMapping("/send-verification")
     public ResponseEntity<Map<String, Object>> sendVerificationCode(@RequestBody FindPasswordRequestDto requestDto) {
         try {
-            log.info("비밀번호 찾기 인증번호 발송 요청: {}", requestDto.getUserEmail());
+            log.info("비밀번호 찾기 인증번호 발송 요청: userName='{}', userEmail='{}'", requestDto.getUserName(), requestDto.getUserEmail());
             
-            boolean success = findPasswordService.sendVerificationCode(requestDto.getUserLoginId(), requestDto.getUserEmail());
+            boolean success = findPasswordService.sendVerificationCode(
+                requestDto.getUserName(), 
+                requestDto.getUserLoginId(), 
+                requestDto.getUserEmail()
+            );
             
             if (success) {
                 return ResponseEntity.ok(Map.of(
@@ -55,9 +59,10 @@ public class FindPasswordController {
     @PostMapping("/verify")
     public ResponseEntity<Map<String, Object>> verifyCode(@RequestBody FindPasswordVerificationRequestDto requestDto) {
         try {
-            log.info("비밀번호 찾기 인증번호 확인 요청: {}", requestDto.getUserEmail());
+            log.info("비밀번호 찾기 인증번호 확인 요청: userName='{}', userEmail='{}'", requestDto.getUserName(), requestDto.getUserEmail());
             
             boolean success = findPasswordService.verifyCode(
+                requestDto.getUserName(),
                 requestDto.getUserLoginId(), 
                 requestDto.getUserEmail(), 
                 requestDto.getVerificationCode()
@@ -89,9 +94,13 @@ public class FindPasswordController {
     @PostMapping("/resend-verification")
     public ResponseEntity<Map<String, Object>> resendVerificationCode(@RequestBody FindPasswordRequestDto requestDto) {
         try {
-            log.info("비밀번호 찾기 인증번호 재발송 요청: {}", requestDto.getUserEmail());
+            log.info("비밀번호 찾기 인증번호 재발송 요청: userName='{}', userEmail='{}'", requestDto.getUserName(), requestDto.getUserEmail());
             
-            boolean success = findPasswordService.resendVerificationCode(requestDto.getUserLoginId(), requestDto.getUserEmail());
+            boolean success = findPasswordService.resendVerificationCode(
+                requestDto.getUserName(),
+                requestDto.getUserLoginId(), 
+                requestDto.getUserEmail()
+            );
             
             if (success) {
                 return ResponseEntity.ok(Map.of(
@@ -119,9 +128,10 @@ public class FindPasswordController {
     @PostMapping("/change-password")
     public ResponseEntity<Map<String, Object>> changePassword(@RequestBody FindPasswordChangeRequestDto requestDto) {
         try {
-            log.info("비밀번호 변경 요청: {}", requestDto.getUserEmail());
+            log.info("비밀번호 변경 요청: userName='{}', userEmail='{}'", requestDto.getUserName(), requestDto.getUserEmail());
             
             boolean success = findPasswordService.changePassword(
+                requestDto.getUserName(),
                 requestDto.getUserLoginId(),
                 requestDto.getUserEmail(),
                 requestDto.getVerificationCode(),
@@ -152,11 +162,11 @@ public class FindPasswordController {
      * 디버깅용: 사용자 정보 확인
      */
     @GetMapping("/check-user")
-    public ResponseEntity<Map<String, Object>> checkUser(@RequestParam String userLoginId, @RequestParam String userEmail) {
+    public ResponseEntity<Map<String, Object>> checkUser(@RequestParam String userName, @RequestParam String userLoginId, @RequestParam String userEmail) {
         try {
-            log.info("사용자 정보 확인 요청: userLoginId='{}', userEmail='{}'", userLoginId, userEmail);
+            log.info("사용자 정보 확인 요청: userName='{}', userLoginId='{}', userEmail='{}'", userName, userLoginId, userEmail);
             
-            boolean exists = findPasswordService.checkUser(userLoginId, userEmail);
+            boolean exists = findPasswordService.checkUser(userName, userLoginId, userEmail);
             
             if (exists) {
                 return ResponseEntity.ok(Map.of(

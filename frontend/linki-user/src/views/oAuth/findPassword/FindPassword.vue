@@ -4,10 +4,19 @@
       <div class="user-find-password-box">
         <div class="user-find-password-form">
           <h1 class="user-find-password-title">비밀번호 찾기</h1>
-          <p class="user-find-password-subtitle">아이디와 이메일을 입력해주세요</p>
+          <p class="user-find-password-subtitle">이름, 아이디, 이메일을 입력해주세요</p>
           
-          <!-- 1단계: 아이디와 이메일 입력 -->
+          <!-- 1단계: 이름, 아이디, 이메일 입력 -->
           <div v-if="step === 1">
+            <div class="user-input-group">
+              <input
+                type="text"
+                v-model="name"
+                class="user-input"
+                placeholder="이름"
+                :disabled="isLoading"
+              />
+            </div>
             <div class="user-input-group">
               <input
                 type="text"
@@ -29,7 +38,7 @@
             <button
               class="user-find-password-button"
               @click="sendVerificationCode"
-              :disabled="isLoading || !userId || !email"
+              :disabled="isLoading || !name || !userId || !email"
             >
               {{ isLoading ? '인증번호 발송 중...' : '인증번호 발송' }}
             </button>
@@ -136,6 +145,7 @@ import { useRouter } from 'vue-router'
 import httpClient from '../../../utils/httpRequest'
 
 const router = useRouter()
+const name = ref('')
 const userId = ref('')
 const email = ref('')
 const verificationCode = ref('')
@@ -148,14 +158,15 @@ let timer = null
 
 // 인증번호 발송
 const sendVerificationCode = async () => {
-  if (!userId.value || !email.value) {
-    alert('아이디와 이메일을 모두 입력해주세요.')
+  if (!name.value || !userId.value || !email.value) {
+    alert('이름, 아이디, 이메일을 모두 입력해주세요.')
     return
   }
 
   try {
     isLoading.value = true
     const response = await httpClient.post('/v1/api/user/find-password/send-verification', {
+      userName: name.value,
       userLoginId: userId.value,
       userEmail: email.value
     })
@@ -191,6 +202,7 @@ const verifyCode = async () => {
   try {
     isLoading.value = true
     const response = await httpClient.post('/v1/api/user/find-password/verify', {
+      userName: name.value,
       userLoginId: userId.value,
       userEmail: email.value,
       verificationCode: verificationCode.value
@@ -221,6 +233,7 @@ const resendCode = async () => {
   try {
     isLoading.value = true
     const response = await httpClient.post('/v1/api/user/find-password/resend-verification', {
+      userName: name.value,
       userLoginId: userId.value,
       userEmail: email.value
     })
@@ -266,6 +279,7 @@ const changePassword = async () => {
   try {
     isLoading.value = true
     const response = await httpClient.post('/v1/api/user/find-password/change-password', {
+      userName: name.value,
       userLoginId: userId.value,
       userEmail: email.value,
       verificationCode: verificationCode.value,

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FindPasswordRequestDto {
+    private String userName;
     private String userLoginId;
     private String userEmail;
 } 

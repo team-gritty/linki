@@ -20,7 +20,7 @@ const goToMyPage = () => {
   } else if (userType.value === 'advertiser') {
     router.push('/mypage/advertiser')
   } else {
-    router.push('/mypage')
+  router.push('/mypage')
   }
 }
 
@@ -48,8 +48,8 @@ const handleLogout = async () => {
       <div class="header-right">
         <!-- 로그인하지 않은 경우 -->
         <template v-if="!isLoggedIn">
-          <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
-          <router-link to="/signup" class="header-button">회원가입</router-link>
+        <router-link to="/login" class="header-button" style="margin-right: 10px;">로그인</router-link>
+        <router-link to="/signup" class="header-button">회원가입</router-link>
         </template>
         <!-- 로그인한 경우 -->
         <template v-else>

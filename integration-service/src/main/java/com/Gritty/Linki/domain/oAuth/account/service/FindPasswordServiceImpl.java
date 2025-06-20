@@ -30,16 +30,16 @@ public class FindPasswordServiceImpl implements FindPasswordService {
     private static final String EMAIL_SUBJECT = "[LINKI] 비밀번호 찾기 인증번호";
     
     @Override
-    public boolean sendVerificationCode(String userLoginId, String userEmail) {
+    public boolean sendVerificationCode(String userName, String userLoginId, String userEmail) {
         try {
-            log.info("비밀번호 찾기 인증번호 발송 요청 - userLoginId: '{}', userEmail: '{}'", userLoginId, userEmail);
+            log.info("비밀번호 찾기 인증번호 발송 요청 - userName: '{}', userLoginId: '{}', userEmail: '{}'", userName, userLoginId, userEmail);
             
-            // 사용자 정보 확인
-            User user = findPasswordRepository.findByUserLoginIdAndUserEmail(userLoginId, userEmail);
+            // 사용자 정보 확인 (이름, 아이디, 이메일 모두 일치하는지 확인)
+            User user = findPasswordRepository.findByUserNameAndUserLoginIdAndUserEmail(userName, userLoginId, userEmail);
             log.info("데이터베이스 조회 결과 - user: {}", user != null ? "존재" : "없음");
             
             if (user == null) {
-                log.warn("일치하는 사용자 정보를 찾을 수 없음: userLoginId='{}', userEmail='{}'", userLoginId, userEmail);
+                log.warn("일치하는 사용자 정보를 찾을 수 없음: userName='{}', userLoginId='{}', userEmail='{}'", userName, userLoginId, userEmail);
                 return false;
             }
             
@@ -54,7 +54,7 @@ public class FindPasswordServiceImpl implements FindPasswordService {
             // 이메일 발송
             sendVerificationEmail(userEmail, verificationCode);
             
-            log.info("비밀번호 찾기 인증번호 발송 완료: userEmail={}, userLoginId={}", userEmail, userLoginId);
+            log.info("비밀번호 찾기 인증번호 발송 완료: userName={}, userEmail={}, userLoginId={}", userName, userEmail, userLoginId);
             return true;
             
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public class FindPasswordServiceImpl implements FindPasswordService {
     }
     
     @Override
-    public boolean verifyCode(String userLoginId, String userEmail, String verificationCode) {
+    public boolean verifyCode(String userName, String userLoginId, String userEmail, String verificationCode) {
         try {
             String key = userEmail + "_" + userLoginId;
             
@@ -91,7 +91,7 @@ public class FindPasswordServiceImpl implements FindPasswordService {
                 return false;
             }
             
-            log.info("비밀번호 찾기 인증번호 확인 성공: userEmail={}", userEmail);
+            log.info("비밀번호 찾기 인증번호 확인 성공: userName={}, userEmail={}", userName, userEmail);
             return true;
                     
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class FindPasswordServiceImpl implements FindPasswordService {
     }
     
     @Override
-    public boolean resendVerificationCode(String userLoginId, String userEmail) {
+    public boolean resendVerificationCode(String userName, String userLoginId, String userEmail) {
         try {
             // 기존 인증번호 삭제
             String key = userEmail + "_" + userLoginId;
@@ -109,7 +109,7 @@ public class FindPasswordServiceImpl implements FindPasswordService {
             verificationTimestamps.remove(key);
             
             // 새로운 인증번호 발송
-            return sendVerificationCode(userLoginId, userEmail);
+            return sendVerificationCode(userName, userLoginId, userEmail);
             
         } catch (Exception e) {
             log.error("비밀번호 찾기 인증번호 재발송 중 오류 발생", e);
@@ -118,18 +118,18 @@ public class FindPasswordServiceImpl implements FindPasswordService {
     }
     
     @Override
-    public boolean changePassword(String userLoginId, String userEmail, String verificationCode, String newPassword) {
+    public boolean changePassword(String userName, String userLoginId, String userEmail, String verificationCode, String newPassword) {
         try {
             // 인증번호 확인
-            if (!verifyCode(userLoginId, userEmail, verificationCode)) {
-                log.warn("인증번호 확인 실패: userLoginId={}, userEmail={}", userLoginId, userEmail);
+            if (!verifyCode(userName, userLoginId, userEmail, verificationCode)) {
+                log.warn("인증번호 확인 실패: userName={}, userLoginId={}, userEmail={}", userName, userLoginId, userEmail);
                 return false;
             }
             
             // 사용자 정보 조회
-            User user = findPasswordRepository.findByUserLoginIdAndUserEmail(userLoginId, userEmail);
+            User user = findPasswordRepository.findByUserNameAndUserLoginIdAndUserEmail(userName, userLoginId, userEmail);
             if (user == null) {
-                log.warn("사용자 정보 조회 실패: userLoginId={}, userEmail={}", userLoginId, userEmail);
+                log.warn("사용자 정보 조회 실패: userName={}, userLoginId={}, userEmail={}", userName, userLoginId, userEmail);
                 return false;
             }
             
@@ -154,7 +154,7 @@ public class FindPasswordServiceImpl implements FindPasswordService {
             verificationCodes.remove(key);
             verificationTimestamps.remove(key);
             
-            log.info("비밀번호 변경 성공: userLoginId={}, userEmail={}", userLoginId, userEmail);
+            log.info("비밀번호 변경 성공: userName={}, userLoginId={}, userEmail={}", userName, userLoginId, userEmail);
             return true;
             
         } catch (Exception e) {
@@ -164,10 +164,10 @@ public class FindPasswordServiceImpl implements FindPasswordService {
     }
     
     @Override
-    public boolean checkUser(String userLoginId, String userEmail) {
+    public boolean checkUser(String userName, String userLoginId, String userEmail) {
         try {
-            log.info("사용자 정보 확인 - userLoginId: '{}', userEmail: '{}'", userLoginId, userEmail);
-            User user = findPasswordRepository.findByUserLoginIdAndUserEmail(userLoginId, userEmail);
+            log.info("사용자 정보 확인 - userName: '{}', userLoginId: '{}', userEmail: '{}'", userName, userLoginId, userEmail);
+            User user = findPasswordRepository.findByUserNameAndUserLoginIdAndUserEmail(userName, userLoginId, userEmail);
             boolean exists = user != null;
             log.info("사용자 정보 확인 결과 - 존재: {}", exists);
             return exists;
