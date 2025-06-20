@@ -1,9 +1,6 @@
 package com.ssg.chatservice.domain.chat.controller;
 
-import com.ssg.chatservice.client.PartnerApiClient;
-import com.ssg.chatservice.client.PartnerInfoResponse;
 import com.ssg.chatservice.domain.chat.dto.ChatDTO;
-import com.ssg.chatservice.domain.chat.dto.ChatDetailDTO;
 import com.ssg.chatservice.domain.chat.dto.respone.ChatDetailResponeDTO;
 import com.ssg.chatservice.domain.chat.dto.respone.ChatResponeDTO;
 import com.ssg.chatservice.domain.chat.service.ChatServiceImpl;
@@ -13,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,8 +18,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/chat-service/api")
 public class ChatController {
     private final ChatServiceImpl chatService;
-    private final ModelMapper modelMapper;
-    private final PartnerApiClient partnerApiClient;  // PartnerApiClient 주입
+    private final ModelMapper modelMapper; // PartnerApiClient 주입
 
     // 제안서 아이디를 받아 채팅방 생성 후 채팅방 아이디 반환
     //TODO: string -> DTO 반환으로 변경 (프론트 수정 필요)
@@ -56,7 +51,7 @@ public class ChatController {
 
     //광고주가 채팅목록에서 특정 채팅방 조회
     @GetMapping("/advertiser/chat-detail/{chatId}")
-    public ChatDetailResponeDTO chatRoomByCampign(@RequestHeader("Authorization")String token,@PathVariable String chatId){
+    public ChatDetailResponeDTO chatRoomByCampaign(@RequestHeader("Authorization")String token,@PathVariable String chatId){
         return modelMapper.map(chatService.getChatDtoByChatId(token,chatId),ChatDetailResponeDTO.class);
     }
 
@@ -66,5 +61,12 @@ public class ChatController {
         return modelMapper.map(chatService.softDeleteChat(proposalId),ChatResponeDTO.class);
     }
 
+    //인증유저의 참여 채팅방 조회
+    @GetMapping("/authuser/user-chat-list")
+    public List<ChatResponeDTO> userChatList(@RequestHeader("Authorization")String token){
+        List<ChatDTO> chats = chatService.userToChatList(token);
+        return  chats.stream().map(chatDTO -> { return modelMapper.map(chatDTO,ChatResponeDTO.class);
+        }).collect(Collectors.toList());
+    }
 
 }
