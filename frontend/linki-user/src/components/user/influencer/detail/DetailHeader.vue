@@ -2,15 +2,15 @@
   <div class="header-container">
     <div class="campaign-summary-box">
       <div class="summary-left">
-        <template v-if="!loading && detailData.campaign">
-          <img :src="detailData.campaign.campaignImg" :alt="detailData.campaign.campaignName" class="summary-thumb">
+        <template v-if="detailData.campaign && detailData.campaign.campaignName">
+          <img v-if="detailData.campaign.campaignImg" :src="detailData.campaign.campaignImg" :alt="detailData.campaign.campaignName" class="summary-thumb">
           <div class="summary-info">
             <h2 class="summary-title">{{ detailData.campaign.campaignName }}</h2>
             <p class="summary-sub">{{ detailData.campaign.campaignDesc }}</p>
           </div>
         </template>
         <div v-else class="summary-info">
-          <h2 class="summary-title">데이터 로딩중...</h2>
+          <h2 class="summary-title">{{ detailData.proposal?.campaignTitle || detailData.proposal?.campaignName || '데이터 로딩중...' }}</h2>
         </div>
       </div>
       <div class="header-buttons">
@@ -40,7 +40,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import httpClient from '@/utils/httpRequest';
+import { proposalAPI } from '@/api/proposal';
 import {chatApi} from "@/api/chat.js";
 
 const props = defineProps({
@@ -65,43 +65,30 @@ const detailData = ref({
   contract: null,
   chat: null
 });
-const proposalId = 'PROP0000' // 테스트용 하드코딩
+
 const chatRoom = ref(null)
 
     const fetchDetailData = async () => {
       try {
         loading.value = true;
-        const id = route.params.id; // 'p1' 형태의 proposal_id
-        console.log('Starting data fetch for ID:', id);
+        const proposalId = route.params.id;
+        console.log('Starting data fetch for ID:', proposalId);
 
-        // 1. 제안서 조회
-        const proposalsResponse = await httpClient.get('/v1/api/influencer/proposals');
-        const foundProposal = proposalsResponse.data.find(p => p.proposal_id === id);
-        if (!foundProposal) {
-          throw new Error('제안서 정보를 찾을 수 없습니다.');
-        }
-        console.log('Found proposal:', foundProposal);
-        detailData.value.proposal = foundProposal;
+        // 제안서 상세 정보 조회 (캠페인 정보 포함)
+        const response = await proposalAPI.getProposalDetail(proposalId);
+        console.log('Fetched proposal detail:', response);
+        
+                 // 제안서와 캠페인 정보 설정
+         detailData.value.proposal = response;
+         detailData.value.campaign = {
+           campaignName: response.campaignTitle || response.campaignName || '캠페인 제목 없음',
+           campaignDesc: response.campaignDescription || response.campaignDesc || '',
+           campaignImg: response.campaignImg || response.campaignImage || ''
+         };
 
-        // 2. 캠페인 조회
-        const campaignsResponse = await httpClient.get('/v1/api/influencer/campaigns');
-        const foundCampaign = campaignsResponse.data.find(c => c.campaignId === foundProposal.campaign_id);
-        if (foundCampaign) {
-          console.log('Found campaign:', foundCampaign);
-          detailData.value.campaign = foundCampaign;
-        }
-
-        // 3. 계약 조회
-        const contractsResponse = await httpClient.get('/v1/api/influencer/contracts');
-        const foundContract = contractsResponse.data.find(c => c.proposal_id === id);
-        if (foundContract) {
-          console.log('Found contract:', foundContract);
-          detailData.value.contract = foundContract;
-        }
-
-        // 4. 채팅 조회
-    chatRoom.value = await chatApi.getChatRoom(proposalId)
-    emit('update:chatRoom', chatRoom.value)
+        // 채팅 조회
+        chatRoom.value = await chatApi.getChatRoom(proposalId);
+        emit('update:chatRoom', chatRoom.value);
 
         // 데이터 로드 후 탭 설정 (route.query.tab이 있는 경우)
         if (route.query.tab && props.tabs.some(tab => tab.id === route.query.tab)) {

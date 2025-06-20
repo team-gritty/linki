@@ -109,6 +109,7 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
                 .orElseThrow(()->new EntityNotFoundException("해당 제안서를 찾을 수 없습니다"));
 
         return ProposalDetailResponseDTO.builder()
+                .campaignName(proposal.getInfluencer().getInfluencerName())
                 .proposalId(proposal.getProposalId())
                 .campaignId(proposal.getCampaign().getCampaignId())
                 .influencerId(proposal.getInfluencer().getInfluencerId())

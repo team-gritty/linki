@@ -8,6 +8,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAccountStore } from './stores/account'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
+import {check} from "@/services/accountService.js";
 
 const router = useRouter()
 const route = useRoute()
@@ -81,6 +82,7 @@ const checkAccount = async () => {
 
 onMounted(() => {
   initializeAuth()
+
 })
 
 // 라우터 변경 감지
@@ -101,17 +103,17 @@ watch(
 
 <template>
   <div class="app">
-    <Header v-if="!isRedirectRoute" :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
-    <Sidebar v-if="!isRedirectRoute" :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
-    <div class="main-container" :class="{ 'no-padding': isRedirectRoute }">
+    <Header :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
+    <Sidebar :openSidebar="openSidebar" :toggleSidebar="toggleSidebar" />
+    <div class="main-container">
       <main class="content">
         <RouterView v-slot="{ Component }">
           <component :is="Component" :key="$route.fullPath" />
         </RouterView>
       </main>
     </div>
-    <Footer v-if="!isRedirectRoute" />
-    <Chatbot v-if="!isRedirectRoute" />
+    <Footer />
+    <Chatbot />
     <Alert />
   </div>
 </template>

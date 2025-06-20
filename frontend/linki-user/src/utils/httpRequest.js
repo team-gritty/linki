@@ -126,9 +126,14 @@ const httpClient = {
     get(url, params = {}, config = {}) {
         const finalConfig = {
             ...generateConfig(),
-            ...config,
-            params
+            ...config
         };
+        
+        // params가 있고 빈 객체가 아닐 때만 추가
+        if (params && typeof params === 'object' && Object.keys(params).length > 0) {
+            finalConfig.params = params;
+        }
+        
         return instance.get(url, finalConfig);
     },
 

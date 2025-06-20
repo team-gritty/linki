@@ -25,7 +25,7 @@ public class CampaignServiceTests {
 
     String testCampaignId = "CAMP0001";
     String testCampaignId2 = "CAMP0002";
-    String testAdvertiserId = "ADV0001";
+    String testAdvertiserId = "ADV0000";
 
     @Test
     @DisplayName("캠페인 생성 Service Test")
