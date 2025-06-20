@@ -1,4 +1,4 @@
-package com.Gritty.Linki.client.chatClient;
+package com.Gritty.Linki.client.chatClient.dto.respone;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
