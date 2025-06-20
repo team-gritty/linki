@@ -24,19 +24,22 @@ public class Message{
     public static String messageId() {
         return IdGenerator.messageId();
     }
+
+    @Field("chat_id")
     private String chatId;
+    @Field("message_content")
     private String messageContent;
-
     //mongoDB의 date
-    @Field("messageDate")
+    @Field("message_date")
     private Instant messageDate;
-
+    @Field("message_read")
     private boolean messageRead;
+    @Field("message_sender_id")
     private String messageSenderId;
+    @Field("message_type")
     private String messageType;
-    //영속성 저장 시 지정된 아이디가 없으면 생성하여 저장, 있으면 입력값으로 저장
-    @PrePersist
-    public void prePersist() {
+
+    public void initializeIdIfNull() {
         if (this.messageId == null) {
             this.messageId = IdGenerator.messageId();
         }

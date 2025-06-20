@@ -1,12 +1,12 @@
 <template>
   <div class="detail-page">
     <DetailHeader
-      :campaignDetail="campaignDetail"
       :currentTab="currentTab"
       :tabs="tabs"
       @update:currentTab="currentTab = $event"
       @go-to-proposal-list="goToProposalList"
       @go-to-campaign-detail="goToCampaignDetail"
+      @update:chatRoom="chatRoom = $event"
     />
     
     <div class="content-area">
@@ -31,7 +31,7 @@
       <!-- 채팅 -->
       <DetailChat 
         v-if="currentTab === 'chat'"
-        :campaign-id="campaignId"
+        :chatRoom="chatRoom"
       />
       
       <!-- 계약서 -->
@@ -68,6 +68,7 @@ const proposal = ref(null)
 const campaignDetail = ref(null)
 const contractId = ref(null)
 const campaignId = computed(() => proposal.value?.campaign_id || proposal.value?.product_id)
+const chatRoom = ref(null)
 
 const tabs = [
   { id: 'campaign', name: '캠페인내용' },

@@ -21,6 +21,14 @@ export default defineConfig({
       '/v1/api': {
         target: 'http://localhost:8000',
         changeOrigin: true
+      },
+      '/v1/chat-service/api/': {
+        target: 'http://localhost:8000',
+        changeOrigin: true
+      },
+      '/v1/chat-service/ws' : {
+        target: 'http://localhost:8000',
+        changeOrigin: true
       }
     }
   }

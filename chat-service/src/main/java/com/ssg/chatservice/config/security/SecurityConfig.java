@@ -13,6 +13,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -31,10 +36,12 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
                 //권한별 설정
-                .requestMatchers("/v1/api/nonuser/**").permitAll()
+                .requestMatchers("/v1/chat-service/ws/chat").permitAll()
+                .requestMatchers("/v1/chat-service/api/nonuser/**").permitAll()
                 .requestMatchers("/v1/chat-service/api/user/**").hasAnyRole("USER","INFLUENCER","ADVERTISER")
                 .requestMatchers("/v1/chat-service/api/influencer/**").hasRole("INFLUENCER")
                 .requestMatchers("/v1/chat-service/api/advertiser/**").hasRole("ADVERTISER")
+                .requestMatchers("/v1/chat-service/api/authuser/**").hasAnyRole("USER","ADVERTISER", "INFLUENCER")
                 .anyRequest().authenticated());
         //파싱후 권한 검증
         http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
