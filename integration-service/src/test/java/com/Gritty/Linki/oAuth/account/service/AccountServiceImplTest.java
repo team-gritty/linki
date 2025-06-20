@@ -1,4 +1,4 @@
-package com.Gritty.Linki.oAuth.signUp.service;
+package com.Gritty.Linki.oAuth.account.service;
 
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
 import com.Gritty.Linki.domain.oAuth.account.repository.AccountRepository;

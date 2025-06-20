@@ -251,8 +251,8 @@ const validateUserId = () => {
 const validatePassword = () => {
   if (!password.value) {
     errors.value.password = '비밀번호를 입력해주세요.'
-  } else if (password.value.length < 8) {
-    errors.value.password = '비밀번호는 8자 이상이어야 합니다.'
+  } else if (password.value.length < 6) {
+    errors.value.password = '비밀번호는 6자 이상이어야 합니다.'
   } else {
     errors.value.password = ''
   }

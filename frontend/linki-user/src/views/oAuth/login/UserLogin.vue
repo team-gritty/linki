@@ -123,7 +123,7 @@ const handleLogin = async () => {
     return
   }
   
-  if (password.value.length < 6) {
+  if (password.value.length < 4) {
     alert('비밀번호는 6자 이상 입력해주세요.')
     return
   }
