@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UcanSignServiceImpl {
+public class UcanSignServiceImpl implements UcanSignService {
 }

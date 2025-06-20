@@ -41,43 +41,52 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { proposalAPI } from '@/api/proposal';
+import { campaignAPI } from '@/api/campaign';
 
 export default {
   name: 'DetailCampaign',
-  props: {
-    detailData: {
-      type: Object,
-      required: true
-    }
-  },
 
-  setup(props) {
+  setup() {
+    const route = useRoute();
     const loading = ref(true);
     const campaignDetail = ref(null);
 
-    // detailData 변경 감지하여 캠페인 정보 설정
-    watch(() => props.detailData, (newData) => {
-      loading.value = true;
-      console.log('DetailCampaign received data:', newData);
-      
-      if (newData) {
-        // campaign 직접 접근 또는 campaign 속성 접근 시도
-        const campaignData = newData.campaign || newData;
-        if (campaignData) {
-          console.log('Setting campaign detail:', campaignData);
-          campaignDetail.value = campaignData;
-        } else {
-          console.warn('No campaign data found in:', newData);
-          campaignDetail.value = null;
+    // 캠페인 상세 정보 가져오기
+    const fetchCampaignDetail = async () => {
+      try {
+        loading.value = true;
+        const proposalId = route.params.id;
+        console.log('Fetching campaign detail for proposal:', proposalId);
+        
+        // 1. 제안서 정보를 통해 캠페인 ID 가져오기
+        const proposalResponse = await proposalAPI.getProposalDetail(proposalId);
+        console.log('Fetched proposal:', proposalResponse);
+        
+        const campaignId = proposalResponse.campaignId;
+        if (!campaignId) {
+          throw new Error('캠페인 ID를 찾을 수 없습니다.');
         }
-      } else {
-        console.warn('No detail data received');
+        
+        // 2. 캠페인 ID로 캠페인 상세 정보 조회
+        const campaignResponse = await campaignAPI.getCampaignDetail(campaignId);
+        console.log('Fetched campaign detail:', campaignResponse);
+        
+        campaignDetail.value = campaignResponse;
+        
+      } catch (error) {
+        console.error('Failed to fetch campaign detail:', error);
         campaignDetail.value = null;
+      } finally {
+        loading.value = false;
       }
-      
-      loading.value = false;
-    }, { immediate: true });
+    };
+
+    onMounted(() => {
+      fetchCampaignDetail();
+    });
 
     const formatDate = (dateString) => {
       if (!dateString) return '';
