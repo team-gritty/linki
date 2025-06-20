@@ -11,9 +11,9 @@ public class AdminRoutes {
     @Bean
     public RouteLocator adminRoute(RouteLocatorBuilder b) {
         return b.routes()
-                .route("integration-admin", route -> route
+                .route("admin-integration-service", route -> route
                         .path("/v1/admin/api/**")
-                        .uri("lb://INTEGRATION-SERVICE"))
+                        .uri("lb://ADMIN-INTEGRATION-SERVICE"))
                 .build();
     }
 }

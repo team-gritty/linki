@@ -13,6 +13,7 @@ import com.ssg.chatservice.domain.chat.repository.ChatRepository;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
 import com.ssg.chatservice.entity.Chat;
+import com.ssg.chatservice.entity.Message;
 import com.ssg.chatservice.exception.ChatException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +36,18 @@ public class ChatServiceImpl implements ChatService{
 
     private final ModelMapper modelMapper;
 
-    //제안서 아이디로 채팅방 조회 및 DTO 반환
-    @Override
-    public ChatDetailDTO findByProposalId(String token,String proposalId){
-        //제안서 아이디로 채팅방 조회
-        Chat chat =  chatRepository.findByProposalId(proposalId);
-        if(chat == null){
-            throw new ChatException(ErrorCode.CHATROOM_NOT_FOUND);
-        }
-       PartnerInfoResponse partner = partnerApiClient.getPartnerInfo(token, chat.getProposalId());
+    //제안서아이디로  채팅방 조회
+    public Chat findByProposalId(String proposalId){
+        return chatRepository.findByProposalId(proposalId);
+    }
 
+    //제안서 아이디로 ChatDetailDTO 반환
+    @Override
+    public ChatDetailDTO getChatDtoByProposalId(String token,String proposalId){
+        //제안서 아이디로 채팅방 조회 (Optional 예외처리)
+        Chat chat = findByProposalId(proposalId);
+        //feign client : partner Info 조회
+        PartnerInfoResponse partner = partnerApiClient.getPartnerInfo(token, chat.getProposalId());
         if(partner == null){
             throw new ChatException(ErrorCode.PARTNER_API_FAILED);
         }
@@ -64,9 +67,9 @@ public class ChatServiceImpl implements ChatService{
     //채팅방 생성
     @Override
     @Transactional
-    public String createRoom(String proposalId) {
+    public ChatDTO createRoom(String proposalId) {
         //DB에서 제안서 아이디를 기준으로 채팅방 조회
-        Chat chat = chatRepository.findByProposalId(proposalId);
+        Chat chat = findByProposalId(proposalId);
         //이미 존재하는 채팅방이면 예외처리
         if(chat != null){
             throw new ChatException(ErrorCode.CHATROOM_ALREADY_EXIST);
@@ -79,30 +82,46 @@ public class ChatServiceImpl implements ChatService{
                 .build();
         chatRepository.save(chat);
 
-        return chat.getChatId();
+        return modelMapper.map(chat,ChatDTO.class);
     }
 
 
 
-
-    //광고주의 채팅 목록 조회
+    //광고주의 채팅 목록 조회 (캠페인 아이디로 채팅방 조회)
     @Override
-    public List<ChatDTO> AdvertiserChatList(String token, String campaignId) {
+    public List<ChatDTO> campaignToChatList (String token, String campaignId){
+        List<ChatInfoResponse> chatInfos = chatInfoResponses(token, campaignId);
+        List<Chat> chats = chatInfoGetChat(chatInfos);
+        //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
+        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
+        return chatDTOs(chats,chatInfos,lastMessages);
+    }
+
+
+    // feign client : 캠페인 아이디로 채팅 정보 조회
+    @Override
+    public List<ChatInfoResponse> chatInfoResponses(String token, String campaignId) {
+        return chatApiClient.getChatInfo(token, campaignId);
+    }
+
+    //채팅 정보리스트에서 proposalId 추출하여 채팅방 조회
+    @Override
+    public List<Chat> chatInfoGetChat(List<ChatInfoResponse> chatInfoResponses){
+        List<String> proposalIds = chatInfoResponses.stream()
+                .map(ChatInfoResponse::getProposalId)
+                .collect(Collectors.toList());
+        return chatRepository.findByProposalIdIn(proposalIds);
+    }
+
+
+    //chatDto List 빌더
+    @Override
+    public List<ChatDTO> chatDTOs (List<Chat> chats ,
+                                   List<ChatInfoResponse> chatInfos,
+                                   Map<String, ChatMessageDTO>  lastMessages){
         List<ChatDTO> advertiserChatList = new ArrayList<>();
 
-        // 1. 채팅 정보 조회
-        List<ChatInfoResponse> chatInfos = chatApiClient.getChatInfo(token, campaignId);
-        List<String> proposalIds = chatInfos.stream()
-            .map(ChatInfoResponse::getProposalId)
-            .collect(Collectors.toList());
-
-        // 2. 채팅방 조회 및 맵핑
-        List<Chat> chats = chatRepository.findByProposalIdIn(proposalIds);
-        // 3. 마지막 메시지 조회
-        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
-
-        // 4. ChatDTO 리스트 생성
-        for(int i = 0; i< chatInfos.size(); i++){
+        for(int i = 0; i< chats.size(); i++){
             ChatDTO chatdto = ChatDTO.builder()
                     .chatId((chats.get(i).getChatId()))
                     .opponentId(chatInfos.get(i).getOpponentId())
@@ -116,6 +135,27 @@ public class ChatServiceImpl implements ChatService{
         }
         return advertiserChatList;
     }
+
+    //제안서에 해당하는 채팅방 상태를 활성으로 변경
+    public Chat activateRoomByProposal(String proposalId){
+        Chat chat = findByProposalId(proposalId);
+        chat.setChatStatus(ChatStatus.ACTIVE);
+        return chatRepository.save(chat);
+    }
+
+    //채팅아이디로 채팅방 조회
+    public ChatDetailDTO getChatDtoByChatId(String token,String chatId){
+        Chat chat = chatRepository.findById(chatId).orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
+        return getChatDtoByProposalId(token,chat.getProposalId());
+    }
+
+    //제안서에 해당하는 채팅방 소프트삭제
+    public Chat softDeleteChat(String proposalId){
+        Chat chat = findByProposalId(proposalId);
+        chat.setChatStatus(ChatStatus.DELETE);
+        return chatRepository.save(chat);
+    }
+
 
 
 }

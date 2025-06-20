@@ -19,16 +19,24 @@
         </div>
       </div>
     </template>
-    <DetailProposal v-if="selectedProposal" :proposal="selectedProposal" @close="closeDetail" @back="closeDetail" @reject="handleRejectProposal" @contract="goToContractCreate" />
+    <DetailProposal 
+      v-if="selectedProposal" 
+      :proposal="selectedProposal" 
+      :campaignId="props.campaignId"
+      @close="closeDetail" 
+      @back="closeDetail" 
+      @reject="handleRejectProposal" 
+      @accept="handleAcceptProposal"
+      @contract="goToContractCreate" 
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import axios from 'axios'
+import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
 import DetailProposal from './DetailProposalModal.vue'
 import { useRouter } from 'vue-router'
-import { contractApi } from '@/api/advertiser/advertiser-contract'
 
 const props = defineProps({
   campaignId: {
@@ -64,8 +72,8 @@ async function fetchProposals() {
   loading.value = true
   error.value = null
   try {
-    const res = await axios.get(`/v1/api/advertiser/proposals?campaignId=${props.campaignId}`)
-    proposals.value = res.data
+    const data = await proposalAPI.getProposalsByCampaign(props.campaignId)
+    proposals.value = data
   } catch (e) {
     error.value = '제안서 목록을 불러오지 못했습니다.'
   } finally {
@@ -86,6 +94,15 @@ function handleRejectProposal(proposalId) {
   const idx = proposals.value.findIndex(p => p.id === proposalId)
   if (idx !== -1) {
     proposals.value[idx].status = 'REJECTED'
+  }
+  closeDetail()
+}
+
+function handleAcceptProposal(proposalId) {
+  // Find and update the proposal status
+  const idx = proposals.value.findIndex(p => p.id === proposalId)
+  if (idx !== -1) {
+    proposals.value[idx].status = 'ACCEPTED'
   }
   closeDetail()
 }

@@ -1,6 +1,6 @@
 package com.Gritty.Linki.config.security;
 
-import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
+import com.Gritty.Linki.domain.oAuth.account.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
