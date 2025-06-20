@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface InfluencerPayRepository extends JpaRepository<User, String> {
     //유저 디티오 가져옴
-    public Optional<PayUserDto> findByUserId(String userId);
+    public Optional<User> findByUserId(String userId);
 }

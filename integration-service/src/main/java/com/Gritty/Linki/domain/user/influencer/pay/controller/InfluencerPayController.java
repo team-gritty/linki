@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("v1/api")
 @RequiredArgsConstructor
 public class InfluencerPayController {
 
@@ -24,7 +24,7 @@ public class InfluencerPayController {
     public ResponseEntity<PayInfluencerEmailNameResponseDto> emailName(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         //로그인된 사용자 아이디
-        String userId = customUserDetails.getUsername();
+        String userId = customUserDetails.getUserId();
         //사용자 아이디로 PayUserDto 객체 받아옴
         PayUserDto userDtoUserId = influencerPayServiceimpl.getUserDtoUserId(userId);
         //리스폰스 dto 객체로 바꿈
