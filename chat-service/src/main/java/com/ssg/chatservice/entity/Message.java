@@ -25,18 +25,16 @@ public class Message{
         return IdGenerator.messageId();
     }
 
-    @Field("chat_id")
     private String chatId;
-    @Field("message_content")
+
     private String messageContent;
     //mongoDB의 date
-    @Field("message_date")
     private Instant messageDate;
-    @Field("message_read")
+
     private boolean messageRead;
-    @Field("message_sender_id")
+
     private String messageSenderId;
-    @Field("message_type")
+
     private String messageType;
 
     public void initializeIdIfNull() {
