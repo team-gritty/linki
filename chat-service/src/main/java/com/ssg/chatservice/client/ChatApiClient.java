@@ -9,7 +9,7 @@
 
     @FeignClient(name="chatInfo-api",url="http://localhost:8080")
     public interface ChatApiClient {
-        @GetMapping("/v1/integration-service/api/chat/{id}")
+        @GetMapping("/v1/integration-service/api/chatInfo/{id}")
         List<ChatInfoResponse> getChatInfo(
                 @RequestHeader("Authorization") String authorization,
                 @PathVariable("id") String campaign);
