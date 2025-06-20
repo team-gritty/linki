@@ -2,10 +2,8 @@ package com.ssg.chatservice.domain.chat.controller;
 
 import com.ssg.chatservice.client.PartnerApiClient;
 import com.ssg.chatservice.client.PartnerInfoResponse;
-import com.ssg.chatservice.domain.chat.dto.ChatDTO;
 import com.ssg.chatservice.domain.chat.dto.ChatDetailDTO;
 import com.ssg.chatservice.domain.chat.dto.respone.ChatDetailResponeDTO;
-import com.ssg.chatservice.domain.chat.dto.respone.ChatResponeDTO;
 import com.ssg.chatservice.domain.chat.service.ChatServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -43,14 +39,4 @@ public class ChatController {
         return modelMapper.map(chatDetailDTO, ChatDetailResponeDTO.class);
     }
 
-    //광고주의 채팅목록 조회
-    @GetMapping("/advertiser/list/{campaignId}")
-    public List<ChatResponeDTO> chatListByCampaign(@RequestHeader("Authorization")String token, @PathVariable String campaignId){
-        List<ChatDTO> chats = chatService.campaignToChatList(token,campaignId);
-        return chats.stream().map(chatDTO -> { return modelMapper.map(chatDTO,ChatResponeDTO.class);
-        }).collect(Collectors.toList());
-    }
-
-
-    
 }
