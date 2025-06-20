@@ -13,7 +13,7 @@ SELECT
     CASE 
         WHEN seq < 500 THEN 'ROLE_INFLUENCER'
         WHEN seq < 1000 THEN 'ROLE_ADVERTISER'
-        ELSE 'ROLE_MEMBER'
+        ELSE 'ROLE_USER'
     END
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 + d.N * 1000 AS seq
