@@ -1,16 +1,14 @@
-package com.Gritty.Linki.domain.oAuth.signUp.service;
+package com.Gritty.Linki.domain.oAuth.account.service;
 
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
-import com.Gritty.Linki.domain.oAuth.signUp.repository.AccountRepository;
+import com.Gritty.Linki.domain.oAuth.account.repository.AccountRepository;
 import com.Gritty.Linki.entity.User;
-import com.Gritty.Linki.util.AesUtil;
 import com.Gritty.Linki.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
+
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +30,7 @@ public class AccountServiceImpl implements AccountService {
                 .userPayStatus(0)
                 .userStatus(1)
                 .userEnterDay(LocalDate.now())
-                .userRole("ROLE_INFLUENCER")
+                .userRole("ROLE_USER")
                 .build();
 
         accountRepository.save(user);

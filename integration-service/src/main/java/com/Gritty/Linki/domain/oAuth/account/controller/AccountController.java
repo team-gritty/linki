@@ -1,12 +1,11 @@
-package com.Gritty.Linki.domain.oAuth.signUp.controller;
+package com.Gritty.Linki.domain.oAuth.account.controller;
 
 
 import com.Gritty.Linki.config.security.JwtUtil;
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
 import com.Gritty.Linki.domain.oAuth.dto.RequestJoinDto;
-import com.Gritty.Linki.domain.oAuth.signUp.repository.RefreshTokenRepository;
-import com.Gritty.Linki.domain.oAuth.signUp.service.AccountService;
-import com.Gritty.Linki.domain.oAuth.signUp.service.RefreshTokenService;
+import com.Gritty.Linki.domain.oAuth.account.repository.RefreshTokenRepository;
+import com.Gritty.Linki.domain.oAuth.account.service.AccountService;
 import com.Gritty.Linki.util.HttpUtil;
 
 
@@ -21,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 import org.springframework.security.core.Authentication;
 
 import java.util.Map;
@@ -62,8 +60,14 @@ public class AccountController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        String loginId = requestJoinDto.getUserLoginId();
+        if (StringUtils.hasLength(loginId) && accountService.find(loginId) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "아이디 중복"));
+        }
+
         accountService.save(joinDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(Map.of("message", "회원가입이 완료되었습니다."));
     }
 
     @PostMapping("logout")

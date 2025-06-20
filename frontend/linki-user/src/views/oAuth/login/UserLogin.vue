@@ -67,9 +67,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '../../../stores/account'
-
 import httpClient from '../../../utils/httpRequest'
-
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -93,7 +91,6 @@ const focusPasswordInput = () => {
   }
 }
 
-
 // JWT 토큰 파싱 함수
 const parseJwtToken = (token) => {
   try {
@@ -108,7 +105,6 @@ const parseJwtToken = (token) => {
     return null
   }
 }
-
 
 const handleLogin = async () => {
   // 입력 유효성 검사 강화
@@ -127,16 +123,14 @@ const handleLogin = async () => {
     return
   }
   
-  if (password.value.length < 6) {
+  if (password.value.length < 4) {
     alert('비밀번호는 6자 이상 입력해주세요.')
     return
   }
 
   try {
     isLoading.value = true
-
     const response = await httpClient.post('v1/api/nonuser/login', {
-
       userLoginId: userId.value.trim(),
       userLoginPw: password.value
     })
@@ -146,13 +140,11 @@ const handleLogin = async () => {
     
     if (accessToken) {
       // JWT 토큰에서 사용자 정보 추출
-
       const tokenPayload = parseJwtToken(accessToken)
       
       if (tokenPayload) {
         const userRole = tokenPayload.userRole
         const userId = tokenPayload.userId
-
         
         // 백엔드 role을 프론트엔드 userType으로 매핑
         let userType = 'general'
@@ -168,7 +160,6 @@ const handleLogin = async () => {
         // localStorage에도 토큰 저장 (앱 재시작 시 복원용)
         localStorage.setItem('token', accessToken)
         
-
         // 콘솔에 사용자 정보 출력
         console.log('로그인 성공!')
         // console.log('User ID:', userId)
@@ -180,7 +171,6 @@ const handleLogin = async () => {
         router.push('/home')
       } else {
         alert('토큰 파싱에 실패했습니다.')
-
       }
     } else {
       alert('로그인에 실패했습니다. 토큰을 받지 못했습니다.')

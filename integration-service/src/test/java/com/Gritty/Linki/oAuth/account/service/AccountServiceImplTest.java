@@ -1,9 +1,8 @@
-package com.Gritty.Linki.oAuth.signUp.service;
+package com.Gritty.Linki.oAuth.account.service;
 
 import com.Gritty.Linki.domain.oAuth.dto.JoinDTO;
-import com.Gritty.Linki.domain.oAuth.signUp.repository.AccountRepository;
-import com.Gritty.Linki.domain.oAuth.signUp.service.AccountService;
-import com.Gritty.Linki.entity.User;
+import com.Gritty.Linki.domain.oAuth.account.repository.AccountRepository;
+import com.Gritty.Linki.domain.oAuth.account.service.AccountService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

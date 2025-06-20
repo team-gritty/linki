@@ -1,7 +1,7 @@
-package com.Gritty.Linki.domain.oAuth.signUp.service;
+package com.Gritty.Linki.domain.oAuth.account.service;
 
 
-import com.Gritty.Linki.domain.oAuth.signUp.repository.RefreshTokenRepository;
+import com.Gritty.Linki.domain.oAuth.account.repository.RefreshTokenRepository;
 import com.Gritty.Linki.entity.RefreshToken;
 import com.Gritty.Linki.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
