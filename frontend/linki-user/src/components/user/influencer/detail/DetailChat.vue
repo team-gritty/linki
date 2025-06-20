@@ -73,11 +73,11 @@ const props = defineProps({
   chatRoom: Object
 })
 
-const accountStore = useAccountStore()
-const currentUserId = computed(() => {
-  // 임시로 하드코딩된 사용자 ID 사용 (실제로는 로그인된 사용자 정보에서 가져와야 함)
-  return 'USER0000'
-})
+// const accountStore = useAccountStore()
+// const currentUserId = computed(() => {
+//   // 임시로 하드코딩된 사용자 ID 사용 (실제로는 로그인된 사용자 정보에서 가져와야 함)
+//   return 'USER0000'
+// })
 
 const newMessage = ref('')
 const loading = ref(false)
