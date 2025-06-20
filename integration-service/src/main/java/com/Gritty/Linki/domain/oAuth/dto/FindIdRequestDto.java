@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.User.dto;
+package com.Gritty.Linki.domain.oAuth.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +9,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VerificationRequestDto {
+public class FindIdRequestDto {
     private String userName;
     private String userEmail;
-    private String verificationCode;
 } 

@@ -1,10 +1,9 @@
-package com.Gritty.Linki.domain.user.User.controller;
+package com.Gritty.Linki.domain.oAuth.account.controller;
 
-import com.Gritty.Linki.domain.user.User.dto.FindIdRequestDto;
-import com.Gritty.Linki.domain.user.User.dto.FindIdResponseDto;
-import com.Gritty.Linki.domain.user.User.dto.VerificationRequestDto;
-import com.Gritty.Linki.domain.user.User.dto.VerificationResponseDto;
-import com.Gritty.Linki.domain.user.User.service.FindIdService;
+import com.Gritty.Linki.domain.oAuth.dto.FindIdRequestDto;
+import com.Gritty.Linki.domain.oAuth.dto.FindIdResponseDto;
+import com.Gritty.Linki.domain.oAuth.dto.VerificationRequestDto;
+import com.Gritty.Linki.domain.oAuth.account.service.FindIdService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

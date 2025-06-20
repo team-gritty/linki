@@ -1,7 +1,7 @@
-package com.Gritty.Linki.domain.user.User.service;
+package com.Gritty.Linki.domain.oAuth.account.service;
 
-import com.Gritty.Linki.domain.user.User.dto.FindIdResponseDto;
-import com.Gritty.Linki.domain.user.User.repository.FindIdRepository;
+import com.Gritty.Linki.domain.oAuth.dto.FindIdResponseDto;
+import com.Gritty.Linki.domain.oAuth.account.repository.FindIdRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;

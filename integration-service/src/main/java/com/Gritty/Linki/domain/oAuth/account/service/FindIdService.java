@@ -1,6 +1,6 @@
-package com.Gritty.Linki.domain.user.User.service;
+package com.Gritty.Linki.domain.oAuth.account.service;
 
-import com.Gritty.Linki.domain.user.User.dto.FindIdResponseDto;
+import com.Gritty.Linki.domain.oAuth.dto.FindIdResponseDto;
 
 public interface FindIdService {
     

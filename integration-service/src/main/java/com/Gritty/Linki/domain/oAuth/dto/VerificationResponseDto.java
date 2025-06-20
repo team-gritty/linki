@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.User.dto;
+package com.Gritty.Linki.domain.oAuth.dto;
 
 import lombok.Getter;
 import lombok.Setter;
