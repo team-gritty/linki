@@ -1,15 +1,22 @@
 package com.ssg.chatservice.domain.chat.controller;
 
+import com.ssg.chatservice.client.PartnerApiClient;
+import com.ssg.chatservice.client.PartnerInfoResponse;
 import com.ssg.chatservice.domain.chat.dto.ChatDTO;
+import com.ssg.chatservice.domain.chat.dto.ChatDetailDTO;
 import com.ssg.chatservice.domain.chat.dto.respone.ChatDetailResponeDTO;
 import com.ssg.chatservice.domain.chat.dto.respone.ChatResponeDTO;
 import com.ssg.chatservice.domain.chat.service.ChatServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j

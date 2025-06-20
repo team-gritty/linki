@@ -30,6 +30,7 @@ public class ChatServiceImpl implements ChatService{
     private final ChatRepository chatRepository;
     private final MessageService messageService;
     //feign client
+    private final PartnerApiClient partnerApiClient;
     private final ChatApiClient chatApiClient;
 
     private final ModelMapper modelMapper;
