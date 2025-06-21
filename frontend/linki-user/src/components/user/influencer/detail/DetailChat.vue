@@ -81,9 +81,7 @@ const props = defineProps({
 
 const accountStore = useAccountStore()
 const currentUserId = computed(() => {
-  const user = accountStore.getUser
-  console.log('Current user from store:', user)
-  return user?.userId || user?.id || null
+  return accountStore.getUser?.userId || accountStore.getUser?.id || null
 })
 
 const newMessage = ref('')
@@ -156,7 +154,6 @@ const connectSocket = (chatId) => {
       'token': token
     }
     
-    console.log('Connecting with headers:', headers)
     
     stompClient.value.connect(headers, () => {
       console.log('STOMP connection established')
@@ -165,11 +162,9 @@ const connectSocket = (chatId) => {
       
       stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
         const message = JSON.parse(msg.body)
-        console.log('Received message:', message)
 
         // 현재 사용자가 보낸 메시지는 수신하지 않음
         if (message.senderId === currentUserId.value) {
-          console.log('Ignoring message sent by current user:', message)
           return
         }
 
@@ -182,7 +177,6 @@ const connectSocket = (chatId) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
-          console.log('Message added to chat:', message)
         }
       })
     }, (connectionError) => {
@@ -216,11 +210,9 @@ const connectWithNativeWebSocket = (chatId, token) => {
       
       stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
         const message = JSON.parse(msg.body)
-        console.log('Received message via native WebSocket:', message)
 
         // 현재 사용자가 보낸 메시지는 수신하지 않음
         if (message.senderId === currentUserId.value) {
-          console.log('Ignoring message sent by current user (native WebSocket):', message)
           return
         }
 
@@ -232,13 +224,12 @@ const connectWithNativeWebSocket = (chatId, token) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
-          console.log('Message added to chat:', message)
         }
       })
     }, (error) => {
       console.error('Native WebSocket connection error:', error)
       isConnected.value = false
-      error.value = '실시간 채팅 연결에 실패했습니다. 메시지 조회는 계속 가능합니다.'
+      error.value = '실시간 채팅 연결에 실패했습니다.'
     })
   } catch (error) {
     console.error('Error setting up native WebSocket:', error)
@@ -288,8 +279,6 @@ const sendMessage = async () => {
     messageDate: new Date().toISOString()
   }
 
-    console.log('Sending message:', msgObj)
-
   // 웹소켓으로 메시지 전송
   stompClient.value.send(
       '/app/send/message',
@@ -315,7 +304,6 @@ const sendMessage = async () => {
     // 에러 메시지 초기화
     error.value = null
     
-    console.log('Message sent successfully')
   } catch (error) {
     console.error('Error sending message:', error)
     error.value = '메시지 전송에 실패했습니다.'
@@ -342,7 +330,6 @@ const loadChatInfo = async () => {
     
     // 메시지 로드
     const messagesResponse = await chatApi.getMessages(props.chatRoom.chatId)
-    console.log('Messages API response:', messagesResponse)
 
     // API 응답이 배열인지 확인하고 안전하게 처리
     let messages = []
@@ -360,7 +347,6 @@ const loadChatInfo = async () => {
 
     // 메시지를 날짜순으로 정렬
     chatMessages.value = messages.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
-    console.log('Loaded messages count:', chatMessages.value.length)
 
     error.value = null
   } catch (err) {
