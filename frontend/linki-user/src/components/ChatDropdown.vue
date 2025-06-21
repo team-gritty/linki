@@ -9,6 +9,8 @@ const accountStore = useAccountStore()
 const showDropdown = ref(false)
 const userChatList = ref([])
 const dropdownRef = ref(null)
+const loading = ref(false)
+const error = ref(null)
 
 const currentUserId = computed(() => {
   return accountStore.getUser?.userId || accountStore.getUser?.id || null
@@ -31,17 +33,25 @@ const hasNewMessages = computed(() => {
 
 const loadUserChatList = async () => {
   try {
+    loading.value = true
+    error.value = null
+    
     if (!currentUserId.value) {
       console.warn('User ID not available')
+      error.value = '사용자 정보를 찾을 수 없습니다.'
+      userChatList.value = []
       return
     }
     
     console.log('Loading chat list for user:', currentUserId.value)
     const data = await chatApi.getUserChatList(currentUserId.value)
-    userChatList.value = data
+    userChatList.value = data || []
   } catch (error) {
     console.error('Failed to load user chat list:', error)
+    error.value = '채팅 목록을 불러오는데 실패했습니다.'
     userChatList.value = []
+  } finally {
+    loading.value = false
   }
 }
 
@@ -125,7 +135,13 @@ onUnmounted(() => {
         <h3>채팅 목록</h3>
       </div>
       <div class="chat-list">
-        <div v-if="sortedChatList.length === 0" class="empty-chat">
+        <div v-if="loading" class="loading">
+          <p>채팅 목록을 불러오는 중...</p>
+        </div>
+        <div v-else-if="error" class="error-message">
+          <p>{{ error }}</p>
+        </div>
+        <div v-else-if="sortedChatList.length === 0" class="empty-chat">
           <p>채팅 목록이 존재하지 않습니다</p>
         </div>
         <div v-else v-for="chat in sortedChatList" 
@@ -133,11 +149,11 @@ onUnmounted(() => {
              class="chat-item" 
              @click="goToChat(chat)">
           <div class="chat-info">
-            <div class="chat-name">{{ chat.chatPartner }}</div>
-            <div class="chat-message">{{ chat.lastMessage }}</div>
+            <div class="chat-name">{{ chat.chatPartner || '알 수 없는 사용자' }}</div>
+            <div class="chat-message">{{ chat.lastMessage || '메시지가 없습니다' }}</div>
           </div>
           <div class="chat-meta">
-            <div class="chat-time">{{ formatTime(chat.lastMessageTime) }}</div>
+            <div class="chat-time">{{ formatTime(chat.lastMessageTime || new Date()) }}</div>
             <div v-if="chat.isNew" class="new-badge">NEW</div>
           </div>
         </div>
@@ -302,6 +318,38 @@ onUnmounted(() => {
 }
 
 .empty-chat p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  color: #666;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 30px;
+}
+
+.loading p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.error-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  color: #dc3545;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 30px;
+}
+
+.error-message p {
   margin: 0;
   line-height: 1.5;
 }

@@ -3,8 +3,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { chatApi } from '@/api/chat'
 import DetailProposalModal from './DetailProposalModal.vue'
 import { useRouter } from 'vue-router'
+import { useAccountStore } from '@/stores/account'
 
 const router = useRouter()
+const accountStore = useAccountStore()
 
 const props = defineProps({
   campaignId: {
@@ -18,7 +20,9 @@ const selectedChatId = ref(null)
 const newMessage = ref('')
 const loading = ref(false)
 const error = ref(null)
-const currentUserId = 'advertiser1'
+const currentUserId = computed(() => {
+  return accountStore.getUser?.userId || accountStore.getUser?.id || null
+})
 const chatList = ref([])
 const chatMessages = ref([])
 const chatDetails = ref([])
@@ -256,7 +260,7 @@ const sendMessage = async () => {
 
   const messageObj = {
     chatId: selectedChatId.value,
-    senderId: currentUserId,
+    senderId: currentUserId.value,
     content: newMessage.value,
     messageDate: new Date().toISOString(),
     messageRead: false
