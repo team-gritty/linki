@@ -35,7 +35,7 @@ public class CPCServiceImpl implements CPCService {
         if (cachedContractList == null) {
             synchronized (cacheLock) {
                 if (cachedContractList == null) {
-                    cachedContractList = contractRepository.findAll();
+                    cachedContractList = contractRepository.findAllWithProposalAndInfluencer();
                 }
             }
         }
@@ -87,9 +87,7 @@ public class CPCServiceImpl implements CPCService {
                 .map(Contract::getContractAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long clickCount = redirectRepository.findAll().stream()
-                .filter(dto -> dto.getContract().getProposal().getInfluencer().getInfluencerId().equals(influencerId))
-                .count();
+        long clickCount = redirectRepository.countByInfluencerId(influencerId);
         BigDecimal click = BigDecimal.valueOf(clickCount);
 
         BigDecimal cpc = BigDecimal.ZERO;

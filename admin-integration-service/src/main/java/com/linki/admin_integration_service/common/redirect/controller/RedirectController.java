@@ -20,9 +20,13 @@ public class RedirectController {
 
     @GetMapping("/v1/admin/api/redirect/{shortUrl}")
     public ResponseEntity<Void> redirect(@PathVariable String shortUrl) {
-        log.info("Redirecting to {}", shortUrl);
-        URI uri = URI.create(redirectService.searchRedirectUrl(shortUrl));
-        log.info("Redirected to {}", uri);
+        String originUrl = redirectService.searchRedirectUrl(shortUrl);
+
+        if (originUrl == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        URI uri = URI.create(originUrl);
         return ResponseEntity.status(HttpStatus.FOUND).location(uri).build();
     }
 }
