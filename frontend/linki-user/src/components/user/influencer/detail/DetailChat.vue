@@ -167,6 +167,12 @@ const connectSocket = (chatId) => {
         const message = JSON.parse(msg.body)
         console.log('Received message:', message)
 
+        // 현재 사용자가 보낸 메시지는 수신하지 않음
+        if (message.senderId === currentUserId.value) {
+          console.log('Ignoring message sent by current user:', message)
+          return
+        }
+
         // 중복 메시지 체크 (같은 내용, 같은 시간대의 메시지)
         const isDuplicate = chatMessages.value.some(existingMsg =>
             existingMsg.content === message.content &&
@@ -211,6 +217,12 @@ const connectWithNativeWebSocket = (chatId, token) => {
       stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
         const message = JSON.parse(msg.body)
         console.log('Received message via native WebSocket:', message)
+
+        // 현재 사용자가 보낸 메시지는 수신하지 않음
+        if (message.senderId === currentUserId.value) {
+          console.log('Ignoring message sent by current user (native WebSocket):', message)
+          return
+        }
 
         const isDuplicate = chatMessages.value.some(existingMsg =>
             existingMsg.content === message.content &&
