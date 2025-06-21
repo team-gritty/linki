@@ -1,8 +1,6 @@
 package com.Gritty.Linki.client.chatClient.service;
 
-import com.Gritty.Linki.client.chatClient.dto.AdvertiserDto;
-import com.Gritty.Linki.client.chatClient.dto.InfluencerDto;
-import com.Gritty.Linki.client.chatClient.dto.PartnerInfoDto;
+import com.Gritty.Linki.client.chatClient.dto.*;
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.config.security.UserRepository;
 import com.Gritty.Linki.domain.user.advertiser.campaign.repository.CampaignRepository;
@@ -10,12 +8,15 @@ import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpa
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.entity.*;
-import com.Gritty.Linki.util.AuthenticationUtil;
-import com.Gritty.Linki.vo.enums.ProposalStatus;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class ChatClientServiceImpl implements ChatClientService {
         if (partner instanceof AdvertiserDto advertiser) {
             User partnerUser = userRepository.findById(advertiser.getUserId()).orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다. "));
             return PartnerInfoDto.builder()
-                    .partnerId(partnerUser.getUserId())
+                    .partnerId(advertiser.getUserId())
                     .partnerName(partnerUser.getUserLoginId())
                     .proposalId(proposalId)
                     .negoStatus(getNegoStatust(proposalId))
@@ -82,6 +83,7 @@ public class ChatClientServiceImpl implements ChatClientService {
     /*
     * 계약 진행 상태 조회
     */
+    @Override
     public String getNegoStatust(String proposalId) {
         Proposal proposal = proposalRepository.findById(proposalId).orElseThrow(() -> new RuntimeException("존재하지 않는 제안서 입니다. "));
         Contract contract = contractRepository.findByProposalId(proposalId).orElseThrow(() -> new RuntimeException("계약서가 존재하지 않습니다."));
@@ -89,4 +91,52 @@ public class ChatClientServiceImpl implements ChatClientService {
         if (contract == null) return proposal.getStatus().toString();
         else return contract.getContractStatus().toString();
     }
+
+    /*
+    * 캠페인 아이디로 chatInfo 객체 리스트 조회
+    * */
+    @Override
+    public List<ChatInfoDto> getCampaignToChatInfo(String campaignId){
+        List<ChatInfoDto> chatInfoDtos = new ArrayList<>();
+
+        List<InterfaceChatInfoDto> findChatInfos = proposalRepository.findInfluencerChatInfoByCampaignId(campaignId);
+
+        for(InterfaceChatInfoDto InterfaceChatInfoDto : findChatInfos){
+            ChatInfoDto chatInfoDto = ChatInfoDto.builder()
+                    .opponentId(InterfaceChatInfoDto.getUserId())
+                    .opponentName(InterfaceChatInfoDto.getUserLoginId())
+                    .proposalId(InterfaceChatInfoDto.getProposalId())
+                    .build();
+            chatInfoDtos.add(chatInfoDto);
+        }
+        return chatInfoDtos;
+    }
+
+    //로그인한 유저의 정보 조회
+    @Override
+    public List<ChatInfoDto> getUserToChatInfo(CustomUserDetails user) {
+        String role = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).findFirst().orElseThrow(() -> new RuntimeException("권한 없음"));
+        if(role.equals("ROLE_INFLUENCER")) {
+            List<InterfaceChatInfoDto> interfaceChatInfoDtos = userRepository.findInfluencerChatInfoByUserId(user.getUserId());
+            return getChatInfoDtos(interfaceChatInfoDtos);
+        } else {
+            List<InterfaceChatInfoDto> interfaceChatInfoDtos = userRepository.findAdvertiserChatInfoByUserId(user.getUserId());
+            return getChatInfoDtos(interfaceChatInfoDtos);
+        }
+    }
+
+    @Override
+    //채팅정보 빌더
+    public List<ChatInfoDto> getChatInfoDtos(List<InterfaceChatInfoDto> interfaceChatInfoDtos ){
+        return interfaceChatInfoDtos.stream().map(interfaceChatInfoDto ->
+            ChatInfoDto.builder()
+                    .opponentId(interfaceChatInfoDto.getUserId())
+                    .opponentName(interfaceChatInfoDto.getUserLoginId())
+                    .proposalId(interfaceChatInfoDto.getProposalId())
+                    .build()
+        ).collect(Collectors.toList());
+    }
+
+
 }
