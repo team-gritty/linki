@@ -22,4 +22,9 @@ public class RedirectLinks {
     @Column(name = "redirect_url", columnDefinition = "LONGTEXT", nullable = false)
     private String redirectUrl; // 변환된 URL
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
+
+
 }
