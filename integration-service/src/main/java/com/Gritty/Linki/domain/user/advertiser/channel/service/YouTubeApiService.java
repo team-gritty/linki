@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
 import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeChannelDto;
 import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeSearchDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeVideoDto;
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
 import com.Gritty.Linki.domain.user.advertiser.channel.config.YouTubeApiConfig;
@@ -57,9 +58,6 @@ public class YouTubeApiService {
                     .build()
                     .toUriString();
 
-            log.info("YouTube Search API 요청: keyword={}, maxResults={}", keyword, maxResults);
-            log.debug("Search URL: {}", searchUrl.replaceAll("key=[^&]*", "key=***"));
-
             // API 호출 및 응답 처리
             YouTubeSearchDto searchResponse = restTemplate.getForObject(searchUrl, YouTubeSearchDto.class);
 
@@ -113,8 +111,8 @@ public class YouTubeApiService {
                 return List.of();
             }
 
-            log.info("채널 상세 정보 조회 완료: 요청 채널 수={}, 응답 채널 수={}",
-                    channelIds.size(), channelResponse.getItems().size());
+            log.info("채널 상세 정보 조회 완료: 요청 채널 수={}",
+                    channelIds.size());
 
             return channelResponse.getItems();
 
@@ -159,7 +157,7 @@ public class YouTubeApiService {
             // rootNode: JSON의 최상위 노드
             JsonNode rootNode = objectMapper.readTree(response);
             // rootNode.get("items"): JSON에서 "items" 키에 해당하는 값을 꺼냄
-            //예: {"items": [1, 2, 3]} → itemsNode는 [1, 2, 3]
+            // 예: {"items": [1, 2, 3]} → itemsNode는 [1, 2, 3]
             JsonNode itemsNode = rootNode.get("items");
 
             if (itemsNode == null || itemsNode.size() == 0) {
@@ -214,6 +212,199 @@ public class YouTubeApiService {
             }
         } catch (Exception e) {
             log.error("YouTube 채널 ID 조회 중 오류 발생 - 내부 채널 ID: {}", channelId, e);
+            return null;
+        }
+    }
+
+    /**
+     * YouTube 채널의 최근 영상 목록을 가져와서 평균 좋아요/댓글 수를 계산
+     * 
+     * @param youtubeChannelId YouTube 채널 ID
+     * @param maxResults       가져올 영상 수 (최대 50개)
+     * @return {avgLikeCount, avgCommentCount} 배열
+     */
+    public long[] getChannelVideoAverages(String youtubeChannelId, int maxResults) {
+        try {
+            // 1. 채널의 업로드 플레이리스트 ID 가져오기
+            String uploadsPlaylistId = getUploadsPlaylistId(youtubeChannelId);
+            if (uploadsPlaylistId == null) {
+                return new long[] { 0, 0 };
+            }
+
+            // 2. 플레이리스트에서 영상 ID 목록 가져오기
+            List<String> videoIds = getVideoIdsFromPlaylist(uploadsPlaylistId, maxResults);
+            if (videoIds.isEmpty()) {
+                // 영상목록이 비어있으면
+                return new long[] { 0, 0 };
+            }
+
+            // 3. 영상들의 통계 정보 가져오기
+            List<YouTubeVideoDto.VideoItem> videos = getVideosStatistics(videoIds);
+
+            // 4. 평균 계산
+            long totalLikes = 0;
+            long totalComments = 0;
+            int validVideos = 0;
+
+            for (YouTubeVideoDto.VideoItem video : videos) {
+                if (video.getStatistics() != null) {
+                    try {
+                        long likes = video.getStatistics().getLikeCount() != null
+                                ? Long.parseLong(video.getStatistics().getLikeCount())
+                                : 0;
+                        long comments = video.getStatistics().getCommentCount() != null
+                                ? Long.parseLong(video.getStatistics().getCommentCount())
+                                : 0;
+
+                        totalLikes += likes;
+                        totalComments += comments;
+                        validVideos++;
+                    } catch (NumberFormatException e) {
+                        log.warn("통계 데이터 파싱 실패 - videoId: {}", video.getId());
+                    }
+                }
+            }
+
+            long avgLikeCount = validVideos > 0 ? totalLikes / validVideos : 0;
+            long avgCommentCount = validVideos > 0 ? totalComments / validVideos : 0;
+
+            log.info("YouTube 채널 영상 평균 통계 조회 완료 - channelId: {}, validVideos: {}, avgLikes: {}, avgComments: {}",
+                    youtubeChannelId, validVideos, avgLikeCount, avgCommentCount);
+
+            return new long[] { avgLikeCount, avgCommentCount };
+
+        } catch (Exception e) {
+            log.error("YouTube 채널 영상 평균 통계 조회 실패 - channelId: {}", youtubeChannelId, e);
+            return new long[] { 0, 0 };
+        }
+    }
+
+    /**
+     * 채널의 업로드 플레이리스트 ID 가져오기
+     */
+    private String getUploadsPlaylistId(String youtubeChannelId) {
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_BASE_URL + "/channels")
+                    .queryParam("part", "contentDetails")
+                    .queryParam("id", youtubeChannelId)
+                    .queryParam("key", youTubeApiConfig.getYoutubeApiKey())
+                    .toUriString();
+
+            String response = restTemplate.getForObject(url, String.class);
+            if (response == null)
+                return null;
+
+            JsonNode rootNode = objectMapper.readTree(response);
+            JsonNode itemsNode = rootNode.get("items");
+
+            if (itemsNode != null && itemsNode.size() > 0) {
+                JsonNode contentDetails = itemsNode.get(0).get("contentDetails");
+                if (contentDetails != null) {
+                    JsonNode relatedPlaylists = contentDetails.get("relatedPlaylists");
+                    if (relatedPlaylists != null) {
+                        JsonNode uploads = relatedPlaylists.get("uploads");
+                        return uploads != null ? uploads.asText() : null;
+                    }
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("업로드 플레이리스트 ID 조회 실패", e);
+            return null;
+        }
+    }
+
+    /**
+     * 플레이리스트에서 영상 ID 목록 가져오기
+     */
+    private List<String> getVideoIdsFromPlaylist(String playlistId, int maxResults) {
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_BASE_URL + "/playlistItems")
+                    .queryParam("part", "contentDetails")
+                    .queryParam("playlistId", playlistId)
+                    .queryParam("maxResults", Math.min(maxResults, 50))
+                    .queryParam("order", "date")
+                    .queryParam("key", youTubeApiConfig.getYoutubeApiKey())
+                    .toUriString();
+
+            String response = restTemplate.getForObject(url, String.class);
+            if (response == null)
+                return List.of();
+
+            JsonNode rootNode = objectMapper.readTree(response);
+            JsonNode itemsNode = rootNode.get("items");
+
+            List<String> videoIds = new java.util.ArrayList<>();
+            if (itemsNode != null) {
+                for (JsonNode item : itemsNode) {
+                    JsonNode contentDetails = item.get("contentDetails");
+                    if (contentDetails != null) {
+                        JsonNode videoId = contentDetails.get("videoId");
+                        if (videoId != null) {
+                            videoIds.add(videoId.asText());
+                        }
+                    }
+                }
+            }
+            return videoIds;
+        } catch (Exception e) {
+            log.error("플레이리스트 영상 ID 조회 실패", e);
+            return List.of();
+        }
+    }
+
+    /**
+     * 영상 ID 목록으로 영상 통계 정보 가져오기
+     */
+    private List<YouTubeVideoDto.VideoItem> getVideosStatistics(List<String> videoIds) {
+        try {
+            String videoIdsParam = String.join(",", videoIds);
+
+            String url = UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_BASE_URL + "/videos")
+                    .queryParam("part", "statistics")
+                    .queryParam("id", videoIdsParam)
+                    .queryParam("key", youTubeApiConfig.getYoutubeApiKey())
+                    .toUriString();
+
+            YouTubeVideoDto response = restTemplate.getForObject(url, YouTubeVideoDto.class);
+            return response != null && response.getItems() != null ? response.getItems() : List.of();
+        } catch (Exception e) {
+            log.error("영상 통계 정보 조회 실패", e);
+            return List.of();
+        }
+    }
+
+    /**
+     * YouTube 채널의 배너 URL 가져오기
+     * 
+     * @param youtubeChannelId YouTube 채널 ID
+     * @return 배너 URL (없으면 null)
+     */
+    public String getChannelBannerUrl(String youtubeChannelId) {
+        log.info("YouTube 채널 배너 URL 조회 시작 - channelId: {}", youtubeChannelId);
+
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_BASE_URL + "/channels")
+                    .queryParam("part", "brandingSettings")
+                    .queryParam("id", youtubeChannelId)
+                    .queryParam("key", youTubeApiConfig.getYoutubeApiKey())
+                    .toUriString();
+
+            YouTubeChannelDto response = restTemplate.getForObject(url, YouTubeChannelDto.class);
+
+            if (response != null && response.getItems() != null && !response.getItems().isEmpty()) {
+                YouTubeChannelDto.ChannelItem channel = response.getItems().get(0);
+                if (channel.getBrandingSettings() != null &&
+                        channel.getBrandingSettings().getImage() != null) {
+                    String bannerUrl = channel.getBrandingSettings().getImage().getBannerExternalUrl();
+
+                    return bannerUrl;
+                }
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.error("채널 배너 정보 가져오는 중 에러 발생----{}", e);
             return null;
         }
     }

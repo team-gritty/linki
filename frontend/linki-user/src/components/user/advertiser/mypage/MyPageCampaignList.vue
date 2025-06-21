@@ -87,13 +87,15 @@
   const fetchCampaigns = async () => {
     try {
       const data = await campaignApi.getMyPageCampaigns()
+      
       campaigns.value = data.map(item => ({
         id: item.campaignId,
         name: item.campaignName,
         image: item.campaignImg,
         due: item.campaignDeadline ? new Date(item.campaignDeadline).toLocaleDateString('ko-KR') : '',
-        status: item.campaignStatus
+        status: item.campaignPublishStatus === 'ACTIVE' ? 'ACTIVE' : 'HIDDEN'
       }))
+      
     } catch (e) {
       console.error('Failed to fetch campaigns:', e)
       campaigns.value = []
