@@ -1,9 +1,12 @@
 package com.Gritty.Linki.user.influencer.review.repository;
 
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.entity.AdvertiserReview;
 import com.Gritty.Linki.entity.Contract;
+import com.Gritty.Linki.vo.enums.ContractStatus;
+import com.Gritty.Linki.vo.enums.SettlementStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -67,5 +72,26 @@ public class InfAdvertiserReviewRepositoryTest {
         // then
         assertFalse(exists);
     }
+
+
+
+    @Test
+    void getSettlementFinishedContractsTest() {
+        // given
+        String influencerId = "INF0000";
+
+        // when
+        List<ReviewableContractResponseDTO> result = contractRepository.findReviewableContractsByInfluencerId(influencerId);
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result).allSatisfy(dto -> {
+            assertThat(dto.getContractStatus()).isEqualTo(ContractStatus.COMPLETED);
+            assertThat(dto.getSettlementStatus()).isEqualTo(SettlementStatus.COMPLETED);
+        });
+    }
+
+
+
 
 }

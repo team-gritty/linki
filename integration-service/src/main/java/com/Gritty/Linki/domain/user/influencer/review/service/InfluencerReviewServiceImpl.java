@@ -4,6 +4,7 @@ package com.Gritty.Linki.domain.user.influencer.review.service;
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.domain.user.influencer.settlement.repository.jpa.InfSettlementRepository;
 import com.Gritty.Linki.entity.AdvertiserReview;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,5 +79,15 @@ public class InfluencerReviewServiceImpl implements InfluencerReviewService {
 
 
 
+    }
+
+    @Override
+    public List<ReviewableContractResponseDTO> getReviewableContracts() {
+        // 1. 로그인한 인플루언서 정보 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(userDetails);
+
+        // 2. 해당 인플루언서의 정산 완료된 계약 목록 조회
+        return contractRepository.findReviewableContractsByInfluencerId(influencerId);
     }
 }
