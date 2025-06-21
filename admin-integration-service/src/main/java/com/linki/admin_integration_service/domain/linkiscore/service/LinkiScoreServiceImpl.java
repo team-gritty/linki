@@ -40,7 +40,6 @@ public class LinkiScoreServiceImpl implements LinkiScoreService {
         new Thread(() -> {
             try {
                 Thread.sleep(10_000);
-//                transactionalExecutor.execute(this::scheduleLinkiScore);
                 context .getBean(LinkiScoreService.class)
                         .scheduleLinkiScore();
             } catch (Exception e) {
