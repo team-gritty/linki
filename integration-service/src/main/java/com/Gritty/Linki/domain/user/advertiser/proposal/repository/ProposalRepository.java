@@ -1,5 +1,6 @@
 package com.Gritty.Linki.domain.user.advertiser.proposal.repository;
 
+import com.Gritty.Linki.client.chatClient.dto.InterfaceChatInfoDto;
 import com.Gritty.Linki.entity.Proposal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -46,4 +47,17 @@ public interface ProposalRepository extends JpaRepository<Proposal, String> {
                         "WHERE p.campaign.campaignId = :campaignId AND c.advertiser.advertiserId = :advertiserId")
         List<Proposal> findByCampaignIdAndAdvertiserId(@Param("campaignId") String campaignId,
                         @Param("advertiserId") String advertiserId);
+
+        //캠페인 아이디로 chatInfo 조회
+        @Query(value = """
+           select u.user_id AS userId,
+                   u.user_login_id AS userLoginId,
+                   p.proposal_id AS proposalId
+            from proposal p
+            join campaign c on p.campaign_id = c.campaign_id
+            join influencer i on i.influencer_id = p.influencer_id
+            join user u on u.user_id = i.user_id
+            where c.campaign_id = :campaignId
+        """,nativeQuery = true)
+        List<InterfaceChatInfoDto>findInfluencerChatInfoByCampaignId(@Param("campaignId") String campaignId);
 }
