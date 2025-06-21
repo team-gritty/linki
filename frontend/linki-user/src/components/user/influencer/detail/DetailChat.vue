@@ -63,29 +63,35 @@
 </template>
 
 <script setup>
-import {ref, onMounted, watch, computed} from 'vue'
+// SockJS global polyfill
+if (typeof global === 'undefined') {
+  window.global = window;
+}
+
+import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
 import {chatApi} from '@/api/chat'
 import {useRoute} from 'vue-router'
-import {useAccountStore} from '@/stores/user'
+import {useAccountStore} from '@/stores/account'
 import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 const props = defineProps({
   chatRoom: Object
 })
 
-// const accountStore = useAccountStore()
-// const currentUserId = computed(() => {
-//   // 임시로 하드코딩된 사용자 ID 사용 (실제로는 로그인된 사용자 정보에서 가져와야 함)
-//   return 'USER0000'
-// })
+const accountStore = useAccountStore()
+const currentUserId = computed(() => {
+  const user = accountStore.getUser
+  console.log('Current user from store:', user)
+  return user?.userId || user?.id || null
+})
 
 const newMessage = ref('')
 const loading = ref(false)
 const error = ref(null)
 const chatMessages = ref([])
 const stompClient = ref(null)
-const propoalId = "PROP0000"
-//const propoalId = route.params.id
+const isConnected = ref(false)
 
 // 메시지 시간 포맷 함수
 const formatMessageTime = (dateString) => {
@@ -130,20 +136,36 @@ const shouldShowDateSeparator = (currentMessage, index) => {
 }
 
 const connectSocket = (chatId) => {
-  const socket = new WebSocket('ws://localhost:8000/v1/chat-service/ws/chat')
-  stompClient.value = Stomp.over(socket)
-  socket.onopen = () => {
-    //const token = localStorage.getItem('accessToken')
-    const token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJVU0VSMDAwMCIsInVzZXJSb2xlIjoiSU5GTFVFTkNFUiIsImlhdCI6MTc1MDMwOTMzMCwiZXhwIjoxNzUwMzQ1MzMwfQ.iwigD2TSxa4mWUcRERXaedI3EFJ7GGW7mtkg5I7b4ks'
+  try {
+    const token = accountStore.getAccessToken || localStorage.getItem('accessToken')
+    if (!token) {
+      console.error('Access token not found')
+      error.value = '인증 토큰을 찾을 수 없습니다. 로그인 후 다시 시도해주세요.'
+      return
+    }
 
-    const socket = new WebSocket(`http://localhost:8000/v1/chat-service/ws/chat`)
+    console.log('Connecting to SockJS with chatId:', chatId)
+    
+    // 방법 1: SockJS를 사용하여 연결 (프록시를 통해)
+    const socket = new SockJS('/v1/chat-service/ws/chat')
     stompClient.value = Stomp.over(socket)
 
-    stompClient.value.connect({
-      Authorization: `${token}` // 이렇게 써야 함
-    }, () => {
+    // 연결 시 헤더에 토큰 전달
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'token': token
+    }
+    
+    console.log('Connecting with headers:', headers)
+    
+    stompClient.value.connect(headers, () => {
+      console.log('STOMP connection established')
+      isConnected.value = true
+      error.value = null
+      
       stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
         const message = JSON.parse(msg.body)
+        console.log('Received message:', message)
 
         // 중복 메시지 체크 (같은 내용, 같은 시간대의 메시지)
         const isDuplicate = chatMessages.value.some(existingMsg =>
@@ -154,29 +176,107 @@ const connectSocket = (chatId) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
-          console.log('받은 메세지:', message)
+          console.log('Message added to chat:', message)
         }
-      }
-    )
+      })
+    }, (connectionError) => {
+      console.error('STOMP connection error:', connectionError)
+      isConnected.value = false
+      error.value = '채팅 연결에 실패했습니다. 서버가 실행 중인지 확인해주세요.'
+      
+      // 방법 2: 네이티브 WebSocket으로 재시도
+      console.log('Attempting fallback with native WebSocket...')
+      connectWithNativeWebSocket(chatId, token)
     })
+
+  } catch (error) {
+    console.error('Error setting up SockJS connection:', error)
+    error.value = '채팅 연결 설정 중 오류가 발생했습니다.'
   }
 }
 
-const sendMessage = () => {
-  if (!newMessage.value.trim() || !stompClient.value || !props.chatRoom || !currentUserId.value) {
-    if (!currentUserId.value) {
-      console.warn('사용자 정보가 없습니다. 로그인 후 다시 시도해주세요.')
-    }
+// 네이티브 WebSocket 연결 (fallback)
+const connectWithNativeWebSocket = (chatId, token) => {
+  try {
+    console.log('Connecting with native WebSocket...')
+    const wsUrl = `ws://localhost:8000/v1/chat-service/ws/chat?token=${encodeURIComponent(token)}`
+    const socket = new WebSocket(wsUrl)
+    stompClient.value = Stomp.over(socket)
+
+    stompClient.value.connect({}, () => {
+      console.log('Native WebSocket STOMP connection established')
+      isConnected.value = true
+      error.value = null
+      
+      stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+        const message = JSON.parse(msg.body)
+        console.log('Received message via native WebSocket:', message)
+
+        const isDuplicate = chatMessages.value.some(existingMsg =>
+            existingMsg.content === message.content &&
+            existingMsg.senderId === message.senderId &&
+            Math.abs(new Date(existingMsg.messageDate) - new Date(message.messageDate)) < 1000
+        )
+
+        if (!isDuplicate) {
+          chatMessages.value.push(message)
+          console.log('Message added to chat:', message)
+        }
+      })
+    }, (error) => {
+      console.error('Native WebSocket connection error:', error)
+      isConnected.value = false
+      error.value = '실시간 채팅 연결에 실패했습니다. 메시지 조회는 계속 가능합니다.'
+    })
+  } catch (error) {
+    console.error('Error setting up native WebSocket:', error)
+    isConnected.value = false
+    error.value = '실시간 채팅 연결에 실패했습니다.'
+  }
+}
+
+const sendMessage = async () => {
+  if (!newMessage.value.trim()) {
+    console.warn('Empty message cannot be sent')
+    return
+  }
+  
+  if (!isConnected.value) {
+    console.warn('WebSocket connection not available')
+    error.value = '채팅 연결이 되지 않았습니다. 잠시 후 다시 시도해주세요.'
+    return
+  }
+  
+  if (!stompClient.value) {
+    console.warn('STOMP client not available')
+    error.value = '채팅 클라이언트가 초기화되지 않았습니다.'
+    return
+  }
+  
+  if (!props.chatRoom) {
+    console.warn('Chat room not available')
+    error.value = '채팅방 정보가 없습니다.'
+    return
+  }
+  
+  if (!currentUserId.value) {
+    console.warn('사용자 정보가 없습니다. 로그인 후 다시 시도해주세요.')
+    error.value = '사용자 정보가 없습니다. 로그인 후 다시 시도해주세요.'
     return
   }
 
+  const messageContent = newMessage.value.trim()
+  
+  try {
   const msgObj = {
     chatId: props.chatRoom.chatId,
     senderId: currentUserId.value,
-    content: newMessage.value,
+    content: messageContent,
     messageType: 'message',
     messageDate: new Date().toISOString()
   }
+
+    console.log('Sending message:', msgObj)
 
   // 웹소켓으로 메시지 전송
   stompClient.value.send(
@@ -190,7 +290,7 @@ const sendMessage = () => {
     messageId: Date.now().toString(), // 임시 ID
     chatId: props.chatRoom.chatId,
     senderId: currentUserId.value,
-    content: newMessage.value,
+    content: messageContent,
     messageType: 'message',
     messageDate: new Date().toISOString()
   }
@@ -199,6 +299,15 @@ const sendMessage = () => {
   chatMessages.value = [...chatMessages.value, newMessageObj]
   // 입력창 초기화
   newMessage.value = ''
+    
+    // 에러 메시지 초기화
+    error.value = null
+    
+    console.log('Message sent successfully')
+  } catch (error) {
+    console.error('Error sending message:', error)
+    error.value = '메시지 전송에 실패했습니다.'
+  }
 }
 
 const loadChatInfo = async () => {
@@ -206,36 +315,80 @@ const loadChatInfo = async () => {
   error.value = null
   try {
     if (!props.chatRoom) {
-      loading.value = true
+      console.warn('Chat room is not available')
+      error.value = '채팅방 정보를 불러올 수 없습니다.'
       return
     }
+    
+    if (!props.chatRoom.chatId) {
+      console.warn('Chat ID is missing from chat room')
+      error.value = '채팅방 ID가 없습니다.'
+      return
+    }
+    
+    console.log('Loading chat messages for chatId:', props.chatRoom.chatId)
+    
     // 메시지 로드
     const messagesResponse = await chatApi.getMessages(props.chatRoom.chatId)
+    console.log('Messages API response:', messagesResponse)
 
     // API 응답이 배열인지 확인하고 안전하게 처리
+    let messages = []
     if (Array.isArray(messagesResponse)) {
-      chatMessages.value = messagesResponse.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+      messages = messagesResponse
     } else if (Array.isArray(messagesResponse.data)) {
-      chatMessages.value = messagesResponse.data.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+      messages = messagesResponse.data
+    } else if (messagesResponse && typeof messagesResponse === 'object') {
+      // 응답이 객체인 경우 data 필드 확인
+      messages = messagesResponse.data || messagesResponse.messages || []
     } else {
       console.warn('예상치 못한 API 응답 구조:', messagesResponse)
-      chatMessages.value = []
+      messages = []
     }
+
+    // 메시지를 날짜순으로 정렬
+    chatMessages.value = messages.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+    console.log('Loaded messages count:', chatMessages.value.length)
 
     error.value = null
   } catch (err) {
     console.error('채팅 정보 로드 에러:', err)
-    error.value = '채팅 정보를 불러오지 못했습니다.'
+    
+    // HTTP 상태 코드에 따른 구체적인 에러 메시지
+    if (err.response) {
+      switch (err.response.status) {
+        case 403:
+          error.value = '채팅방에 접근할 권한이 없습니다.'
+          break
+        case 404:
+          error.value = '채팅방을 찾을 수 없습니다.'
+          break
+        case 500:
+          error.value = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+          break
+        default:
+          error.value = `채팅 정보를 불러오지 못했습니다. (${err.response.status})`
+      }
+    } else if (err.request) {
+      error.value = '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.'
+    } else {
+      error.value = '채팅 정보를 불러오지 못했습니다.'
+    }
   } finally {
     loading.value = false
   }
   // 소켓 연결은 별도 try/catch로 분리
   try {
-    if (props.chatRoom) {
-      connectSocket(props.chatRoom.chatId)
+    if (props.chatRoom && props.chatRoom.chatId) {
+      console.log('Attempting WebSocket connection for chatId:', props.chatRoom.chatId)
+      // WebSocket 연결은 백그라운드에서 시도하고, 실패해도 메시지 조회는 계속 가능
+      setTimeout(() => {
+        connectSocket(props.chatRoom.chatId)
+      }, 1000) // 1초 후 연결 시도
     }
   } catch (e) {
     console.error('소켓 연결 에러:', e)
+    // WebSocket 연결 실패는 치명적이지 않으므로 에러 메시지 설정하지 않음
   }
 }
 
@@ -258,6 +411,14 @@ watch(chatMessages, () => {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
   }, 0)
+})
+
+onUnmounted(() => {
+  // Cleanup WebSocket connection when component unmounts
+  if (stompClient.value) {
+    stompClient.value.disconnect()
+    console.log('WebSocket connection disconnected')
+  }
 })
 
 </script>
