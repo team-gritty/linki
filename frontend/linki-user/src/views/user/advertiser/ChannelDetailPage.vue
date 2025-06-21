@@ -8,17 +8,19 @@
         <span class="breadcrumb-sep">/</span>
         <span>About</span>
       </nav>
-      <div class="banner"></div>
+      <div class="banner" :style="{ backgroundImage: channel?.bannerUrl ? `url(${channel.bannerUrl})` : 'none' }"></div>
       <div class="profile-section">
-        <div class="profile-img"></div>
+        <div class="profile-img" :style="{ backgroundImage: channel?.thumbnailUrl ? `url(${channel.thumbnailUrl})` : 'none' }"></div>
         <div class="profile-main">
           <div class="profile-header-row">
             <h1 class="channel-name">{{ channel.name }}</h1>
             <span class="platform-badge youtube-badge">
-              <svg class="youtube-icon" width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="28" height="20" rx="8" fill="#FF0000"/>
-                <path d="M19.5 10.0001C19.5 10.0001 19.5 7.83341 19.2 6.66675C19.0333 6.00008 18.5333 5.50008 17.8667 5.33341C16.7 5.00008 14 5.00008 14 5.00008C14 5.00008 11.3 5.00008 10.1333 5.33341C9.46667 5.50008 8.96667 6.00008 8.8 6.66675C8.5 7.83341 8.5 10.0001 8.5 10.0001C8.5 10.0001 8.5 12.1667 8.8 13.3334C8.96667 14.0001 9.46667 14.5001 10.1333 14.6667C11.3 15.0001 14 15.0001 14 15.0001C14 15.0001 16.7 15.0001 17.8667 14.6667C18.5333 14.5001 19.0333 14.0001 19.2 13.3334C19.5 12.1667 19.5 10.0001 19.5 10.0001ZM12.5 12.5V7.50008L16.5 10.0001L12.5 12.5Z" fill="white"/>
-              </svg>
+              <a :href="channel?.youtubeUrl" target="_blank" rel="noopener noreferrer" class="youtube-link">
+                <svg class="youtube-icon" width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="28" height="20" rx="8" fill="#FF0000"/>
+                  <path d="M19.5 10.0001C19.5 10.0001 19.5 7.83341 19.2 6.66675C19.0333 6.00008 18.5333 5.50008 17.8667 5.33341C16.7 5.00008 14 5.00008 14 5.00008C14 5.00008 11.3 5.00008 10.1333 5.33341C9.46667 5.50008 8.96667 6.00008 8.8 6.66675C8.5 7.83341 8.5 10.0001 8.5 10.0001C8.5 10.0001 8.5 12.1667 8.8 13.3334C8.96667 14.0001 9.46667 14.5001 10.1333 14.6667C11.3 15.0001 14 15.0001 14 15.0001C14 15.0001 16.7 15.0001 17.8667 14.6667C18.5333 14.5001 19.0333 14.0001 19.2 13.3334C19.5 12.1667 19.5 10.0001 19.5 10.0001ZM12.5 12.5V7.50008L16.5 10.0001L12.5 12.5Z" fill="white"/>
+                </svg>
+              </a>
             </span>
            </div>
           <div class="profile-meta-row">
@@ -128,7 +130,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import VueApexCharts from 'vue3-apexcharts'
 import SubscriberHistoryChart from '@/components/user/advertiser/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from '@/components/user/advertiser/LikeRatioBarChart.vue'
 import CommentRatioBarChart from '@/components/user/advertiser/CommentRatioBarChart.vue'
@@ -215,30 +216,6 @@ chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
 
-
-const likeBarOptions = ref({
-  chart: { type: 'bar', toolbar: { show: false }, height: 320 },
-  plotOptions: { bar: { borderRadius: 6, columnWidth: '40%' } },
-  xaxis: { categories: ['내 채널', '전체'] },
-  yaxis: { min: 0, max: 4, tickAmount: 4 },
-  grid: { borderColor: '#eee' },
-  dataLabels: { enabled: false },
-  colors: ['#FF0050', '#7ED321'],
-  tooltip: { enabled: true }
-})
-const likeBarSeries = ref([{ data: [1.2, 3.2] }])
-
-const commentBarOptions = ref({
-  chart: { type: 'bar', toolbar: { show: false }, height: 320 },
-  plotOptions: { bar: { borderRadius: 6, columnWidth: '40%' } },
-  xaxis: { categories: ['내 채널', '전체'] },
-  yaxis: { min: 0, max: 0.7, tickAmount: 3 },
-  grid: { borderColor: '#eee' },
-  dataLabels: { enabled: false },
-  colors: ['#FF0050', '#7ED321'],
-  tooltip: { enabled: true }
-})
-const commentBarSeries = ref([{ data: [0.12, 0.52] }])
 </script>
 
 <style scoped>
@@ -277,6 +254,9 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   background: #8C30F5;
   border-radius: 48px 48px 0 0;
   z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .profile-section,
 .stats-section,
@@ -305,6 +285,9 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
   border: 6px solid #fff;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   margin-left: 32px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .profile-main {
   flex: 1;
@@ -774,5 +757,15 @@ const commentBarSeries = ref([{ data: [0.12, 0.52] }])
     flex-direction: column;
     gap: 18px;
   }
+}
+.youtube-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.youtube-link:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s;
 }
 </style> 
