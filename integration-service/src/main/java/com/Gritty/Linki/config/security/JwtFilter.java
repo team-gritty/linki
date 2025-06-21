@@ -22,12 +22,20 @@ import java.io.IOException;
 //jwt 검증 필터
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
+    
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
         
         log.info("요청 URL: {}, Method: {}", request.getRequestURI(), request.getMethod());
         log.info("Authorization 헤더: {}", authorization);
+
+        // 로그인 경로는 토큰 검증을 건너뛰기
+        if (request.getRequestURI().equals("/v1/api/nonuser/login")) {
+            log.info("로그인 경로이므로 토큰 검증을 건너뜁니다.");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         //헤더 토큰 확인
         if(authorization == null || !authorization.startsWith("Bearer ")) {
