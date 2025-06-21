@@ -48,7 +48,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import httpRequest from '@/utils/httpRequest'
+import httpClient from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
 
 const router = useRouter()
@@ -153,7 +153,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const response = await httpRequest.patch('v1/api/user/password', {
+    const response = await httpClient.patch('v1/api/user/password', {
       currentPassword: passwordData.value.currentPassword,
       newPassword: passwordData.value.newPassword
     })

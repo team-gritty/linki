@@ -39,9 +39,13 @@ public class SecurityConfig {
                 .requestMatchers("/v1/api/influencer/**").permitAll()
                 .requestMatchers("/v1/api/advertiser/**").permitAll()
                 .anyRequest().permitAll());
-        //파싱후 권한 검증
-        http.addFilterBefore(new JwtFilter(jwtUtil),LoginFilter.class);
+        
+        // 로그인 필터를 먼저 추가 (JwtFilter보다 먼저 실행)
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userRepository, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
+        
+        // JWT 필터를 나중에 추가 (로그인 필터 이후에 실행)
+        http.addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class);
+        
         //jwt기떄문에 세션 무상태
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));

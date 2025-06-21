@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -33,6 +35,7 @@ public class AccountController {
     private final AccountService accountService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
+    private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
 
 
@@ -46,7 +49,18 @@ public class AccountController {
         }
 
         String username = auth.getName();
-        return ResponseEntity.ok("로그인된 사용자: " + username);
+        String authorities = auth.getAuthorities().toString();
+        String principalType = auth.getPrincipal().getClass().getSimpleName();
+        
+        log.info("인증 체크 - username: {}, authorities: {}, principalType: {}", 
+                username, authorities, principalType);
+        
+        return ResponseEntity.ok(Map.of(
+            "message", "로그인된 사용자: " + username,
+            "authorities", authorities,
+            "principalType", principalType,
+            "principal", auth.getPrincipal().toString()
+        ));
     }
 
 

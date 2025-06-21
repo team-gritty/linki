@@ -4,12 +4,14 @@ package com.linki.admin_integration_service.domain.linkiscore.service;
 import com.linki.admin_integration_service.domain.operations.repository.jpa.InfluencerReviewRepository;
 import com.linki.admin_integration_service.entity.InfluencerReview;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -17,11 +19,26 @@ public class AverageReviewScoreServiceImpl implements AverageReviewScoreService 
 
     private final InfluencerReviewRepository influencerReviewRepository;
 
+    private static volatile List<InfluencerReview> cachedList = new CopyOnWriteArrayList<>();
+
+    @Scheduled(cron = "0 0 1 * * *") //
+    private void cached(){
+        cachedList = new CopyOnWriteArrayList<>();
+        cachedList = influencerReviewRepository.findAll();
+    }
+
+
     @Override
     @Transactional(readOnly = true)
     public double getReviewScore(String influencerId) {
+
+        if (cachedList.isEmpty()){
+            cachedList = influencerReviewRepository.findAll();
+        }
+
+
         List<InfluencerReview> list
-                = influencerReviewRepository.findAll().stream()
+                = cachedList.stream()
                 .filter(dto -> dto.getContract().getProposal().getInfluencer().getInfluencerId().equals(influencerId))
                 .toList();
 

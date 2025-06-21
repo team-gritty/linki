@@ -6,6 +6,7 @@ import com.Gritty.Linki.domain.user.advertiser.channel.response.SubscriberHistor
 import com.Gritty.Linki.domain.user.advertiser.channel.service.ChannelService;
 import com.Gritty.Linki.domain.user.advertiser.channel.service.SubscriberHistoryService;
 import com.Gritty.Linki.domain.user.advertiser.channel.dto.SubscriberHistoryDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelDetailResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +79,28 @@ public class ChannelController {
                 return ResponseEntity.ok(channels);
         }
 
+
+        /**
+         * 특정 채널의 상세(통계 정보 포함)정보 조회
+         * YouTube API를 통해 평균 좋아요/댓글 수를 실시간으로 계산하여 반환
+         *
+         * @param channelId 채널 ID
+         * @return 채널 상세 정보
+         */
+        @GetMapping("/user/channels/{channelId}")
+        public ResponseEntity<ChannelDetailResponse> getChannelDetail(@PathVariable String channelId) {
+
+                try {
+                        ChannelDetailResponse channelDetail = channelService.getChannelDetail(channelId);
+                        return ResponseEntity.ok(channelDetail);
+                } catch (RuntimeException e) {
+                        log.error("채널 상세 정보 조회 실패 - channelId: {}, error: {}", channelId, e.getMessage());
+                        return ResponseEntity.notFound().build();
+                } catch (Exception e) {
+                        log.error("채널 상세 정보 조회 중 예상치 못한 오류 발생 - channelId: {}", channelId, e);
+                        return ResponseEntity.status(500).build();
+                }
+        }
         /**
          * 특정 채널의 구독자 히스토리 조회
          * 
