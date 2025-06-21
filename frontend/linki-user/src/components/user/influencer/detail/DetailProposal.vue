@@ -15,14 +15,14 @@
               <span class="status-badge" :class="statusClass">
                 {{ getStatusText(proposalData.status) }}
               </span>
-              <p class="submission-date">제출일: {{ formatDate(proposalData.submitted_at) }}</p>
+              <p class="submission-date">제출일: {{ formatDate(proposalData.submittedAt) }}</p>
             </div>
           </div>
         </div>
 
         <div class="proposal-content">
           <div class="proposal-text" v-if="!isEditing">
-            {{ proposalData.content }}
+            {{ proposalData.contents }}
           </div>
           <textarea
             v-else
@@ -32,24 +32,28 @@
           ></textarea>
         </div>
         
-        <div class="campaign-info" v-if="campaignDetail">
+        <div class="campaign-info" v-if="proposalData?.campaignTitle">
           <h4>캠페인 정보</h4>
           <div class="info-grid">
             <div class="info-item">
+              <label>캠페인 제목</label>
+              <p>{{ proposalData.campaignTitle }}</p>
+            </div>
+            <div class="info-item">
               <label>광고 선택 마감일</label>
-              <p>{{ formatDate(campaignDetail.campaignDeadline) }}</p>
+              <p>{{ formatDate(proposalData.campaignDeadline) }}</p>
             </div>
             <div class="info-item">
               <label>광고 조건</label>
-              <p>{{ campaignDetail.campaignCondition }}</p>
+              <p>{{ proposalData.campaignCondition }}</p>
             </div>
             <div class="info-item">
               <label>카테고리</label>
-              <p>{{ campaignDetail.campaignCategory }}</p>
+              <p>{{ proposalData.campaignCategory }}</p>
             </div>
             <div class="info-item">
               <label>브랜드</label>
-              <p>{{ campaignDetail.companyName }}</p>
+              <p>{{ proposalData.companyName }}</p>
             </div>
           </div>
         </div>
@@ -66,35 +70,47 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { proposalAPI } from '@/api/proposal'
 import axios from 'axios'
 
 export default {
   name: 'DetailProposal',
-  props: {
-    detailData: {
-      type: Object,
-      required: true
-    },
-    campaignDetail: {
-      type: Object,
-      default: null
-    }
-  },
-  setup(props) {
+  setup() {
     const router = useRouter()
+    const route = useRoute()
     const loading = ref(false)
     const isEditing = ref(false)
     const editingContent = ref('')
     const proposalData = ref(null)
 
-    // detailData 변경 감지하여 제안서 정보 설정
-    watch(() => props.detailData, (newData) => {
-      if (newData && newData.proposal) {
-        proposalData.value = newData.proposal;
+    // 제안서 상세 정보 가져오기
+    const fetchProposalDetail = async () => {
+      try {
+        loading.value = true
+        const proposalId = route.params.id
+        console.log('Route params:', route.params)
+        console.log('Proposal ID:', proposalId)
+        
+        if (!proposalId) {
+          throw new Error('제안서 ID가 없습니다.')
+        }
+        
+        console.log('Calling API with proposalId:', proposalId)
+        const response = await proposalAPI.getProposalDetail(proposalId)
+        proposalData.value = response
+        console.log('Fetched proposal detail:', response)
+      } catch (error) {
+        console.error('Failed to fetch proposal detail:', error)
+      } finally {
+        loading.value = false
       }
-    }, { immediate: true });
+    }
+
+    onMounted(() => {
+      fetchProposalDetail()
+    })
 
     const statusClass = computed(() => {
       if (!proposalData.value?.status) return ''
@@ -123,7 +139,7 @@ export default {
     }
 
     const startEdit = () => {
-      editingContent.value = proposalData.value.content
+      editingContent.value = proposalData.value.contents
       isEditing.value = true
     }
 
@@ -134,14 +150,14 @@ export default {
 
     const saveProposal = async () => {
       try {
-        if (!proposalData.value?.id) return
+        if (!proposalData.value?.proposalId) return
         
-        await axios.patch(`/v1/api/influencer/proposals/${proposalData.value.id}`, {
-          content: editingContent.value,
-          submitted_at: new Date().toISOString()
+        await axios.patch(`/v1/api/influencer/proposals/${proposalData.value.proposalId}`, {
+          contents: editingContent.value,
+          submittedAt: new Date().toISOString()
         })
         
-        proposalData.value.content = editingContent.value
+        proposalData.value.contents = editingContent.value
         isEditing.value = false
       } catch (error) {
         console.error('Failed to save proposal:', error)
@@ -152,9 +168,9 @@ export default {
     const deleteProposal = async () => {
       if (!confirm('정말로 제안서를 삭제하시겠습니까?')) return
       try {
-        if (!proposalData.value?.id) return
+        if (!proposalData.value?.proposalId) return
         
-        await axios.delete(`/v1/api/influencer/proposals/${proposalData.value.id}`)
+        await axios.delete(`/v1/api/influencer/proposals/${proposalData.value.proposalId}`)
         router.push('/mypage?currentMenu=campaign.proposals')
       } catch (error) {
         console.error('Failed to delete proposal:', error)

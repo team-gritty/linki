@@ -4,11 +4,13 @@ import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampai
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
+import com.Gritty.Linki.entity.User;
 import com.Gritty.Linki.vo.enums.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,9 +47,11 @@ public class InfluencerCampaignController {
     }
 
     // 로그인 한 인플루언서의 4개탭 캠페인 상세 조회
-    @GetMapping("/v1/api/influencer/campaigns/{proposalId}")
-    public ResponseEntity<CampaignDetailResponseDTO> getInfluencerCampaignDetail(@PathVariable String proposalId){
+    @GetMapping("/v1/api/influencer/campaigns/proposals/{proposalId}")
+    public ResponseEntity<CampaignDetailResponseDTO> getInfluencerCampaignDetail(@PathVariable String proposalId, @AuthenticationPrincipal User user){
         CampaignDetailResponseDTO dto = influencerCampaignService.getCampaignByProposalId(proposalId);
+//        log.info(user.userΩgetUserName());
+        log.info(user);
         return ResponseEntity.ok(dto);
     }
 

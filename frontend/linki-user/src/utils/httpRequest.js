@@ -47,8 +47,12 @@ instance.interceptors.response.use(
         switch (error.response.status) {
             case 401: {
                 const config = error.config;
+                console.log('401 에러 발생 - URL:', config.url, 'Method:', config.method);
+                console.log('이미 재시도했는지:', config.retried);
+                
                 if (config.retried) {
                     // 토큰이 만료되었으므로 로그아웃 처리
+                    console.log('이미 재시도했으므로 로그아웃 처리');
                     const accountStore = useAccountStore();
                     accountStore.clearAuth();
                     localStorage.removeItem('token');
@@ -57,14 +61,26 @@ instance.interceptors.response.use(
                     return;
                 }
                 try {
-                    const res = await axios.get("/v1/api/nonuser/token");
-                    const accessToken = res.data.accessToken || res.data;
+                    console.log('토큰 재발급 시도 중...');
+                    const res = await axios.get("/v1/api/nonuser/token", {
+                        withCredentials: true
+                    });
+                    console.log('토큰 재발급 응답:', res.data);
+                    
+                    const accessToken = res.data.accessToken;
+                    if (!accessToken) {
+                        throw new Error('토큰 재발급 실패: accessToken이 없습니다');
+                    }
+                    
                     const accountStore = useAccountStore();
                     accountStore.setAccessToken(accessToken);
                     config.headers.authorization = `Bearer ${accessToken}`;
                     config.retried = true;
+                    console.log('토큰 재발급 성공, 원래 요청 재시도');
                     return instance(config);
                 } catch (e) {
+                    console.error('토큰 재발급 실패:', e);
+                    console.error('에러 응답:', e.response?.data);
                     const accountStore = useAccountStore();
                     accountStore.clearAuth();
                     localStorage.removeItem('token');
@@ -110,9 +126,14 @@ const httpClient = {
     get(url, params = {}, config = {}) {
         const finalConfig = {
             ...generateConfig(),
-            ...config,
-            params
+            ...config
         };
+        
+        // params가 있고 빈 객체가 아닐 때만 추가
+        if (params && typeof params === 'object' && Object.keys(params).length > 0) {
+            finalConfig.params = params;
+        }
+        
         return instance.get(url, finalConfig);
     },
 

@@ -19,23 +19,21 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+//jwt 검증 필터
 public class JwtFilter extends OncePerRequestFilter {
-
     private final JwtUtil jwtUtil;
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            log.info("인증 헤더 없음");
+        //헤더 토큰 확인
+        if(authorization == null || !authorization.startsWith("Bearer ")) {
+            log.info("인증헤더 없어");
             filterChain.doFilter(request, response);
             return;
         }
 
+        //베리어 제거
         String token = authorization.split(" ")[1];
 
         if (jwtUtil.isTokenExpired(token)) {
@@ -44,14 +42,16 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+
         String userId = jwtUtil.getUserId(token);
         String role = jwtUtil.getRole(token);
+        log.debug("role in token = {}", role);
 
         // Authentication 객체 생성 및 등록
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userId,
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + role)) // ROLE_ prefix 필수
+                List.of(new SimpleGrantedAuthority(role))
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
