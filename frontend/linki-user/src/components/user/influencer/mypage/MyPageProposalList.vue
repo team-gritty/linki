@@ -12,16 +12,16 @@
           제출한 제안서가 없습니다.
         </div>
         <div v-else class="proposals-container">
-          <div v-for="proposal in proposals" :key="proposal.proposal_id" class="card">
+          <div v-for="proposal in proposals" :key="proposal.proposalId" class="card">
             <img 
-              :src="proposal.campaign?.campaignImg" 
-              :alt="proposal.campaign?.campaignName"
+              :src="proposal.campaignImg" 
+              :alt="proposal.campaignTitle"
               class="thumb"
             >
             <div class="info">
-              <div class="name">{{ proposal.campaign?.campaignName || '캠페인 정보 없음' }}</div>
+              <div class="name">{{ proposal.campaignTitle || '캠페인 정보 없음' }}</div>
               <div class="meta">
-                <span>제출일: {{ formatDate(proposal.submitted_at) }}</span>
+                <span>제출일: {{ formatDate(proposal.submittedAt) }}</span>
                 <div class="status-container">
                   <span :class="['status', proposal.status.toLowerCase()]">
                     {{ getStatusText(proposal.status) }}
@@ -29,7 +29,7 @@
                 </div>
               </div>
             </div>
-            <button class="detail-btn" @click="viewDetail(proposal.proposal_id)">
+            <button class="detail-btn" @click="viewDetail(proposal.proposalId)">
               상세 조회
             </button>
           </div>
@@ -77,13 +77,8 @@ export default {
       loading.value = true;
       error.value = null;
       try {
-        // 1. 먼저 모든 제안서 목록을 가져옵니다
-        const response = await httpClient.get('/v1/api/influencer/proposals', {
-          params: {
-            _page: 1,
-            _limit: 10
-          }
-        });
+        // 제안서 목록을 가져옵니다 (캠페인 정보 포함)
+        const response = await httpClient.get('/v1/api/influencer/mypage/proposals');
 
         const proposalList = response.data;
         console.log('Fetched proposals:', proposalList);
@@ -92,27 +87,8 @@ export default {
           throw new Error('제안서 데이터 형식이 올바르지 않습니다.');
         }
 
-        // 2. 캠페인 목록을 한 번에 가져옵니다
-        const campaignsResponse = await httpClient.get('/v1/api/influencer/campaigns');
-        const campaigns = campaignsResponse.data;
-        console.log('Fetched campaigns:', campaigns);
-
-        // 3. 제안서와 캠페인 정보를 매칭합니다
-        const proposalsWithCampaign = proposalList.map(proposal => {
-          const matchingCampaign = campaigns.find(
-              campaign => campaign.campaignId === proposal.campaign_id || campaign.campaignId === proposal.product_id
-          );
-
-          console.log(`Matching campaign for proposal ${proposal.proposal_id}:`, matchingCampaign);
-
-          return {
-            ...proposal,
-            campaign: matchingCampaign || null
-          };
-        });
-
-        proposals.value = proposalsWithCampaign;
-        console.log('Final proposals with campaigns:', proposals.value);
+        proposals.value = proposalList;
+        console.log('Final proposals:', proposals.value);
 
       } catch (err) {
         error.value = '제안서 목록을 불러오는데 실패했습니다.';

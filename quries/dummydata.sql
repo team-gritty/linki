@@ -13,7 +13,7 @@ SELECT
     CASE 
         WHEN seq < 500 THEN 'ROLE_INFLUENCER'
         WHEN seq < 1000 THEN 'ROLE_ADVERTISER'
-        ELSE 'ROLE_MEMBER'
+        ELSE 'ROLE_USER'
     END
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 + d.N * 1000 AS seq
@@ -306,8 +306,14 @@ FROM (
 WHERE seq < 1000;
 
 -- 계약 데이터 생성
-INSERT INTO `contract` (`contract_id`, `contract_title`, `document_id`, `contract_status`, `contract_start_date`, `contract_end_date`, `contract_amount`, `contract_created_at`, `contract_completed_at`, `contract_payment_date`, `contract_special_terms`, `pdf_file_path`, `ad_delivery_status`, `proposal_id`, `event_type`, `document_name`)
-SELECT 
+INSERT INTO `contract` (
+    `contract_id`, `contract_title`, `document_id`, `contract_status`,
+    `contract_start_date`, `contract_end_date`, `contract_amount`,
+    `contract_created_at`, `contract_completed_at`, `contract_payment_date`,
+    `contract_special_terms`, `pdf_file_path`, `ad_delivery_status`,
+    `proposal_id`, `event_type`, `document_name`, `ad_delivery_url`
+)
+SELECT
     CONCAT('CTR-', LPAD(seq, 16, '0')),
     CONCAT('계약서', seq),
     CONCAT('DOC', LPAD(seq, 4, '0')),
@@ -315,35 +321,36 @@ SELECT
         WHEN 0 THEN 'PENDING SIGN'
         WHEN 1 THEN 'COMPLETED'
         ELSE 'ONGOING'
-    END,
+        END,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 30 DAY),
     FLOOR(RAND() * 1000000) + 100000,
     CASE
-        WHEN seq % 3 = 0 THEN DATE_ADD('2025-06-01', INTERVAL FLOOR(RAND() * 19) DAY)  -- 이번달(6월)에 1/3 생성
+        WHEN seq % 3 = 0 THEN DATE_ADD('2025-06-01', INTERVAL FLOOR(RAND() * 19) DAY)
         ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY)
-    END,
+        END,
     CASE FLOOR(RAND() * 2)
-        WHEN 0 THEN DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY)  -- 기본값 설정
+        WHEN 0 THEN DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY)
         ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY)
-    END,
+        END,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 15 DAY),
     CONCAT('특별 조항', seq),
     CONCAT('/contracts/', seq, '.pdf'),
     FLOOR(RAND() * 2),
-    CONCAT('PRP-', LPAD(seq, 16, '0')),  -- proposal_id와 1:1 매칭
+    CONCAT('PRP-', LPAD(seq, 16, '0')),
     CASE FLOOR(RAND() * 3)
         WHEN 0 THEN 'VIDEO'
         WHEN 1 THEN 'LIVE'
         ELSE 'POST'
-    END,
-    CONCAT('계약서_', seq)
+        END,
+    CONCAT('계약서_', seq),
+    CONCAT('https://example.com/ad/', seq)  -- 광고 이행 URL 추가 부분
 FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
+         SELECT a.N + b.N * 10 + c.N * 100 AS seq
+         FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
+     ) numbers
 WHERE seq < 1000;
 
 -- 리다이렉트 링크 데이터 생성

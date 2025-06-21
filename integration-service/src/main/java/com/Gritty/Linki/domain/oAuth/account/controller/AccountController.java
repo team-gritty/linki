@@ -90,21 +90,36 @@ public class AccountController {
 
     @GetMapping("token")
     public ResponseEntity<?> regenerate(HttpServletRequest req) {
-        String accessToken = "";
-        String refreshToken = HttpUtil.getCookieValue(req, "refresh_Token");
+        String refreshToken = HttpUtil.getCookieValue(req, "refresh_token");
 
-        if (StringUtils.hasLength(refreshToken) && jwtUtil.isTokenExpired(refreshToken) ) {
+        if (!StringUtils.hasLength(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "리프레시 토큰이 없습니다."));
+        }
+
+        // 리프레시 토큰이 만료되지 않았는지 확인 (만료되지 않았을 때 true 반환)
+        if (jwtUtil.isTokenExpired(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "리프레시 토큰이 만료되었습니다."));
+        }
+
+        try {
             Map<String, Object> tokenBody = jwtUtil.getBody(refreshToken);
-
             String userId = (String) tokenBody.get("userId");
             String role = (String) tokenBody.get("userRole");
 
-            accessToken = jwtUtil.createJwtToken(userId, role, 60 * 60L);
+            if (userId == null || role == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "유효하지 않은 토큰입니다."));
+            }
 
+            String accessToken = jwtUtil.createJwtToken(userId, role, 60 * 60L);
 
-
+            return ResponseEntity.ok(Map.of("accessToken", accessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "토큰 처리 중 오류가 발생했습니다."));
         }
-        return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }
 
 

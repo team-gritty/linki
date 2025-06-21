@@ -215,6 +215,7 @@ public class CampaignController {
     private String getAdvertiserIdFromRequest(HttpServletRequest request) {
         // TODO: 실제 인증/인가 로직에 따라 구현 필요
         // 예: JWT 토큰에서 사용자 정보 추출, 정섭님이 준 메서드 참고하여 advertiserId 꺼내오는 유틸 메서드/클래스 작성하기
+       log.info("토큰에 광고주 들어있는가 확인"+request.getHeader("Authorization"));
         return request.getHeader("X-Advertiser-Id"); // 임시 구현
     }
 }

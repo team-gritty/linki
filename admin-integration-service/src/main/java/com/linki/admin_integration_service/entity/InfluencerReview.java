@@ -34,8 +34,9 @@ public class InfluencerReview {
     @Column(name = "visibility")
     private boolean visibility;
 
-    @Column(name = "contract_id", length = 25)
-    private String contractId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
 
 
 }

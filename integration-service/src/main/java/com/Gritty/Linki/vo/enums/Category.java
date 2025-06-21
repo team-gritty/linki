@@ -1,5 +1,7 @@
 package com.Gritty.Linki.vo.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Category {
     BEAUTY("뷰티"),
     FASHION("패션"),
@@ -21,6 +23,7 @@ public enum Category {
     }
 
     // getter 추가
+    @JsonValue
     public String getDisplayName() {
         return displayName;
     }
