@@ -55,7 +55,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import httpRequest from '@/utils/httpRequest'
+import httpClient from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
 import { useAccountStore } from '@/stores/account'
 
@@ -124,7 +124,7 @@ const validateForm = () => {
 const fetchProfile = async () => {
   try {
     isLoading.value = true
-    const response = await httpRequest.get('/api/influencer/profile')
+    const response = await httpClient.get('/api/influencer/profile')
     profileData.value = {
       ...response.data,
       joinDate: new Date(response.data.joinDate)
@@ -142,7 +142,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const response = await httpRequest.patch('/api/influencer/profile', {
+    const response = await httpClient.patch('/api/influencer/profile', {
       name: profileData.value.name,
       phone: profileData.value.phone,
       email: profileData.value.email
