@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { chatApi } from '@/api/chat'
 import DetailProposalModal from './DetailProposalModal.vue'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '@/stores/account'
+import Stomp from "stompjs";
+import SockJs from "sockjs-client";
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -29,6 +31,9 @@ const chatDetails = ref([])
 const sortedChatList = ref([]) // 정렬된 채팅 목록 상태 저장
 const showProposalModal = ref(false)
 const selectedProposal = ref(null)
+const stompClient = ref(null)
+const isConnected = ref(false)
+
 
 // 채팅 목록 필터링
 const filteredChats = computed(() => {
@@ -180,6 +185,7 @@ const loadInitialData = async () => {
   }
 }
 
+
 // 채팅방 선택
 const selectChat = async (chatId) => {
   console.log('Selecting chat:', chatId)
@@ -187,6 +193,11 @@ const selectChat = async (chatId) => {
   // 이전에 선택된 채팅방이 없었을 때만 정렬 수행
   if (!selectedChatId.value) {
     sortChats()
+  }
+  
+  // 이전 채팅방과 다른 채팅방을 선택한 경우 소켓 재연결
+  if (selectedChatId.value && selectedChatId.value !== chatId) {
+    disconnectSocket()
   }
   
   selectedChatId.value = chatId
@@ -223,6 +234,11 @@ const selectChat = async (chatId) => {
     
     // 메시지 로드
     await loadMessages(chatId)
+    
+    // 소켓 연결 (채팅방 상태가 PENDING이 아닌 경우에만)
+    if (chatDetail?.chatStatus !== 'PENDING') {
+      await connectSocket(chatId)
+    }
   } catch (err) {
     error.value = '채팅방 정보를 불러오는데 실패했습니다.'
     console.error('Error loading chat details:', err)
@@ -253,6 +269,129 @@ const loadMessages = async (chatId) => {
     loading.value = false
   }
 }
+//소켓 연결
+const connectSocket = (chatId) => {
+  // 이미 연결된 상태라면 기존 연결 해제
+  if (stompClient.value && isConnected.value) {
+    disconnectSocket()
+  }
+
+  const token = accountStore.getAccessToken || localStorage.getItem('accessToken')
+  if(!token){
+    console.error('Access token not found')
+    error.value = '인증토큰을 찾을 수 없습니다. 로그인 후 다시 시도해주세요. '
+    return
+  }
+  console.log('Connecting to SockJS with chatId:', chatId)
+  try {
+  //SockJs 연결
+  const socket = new SockJs('/v1/chat-service/ws/chat')
+  stompClient.value = Stomp.over(socket)
+
+    // 연결 시 헤더에 토큰 전달
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'token': token
+    }
+
+    stompClient.value.connect(headers, 
+      // 성공 콜백
+      () => {
+        console.log('Stomp connection successful')
+        isConnected.value = true
+        error.value = null
+
+        // 채팅방 구독
+        stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+          try {
+            const message = JSON.parse(msg.body)
+            console.log('Received message:', message)
+
+            // 내가 보낸 메시지는 무시
+            if (message.senderId === currentUserId.value) {
+              return
+            }
+
+            // 새 메시지를 채팅 메시지 목록에 추가
+            chatMessages.value.push({
+              messageId: message.messageId || Date.now(),
+              chatId: message.chatId,
+              senderId: message.senderId,
+              content: message.content,
+              messageDate: message.messageDate || new Date().toISOString(),
+              messageRead: false,
+              messageType: message.messageType || 'message'
+            })
+
+            // 채팅 목록의 마지막 메시지 업데이트
+            const chatIndex = chatList.value.findIndex(chat => chat.chatId === message.chatId)
+            if (chatIndex !== -1) {
+              const updatedChat = {
+                ...chatList.value[chatIndex],
+                lastMessage: message.content,
+                lastMessageTime: message.messageDate || new Date().toISOString(),
+                isNew: true
+              }
+              chatList.value.splice(chatIndex, 1)
+              chatList.value.unshift(updatedChat)
+              
+              // 채팅 목록 재정렬
+              sortChats()
+            }
+
+            // 현재 선택된 채팅방이면 스크롤을 최하단으로 이동
+            if (selectedChatId.value === message.chatId) {
+              setTimeout(() => {
+                if (messagesContainer.value) {
+                  messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+                }
+              }, 100)
+            }
+          } catch (parseError) {
+            console.error('Error parsing received message:', parseError)
+          }
+        })
+
+        // 연결 에러 처리
+        stompClient.value.onerror = (error) => {
+          console.error('Stomp connection error:', error)
+          isConnected.value = false
+          error.value = '소켓 연결에 실패했습니다.'
+        }
+
+        // 연결 끊김 처리
+        stompClient.value.onclose = () => {
+          console.log('Stomp connection closed')
+          isConnected.value = false
+        }
+      },
+      // 에러 콜백
+      (error) => {
+        console.error('Stomp connection failed:', error)
+        isConnected.value = false
+        error.value = '소켓 연결에 실패했습니다.'
+      }
+    )
+  } catch (err) {
+    console.error('Error creating socket connection:', err)
+    error.value = '소켓 연결을 생성하는데 실패했습니다.'
+  }
+}
+
+// 소켓 연결 해제
+const disconnectSocket = () => {
+  if (stompClient.value && isConnected.value) {
+    try {
+      stompClient.value.disconnect(() => {
+        console.log('Stomp connection disconnected')
+        isConnected.value = false
+        stompClient.value = null
+      })
+    } catch (err) {
+      console.error('Error disconnecting socket:', err)
+    }
+  }
+}
 
 // 메시지 전송
 const sendMessage = async () => {
@@ -272,6 +411,22 @@ const sendMessage = async () => {
     
     // 로컬 상태 업데이트
     chatMessages.value.push(response.data)
+    
+    // 소켓을 통해 메시지 전송 (실시간 통신)
+    if (stompClient.value && isConnected.value) {
+      try {
+        stompClient.value.send(`/app/chat/${selectedChatId.value}`, {}, JSON.stringify({
+          chatId: selectedChatId.value,
+          senderId: currentUserId.value,
+          content: newMessage.value,
+          messageDate: new Date().toISOString(),
+          messageType: 'message'
+        }))
+      } catch (socketError) {
+        console.error('Socket send error:', socketError)
+        // 소켓 전송 실패 시에도 API 전송은 성공했으므로 계속 진행
+      }
+    }
     
     // 채팅 목록의 마지막 메시지 업데이트
     const chatIndex = chatList.value.findIndex(chat => chat.chatId === selectedChatId.value)
@@ -305,6 +460,11 @@ const sendMessage = async () => {
 
 onMounted(() => {
   loadInitialData()
+})
+
+// 컴포넌트 언마운트 시 소켓 연결 정리
+onUnmounted(() => {
+  disconnectSocket()
 })
 
 // 메시지 자동 스크롤
