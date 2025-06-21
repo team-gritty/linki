@@ -1,0 +1,263 @@
+[33m45f194b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/chat_front[m[33m)[m HEAD@{0}: commit: ♻️ refactor : 로그인 유저정보를 어카운트 스토어에서 꺼내오도록 수정
+[33m668b0c9[m HEAD@{1}: commit: 🐛 fix : 테스트 로그 삭제
+[33mc16707a[m HEAD@{2}: commit: 🐛 fix : url 정정
+[33mfb3c7b0[m HEAD@{3}: reset: moving to fb3c7b0
+[33m7c15ea1[m HEAD@{4}: reset: moving to HEAD~1
+[33mfb3c7b0[m HEAD@{5}: merge feature/chat_integrationClient: Merge made by the 'ort' strategy.
+[33m7c15ea1[m HEAD@{6}: commit: ✨ feature : 로그인한 사용자가 발신한 내용은 로그인 사용자가 수신하지 않도록 수정
+[33m4c3f88a[m HEAD@{7}: commit: 🔧 chore : client 게이트웨이 경로로 변경
+[33mdccae34[m HEAD@{8}: commit: ♻️ refactor: 어카운트 스토어에서 로그인 유저 아이디 조회
+[33mabfe0b2[m HEAD@{9}: commit: ♻️ refactor: 인플루언서 채팅방에 SockJS 적용 및 WebSocket fallback 지원 추가
+[33m6fc5424[m HEAD@{10}: commit: 🔧 chore :sockjs-client
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{11}: reset: moving to HEAD~1
+[33m1e25149[m HEAD@{12}: commit: 🔧 chore :sockjs-client
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{13}: checkout: moving from dev to feature/chat_front
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{14}: checkout: moving from feature/chat_integrationClient to dev
+[33m9d939e4[m[33m ([m[1;32mfeature/chat_integrationClient[m[33m)[m HEAD@{15}: commit: ✨ feature : feignClient 패키지 구조 구성
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{16}: checkout: moving from dev to feature/chat_integrationClient
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{17}: reset: moving to HEAD~1
+[33mccf420a[m HEAD@{18}: commit: ✨ feature : feignClient 패키지 구조 구성
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{19}: checkout: moving from feature/chat_integrationClient to dev
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{20}: merge dev: Fast-forward
+[33mebb110e[m HEAD@{21}: checkout: moving from dev to feature/chat_integrationClient
+[33mc4219dd[m[33m ([m[1;32mdev[m[33m)[m HEAD@{22}: pull origin dev: Fast-forward
+[33mebb110e[m HEAD@{23}: checkout: moving from feature/chat_integrationClient to dev
+[33mebb110e[m HEAD@{24}: checkout: moving from dev to feature/chat_integrationClient
+[33mebb110e[m HEAD@{25}: pull origin dev: Fast-forward
+[33mc6e9cea[m HEAD@{26}: checkout: moving from feature/chat_integrationClient to dev
+[33mebb110e[m HEAD@{27}: pull origin dev: Fast-forward
+[33mc6e9cea[m HEAD@{28}: checkout: moving from dev to feature/chat_integrationClient
+[33mc6e9cea[m HEAD@{29}: checkout: moving from feature/advertiser_chat to dev
+[33m08154f8[m[33m ([m[1;31morigin/feature/advertiser_chat[m[33m, [m[1;32mfeature/advertiser_chat[m[33m)[m HEAD@{30}: commit: 🐛 fix : 안쓰는 모듈 제거
+[33m35b2291[m HEAD@{31}: commit (merge): 🔀 merge : dev merge
+[33mf6c9ed2[m HEAD@{32}: commit: ✅ test : 유저 채팅목록 조회 컨트롤러단 테스트
+[33ma2def26[m HEAD@{33}: commit: ✅ test : 유저 채팅목록 조회 서비스단 테스트
+[33m26bcb66[m HEAD@{34}: commit: ✨ feature : 로그인 유저 채팅 목록 조회 컨트롤단 구현
+[33maf3a6e3[m HEAD@{35}: commit: ✨ feature : 로그인 유저 채팅 목록 조회 서비스단
+[33m49400e7[m HEAD@{36}: commit: ♻️ refactor : feign Client 통합
+[33m817492d[m HEAD@{37}: reset: moving to HEAD~1
+[33mf1b4364[m HEAD@{38}: commit: ♻️ refactor : feign Client 통합
+[33m817492d[m HEAD@{39}: commit: ✅ test : 광고주의 채팅 기능 서비스단 테스트
+[33mf6413f4[m HEAD@{40}: commit: ✨ feature : 광고주의 채팅 기능 구현
+[33maa95335[m HEAD@{41}: commit: 🐛 fix : 마지막 메세지 조회시 예외처리 추가
+[33m0766151[m HEAD@{42}: commit: 🗃️ db :DB와 일치하도록 MESSAGE 필드 수정
+[33mba0cf82[m HEAD@{43}: commit: 🔒 security : 시큐리티 토큰 필터 업그레이드
+[33m2e536ea[m HEAD@{44}: commit: 🗃️ db : mongoDB 쿼리 수정
+[33m731f038[m HEAD@{45}: commit: ✨ feature : feign client - ChatInfoResponse
+[33m4be0074[m HEAD@{46}: commit: ✨ feature : 데이터 통신 feignClient 적용
+[33m0767502[m HEAD@{47}: pull origin dev: Fast-forward
+[33mc6e9cea[m HEAD@{48}: checkout: moving from dev to feature/advertiser_chat
+[33mc6e9cea[m HEAD@{49}: pull origin dev: Fast-forward
+[33m318a234[m HEAD@{50}: checkout: moving from feature/socket_front to dev
+[33m7153ad1[m[33m ([m[1;32mfeature/socket_front[m[33m)[m HEAD@{51}: pull origin dev: Merge made by the 'ort' strategy.
+[33m91eeecf[m[33m ([m[1;31morigin/feature/socket_front[m[33m)[m HEAD@{52}: commit (merge): 🔀 merge : merge dev
+[33m1e719ab[m HEAD@{53}: reset: moving to HEAD
+[33m1e719ab[m HEAD@{54}: reset: moving to HEAD
+[33m1e719ab[m HEAD@{55}: commit: 🐛 fix : 제안서 제출 중복 제거
+[33mae94a00[m HEAD@{56}: commit (merge): 🔀 merge : dev merge
+[33m7b529ae[m HEAD@{57}: reset: moving to HEAD
+[33m7b529ae[m HEAD@{58}: commit: ✨ feature : 광고주의 채팅방목록 조회 구현
+[33m804eb5c[m HEAD@{59}: commit: ✨ feature : 채팅방의 마지막 메세지 조회 구현 및 테스트
+[33mc9d14d0[m HEAD@{60}: commit: ✨ feature : 인플루언서 채팅 기능 구현
+[33mb16de77[m HEAD@{61}: reset: moving to HEAD~1
+[33m13f14c2[m HEAD@{62}: commit: 🔀 merge : merge dev
+[33mb16de77[m HEAD@{63}: commit (merge): 🔀 merge : merge dev
+[33m35ab64c[m HEAD@{64}: reset: moving to HEAD
+[33m35ab64c[m HEAD@{65}: commit (merge): 🔀 merge : dev merge
+[33ma5fa299[m HEAD@{66}: reset: moving to HEAD
+[33ma5fa299[m HEAD@{67}: pull origin dev: updating HEAD
+[33ma5fa299[m HEAD@{68}: pull origin dev: updating HEAD
+[33ma5fa299[m HEAD@{69}: pull origin dev: updating HEAD
+[33ma5fa299[m HEAD@{70}: commit: ✨ feature : 메세지 조회 컨트롤러 구현
+[33m4dcaf92[m HEAD@{71}: commit: ✨ feature : 채팅방 입장 컨트롤러 구현
+[33m346aaf8[m HEAD@{72}: reset: moving to HEAD~1
+[33mf4f0ff7[m HEAD@{73}: reset: moving to HEAD~1
+[33mdcba0d1[m HEAD@{74}: commit: ✨ feature : 메세지 조회 컨트롤러 구현
+[33mf4f0ff7[m HEAD@{75}: reset: moving to HEAD~1
+[33m43390a1[m HEAD@{76}: commit: ✨ feature : 메세지 조회 컨트롤러 구현
+[33mf4f0ff7[m HEAD@{77}: commit: ✨ feature : 채팅방 입장 컨트롤러 구현
+[33m346aaf8[m HEAD@{78}: commit: 🐛 fix : 메세지 인스턴스 시 아이디 자동생성 하도록 로직 조정 및 테스트
+[33m66102b0[m HEAD@{79}: commit: ♻️ refactor : MESSAGE MODEL MAPPER
+[33m5b3058b[m HEAD@{80}: commit: 🐛 fix : 메세지 인스턴스 시 아이디 자동생성 하도록 로직 조정 및 테스트
+[33m85126b5[m HEAD@{81}: reset: moving to HEAD~1
+[33mc5c9af8[m HEAD@{82}: reset: moving to HEAD~1
+[33m96f3429[m HEAD@{83}: commit: 🐛 fix : 메세지 인스턴스 시 아이디 자동생성 하도록 로직 조정
+[33mc5c9af8[m HEAD@{84}: commit: 🐛 fix : 몽고디비 테이블과 재 매핑
+[33m85126b5[m HEAD@{85}: commit: 🗃️ db : 채팅방 상태값 변경
+[33ma349ba3[m HEAD@{86}: commit: 🔧 chore : 제이슨 서버 동시 구동
+[33mad024d9[m HEAD@{87}: commit: 🔒 security : 권한 경로 추가
+[33m2cf9966[m HEAD@{88}: commit: 🐛 fix : 베이스 url 제거
+[33m41d8d8c[m HEAD@{89}: commit: ✨ feature : 제안서 신청 버튼에 소켓 연결 및 채팅방 생성
+[33m16af038[m HEAD@{90}: commit: 🐛 fix : 해당 요청의 헤더에 토큰 주입
+[33m7dd6f99[m HEAD@{91}: commit: 🐛 fix : withSockJs 설정 제거 및 엔드포인트 경로 정정
+[33mf370f2c[m HEAD@{92}: commit: 🐛 fix : 게이트 웨이 콜스설정과 겹치는 웹 코픽 제거
+[33mfd78c75[m HEAD@{93}: commit: 🔧 chore : chat-service proxy 경로 추가
+[33mb54bf6b[m HEAD@{94}: commit: 🔧 chore : stomp 설정 추가
+[33mdbbb542[m HEAD@{95}: commit: 🐛 fix : 카프카 임시 주석 처리
+[33mf90b72d[m HEAD@{96}: commit: ♻️ refactor : 게이트웨이 글로벌 콜스 설정 추가
+[33m318a234[m HEAD@{97}: checkout: moving from dev to feature/socket_front
+[33m318a234[m HEAD@{98}: pull origin dev: Fast-forward
+[33m08b091f[m HEAD@{99}: pull origin dev: Fast-forward
+[33m5a677e6[m HEAD@{100}: checkout: moving from feature/stomp to dev
+[33m28f212b[m[33m ([m[1;31morigin/feature/stomp[m[33m, [m[1;32mfeature/stomp[m[33m)[m HEAD@{101}: pull origin dev: Merge made by the 'ort' strategy.
+[33m8de9d97[m HEAD@{102}: commit: ✅ test : 클라이언트 테스트 더미 필드값 변경
+[33m8e14c10[m HEAD@{103}: commit: ♻️ refactor : 메세지 전송 시 메세지에 담긴 유저가 아닌 토큰의 유저로 저장하도록 변경
+[33mbd75375[m HEAD@{104}: commit: 🔒 security : 채팅 서버에 맞게 경로 수정
+[33m5f67634[m HEAD@{105}: commit: 🔒 security : 컨트롤러에서 토큰을 전달하여 클라이언트에게 전달
+[33m9fbcdb9[m HEAD@{106}: commit: 🔒 security : 소켓연결 시 시큐리티 필터를 거치지 않으므로, jwt 파싱 인터셉터 핸들러 구현
+[33m1664d10[m HEAD@{107}: reset: moving to HEAD~1
+[33m0307629[m HEAD@{108}: commit: 🔒 security : 소켓연결 시 시큐리티 필터를 거치지 않으므로, jwt 파싱 인터셉터 핸들러 구현
+[33m1664d10[m HEAD@{109}: reset: moving to HEAD~1
+[33m02e8faf[m HEAD@{110}: commit: 🔒 security : 소켓연결 시 시큐리티 필터를 거치지 않으므로, jwt 파싱 인터셉터 핸들러 구현
+[33m1664d10[m HEAD@{111}: commit: 🔒 security : JWT 토큰 관련 에러 코드 추가
+[33m9ff2d51[m HEAD@{112}: commit: 🔒 security : JWT 및 SecurityConfig적용
+[33m43886e1[m HEAD@{113}: pull origin dev: updating HEAD
+[33m43886e1[m HEAD@{114}: commit: 🐛 fix : 카프카 플로우 정정
+[33m574d3dd[m HEAD@{115}: reset: moving to HEAD~1
+[33m503c49a[m HEAD@{116}: commit: 🐛 fix : 카프카 플로우 정정
+[33m574d3dd[m HEAD@{117}: commit: ✨ feature : 채팅방 생성 / 메세지 발송 컨트롤러 구현
+[33m14a330b[m HEAD@{118}: commit: ✨ feature : 메세지 저장 및 조회 로직 구현 및 테스트
+[33mafc4b54[m HEAD@{119}: commit: ✨ feature : 이벤트 객체 생성
+[33m9eddee3[m HEAD@{120}: commit: 🐛 fix : Client 클래스 경로 지정
+[33mca04f80[m HEAD@{121}: commit: ✨ feature : 컨슈머리스너의 이벤트 수신 후 채팅방 생성 로직 구현 및 테스트
+[33me2440a8[m HEAD@{122}: commit: ✅ test : 채팅방 조회 및 생성 서비스단 테스트
+[33macc4064[m HEAD@{123}: commit: ✨ feature : 채팅방 생성 메서드 repo/service 구현
+[33m861ba69[m HEAD@{124}: commit: ✨ feature : stomp config 설정
+[33m9e9e322[m HEAD@{125}: commit: 🐛 fix : feign api client 필드 정정
+[33me584310[m HEAD@{126}: reset: moving to HEAD~1
+[33mcd057c1[m HEAD@{127}: commit: 🐛 fix : feign api client 필드 정정
+[33me584310[m HEAD@{128}: commit: ✨ feature : 에러 코드 추가
+[33m76bac75[m HEAD@{129}: commit: ✨ feature : 웹 컨픽 설정
+[33m07a032e[m HEAD@{130}: commit: ✨ feature : 채팅 예외 핸들러 생성
+[33m89554f5[m HEAD@{131}: commit: ✨ feature : 응답/요청 객체 생성
+[33mba9e1bd[m HEAD@{132}: commit: ♻️ refactor : MessageDateMapper 수정
+[33ma861732[m HEAD@{133}: commit: ✨ feature : 데이터 통신 feignClient 적용
+[33m3d71efc[m HEAD@{134}: commit: ✨ feature : 데이터 통신 feignClient 적용
+[33mc87f057[m HEAD@{135}: commit: ✨ feature : 데이터 통신 feignClient 적용
+[33m2f1c908[m HEAD@{136}: commit: 🐛 fix : 시큐리티 파일 적용 취소
+[33mdda3f90[m HEAD@{137}: commit: 🐛 fix : 시큐리티 파일 적용 취소
+[33m0f57862[m HEAD@{138}: commit: 🔒 security : 시큐리티 파일 적용
+[33m6de6a76[m HEAD@{139}: commit: ♻️ refactor : 카프카 컨슈머 이벤트 수신 변경
+[33m5a677e6[m HEAD@{140}: checkout: moving from dev to feature/stomp
+[33m5a677e6[m HEAD@{141}: reset: moving to HEAD~1
+[33me58c98d[m HEAD@{142}: commit: ✨ feature : 시큐리티
+[33m5a677e6[m HEAD@{143}: pull origin dev: Fast-forward
+[33m2372bc9[m HEAD@{144}: pull origin dev: Fast-forward
+[33m29f188a[m HEAD@{145}: pull origin dev: Fast-forward
+[33m2a6ad0a[m HEAD@{146}: checkout: moving from feature/chat-kafka-consumer to dev
+[33m0ed9237[m[33m ([m[1;31morigin/feature/chat-kafka-consumer[m[33m, [m[1;32mfeature/chat-kafka-consumer[m[33m)[m HEAD@{147}: pull origin dev: Merge made by the 'ort' strategy.
+[33m433e5d9[m HEAD@{148}: commit: ✅ test : 리스너 테스트
+[33m04efa43[m HEAD@{149}: commit: ✨ feature : 이벤트객체 리스너 생성
+[33me047cba[m HEAD@{150}: commit: ✨ feature : 카프카로 받을 이벤트 객체 생성
+[33mbda0ff8[m HEAD@{151}: commit: ✨ feature : KafkaConsumerConfig 작성
+[33ma7ef546[m HEAD@{152}: commit: 🔧 chore: Kafka Consumer 및 리스너용 설정 추가
+[33m2a6ad0a[m HEAD@{153}: checkout: moving from dev to feature/chat-kafka-consumer
+[33m2a6ad0a[m HEAD@{154}: pull origin dev: Fast-forward
+[33m009fae9[m HEAD@{155}: checkout: moving from feature/chatDB to dev
+[33mef5dbb2[m[33m ([m[1;31morigin/feature/chatDB[m[33m, [m[1;32mfeature/chatDB[m[33m)[m HEAD@{156}: commit: ✨ feature : NegoStatus enum 클래스 구현 및 적용
+[33m9ee5983[m HEAD@{157}: pull origin dev: Merge made by the 'ort' strategy.
+[33m9bfa12a[m HEAD@{158}: commit: ✨ feature : chat/message 관련 DTO 구현
+[33m555bfb9[m HEAD@{159}: commit: 🐛 fix : Id 오류 수정
+[33maf7f127[m HEAD@{160}: commit: ✨ feature : modelmapper 구현
+[33m5b811bc[m HEAD@{161}: commit: ✅ test : chat 엔티티, repo DB 연동 테스트
+[33m06cf028[m HEAD@{162}: commit: ✨ feature : chat 엔티티, repo 구현
+[33mfd2e375[m HEAD@{163}: commit: 🐛 fix : 폴더명 소문자로 정정
+[33mb70eec0[m HEAD@{164}: commit: 🐛 fix : 생성아이디 패턴과 더미데이터 일치
+[33m8cbdc33[m HEAD@{165}: commit: ✨ feature : chatStatus enum class 정의
+[33mc7ec028[m HEAD@{166}: commit: 🐛 fix : chatTable chatStatus column enum 값 수정
+[33m16e1040[m HEAD@{167}: commit: 🐛 fix : column 오타 수정
+[33mb25273d[m HEAD@{168}: commit: ✅ test : mongoDB message table 연결 테스트
+[33m62b2899[m HEAD@{169}: commit: ✨ feature : message 엔티티와 repo 구현
+[33m6d82297[m HEAD@{170}: reset: moving to HEAD~1
+[33me26b207[m HEAD@{171}: commit: ✅ test : mongoDB message table 연결 테스트
+[33m6d82297[m HEAD@{172}: commit: 🔧 chore : 설정 추가
+[33m4cf395c[m HEAD@{173}: commit: 🔧 chore : exceptionHandler 파일 추가
+[33m08936c7[m HEAD@{174}: commit: ✨ feature : util 폴더 추가
+[33mf2ad048[m HEAD@{175}: commit: ✨ feature : mongoDB config
+[33mc776f1b[m HEAD@{176}: commit: 🐛 fix : 식별자 id가 message id 가 되도록 수정
+[33m437a5d3[m HEAD@{177}: reset: moving to HEAD~1
+[33m02f0ef0[m HEAD@{178}: reset: moving to HEAD~1
+[33m7070944[m HEAD@{179}: reset: moving to HEAD~1
+[33mddeedfb[m HEAD@{180}: commit: 🐛 fix : 식별자 id가 message id 가 되도록 수정
+[33m7070944[m HEAD@{181}: commit: ✨ feature : mongoDB config
+[33m02f0ef0[m HEAD@{182}: commit: ✨ feature : util 폴더 가져오기
+[33m437a5d3[m HEAD@{183}: commit: 🗃️ db : mongoDB 쿼리문
+[33mda31280[m HEAD@{184}: commit: 🔧 chore : 데이터베이스 설정
+[33m009fae9[m HEAD@{185}: checkout: moving from dev to feature/chatDB
+[33m009fae9[m HEAD@{186}: pull origin dev: Fast-forward
+[33m7b0ea2e[m HEAD@{187}: pull origin dev: Fast-forward
+[33ma561d9d[m HEAD@{188}: checkout: moving from fix/css-finish to dev
+[33mf12fda2[m[33m ([m[1;31morigin/fix/css-finish[m[33m, [m[1;32mfix/css-finish[m[33m)[m HEAD@{189}: pull origin dev: Merge made by the 'ort' strategy.
+[33m842eba8[m HEAD@{190}: commit: ♻️ refactor : 마이페이지 비밀번호 변경 버튼 글씨 중앙정렬
+[33m5566703[m HEAD@{191}: commit: ♻️ refactor : 마이페이지 비밀번호 복구 및 css 변경
+[33mcbda2c2[m HEAD@{192}: commit: ♻️ refactor : 마이페이지 비밀번호 복구 및 css 변경
+[33m70d9988[m HEAD@{193}: commit: ♻️ fix : 복구
+[33m5002ea4[m HEAD@{194}: commit: ♻️ fix : 복구
+[33mcf8aadc[m HEAD@{195}: commit: ♻️ fix : 복구
+[33m78b39b3[m HEAD@{196}: commit: ♻️ refactor : 챗봇 디자인 수정
+[33m709852b[m HEAD@{197}: commit: ♻️ refactor : 챗봇 디자인 수정
+[33m7886e26[m HEAD@{198}: commit: ♻️ refactor : 카드 슬라이드 시간 조정
+[33m5f28bc3[m HEAD@{199}: pull origin dev: Merge made by the 'ort' strategy.
+[33m5dea9b2[m HEAD@{200}: commit: ♻️ refactor : 배너 구조 조정
+[33m8b55d4e[m HEAD@{201}: commit: ♻️ refactor : 채널 상세페이지 ui 수정
+[33m00cb714[m HEAD@{202}: commit: ♻️ refactor : 챗봇 링키 아이콘 적용
+[33m00660f2[m HEAD@{203}: commit: ♻️ refactor : 마이페이지 구독페이지 폭 통일
+[33ma89688d[m HEAD@{204}: commit: ♻️ refactor : 마이페이지 구독페이지 ui 통일
+[33mc1c830c[m HEAD@{205}: commit: ♻️ refactor : 마이페이지 구조 및 ui 통일
+[33m5748285[m HEAD@{206}: commit: ♻️ refactor : 회원/인플루언서/광고주 마이페이지 UI 통일
+[33m25ffb99[m HEAD@{207}: commit: ♻️ refactor : 회원 마이페이지 UI 변경
+[33m837b771[m HEAD@{208}: commit: ♻️ refactor : 회원 마이페이지 UI 변경
+[33ma47357e[m HEAD@{209}: commit: ♻️ refactor : 회원 마이페이지 UI 변경
+[33m230f067[m HEAD@{210}: commit: ♻️ refactor : 사이드바 UI 변경
+[33m87f27b6[m HEAD@{211}: commit: ♻️ refactor : 캠페인 전체 폭 확대 및 폰트 크기 변경
+[33m737c7c9[m HEAD@{212}: commit: ♻️ refactor : 인플루언서 목록 및 디테일 폰트 크기 변경
+[33m133167b[m HEAD@{213}: commit: ♻️ refactor : 인플루언서 섹션 커서 올릴 시 슬라이드 멈추도록 수정
+[33ma2a4f49[m HEAD@{214}: commit: ♻️ refactor : 채널리스트 페이지 ui 수정
+[33ma1b341c[m HEAD@{215}: commit: ♻️ refactor : 메신저 알람 뱃지 위치 정정
+[33m0db95a8[m HEAD@{216}: commit: ♻️ refactor : 캠페인 카드 슬라이드 추가
+[33m00ab06d[m HEAD@{217}: commit: ♻️ refactor : 인플루언서 카드 슬라이드
+[33me05792b[m HEAD@{218}: commit: ♻️ refactor : 배너 변경
+[33m647893f[m HEAD@{219}: commit: ♻️ refactor : 메인 홈 ui 변경
+[33m03a2b4e[m HEAD@{220}: commit: ♻️ refactor : 메인 홈 더미 데이터 추가
+[33m34d53f7[m HEAD@{221}: commit: ♻️ refactor : 인플루언서 섹션 ui 변경
+[33m213c2f1[m HEAD@{222}: commit: ♻️ refactor : 캠페인 섹션과 인플루언서 섹션 위치 변경
+[33mfb34b6c[m HEAD@{223}: commit: ♻️ refactor : 오늘 마감하는 캠페인 섹션 수정
+[33m0442e5d[m HEAD@{224}: commit: ♻️ refactor : 채팅 드롭다운 아이콘 크기 조정
+[33m7ddffe7[m HEAD@{225}: commit: ♻️ refactor : 배너 노출 시간 조정
+[33mcbcde9e[m HEAD@{226}: commit: ♻️ refactor : 마이페이지 버튼 간격 및 크기 조정
+[33m43cfdfd[m HEAD@{227}: commit: ♻️ refactor : 마이페이지 버튼 간격 및 크기 조정
+[33mcf62085[m HEAD@{228}: commit: ♻️ refactor : 헤더 글씨 크기 및 간격 조정
+[33mbb59a89[m HEAD@{229}: commit: ♻️ refactor : 캠페인 카드 css 수정
+[33me0b4466[m HEAD@{230}: commit: ♻️ refactor : 카테고리 섹션 중앙 정렬
+[33m99440b9[m HEAD@{231}: commit: ♻️ refactor : 카테고리 섹션 css 변경
+[33m51715d1[m HEAD@{232}: commit: ♻️ refactor : 배너 이미지-> 동영상으로 변경
+[33m99c4b2f[m HEAD@{233}: commit: ♻️ refactor : 한 배너 당 10초씩 머무르도록 변경
+[33m7053e9a[m HEAD@{234}: commit: ♻️ refactor : 배너 변경
+[33m6da9f7a[m HEAD@{235}: commit: ♻️ refactor : 배너 변경
+[33m3572eb5[m HEAD@{236}: commit (merge): 🔀 merge : merge dev
+[33mf6dd8fc[m HEAD@{237}: commit: 🐛 fix : 메세지 복구 및 라우터 오타 정정
+[33ma561d9d[m HEAD@{238}: checkout: moving from dev to fix/css-finish
+[33ma561d9d[m HEAD@{239}: pull origin dev: Fast-forward
+[33mbf0aefd[m HEAD@{240}: pull origin dev: Fast-forward
+[33md21f8ab[m HEAD@{241}: checkout: moving from fix/chatApi to dev
+[33m414fbd4[m[33m ([m[1;32mfix/chatApi[m[33m)[m HEAD@{242}: commit: ♻️ refactor : 카테고리 DTO 통일
+[33m93810b0[m HEAD@{243}: commit: ♻️ refactor : 메인 홈페이지 인플루언서 필드명 변경
+[33m56ecd82[m HEAD@{244}: commit: ♻️ refactor : 메인 홈페이지 인플루언서 식별 아이디 변경
+[33m28e75c2[m HEAD@{245}: commit: ♻️ refactor : 유저 채팅방 목록 없을 시 채팅목록이 없습니다.
+[33m09c242d[m HEAD@{246}: commit: 🐛 fix : 메인 홈 api 수정 및 DTO 추가
+[33mad68559[m HEAD@{247}: commit: fix : 필드명 변견
+[33md7bfbda[m HEAD@{248}: commit: fix : 채팅 api 및 프로필 버그수정
+[33mb5ccf5c[m HEAD@{249}: pull origin dev: Merge made by the 'ort' strategy.
+[33m99b6b2d[m HEAD@{250}: pull origin dev: Merge made by the 'ort' strategy.
+[33m9332845[m HEAD@{251}: commit: fix : 채팅 api 및 프로필 버그수정
+[33ma661b8b[m HEAD@{252}: commit: fix : 채팅 api 및 프로필 버그수정
+[33mbd9241e[m HEAD@{253}: commit: fix : 라우터/js 수정
+[33md21f8ab[m HEAD@{254}: checkout: moving from dev to fix/chatApi
+[33md21f8ab[m HEAD@{255}: pull origin dev: Fast-forward
+[33m34ca054[m HEAD@{256}: pull origin dev: Fast-forward
+[33m59797d2[m HEAD@{257}: pull origin dev: Fast-forward
+[33m519e642[m HEAD@{258}: pull origin dev: Fast-forward
+[33m66920fe[m HEAD@{259}: pull origin dev: Fast-forward
+[33med20cea[m HEAD@{260}: checkout: moving from feat/userChat to dev
+[33mf9bfc22[m[33m ([m[1;32mfeat/userChat[m[33m)[m HEAD@{261}: checkout: moving from dev to feat/userChat
+[33med20cea[m HEAD@{262}: clone: from https://github.com/team-gritty/linki
