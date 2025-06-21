@@ -3,6 +3,7 @@ package com.Gritty.Linki.user.influencer.review.repository;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.entity.AdvertiserReview;
 import com.Gritty.Linki.entity.Contract;
@@ -111,6 +112,39 @@ public class InfAdvertiserReviewRepositoryTest {
             assertThat(review.getAdvertiserReviewScore()).isNotNull();
             assertThat(review.getAdvertiserReviewCreatedAt()).isNotNull();
         });
+    }
+
+    @Test
+    @DisplayName("인플루언서가 작성한 광고주 리뷰 조회")
+    void findWrittenAdvertiserReviewsByInfluencerIdTest() {
+        // given
+        String influencerId = "INF0000"; // 실제 존재하는 influencerId로 교체
+
+        // when
+        List<WrittenAdvertiserReviewResponseDTO> reviews =
+                infAdvertiserReviewRepository.findWrittenAdvertiserReviewsByInfluencerId(influencerId);
+
+        // then
+        assertThat(reviews).isNotNull();
+        assertThat(reviews).allSatisfy(review -> {
+            assertThat(review.getAdvertiserReviewId()).isNotBlank();
+            assertThat(review.getAdvertiserReviewScore()).isBetween(BigDecimal.ZERO, BigDecimal.valueOf(5.0));
+            assertThat(review.getAdvertiserReviewCreatedAt()).isNotNull();
+            assertThat(review.getContractId()).isNotBlank();
+            assertThat(review.getCampaignName()).isNotBlank();
+            assertThat(review.getVisibility()).isNotNull();
+        });
+
+        reviews.forEach(review ->
+                log.info("✅ 광고주 리뷰 ID: {}, 점수: {}, 생성일: {}, 공개여부: {}, 계약 ID: {}, 캠페인명: {}",
+                        review.getAdvertiserReviewId(),
+                        review.getAdvertiserReviewScore(),
+                        review.getAdvertiserReviewCreatedAt(),
+                        review.getVisibility(),
+                        review.getContractId(),
+                        review.getCampaignName()
+                )
+        );
     }
 
 

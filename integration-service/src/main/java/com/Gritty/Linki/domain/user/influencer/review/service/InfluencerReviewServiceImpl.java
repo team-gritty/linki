@@ -7,6 +7,7 @@ import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewReq
 import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfInfluencerReviewRepository;
 import com.Gritty.Linki.domain.user.influencer.settlement.repository.jpa.InfSettlementRepository;
@@ -108,6 +109,16 @@ public class InfluencerReviewServiceImpl implements InfluencerReviewService {
 
         // 2. 해당 인플루언서가 받은 리뷰 목록 조회 (정산 완료된 계약 기준)
         return infInfluencerReviewRepository.findReceivedInfluencerReviews(influencerId);
+    }
+
+    @Override
+    public List<WrittenAdvertiserReviewResponseDTO> getWrittenAdvertiserReviews() {
+        // 1. 로그인한 인플루언서 ID 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(userDetails);
+
+        // 2. 해당 인플루언서가 작성한 리뷰 목록 조회 (계약 & 정산 완료된 건만)
+        return infAdvertiserReviewRepository.findWrittenAdvertiserReviewsByInfluencerId(influencerId);
     }
 
 

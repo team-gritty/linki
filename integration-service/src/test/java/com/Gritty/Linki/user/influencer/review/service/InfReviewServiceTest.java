@@ -4,6 +4,7 @@ import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.domain.user.influencer.review.service.InfluencerReviewService;
 import com.Gritty.Linki.domain.user.influencer.settlement.repository.jpa.InfSettlementRepository;
@@ -11,6 +12,7 @@ import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.Gritty.Linki.vo.enums.SettlementStatus;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -163,6 +165,45 @@ public class InfReviewServiceTest {
                         dto.getVisibility())
         );
 
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    @DisplayName("인플루언서가 작성한 광고주 리뷰 조회 테스트")
+    void getWrittenAdvertiserReviewsTest() {
+        // given
+        CustomUserDetails userDetails = CustomUserDetails.builder()
+                .userId("USER0000") // 실제로 리뷰를 작성한 인플루언서의 userId
+                .role("ROLE_INFLUENCER")
+                .build();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        List<WrittenAdvertiserReviewResponseDTO> reviews = influencerReviewService.getWrittenAdvertiserReviews();
+
+        // then
+        assertThat(reviews).isNotNull();
+        assertThat(reviews).isNotEmpty();
+        reviews.forEach(review -> {
+            assertThat(review.getAdvertiserReviewId()).isNotBlank();
+            assertThat(review.getContractId()).isNotBlank();
+            assertThat(review.getAdvertiserReviewScore()).isNotNull();
+            assertThat(review.getAdvertiserReviewCreatedAt()).isNotNull();
+            assertThat(review.getVisibility()).isNotNull();
+            assertThat(review.getCampaignName()).isNotBlank();
+
+            log.info("📌 리뷰 ID: {}, 계약 ID: {}, 캠페인명: {}, 점수: {}, 내용: {}",
+                    review.getAdvertiserReviewId(),
+                    review.getContractId(),
+                    review.getCampaignName(),
+                    review.getAdvertiserReviewScore(),
+                    review.getAdvertiserReviewComment());
+        });
+
+        // cleanup
         SecurityContextHolder.clearContext();
     }
 

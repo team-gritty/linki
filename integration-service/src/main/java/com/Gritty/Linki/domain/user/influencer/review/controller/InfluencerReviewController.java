@@ -4,6 +4,7 @@ import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewReq
 import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.service.InfluencerReviewService;
 import com.Gritty.Linki.entity.Advertiser;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,12 @@ public class InfluencerReviewController  {
     @GetMapping("/v1/api/influencer/mypage/reviews/received")
     public ResponseEntity<List<ReceivedInfluencerReviewResponseDTO>> getReceivedAdvertiserReviews() {
         List<ReceivedInfluencerReviewResponseDTO> reviews = influencerReviewService.getReceivedInfluencerReviews();
+        return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/v1/api/influencer/mypage/reviews/written")
+    public ResponseEntity<List<WrittenAdvertiserReviewResponseDTO>> getWrittenAdvertiserReviews() {
+        List<WrittenAdvertiserReviewResponseDTO> reviews = influencerReviewService.getWrittenAdvertiserReviews();
         return ResponseEntity.ok(reviews);
     }
 }
