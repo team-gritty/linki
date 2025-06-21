@@ -1,16 +1,14 @@
 package com.Gritty.Linki.domain.user.influencer.review.controller;
 
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.service.InfluencerReviewService;
 import com.Gritty.Linki.entity.Advertiser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.nio.file.AccessDeniedException;
@@ -33,5 +31,11 @@ public class InfluencerReviewController  {
         List<ReviewableContractResponseDTO> contracts =  influencerReviewService.getReviewableContracts();
         return ResponseEntity.ok(contracts);
 
+    }
+
+    @GetMapping("/v1/api/nonuser/reviews/advertiser/campaign/{campaignId}")
+    public ResponseEntity<List<InfAdvertiserReviewResponseDTO>>getAdvertiserReviewsByCampaign(@PathVariable String campaignId){
+      List<InfAdvertiserReviewResponseDTO>reviews = influencerReviewService.getAdvertiseReviewsByCampaign(campaignId);
+      return ResponseEntity.ok(reviews);
     }
 }

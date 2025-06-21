@@ -4,6 +4,7 @@ package com.Gritty.Linki.domain.user.influencer.review.service;
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.domain.user.influencer.settlement.repository.jpa.InfSettlementRepository;
@@ -90,4 +91,11 @@ public class InfluencerReviewServiceImpl implements InfluencerReviewService {
         // 2. 해당 인플루언서의 정산 완료된 계약 목록 조회
         return contractRepository.findReviewableContractsByInfluencerId(influencerId);
     }
+
+    @Override
+    public List<InfAdvertiserReviewResponseDTO> getAdvertiseReviewsByCampaign(String campaignId) {
+        return infAdvertiserReviewRepository.findReviewsByCampaignId(campaignId);
+    }
+
+
 }

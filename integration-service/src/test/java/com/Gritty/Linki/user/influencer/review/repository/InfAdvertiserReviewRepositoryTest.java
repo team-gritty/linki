@@ -1,12 +1,14 @@
 package com.Gritty.Linki.user.influencer.review.repository;
 
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.entity.AdvertiserReview;
 import com.Gritty.Linki.entity.Contract;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.Gritty.Linki.vo.enums.SettlementStatus;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Log4j2
 @DisplayName("InfAdvertiserReviewRepository 테스트")
 public class InfAdvertiserReviewRepositoryTest {
     @Autowired
@@ -88,6 +91,25 @@ public class InfAdvertiserReviewRepositoryTest {
         assertThat(result).allSatisfy(dto -> {
             assertThat(dto.getContractStatus()).isEqualTo(ContractStatus.COMPLETED);
             assertThat(dto.getSettlementStatus()).isEqualTo(SettlementStatus.COMPLETED);
+        });
+    }
+
+    @Test
+    @DisplayName("캠페인 ID로 광고주 리뷰 조회 테스트")
+    void findReviewsByCampaignIdTest() {
+        // given
+        String campaignId = "CAMP0000"; // 이 캠페인이 proposal - contract - review로 연결되어 있어야 함
+
+        // when
+        List<InfAdvertiserReviewResponseDTO> reviews = infAdvertiserReviewRepository.findReviewsByCampaignId(campaignId);
+
+        // then
+        assertThat(reviews).isNotEmpty();
+        reviews.forEach(review -> {
+            log.info("리뷰 내용: " + review.getAdvertiserReviewComment());
+            assertThat(review.getContractId()).isNotBlank();
+            assertThat(review.getAdvertiserReviewScore()).isNotNull();
+            assertThat(review.getAdvertiserReviewCreatedAt()).isNotNull();
         });
     }
 

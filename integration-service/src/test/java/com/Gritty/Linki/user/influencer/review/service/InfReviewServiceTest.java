@@ -101,4 +101,32 @@ public class InfReviewServiceTest {
 
     }
 
+
+    @Test
+    void getAdvertiserReviewsByCampaignTest() {
+        // given
+        String campaignId = "CAMP0000"; // ✅ 실제 존재하는 캠페인 ID로 변경 필요
+
+        // when
+        var result = influencerReviewService.getAdvertiseReviewsByCampaign(campaignId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).allSatisfy(dto -> {
+            assertThat(dto.getContractId()).isNotBlank();
+            assertThat(dto.getAdvertiserReviewScore()).isBetween(BigDecimal.ZERO, BigDecimal.valueOf(5.0));
+            assertThat(dto.getAdvertiserReviewCreatedAt()).isNotNull();
+        });
+
+        result.forEach(dto ->
+                log.info("🔍 리뷰 ID: {},생성일:{}, 공개여부:{}, 점수: {}, 코멘트: {}, 계약 ID: {}",
+                        dto.getAdvertiserReviewId(),
+                        dto.getAdvertiserReviewCreatedAt(),
+                        dto.getVisibility(),
+                        dto.getAdvertiserReviewScore(),
+                        dto.getAdvertiserReviewComment(),
+                        dto.getContractId())
+        );
+    }
+
 }
