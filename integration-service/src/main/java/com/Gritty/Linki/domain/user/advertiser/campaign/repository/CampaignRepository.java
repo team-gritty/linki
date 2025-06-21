@@ -1,6 +1,7 @@
 package com.Gritty.Linki.domain.user.advertiser.campaign.repository;
 
 import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.entity.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,4 +43,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, String> {
     @Query("SELECT c FROM Campaign c WHERE c.campaignId IN :campaignIds AND c.advertiser.advertiserId = :advertiserId")
     List<Campaign> findByCampaignIdsAndAdvertiserId(@Param("campaignIds") List<String> campaignIds,
             @Param("advertiserId") String advertiserId);
+
+    Optional<Campaign> findByProposalId(String proposalId);
+
 }
