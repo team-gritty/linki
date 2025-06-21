@@ -46,12 +46,10 @@
   </div>
 </template>
 
-<!-- Add this to your index.html head:
-<script src="https://js.tosspayments.com/v2/standard"></script>
--->
 <script>
 import { getRecommendedProducts } from '@/api/product'
 import httpClient from '@/utils/httpRequest'
+import { useAccountStore } from '@/stores/account'
 
 export default {
   name: 'MyPageSubscriptionApply',
@@ -87,6 +85,14 @@ export default {
     }
   },
   async mounted() {
+    // TossPayments SDK 동적 로드
+    if (!document.querySelector('script[src="https://js.tosspayments.com/v2/standard"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://js.tosspayments.com/v2/standard';
+      script.async = true;
+      document.head.appendChild(script);
+      // 스크립트가 로드될 때까지 기다림 (필요시 Promise로 처리 가능)
+    }
     this.fetchProducts()
     // 로그인 유저 정보 가져오기
     try {
@@ -112,9 +118,18 @@ export default {
       }
     },
     async requestBillingAuth() {
-      // 토스페이먼츠 위젯 띄우기
+      // Pinia store에서 userId 가져오기
+      const accountStore = useAccountStore()
+      const customerKey = accountStore.getUser?.userId
+
+      if (!customerKey) {
+        // userId가 없으면 로그인 페이지로 이동
+        window.alert('로그인이 필요합니다.')
+        this.$router.push('/login') // Vue Router 사용 시
+        return
+      }
+
       const clientKey = "test_ck_AQ92ymxN342adlxYQPByrajRKXvd";
-      const customerKey = "lxkbUQ_41hd1Vjxi0NScp"; // 실제로는 유저별 고유값 사용 권장
       if (!window.TossPayments) {
         alert('토스페이먼츠 SDK가 로드되지 않았습니다.');
         return;
@@ -130,7 +145,6 @@ export default {
           customerName: this.userName,
         });
       } catch (e) {
-        // 사용자가 결제창을 닫거나 오류 발생 시
         console.error(e);
       }
     }

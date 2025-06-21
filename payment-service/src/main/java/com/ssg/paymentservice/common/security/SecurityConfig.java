@@ -1,4 +1,4 @@
-package com.ssg.paymentservice.security;
+package com.ssg.paymentservice.common.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

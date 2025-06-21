@@ -1,3 +1,4 @@
+use linkiDB;
 -- 기본 사용자 데이터 생성
 INSERT INTO `user` (`user_id`, `user_login_id`, `user_login_pw`, `user_name`, `user_phone`, `user_email`, `user_pay_status`, `user_status`, `user_enter_day`, `user_role`)
 SELECT 
