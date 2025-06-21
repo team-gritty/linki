@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.influencer.review.controller;
 
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.service.InfluencerReviewService;
 import com.Gritty.Linki.entity.Advertiser;
@@ -37,5 +38,11 @@ public class InfluencerReviewController  {
     public ResponseEntity<List<InfAdvertiserReviewResponseDTO>>getAdvertiserReviewsByCampaign(@PathVariable String campaignId){
       List<InfAdvertiserReviewResponseDTO>reviews = influencerReviewService.getAdvertiseReviewsByCampaign(campaignId);
       return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/v1/api/influencer/mypage/reviews/received")
+    public ResponseEntity<List<ReceivedInfluencerReviewResponseDTO>> getReceivedAdvertiserReviews() {
+        List<ReceivedInfluencerReviewResponseDTO> reviews = influencerReviewService.getReceivedInfluencerReviews();
+        return ResponseEntity.ok(reviews);
     }
 }

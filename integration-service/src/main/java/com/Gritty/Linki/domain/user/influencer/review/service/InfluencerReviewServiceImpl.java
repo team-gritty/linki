@@ -5,8 +5,10 @@ import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
+import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfInfluencerReviewRepository;
 import com.Gritty.Linki.domain.user.influencer.settlement.repository.jpa.InfSettlementRepository;
 import com.Gritty.Linki.entity.AdvertiserReview;
 import com.Gritty.Linki.entity.Contract;
@@ -32,6 +34,7 @@ public class InfluencerReviewServiceImpl implements InfluencerReviewService {
     private final ContractRepository contractRepository;
     private final InfSettlementRepository infSettlementRepository;
     private final InfAdvertiserReviewRepository infAdvertiserReviewRepository;
+    private final InfInfluencerReviewRepository infInfluencerReviewRepository;
     @Override
     public void submitAdvertiserReview(InfAdvertiserReviewRequestDTO request) throws AccessDeniedException {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -95,6 +98,16 @@ public class InfluencerReviewServiceImpl implements InfluencerReviewService {
     @Override
     public List<InfAdvertiserReviewResponseDTO> getAdvertiseReviewsByCampaign(String campaignId) {
         return infAdvertiserReviewRepository.findReviewsByCampaignId(campaignId);
+    }
+
+    @Override
+    public List<ReceivedInfluencerReviewResponseDTO> getReceivedInfluencerReviews() {
+        // 1. 로그인한 인플루언서 ID 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(userDetails);
+
+        // 2. 해당 인플루언서가 받은 리뷰 목록 조회 (정산 완료된 계약 기준)
+        return infInfluencerReviewRepository.findReceivedInfluencerReviews(influencerId);
     }
 
 

@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.influencer.review.service;
 
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 
 import java.nio.file.AccessDeniedException;
@@ -17,6 +18,9 @@ public interface InfluencerReviewService {
 
     // 특정 광고주가 등록한 캠페인의 리뷰 조회
     List<InfAdvertiserReviewResponseDTO> getAdvertiseReviewsByCampaign(String campaignId);
+
+    // 로그인한 인플루언서가 받은 리뷰 조회
+    List<ReceivedInfluencerReviewResponseDTO> getReceivedInfluencerReviews();
 
 
 

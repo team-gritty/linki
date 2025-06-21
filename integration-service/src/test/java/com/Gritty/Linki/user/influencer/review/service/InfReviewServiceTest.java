@@ -129,4 +129,41 @@ public class InfReviewServiceTest {
         );
     }
 
+    @Test
+    void getReceivedInfluencerReviewsTest() {
+        // given
+        CustomUserDetails userDetails = CustomUserDetails.builder()
+                .userId("USER0000") // ✅ 실제 존재하는 인플루언서의 userId
+                .role("ROLE_INFLUENCER")
+                .build();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        var result = influencerReviewService.getReceivedInfluencerReviews();
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).allSatisfy(dto -> {
+            assertThat(dto.getInfluencerReviewId()).isNotBlank();
+            assertThat(dto.getInfluencerReviewScore()).isBetween(BigDecimal.ZERO, BigDecimal.valueOf(5.0));
+            assertThat(dto.getInfluencerReviewCreatedAt()).isNotNull();
+            assertThat(dto.getCampaignName()).isNotBlank();
+        });
+
+        result.forEach(dto ->
+                log.info("✅ 리뷰 ID: {}, 점수: {}, 코멘트: {}, 캠페인: {}, 계약 ID: {}, 공개 여부: {}",
+                        dto.getInfluencerReviewId(),
+                        dto.getInfluencerReviewScore(),
+                        dto.getInfluencerReviewComment(),
+                        dto.getCampaignName(),
+                        dto.getContractId(),
+                        dto.getVisibility())
+        );
+
+        SecurityContextHolder.clearContext();
+    }
+
 }
