@@ -6,11 +6,16 @@ import com.linki.admin_integration_service.entity.Influencer;
 import com.linki.admin_integration_service.entity.LinkiScore;
 import com.linki.admin_integration_service.util.IdGenerator;
 import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,13 +33,15 @@ public class LinkiScoreServiceImpl implements LinkiScoreService {
 
     private final LinkiScoreRepository linkiScoreRepository;
     private final InfluencerRepository influencerRepository;
+    private final ApplicationContext context;
 
     @PostConstruct
     public void init(){
         new Thread(() -> {
             try {
                 Thread.sleep(10_000);
-                scheduleLinkiScore();
+                context .getBean(LinkiScoreService.class)
+                        .scheduleLinkiScore();
             } catch (Exception e) {
                 log.error("점수 계산 실패", e);
             }
@@ -44,7 +51,7 @@ public class LinkiScoreServiceImpl implements LinkiScoreService {
 
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveLinkiScore(String influencerId) {
 
         LinkiScore linkiScore = linkiScoreRepository.findByInfluencerId(influencerId);
@@ -70,30 +77,41 @@ public class LinkiScoreServiceImpl implements LinkiScoreService {
     }
 
     @Override
-    @Scheduled(cron = "0 0 2 * * *") //
     @Transactional
+    @Scheduled(cron = "0 0 2 * * *") //
     public void scheduleLinkiScore() {
         List<Influencer> influencers = influencerRepository.findAll();
-        for (Influencer influencer : influencers) {
-            if(!linkiScoreRepository.existsByInfluencerId(influencer.getInfluencerId())){
-                newLinkiScore(influencer.getInfluencerId());
+
+        influencers.parallelStream().forEach(influencer -> {
+            try {
+                String influencerId = influencer.getInfluencerId();
+                synchronized (this) {
+                    if (!linkiScoreRepository.existsByInfluencerId(influencerId)) {
+                        newLinkiScore(influencerId);
+                    } else {
+                        saveLinkiScore(influencerId);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("점수 계산 중 오류: {}", influencer.getInfluencerId(), e);
             }
-            else {
-                saveLinkiScore(influencer.getInfluencerId());
-            }
-        }
+        });
     }
 
+
     @Override
-    @Transactional
+    @Retryable(
+            value = { DataIntegrityViolationException.class },
+            maxAttempts = 100,
+            backoff = @Backoff(delay = 1000)
+    )
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void newLinkiScore(String influencerId) {
 
         LinkiScore linkiScore = new LinkiScore();
 
-
         //PK
         linkiScore.setId(IdGenerator.linkiScoreId());
-
 
         // CPC(클릭당 광고단가)
         BigDecimal CPCScore = BigDecimal.valueOf(cpcService.getCPCScore(influencerId));
@@ -114,8 +132,6 @@ public class LinkiScoreServiceImpl implements LinkiScoreService {
         // 인플루언서 ID
         linkiScore.setInfluencerId(influencerId);
 
-
         linkiScoreRepository.save(linkiScore);
-
     }
 }

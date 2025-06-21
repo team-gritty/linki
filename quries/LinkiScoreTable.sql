@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS linki_score;
 
 CREATE TABLE linki_score
 (
-    score_id VARCHAR(25),
+    score_id VARCHAR(25) primary key ,
     cost_per_click DECIMAL(10, 2),
     daily_traffic DECIMAL(10, 2),
     average_review_score DECIMAL(10, 2),
