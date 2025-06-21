@@ -1,5 +1,7 @@
-package com.Gritty.Linki.client.chatClient;
+package com.Gritty.Linki.client.chatClient.controller;
 
+import com.Gritty.Linki.client.chatClient.dto.respone.ChatInfoResponse;
+import com.Gritty.Linki.client.chatClient.dto.respone.PartnerInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 

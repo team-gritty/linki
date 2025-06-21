@@ -1,4 +1,4 @@
-package com.Gritty.Linki.client.chatClient;
+package com.Gritty.Linki.client.chatClient.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartnerInfoResponse {
+public class PartnerInfoDto {
     private String partnerId;
     private String partnerName;
     private String proposalId;
