@@ -126,7 +126,8 @@ const httpClient = {
     get(url, params = {}, config = {}) {
         const finalConfig = {
             ...generateConfig(),
-            ...config
+            ...config,
+            params
         };
         
         // params가 있고 빈 객체가 아닐 때만 추가
