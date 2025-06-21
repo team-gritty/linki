@@ -1,12 +1,18 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAccountStore } from '@/stores/account'
 import { chatApi } from '@/api/chat'
 
 const router = useRouter()
+const accountStore = useAccountStore()
 const showDropdown = ref(false)
 const userChatList = ref([])
 const dropdownRef = ref(null)
+
+const currentUserId = computed(() => {
+  return accountStore.getUser?.userId || accountStore.getUser?.id || null
+})
 
 const sortedChatList = computed(() => {
   return [...userChatList.value].sort((a, b) => {
@@ -25,10 +31,17 @@ const hasNewMessages = computed(() => {
 
 const loadUserChatList = async () => {
   try {
-    const data = await chatApi.getUserChatList()
+    if (!currentUserId.value) {
+      console.warn('User ID not available')
+      return
+    }
+    
+    console.log('Loading chat list for user:', currentUserId.value)
+    const data = await chatApi.getUserChatList(currentUserId.value)
     userChatList.value = data
   } catch (error) {
     console.error('Failed to load user chat list:', error)
+    userChatList.value = []
   }
 }
 
