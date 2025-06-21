@@ -40,9 +40,9 @@ public class Settlement {
 
     // 🔗 연관 관계
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "contract_id", nullable = false)
-    private Contract contract; // 정산 대상 계약
+    private Contract contract;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "influencer_id", nullable = false)

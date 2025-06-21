@@ -68,4 +68,7 @@ public class Contract {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proposal_id", nullable = false)
     private Proposal proposal; // 제안서
+
+    @OneToOne(mappedBy = "contract", fetch = FetchType.LAZY)
+    private Settlement settlement;
 }
