@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class InfluencerContractServiceImpl {
+public class InfluencerContractServiceImpl implements InfluencerContractService {
 }

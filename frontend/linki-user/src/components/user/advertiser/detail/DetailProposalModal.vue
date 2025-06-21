@@ -21,26 +21,33 @@
           <textarea v-model="editContent" rows="6" style="width:100%;margin-bottom:12px;"></textarea>
         </div>
       </div>
-      <!-- 버튼 영역 - 거절 상태가 아닐 때만 표시 -->
+      <!-- 버튼 영역 -->
       <div v-if="proposal.status !== 'REJECTED'" class="proposal-detail-btns">
-        <template v-if="!isEditMode">
+        <!-- PENDING 상태: 승낙/거절 버튼 -->
+        <template v-if="proposal.status === 'PENDING' && !isEditMode">
+          <button class="proposal-detail-btn reject" @click="handleRejectClick">거절</button>
+          <button class="proposal-detail-btn accept" @click="handleAcceptClick">승낙</button>
+        </template>
+        
+        <!-- ACCEPTED 상태: 수정/계약 버튼 -->
+        <template v-else-if="proposal.status === 'ACCEPTED' && !isEditMode">
           <button class="proposal-detail-btn" @click="startEdit">수정</button>
           <button 
             class="proposal-detail-btn accept" 
-            :class="{ disabled: !isContractEnabled }"
-            :disabled="!isContractEnabled"
-            @click="isContractEnabled && $emit('contract', proposal)"
-            :title="!isContractEnabled ? '제안서가 승인된 후 계약이 가능합니다' : ''"
+            @click="$emit('contract', proposal)"
           >
             계약
           </button>
         </template>
-        <template v-else>
+        
+        <!-- 수정 모드: 취소/저장 버튼 -->
+        <template v-else-if="isEditMode">
           <button class="proposal-detail-btn" @click="cancelEdit">취소</button>
           <button class="proposal-detail-btn accept" @click="saveEdit">저장</button>
         </template>
       </div>
     </div>
+    <!-- 거절 확인 모달 -->
     <div v-if="rejectModalOpen" class="modal-backdrop">
       <div class="modal-box">
         <div class="modal-message">제안서를 거절하시겠습니까?</div>
@@ -61,10 +68,14 @@ const props = defineProps({
   proposal: {
     type: Object,
     required: true
+  },
+  campaignId: {
+    type: String,
+    required: true
   }
 })
 
-const emit = defineEmits(['close', 'reject', 'contract'])
+const emit = defineEmits(['close', 'reject', 'contract', 'accept'])
 
 const statusText = computed(() => {
   const statusMap = {
@@ -90,15 +101,36 @@ const isContractEnabled = computed(() => {
 })
 
 const rejectModalOpen = ref(false)
+
+// 거절 관련 함수
 function handleRejectClick() {
   rejectModalOpen.value = true
 }
 function handleRejectCancel() {
   rejectModalOpen.value = false
 }
-function handleRejectConfirm() {
-  emit('reject', props.proposal.id)
-  rejectModalOpen.value = false
+async function handleRejectConfirm() {
+  try {
+    await proposalAPI.rejectProposal(props.proposal.id, props.campaignId)
+    emit('reject', props.proposal.id)
+    rejectModalOpen.value = false
+    alert('제안서가 거절되었습니다.')
+  } catch (error) {
+    console.error('제안서 거절 실패:', error)
+    alert('제안서 거절에 실패했습니다.')
+  }
+}
+
+// 승낙 관련 함수
+async function handleAcceptClick() {
+  try {
+    await proposalAPI.acceptProposal(props.proposal.id, props.campaignId)
+    emit('accept', props.proposal.id)
+    alert('제안서가 승낙되었습니다.')
+  } catch (error) {
+    console.error('제안서 승낙 실패:', error)
+    alert('제안서 승낙에 실패했습니다.')
+  }
 }
 
 // 수정 모드 관련
@@ -269,12 +301,21 @@ async function saveEdit() {
   color: #fff;
 }
 
-.proposal-detail-btn:not(.accept):hover {
+.proposal-detail-btn.reject {
+  background: #dc3545;
+  color: #fff;
+}
+
+.proposal-detail-btn:not(.accept):not(.reject):hover {
   background: #e5e7eb;
 }
 
 .proposal-detail-btn.accept:hover:not(.disabled) {
   background: #5B10B8;
+}
+
+.proposal-detail-btn.reject:hover {
+  background: #c82333;
 }
 
 .proposal-detail-btn.disabled {

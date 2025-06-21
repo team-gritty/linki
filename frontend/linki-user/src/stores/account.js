@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 
 export const useAccountStore = defineStore('account', {
     state: () => ({
-
         accessToken: null,
         user: null,
         userType: null,
@@ -12,7 +11,6 @@ export const useAccountStore = defineStore('account', {
 
     getters: {
         isLoggedIn: (state) => !!state.accessToken && state.loggedIn,
-
         getUser: (state) => state.user,
         getAccessToken: (state) => state.accessToken,
         getUserType: (state) => state.userType,
@@ -20,17 +18,8 @@ export const useAccountStore = defineStore('account', {
     },
 
     actions: {
-        setChecked(val) {
-            this.checked = val
-        },
-
-        setLoggedIn(val) {
-            this.loggedIn = val
-        },
-
         setAccessToken(token) {
             this.accessToken = token
-            this.loggedIn = !!token
         },
 
         setUser(user) {
@@ -41,7 +30,6 @@ export const useAccountStore = defineStore('account', {
             this.userType = userType
         },
 
-
         setLoginInfo(token, user, userType) {
             this.accessToken = token
             this.user = user
@@ -50,14 +38,12 @@ export const useAccountStore = defineStore('account', {
             this.checked = true
         },
 
-
         clearAuth() {
             this.accessToken = null
             this.user = null
             this.userType = null
             this.loggedIn = false
             this.checked = true
-
         },
 
         async login(credentials) {

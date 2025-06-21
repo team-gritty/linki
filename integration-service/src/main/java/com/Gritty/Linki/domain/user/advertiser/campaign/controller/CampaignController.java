@@ -49,21 +49,21 @@ public class CampaignController {
     /**
      * 광고주의 특정 캠페인 조회
      *
-     * @param id
+     * @param campaignId
      * @param req
      * @return
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{campaignId}")
     public ResponseEntity<CampaignResponse> getCampaign(
-            @PathVariable String id,
+            @PathVariable String campaignId,
             HttpServletRequest req) {
 
-        log.info("캠페인 {} 조회를 요청받았습니다", id);
+        log.info("캠페인 {} 조회를 요청받았습니다", campaignId);
 
         // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
         String advertiserId = getAdvertiserIdFromRequest(req);
 
-        CampaignDto campaign = campaignService.getCampaignById(id, advertiserId);
+        CampaignDto campaign = campaignService.getCampaignById(campaignId, advertiserId);
         CampaignResponse response = dtoToResponse(campaign);
 
         return ResponseEntity.ok(response);
@@ -72,24 +72,24 @@ public class CampaignController {
     /**
      * 광고주 새로운 캠페인 등록
      *
-     * @param id
+     * @param campaignId
      * @param req
      * @param request
      * @return
      */
-    @PostMapping("/{id}")
+    @PostMapping("/{campaignId}")
     public ResponseEntity<CampaignResponse> createCampaign(
-            @PathVariable String id,
+            @PathVariable String campaignId,
             HttpServletRequest req,
             @Valid @RequestBody CampaignRequest request) {
 
-        log.info("광고주 {}의 캠페인 등록을 요청받았습니다", id);
+        log.info("광고주 {}의 캠페인 등록을 요청받았습니다", campaignId);
 
         // Request를 DTO로 변환
         CampaignDto campaignDto = requestToDto(request);
 
         // 서비스 호출
-        CampaignDto createdCampaign = campaignService.createCampaign(campaignDto, id);
+        CampaignDto createdCampaign = campaignService.createCampaign(campaignDto, campaignId);
 
         // DTO를 Response로 변환
         CampaignResponse response = dtoToResponse(createdCampaign);
@@ -100,25 +100,25 @@ public class CampaignController {
     /**
      * 광고주 캠페인 내용 수정
      *
-     * @param id
+     * @param campaignId
      * @param req
      * @param request
      * @return
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{campaignId}")
     public ResponseEntity<CampaignResponse> updateCampaign(
-            @PathVariable String id,
+            @PathVariable String campaignId,
             HttpServletRequest req,
             @Valid @RequestBody CampaignRequest request) {
 
-        log.info("캠페인 {} 수정을 요청받았습니다", id);
+        log.info("캠페인 {} 수정을 요청받았습니다", campaignId);
 
         // Request를 DTO로 변환
         CampaignDto campaignDto = requestToDto(request);
 
         // 서비스 호출 (advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정)
         String advertiserId = getAdvertiserIdFromRequest(req);
-        CampaignDto updatedCampaign = campaignService.updateCampaign(id, campaignDto, advertiserId);
+        CampaignDto updatedCampaign = campaignService.updateCampaign(campaignId, campaignDto, advertiserId);
 
         // DTO를 Response로 변환
         CampaignResponse response = dtoToResponse(updatedCampaign);
@@ -129,21 +129,21 @@ public class CampaignController {
     /**
      * 광고주의 캠페인 삭제
      *
-     * @param id
+     * @param campaignId
      * @param req
      * @return
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{campaignId}")
     public ResponseEntity<Void> deleteCampaign(
-            @PathVariable String id,
+            @PathVariable String campaignId,
             HttpServletRequest req) {
 
-        log.info("캠페인 {} 삭제를 요청받았습니다", id);
+        log.info("캠페인 {} 삭제를 요청받았습니다", campaignId);
 
         // advertiserId는 인증에서 가져와야 하지만 여기서는 임시로 설정
         String advertiserId = getAdvertiserIdFromRequest(req);
 
-        campaignService.deleteCampaign(id, advertiserId);
+        campaignService.deleteCampaign(campaignId, advertiserId);
 
         return ResponseEntity.noContent().build();
     }
@@ -176,8 +176,6 @@ public class CampaignController {
 
         return ResponseEntity.ok(responses);
     }
-
-
 
     // Request를 DTO로 변환하는 헬퍼 메소드
     private CampaignDto requestToDto(CampaignRequest request) {
@@ -217,6 +215,7 @@ public class CampaignController {
     private String getAdvertiserIdFromRequest(HttpServletRequest request) {
         // TODO: 실제 인증/인가 로직에 따라 구현 필요
         // 예: JWT 토큰에서 사용자 정보 추출, 정섭님이 준 메서드 참고하여 advertiserId 꺼내오는 유틸 메서드/클래스 작성하기
+       log.info("토큰에 광고주 들어있는가 확인"+request.getHeader("Authorization"));
         return request.getHeader("X-Advertiser-Id"); // 임시 구현
     }
 }

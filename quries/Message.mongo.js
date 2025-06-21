@@ -31,12 +31,12 @@ for (let seq = 0; seq < 5000; seq++) {
 
     messages.push({
         _id: "MSG-" + seq.toString().padStart(16, '0'),
-        chat_id: "CHA-" + Math.floor(seq / 5).toString().padStart(16, '0'),
-        message_sender_id: "USER-" + Math.floor(Math.random() * 1500).toString().padStart(15, '0'),
-        message_content: "메시지 내용" + seq,
-        message_type: ["TEXT", "IMAGE", "FILE"][Math.floor(Math.random() * 3)],
-        message_date: randomDate,
-        message_read: Math.random() < 0.5
+        chatId: "CHT-" + Math.floor(seq / 5).toString().padStart(16, '0'),
+        messageSenderId: "USER-" + Math.floor(Math.random() * 1500).toString().padStart(15, '0'),
+        messageContent: "메시지 내용" + seq,
+        messageType: ["TEXT", "IMAGE", "FILE"][Math.floor(Math.random() * 3)],
+        messageDate: randomDate,
+        messageRead: Math.random() < 0.5
     });
 }
 

@@ -1,6 +1,7 @@
 package com.Gritty.Linki.config.security;
 
 import com.Gritty.Linki.entity.User;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,28 +38,34 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(jwtUtil.isTokenExpired(token)){
             log.info("토큰 만료");
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\":\"토큰이 만료되었습니다.\"}");
             return;
         }
 
+        try {
+            String userId = jwtUtil.getUserId(token);
+            String role = jwtUtil.getRole(token);
+            log.debug("role in token = {}", role);
 
-        String userId = jwtUtil.getUserId(token);
-        String role = jwtUtil.getRole(token);
-        log.debug("role in token = {}", role);
-
-
-
-
-        //커스텀 디테일즈
-        //레포 호출하면 성능 이슈
-        CustomUserDetails customUserDetails = new CustomUserDetails(userId,"-","-",role);
-        //시큐리티 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        //쓰레드로컬 시큐리티컨텍스트홀더에 등록
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-        //이제 넘겨~
-        filterChain.doFilter(request, response);
-
-
+            //커스텀 디테일즈
+            //레포 호출하면 성능 이슈
+            CustomUserDetails customUserDetails = new CustomUserDetails(userId,"-","-",role);
+            //시큐리티 인증 토큰 생성
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+            //쓰레드로컬 시큐리티컨텍스트홀더에 등록
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            //이제 넘겨~
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            log.info("토큰 만료 (ExpiredJwtException)");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\":\"토큰이 만료되었습니다.\"}");
+            return;
+        }
     }
 }

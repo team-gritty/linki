@@ -302,7 +302,9 @@ CREATE TABLE `contract` (
 	`ad_delivery_status`	TINYINT	NULL,
 	`proposal_id`	VARCHAR(25)	NOT NULL	COMMENT '제안서 식별 ID',
 	`event_type`	VARCHAR(20)	NULL,
-	`document_name`	VARCHAR(50)	NULL
+	`document_name`	VARCHAR(50)	NULL,
+    `ad_delivery_url`	VARCHAR(100) NULL COMMENT '광고 이행 url'
+
 );
 
 DROP TABLE IF EXISTS influencer_auth;
@@ -458,3 +460,4 @@ ALTER TABLE `admin` ADD CONSTRAINT `PK_ADMIN` PRIMARY KEY (
 
 ALTER TABLE admin MODIFY COLUMN admin_status ENUM('PENDING','AGREEMENT','REJECTED') NOT NULL DEFAULT 'PENDING';
 
+ALTER TABLE redirect_links DROP COLUMN short_url;

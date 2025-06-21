@@ -4,12 +4,7 @@ export const proposalAPI = {
   // 내 제안서 목록 조회
   getMyProposals: async (params = {}) => {
     try {
-      const response = await httpClient.get('/v1/api/influencer/proposals', {
-        params: {
-          _page: params._page || 1,
-          _limit: params._limit || 10
-        }
-      });
+      const response = await httpClient.get('/v1/api/mypageinfluencer/proposals');
       
       // 응답 데이터가 배열인지 확인
       const proposals = Array.isArray(response.data) ? response.data : [];
@@ -27,7 +22,10 @@ export const proposalAPI = {
   // 제안서 상세 조회
   getProposalDetail: async (proposalId) => {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/proposals/${proposalId}`);
+      console.log('getProposalDetail called with proposalId:', proposalId);
+      const url = `/v1/api/influencer/mypage/proposals/${proposalId}`;
+      console.log('API URL:', url);
+      const response = await httpClient.get(url);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch proposal detail:', error);
