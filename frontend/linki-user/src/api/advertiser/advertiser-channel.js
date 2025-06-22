@@ -3,10 +3,10 @@ import httpClient from '@/utils/httpRequest'
 /**
  * 전체 채널 목록 조회
  * @param {number} page 페이지 번호 (0부터 시작)
- * @param {number} limit 페이지 크기 (기본값: 100)
+ * @param {number} limit 페이지 크기 (기본값: 10)
  */
 const channelApi = {
-  getAllChannels: async (page = 0, limit = 100) => {
+  getAllChannels: async (page = 0, limit = 10) => {
     try {
       const params = {
         page: page,
