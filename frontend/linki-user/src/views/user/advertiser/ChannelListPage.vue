@@ -148,6 +148,13 @@ const pagedListData = computed(() => {
 const reviewStatsMap = ref({}) // { [channelId]: { avg, count } }
 
 async function fetchAllReviewStats(channels) {
+  // 방어 코드 추가: channels가 undefined이거나 배열이 아닌 경우 처리
+  if (!channels || !Array.isArray(channels) || channels.length === 0) {
+    console.log('리뷰 통계 조회 건너뜀: 유효하지 않은 채널 데이터', channels)
+    reviewStatsMap.value = {}
+    return
+  }
+  
   console.log('리뷰 통계 조회 시작:', channels.length, '개 채널')
   try {
     const statsArr = await Promise.allSettled(
@@ -243,7 +250,13 @@ async function fetchChannels(pageNumber = 1) {
     
     // 리뷰 통계는 선택적으로 로드 (실패해도 메인 기능에 영향 없음)
     try {
-      await fetchAllReviewStats(listData.value.channels)
+      // result.channels가 존재하고 배열인지 확인 후 호출
+      if (result && result.channels && Array.isArray(result.channels)) {
+        await fetchAllReviewStats(result.channels)
+      } else {
+        console.warn('채널 데이터가 유효하지 않음:', result)
+        reviewStatsMap.value = {}
+      }
     } catch (reviewError) {
       console.warn('리뷰 통계 조회 실패했지만 채널 목록은 정상 표시:', reviewError)
     }
@@ -263,7 +276,13 @@ async function fetchChannelsByCategories(categories, pageNumber = 1) {
     
     // 리뷰 통계는 선택적으로 로드 (실패해도 메인 기능에 영향 없음)
     try {
-      await fetchAllReviewStats(listData.value.channels)
+      // result.channels가 존재하고 배열인지 확인 후 호출
+      if (result && result.channels && Array.isArray(result.channels)) {
+        await fetchAllReviewStats(result.channels)
+      } else {
+        console.warn('채널 데이터가 유효하지 않음:', result)
+        reviewStatsMap.value = {}
+      }
     } catch (reviewError) {
       console.warn('리뷰 통계 조회 실패했지만 채널 목록은 정상 표시:', reviewError)
     }

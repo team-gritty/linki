@@ -13,8 +13,8 @@ const channelApi = {
         limit: limit
       }
       const response = await httpClient.get('/v1/api/nonuser/channels', params)
-      // 페이징된 응답에서 실제 채널 배열을 반환
-      return response.data.channels || []
+      // 페이징 정보를 포함한 전체 응답을 반환
+      return response.data
     } catch (error) {
       console.error('Error fetching all channels:', error)
       throw error
