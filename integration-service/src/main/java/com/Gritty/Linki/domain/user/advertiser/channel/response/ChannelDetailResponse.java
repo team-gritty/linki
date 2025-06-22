@@ -78,4 +78,14 @@ public class ChannelDetailResponse {
      * 채널 썸네일 URL
      */
     private String thumbnailUrl;
+
+    /**
+     * YouTube 채널 URL
+     */
+    private String youtubeUrl;
+
+    /**
+     * 채널 배너 URL
+     */
+    private String bannerUrl;
 }

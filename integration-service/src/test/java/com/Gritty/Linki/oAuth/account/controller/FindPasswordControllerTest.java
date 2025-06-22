@@ -1,5 +1,6 @@
 package com.Gritty.Linki.oAuth.account.controller;
 
+import com.Gritty.Linki.domain.oAuth.account.controller.FindPasswordController;
 import com.Gritty.Linki.domain.oAuth.account.service.FindPasswordService;
 import com.Gritty.Linki.domain.oAuth.dto.FindPasswordRequestDto;
 import com.Gritty.Linki.domain.oAuth.dto.FindPasswordVerificationRequestDto;
@@ -25,7 +26,7 @@ class FindPasswordControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+//    @MockBean
     private FindPasswordService findPasswordService;
 
     @Autowired
