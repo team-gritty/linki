@@ -7,7 +7,7 @@
 
     import java.util.List;
 
-    @FeignClient(name="chatInfo-api",url="http://localhost:8080")
+    @FeignClient(name="chatInfo-api",url="http://localhost:8000")
     public interface ChatApiClient {
 
         @GetMapping("/v1/integration-service/api/partners/{id}")

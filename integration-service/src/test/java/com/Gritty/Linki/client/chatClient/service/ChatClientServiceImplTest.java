@@ -83,7 +83,7 @@ class ChatClientServiceImplTest {
     @DisplayName("로그인 한 광고주의 chatInfo 조회 ")
     void getUserToChatInfoAd(){
         CustomUserDetails loginUser = CustomUserDetails.builder()
-                .userId("USR-0000000000000500")
+                .userId("USR-0000000000000001")
                 .userLoginId("로그인한 광고주 유저")
                 .password("password")
                 .role("ROLE_ADVERTISER")
