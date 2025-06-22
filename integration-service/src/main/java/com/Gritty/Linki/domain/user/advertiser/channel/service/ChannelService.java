@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
 import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
 import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelPageResponse;
 import com.Gritty.Linki.entity.Channel;
 import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
 import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelDetailResponse;
@@ -33,9 +34,9 @@ public class ChannelService {
          * 검색 조건에 따라 채널을 필터링하여 반환
          * 
          * @param request 검색 조건
-         * @return 필터링된 채널 목록
+         * @return 필터링된 채널 목록과 페이지네이션 정보
          */
-        public List<ChannelListResponse> searchChannels(ChannelSearchRequest request) {
+        public ChannelPageResponse searchChannels(ChannelSearchRequest request) {
                 log.info("채널 검색 서비스 호출: keyword={}, category={}, page={}, limit={}",
                                 request.getKeyword(), request.getCategory(), request.getPage(), request.getLimit());
 
@@ -51,9 +52,33 @@ public class ChannelService {
                                 PageRequest.of(request.getPage(), request.getLimit()));
 
                 // 엔티티를 DTO로 변환
-                return channelPage.getContent().stream()
+                List<ChannelListResponse> channels = channelPage.getContent().stream()
                                 .map(this::convertToDto)
                                 .collect(Collectors.toList());
+
+                // 페이지네이션 정보 생성
+                ChannelPageResponse.PageInfo pageInfo = ChannelPageResponse.PageInfo.builder()
+                                .currentPage(channelPage.getNumber())
+                                .pageSize(channelPage.getSize())
+                                .totalElements(channelPage.getTotalElements())
+                                .totalPages(channelPage.getTotalPages())
+                                .first(channelPage.isFirst())
+                                .last(channelPage.isLast())
+                                .hasNext(channelPage.hasNext())
+                                .hasPrevious(channelPage.hasPrevious())
+                                .build();
+
+                log.info("채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
+                                channelPage.getTotalElements(),
+                                channelPage.getNumber() + 1,
+                                channelPage.getNumber() * channelPage.getSize() + 1,
+                                Math.min((channelPage.getNumber() + 1) * channelPage.getSize(),
+                                                channelPage.getTotalElements()));
+
+                return ChannelPageResponse.builder()
+                                .channels(channels)
+                                .pageInfo(pageInfo)
+                                .build();
         }
 
         /**
