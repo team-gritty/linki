@@ -152,7 +152,7 @@ function getSubscriberRange() {
     }
   }
   
-  // 체크박스 선택 확인
+  // 체크박스 선택 확인 - "전체"가 아닌 특정 범위가 선택된 경우만
   for (let i = 1; i < subscriberChecks.value.length; i++) {
     if (subscriberChecks.value[i]) {
       switch (i) {
@@ -168,8 +168,8 @@ function getSubscriberRange() {
     }
   }
   
-  // 전체 또는 아무것도 선택하지 않은 경우
-  return { min: 0, max: 999999999 } // 10억으로 제한
+  // "전체"가 선택되었거나 아무것도 선택하지 않은 경우 - 필터 적용 안함
+  return null
 }
 
 // 평균 조회수 범위 계산
@@ -180,7 +180,7 @@ function getViewCountRange() {
     return { min: value, max: 999999999 } // 10억으로 제한
   }
   
-  // 체크박스 선택 확인
+  // 체크박스 선택 확인 - "전체"가 아닌 특정 범위가 선택된 경우만
   for (let i = 1; i < viewChecks.value.length; i++) {
     if (viewChecks.value[i]) {
       switch (i) {
@@ -193,8 +193,8 @@ function getViewCountRange() {
     }
   }
   
-  // 전체 또는 아무것도 선택하지 않은 경우
-  return { min: 0, max: 999999999 } // 10억으로 제한
+  // "전체"가 선택되었거나 아무것도 선택하지 않은 경우 - 필터 적용 안함
+  return null
 }
 
 // 검색 버튼 클릭 처리
@@ -214,11 +214,19 @@ function handleSearch() {
   console.log('계산된 viewCountRange:', viewCountRange)
   
   const filters = {
-    category: selectedCategory.value ? categoryMapping[selectedCategory.value] : null,
-    minSubscribers: subscriberRange.min,
-    maxSubscribers: subscriberRange.max,
-    minAvgViewCount: viewCountRange.min,
-    maxAvgViewCount: viewCountRange.max
+    category: selectedCategory.value ? categoryMapping[selectedCategory.value] : null
+  }
+  
+  // 구독자 수 필터가 있을 때만 추가
+  if (subscriberRange) {
+    filters.minSubscribers = subscriberRange.min
+    filters.maxSubscribers = subscriberRange.max
+  }
+  
+  // 평균 조회수 필터가 있을 때만 추가
+  if (viewCountRange) {
+    filters.minAvgViewCount = viewCountRange.min
+    filters.maxAvgViewCount = viewCountRange.max
   }
   
   console.log('최종 전달할 filters:', JSON.stringify(filters, null, 2))
