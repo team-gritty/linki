@@ -1,20 +1,25 @@
 package com.Gritty.Linki.domain.user.influencer.contract.service;
 
 
+import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.UcanSign.UcanSignClient;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.dto.ContractDTO;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.entity.Contract;
 import com.Gritty.Linki.entity.Proposal;
+import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     private final ContractRepository contractRepository;
     private final ProposalRepository proposalRepository;
     String templateId = "1927294313194180609";
+    private final AuthenticationUtil authenticationUtil;
 
 
     public String createContract(ContractCreateRequestDTO dto){
@@ -68,5 +74,16 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     @Override
     public String CreateContract(ContractCreateRequestDTO dto) {
         return "";
+    }
+
+    @Override
+    public List<ContractListResponseDTO> getContractsByStatus(List<ContractStatus> statuses) {
+        // 현재 로그인한 광고주의 ID 조회
+        CustomUserDetails userDetails = (CustomUserDetails)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(userDetails);
+
+        // 해당 광고주의 계약 목록 조회
+        return contractRepository.findContractsByAdvertiserIdAndStatus(advertiserId, statuses);
     }
 }
