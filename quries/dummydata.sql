@@ -1,6 +1,6 @@
 -- 기본 사용자 데이터 생성
 INSERT INTO `user` (`user_id`, `user_login_id`, `user_login_pw`, `user_name`, `user_phone`, `user_email`, `user_pay_status`, `user_status`, `user_enter_day`, `user_role`)
-SELECT 
+SELECT
     CONCAT('USR-', LPAD(seq, 16, '0')),
     CONCAT('user', seq),
     '$2a$10$Z5NqLagdRBQ88seEZUEtN.IB9s4z7.3ra4dDDWui9eLrM.qtKGPn2',
@@ -10,7 +10,7 @@ SELECT
     FLOOR(RAND() * 2),
     1,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    CASE 
+    CASE
         WHEN seq < 500 THEN 'ROLE_INFLUENCER'
         WHEN seq < 1000 THEN 'ROLE_ADVERTISER'
         ELSE 'ROLE_USER'
@@ -26,7 +26,7 @@ WHERE seq < 1500;
 
 -- 인플루언서 데이터 생성 (user_id가 일치하도록)
 INSERT INTO `influencer` (`influencer_id`, `user_id`)
-SELECT 
+SELECT
     CONCAT('INF-', LPAD(seq, 16, '0')),
     CONCAT('USR-', LPAD(seq, 16, '0'))
 FROM (
@@ -39,7 +39,7 @@ WHERE seq < 500;  -- 인플루언서는 0-499까지
 
 -- 광고주 데이터 생성 (user_id가 일치하도록)
 INSERT INTO `advertiser` (`advertiser_id`, `business_number`, `company_name`, `user_id`)
-SELECT 
+SELECT
     CONCAT('ADV-', LPAD(seq, 16, '0')),
     CONCAT('123-45-', LPAD(seq, 4, '0')),
     CONCAT('회사', seq),
@@ -209,6 +209,35 @@ FROM (
     ) numbers
 WHERE seq < 1000;
 
+INSERT INTO subscriber_history (
+    id,
+    channel_id,
+    subscriber_count,
+    collected_at
+)
+SELECT
+    CONCAT('SUBH-', LPAD(ch.seq * 7 + d.day, 16, '0')) AS id,
+    ch.channel_id,
+    GREATEST(1000000, FLOOR(ch.subscriber_count * (1 + (RAND() - 0.5) * 0.1))) AS subscriber_count, -- ±5% 오차
+    DATE_SUB(CURRENT_DATE(), INTERVAL d.day DAY) AS collected_at
+FROM (
+         SELECT
+             channel_id,
+             subscriber_count,
+             ROW_NUMBER() OVER () AS seq
+         FROM channel
+                  LIMIT 1000
+     ) ch
+         JOIN (
+    SELECT 0 AS day UNION ALL
+    SELECT 1 UNION ALL
+    SELECT 2 UNION ALL
+    SELECT 3 UNION ALL
+    SELECT 4 UNION ALL
+    SELECT 5 UNION ALL
+    SELECT 6
+) d;
+
 -- 채널 통계 데이터 생성
 INSERT INTO `channel_stats` (`stats_id`, `subscriber_count`, `num_of_videos`, `views_per_video`, `data_fetched_at`, `likes_per_video`, `comments_per_video`, `channel_id`)
 SELECT
@@ -246,7 +275,7 @@ WHERE seq < 1000;
 
 -- 캠페인 데이터 생성
 INSERT INTO `campaign` (`campaign_id`, `campaign_name`, `campaign_desc`, `campaign_condition`, `campaign_img`, `created_at`, `campaign_deadline`, `campaign_publish_status`, `campaign_category`, `advertiser_id`)
-SELECT 
+SELECT
     CONCAT('CMP-', LPAD(seq, 16, '0')),
     CONCAT('캠페인', seq),
     CONCAT('캠페인 설명', seq),
@@ -282,7 +311,7 @@ WHERE seq < 1000;
 
 -- 제안서 데이터 생성
 INSERT INTO `proposal` (`proposal_id`, `contents`, `status`, `submitted_at`, `responded_at`, `influencer_id`, `campaign_id`)
-SELECT 
+SELECT
     CONCAT('PRP-', LPAD(seq, 16, '0')),
     CONCAT('제안 내용', seq),
     CASE FLOOR(RAND() * 3)
@@ -353,9 +382,10 @@ FROM (
      ) numbers
 WHERE seq < 1000;
 
+ALTER TABLE redirect_links ADD COLUMN short_url VARCHAR(255);
 -- 리다이렉트 링크 데이터 생성
 INSERT INTO `redirect_links` (`redirect_id`, `origin_url`, `short_url`, `redirect_url`, `advertiser_id`, `contract_id`)
-SELECT 
+SELECT
     CONCAT('RED-', LPAD(seq, 16, '0')),
     CONCAT('https://original.com/', seq),
     CONCAT('https://short.link/', seq),
@@ -372,7 +402,7 @@ WHERE seq < 1000;
 
 -- 리다이렉트 클릭 데이터 생성
 INSERT INTO `redirect_click` (`click_id`, `click_time`, `redirect_id`)
-SELECT 
+SELECT
     CONCAT('CLICK-', LPAD(seq, 16, '0')),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
     CONCAT('RED-', LPAD(FLOOR(seq/5), 16, '0'))  -- 각 리다이렉트 링크당 5개의 클릭
@@ -386,7 +416,7 @@ WHERE seq < 5000;  -- 1000개의 리다이렉트 링크 * 5개의 클릭
 
 -- 채팅방 데이터 생성
 INSERT INTO `chat` (`chat_id`, `chat_date`, `chat_status`, `proposal_id`)
-SELECT 
+SELECT
     CONCAT('CHT-', LPAD(seq, 16, '0')),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
     CASE FLOOR(RAND() * 4)
@@ -406,7 +436,7 @@ WHERE seq < 1000;
 
 -- 채팅 알람 데이터 생성
 INSERT INTO `chat_alarm` (`chat_alarm_id`, `chat_alarm_is_read`, `chat_alarm_read_at`, `chat_id`)
-SELECT 
+SELECT
     CONCAT('CAL-', LPAD(seq, 16, '0')),
     CASE FLOOR(RAND() * 2)
         WHEN 0 THEN FALSE
@@ -427,7 +457,7 @@ WHERE seq < 1000;
 
 -- 서명 데이터 생성
 INSERT INTO `signature` (`signature_id`, `signature_signer_name`, `signature_signed_at`, `signature_status`, `contract_id`)
-SELECT 
+SELECT
     CONCAT('SIG-', LPAD(seq, 16, '0')),
     CONCAT('서명자', seq),
     CASE FLOOR(RAND() * 2)
@@ -449,7 +479,7 @@ WHERE seq < 1000;
 
 -- 정산 데이터 생성
 INSERT INTO `settlement` (`settlement_id`, `settlement_amount`, `settlement_status`, `settlement_date`, `created_at`, `updated_at`, `contract_id`, `influencer_id`)
-SELECT 
+SELECT
     CONCAT('SET-', LPAD(seq, 16, '0')),
     FLOOR(RAND() * 1000000) + 100000,
     CASE FLOOR(RAND() * 2)
@@ -475,7 +505,7 @@ WHERE seq < 1000;
 
 -- 인플루언서 리뷰 데이터 생성
 INSERT INTO `influencer_review` (`influencer_review_id`, `influencer_review_score`, `influencer_review_comment`, `influencer_review_created_at`, `visibility`, `contract_id`)
-SELECT 
+SELECT
     CONCAT('IRV-', LPAD(seq, 16, '0')),
     ROUND(RAND() * 5, 1),
     CONCAT('리뷰 내용', seq),
@@ -495,7 +525,7 @@ WHERE seq < 1000;
 
 -- 광고주 리뷰 데이터 생성
 INSERT INTO `advertiser_review` (`advertiser_review_id`, `advertiser_review_score`, `advertiser_review_comment`, `advertiser_review_created_at`, `visibility`, `contract_id`)
-SELECT 
+SELECT
     CONCAT('ARV-', LPAD(seq, 16, '0')),
     ROUND(RAND() * 5, 1),
     CONCAT('광고주 리뷰 내용', seq),
@@ -515,7 +545,7 @@ WHERE seq < 1000;
 
 -- 환불 데이터 생성
 INSERT INTO `refund` (`refund_id`, `request_at`, `complete_at`, `canceled_id`, `refund_amount`, `payment_id`, `admin_id`)
-SELECT 
+SELECT
     CONCAT('REF-', LPAD(seq, 16, '0')),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY),
@@ -533,7 +563,7 @@ WHERE seq < 1000;
 
 -- 관리자 데이터 생성
 INSERT INTO `admin` (`admin_id`, `admin_login_id`, `admin_login_pw`, `admin_name`, `admin_phone`, `admin_email`, `admin_address`, `admin_enter_day`, `admin_status`)
-SELECT 
+SELECT
     CONCAT('ADM-', LPAD(seq, 16, '0')),
     CONCAT('admin', seq),
     '$2a$10$abcdefghijklmnopqrstuvwxyz', -- 암호화된 비밀번호
@@ -557,18 +587,18 @@ WHERE seq < 1000;
 
 -- 구독 데이터 생성
 INSERT INTO `subscribe` (`subscribe_id`, `subscribe_code`, `subscribe_amount`, `subscribe_changed_at`, `subscribe_name`)
-SELECT 
+SELECT
     CONCAT('SUB-', LPAD(seq, 16, '0')),
-    CASE 
+    CASE
         WHEN seq < 500 THEN 'InfSub'  -- 0-499: 인플루언서 구독
         ELSE 'adSub'                  -- 500-999: 광고주 구독
     END,
-    CASE 
+    CASE
         WHEN seq < 500 THEN 99000     -- 인플루언서 구독료
         ELSE 199000                   -- 광고주 구독료
     END,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    CASE 
+    CASE
         WHEN seq < 500 THEN '인플루언서 기본 구독'
         ELSE '광고주 프리미엄 구독'
     END
@@ -582,7 +612,7 @@ WHERE seq < 1000;
 
 -- 결제 ID 데이터 생성 (user_id와 1:1 매칭)
 INSERT INTO `billing_id` (`billing_id`, `user_payment_key_billing_key`, `user_patment_key_customer_key`, `user_id`)
-SELECT 
+SELECT
     CONCAT('BIL-', LPAD(seq, 16, '0')),
     CONCAT('billing_key_', seq),
     CONCAT('customer_key_', seq),
@@ -597,7 +627,7 @@ WHERE seq < 1500;  -- 모든 사용자에 대해 결제 ID 생성
 
 -- 결제 데이터 생성 (billing_id와 subscribe_id 매칭)
 INSERT INTO `payments` (`payment_id`, `payed_at`, `payment_method`, `payment_approve_status`, `billing_id`, `subs_detail_id`)
-SELECT 
+SELECT
     CONCAT('PAY-', LPAD(seq, 16, '0')),
     CASE
         WHEN seq % 5 = 0 THEN DATE_ADD('2025-06-01', INTERVAL FLOOR(RAND() * 19) DAY)  -- 이번달(6월)에 1/5 결제
@@ -613,7 +643,7 @@ SELECT
         ELSE TRUE
     END,
     CONCAT('BIL-', LPAD(seq, 16, '0')),  -- billing_id와 1:1 매칭
-    CASE 
+    CASE
         WHEN seq < 500 THEN CONCAT('SUB-', LPAD(FLOOR(RAND() * 500), 16, '0'))  -- 인플루언서 구독
         WHEN seq < 1000 THEN CONCAT('SUB-', LPAD(FLOOR(RAND() * 500) + 500, 16, '0'))  -- 광고주 구독
         ELSE CONCAT('SUB-', LPAD(FLOOR(RAND() * 1000), 16, '0'))  -- 일반유저는 랜덤 구독
@@ -628,9 +658,9 @@ WHERE seq < 1500;  -- 모든 사용자에 대해 결제 데이터 생성
 
 -- 약관 데이터 생성
 INSERT INTO `user_terms` (`terms_id`, `terms_type`, `terms_content`, `terms_version`, `created_at`)
-SELECT 
+SELECT
     CONCAT('TERMS-', LPAD(seq, 16, '0')),
-    CASE 
+    CASE
         WHEN seq % 2 = 0 THEN '이용약관'
         ELSE '개인정보처리방침'
     END,
@@ -646,12 +676,12 @@ WHERE seq < 20;  -- 10개의 약관 버전 (이용약관 5개, 개인정보처�
 
 -- 약관 동의 데이터 생성
 INSERT INTO `user_terms_agreement` (`agreement_id`, `terms_version`, `agreed_at`, `user_id`, `terms_id`)
-SELECT 
+SELECT
     CONCAT('AGREE-', LPAD(seq, 16, '0')),
     CONCAT('v', FLOOR(seq/2) + 1, '.', seq % 2 + 1),  -- 약관 버전
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),  -- 동의 시간
     CONCAT('USR-', LPAD(FLOOR(seq/2), 16, '0')),  -- 각 사용자당 2개의 약관 동의
-    CASE 
+    CASE
         WHEN seq % 2 = 0 THEN 'TERMS-0000000000000000'  -- 이용약관
         ELSE 'TERMS-0000000000000001'  -- 개인정보처리방침
     END
