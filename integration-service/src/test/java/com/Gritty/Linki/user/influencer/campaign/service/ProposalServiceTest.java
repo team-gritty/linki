@@ -8,8 +8,8 @@ import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.Influence
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.service.InfluencerProposalService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalResponseDTO;
 import com.Gritty.Linki.entity.*;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import jakarta.persistence.EntityManager;
@@ -19,11 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;

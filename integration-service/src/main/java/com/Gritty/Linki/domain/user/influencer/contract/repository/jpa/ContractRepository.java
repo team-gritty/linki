@@ -1,8 +1,7 @@
 package com.Gritty.Linki.domain.user.influencer.contract.repository.jpa;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO;
 import com.Gritty.Linki.entity.Contract;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ContractRepository extends JpaRepository<Contract,String> {
     @Query("""
-SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO(
+SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO(
     c.contractId,
     c.contractTitle,
     c.contractStatus,

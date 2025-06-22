@@ -1,19 +1,17 @@
 package com.Gritty.Linki.domain.user.influencer.campaign.controller;
 
 import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampaignService;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignCategoryResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignListResponseDTO;
 import com.Gritty.Linki.entity.User;
 import com.Gritty.Linki.vo.enums.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
