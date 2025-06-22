@@ -87,7 +87,7 @@
           <span class="graph-title">채널 구독자 수 변화량</span>
           <div class="graph-tabs">
             <button
-              v-for="p in ['30일', '15일']"
+              v-for="p in ['7일', '30일', '15일']"
               :key="p"
               :class="['graph-tab', { active: period === p }]"
               @click="selectPeriod(p)"
@@ -95,10 +95,10 @@
           </div>
         </div>
         <div class="graph-rate-row">
-          <span class="graph-rate">{{ chartData[period].rate }}</span>
+          <span class="graph-rate">{{ subscriberGrowthRate }}</span>
           <span class="graph-rate-label">상승률</span>
         </div>
-        <SubscriberHistoryChart v-if="id" :channelId="id" />
+        <SubscriberHistoryChart v-if="id" :channelId="id" :period="period" />
         <div v-else>구독자 차트 로딩 중...</div>
       </div>
       
@@ -146,6 +146,7 @@ const channel = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const channels = ref([])
+const subscriberHistory = ref([])
 
 // channelId는 String 타입이므로 숫자 변환하지 않음
 const id = computed(() => {
@@ -160,6 +161,27 @@ console.log('초기 id 값:', id.value)
 const reviewCount = ref(0)
 const reviewAvg = ref(0)
 
+// 구독자 상승률 계산
+const subscriberGrowthRate = computed(() => {
+  if (!subscriberHistory.value || subscriberHistory.value.length < 2) {
+    return '0%'
+  }
+  
+  const history = subscriberHistory.value
+  const latest = history[history.length - 1]
+  const earliest = history[0]
+  
+  if (!latest || !earliest || earliest.subscriberCount === 0) {
+    return '0%'
+  }
+  
+  // 구독자 수 증가율 계산
+  const growthRate = ((latest.subscriberCount - earliest.subscriberCount) / earliest.subscriberCount) * 100
+  const sign = growthRate >= 0 ? '+' : ''
+  
+  return `${sign}${growthRate.toFixed(1)}%`
+})
+
 async function fetchReviewStatsOnEnter() {
   const { avg, count } = await reviewApi.getReviewStats(id.value)
   reviewCount.value = count
@@ -171,6 +193,31 @@ function onReviewStats({ count, avg }) {
   reviewAvg.value = avg
 }
 
+// 구독자 히스토리 데이터 가져오기
+async function fetchSubscriberHistory() {
+  try {
+    if (!id.value) return
+    
+    console.log('구독자 히스토리 조회 시작:', id.value)
+    const data = await channelApi.getSubscriberHistory(id.value)
+    console.log('구독자 히스토리 응답:', data)
+    
+    if (Array.isArray(data)) {
+      // 날짜순으로 정렬
+      const sortedHistory = data
+        .filter(item => String(item.channelId) === String(id.value))
+        .sort((a, b) => new Date(a.collectedAt) - new Date(b.collectedAt))
+      
+      subscriberHistory.value = sortedHistory
+      console.log('정렬된 구독자 히스토리:', subscriberHistory.value)
+    } else {
+      subscriberHistory.value = []
+    }
+  } catch (error) {
+    console.error('구독자 히스토리 조회 중 오류:', error)
+    subscriberHistory.value = []
+  }
+}
 
 onMounted(async () => {
   loading.value = true
@@ -202,6 +249,9 @@ onMounted(async () => {
     
     // 3. 리뷰 통계도 진입시 바로 fetch
     await fetchReviewStatsOnEnter()
+    
+    // 4. 구독자 히스토리 데이터 가져오기
+    await fetchSubscriberHistory()
   } catch (err) {
     console.error('Error in onMounted:', err)
     error.value = err.message
@@ -210,7 +260,7 @@ onMounted(async () => {
   }
 })
 
-const period = ref('30일')
+const period = ref('7일')
 const chartOptions = ref({
   chart: { type: 'line', height: 320, toolbar: { show: false } },
   xaxis: { categories: [] },
@@ -221,6 +271,11 @@ const chartOptions = ref({
 })
 
 const chartData = ref({
+  '7일': {
+    categories: ['오늘-6', '오늘-5', '오늘-4', '오늘-3', '오늘-2', '어제', '오늘'],
+    data: [9800000, 9850000, 9900000, 9950000, 10000000, 10050000, 10100000],
+    rate: '3.1%'
+  },
   '30일': {
     categories: ['03-01', '03-05', '03-10', '03-15', '03-20', '03-25', '03-30'],
     data: [9000000, 9200000, 9500000, 9700000, 10000000, 10500000, 11000000],
