@@ -12,6 +12,31 @@ spring:
     secret: ${secret-HS256}
 
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: "266306506367-ghcg8571pj8vjlmctrr9bh8283f0kb85.apps.googleusercontent.com"
+            client-secret: "***REMOVED***JDSzFqk_ehPHkO5daHz0fRK5Z"
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            scope:
+              - openid
+              - profile
+              - email
+        client:
+              provider:
+                google:
+                  authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+                  token-uri: https://www.googleapis.com/oauth2/v4/token
+                  user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            # 이 부분 추가
+        oauth2:
+              login:
+                success-redirect-uri: http://localhost:3002/google-callback
+
+
+
 
 
 

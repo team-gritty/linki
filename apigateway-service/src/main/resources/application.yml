@@ -19,6 +19,11 @@ spring:
 #            - Path=/v1/api/**
   cloud:
     gateway:
+      # routes:
+      #   - id: integration-service
+      #     uri: lb://INTEGRATION-SERVICE
+      #     predicates:
+      #       - Path=/v1/api/**
       globalcors:
         add-to-simple-url-handler-mapping: true
         corsConfigurations:
