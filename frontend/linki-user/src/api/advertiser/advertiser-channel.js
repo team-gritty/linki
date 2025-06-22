@@ -2,11 +2,17 @@ import httpClient from '@/utils/httpRequest'
 
 /**
  * 전체 채널 목록 조회
+ * @param {number} page 페이지 번호 (0부터 시작)
+ * @param {number} limit 페이지 크기 (기본값: 10)
  */
 const channelApi = {
-  getAllChannels: async () => {
+  getAllChannels: async (page = 0, limit = 10) => {
     try {
-      const response = await httpClient.get('/v1/api/nonuser/channels')
+      const params = {
+        page: page,
+        limit: limit
+      }
+      const response = await httpClient.get('/v1/api/nonuser/channels', params)
       return response.data
     } catch (error) {
       console.error('Error fetching all channels:', error)
@@ -32,12 +38,34 @@ const channelApi = {
   /**
    * 카테고리별 채널 목록 조회
    * @param {string[]} categories 카테고리 배열
+   * @param {number} page 페이지 번호 (0부터 시작)
+   * @param {number} limit 페이지 크기 (기본값: 10)
    * @returns {Promise<any[]>} 카테고리별 채널 목록
    */
-  getChannelsByCategories: async (categories) => {
+  getChannelsByCategories: async (categories, page = 0, limit = 10) => {
     try {
-      const params = categories.map(cat => `category=${encodeURIComponent(cat)}`).join('&')
-      const response = await httpClient.get(`/v1/api/channels?${params}`)
+      const params = {
+        page: page,
+        limit: limit
+      }
+      
+      // 카테고리가 있으면 추가
+      if (categories && categories.length > 0) {
+        // 여러 카테고리를 각각 category 파라미터로 추가
+        categories.forEach(cat => {
+          if (!params.category) {
+            params.category = cat
+          } else {
+            // 이미 category가 있으면 배열로 변환
+            if (!Array.isArray(params.category)) {
+              params.category = [params.category]
+            }
+            params.category.push(cat)
+          }
+        })
+      }
+      
+      const response = await httpClient.get('/v1/api/nonuser/channels', params)
       return response.data
     } catch (error) {
       console.error('Error fetching channels by categories:', error)
@@ -52,7 +80,7 @@ const channelApi = {
    */
   getSubscriberHistory: async (channelId) => {
     try {
-      const response = await httpClient.get(`/v1/api/advertiser/channels/${channelId}/subscriber-history`)
+      const response = await httpClient.get(`/v1/api/user/channels/${channelId}/subscriber-history`)
       return response.data
     } catch (error) {
       console.error('Error fetching subscriber history:', error)

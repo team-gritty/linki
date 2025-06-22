@@ -22,7 +22,7 @@
       </div>
       <div v-for="(item, idx) in pagedListData" :key="idx" class="table-row">
         <div class="td td-profile">
-          <img :src="item.thubnailUrl" class="profile-img" />
+          <img :src="item.thumbnailUrl" class="profile-img" />
         </div>
         <div class="td td-detail">
           <div class="channel-info">
@@ -45,7 +45,7 @@
         <div class="td td-category">
           <span class="badge-category">{{ item.category }}</span>
         </div>
-        <div class="td td-subscribers">{{ item.subscribers }}</div>
+        <div class="td td-subscribers">{{ item.subscriberCount }}</div>
         <div class="td td-views">{{ item.avgViewCount }}</div>
         <div class="td td-analysis">
           <button class="analysis-btn" @click="goToDetail(item.channelId)">상세 분석</button>
@@ -53,10 +53,57 @@
       </div>
     </div>
     <!-- 페이징 버튼 -->
-    <div class="pagination">
-      <button class="page-btn" :class="{ active: page === 1 }" @click="changePage(1)">&#60;</button>
-      <button v-for="p in 6" :key="p" class="page-btn" :class="{ active: page === p }" @click="changePage(p)">{{ p }}</button>
-      <button class="page-btn" @click="changePage(page + 1)">&#62;</button>
+    <div class="pagination" v-if="listData.pageInfo">
+      <!-- 처음 페이지로 이동 -->
+      <button 
+        class="page-btn nav-btn" 
+        :disabled="page === 1" 
+        @click="changePage(1)"
+        title="처음 페이지"
+      >
+        &#171;
+      </button>
+      
+      <!-- 이전 페이지로 이동 -->
+      <button 
+        class="page-btn nav-btn" 
+        :disabled="!listData.pageInfo.hasPrevious" 
+        @click="changePage(page - 1)"
+        title="이전 페이지"
+      >
+        &#60;
+      </button>
+      
+      <!-- 페이지 번호들 -->
+      <button 
+        v-for="p in getVisiblePageNumbers()" 
+        :key="p" 
+        class="page-btn" 
+        :class="{ active: page === p }" 
+        @click="changePage(p)"
+      >
+        {{ p }}
+      </button>
+      
+      <!-- 다음 페이지로 이동 -->
+      <button 
+        class="page-btn nav-btn" 
+        :disabled="!listData.pageInfo.hasNext" 
+        @click="changePage(page + 1)"
+        title="다음 페이지"
+      >
+        &#62;
+      </button>
+      
+      <!-- 마지막 페이지로 이동 -->
+      <button 
+        class="page-btn nav-btn" 
+        :disabled="page === listData.pageInfo.totalPages" 
+        @click="changePage(listData.pageInfo.totalPages)"
+        title="마지막 페이지"
+      >
+        &#187;
+      </button>
     </div>
   </div>
 </template>
@@ -74,7 +121,7 @@ const route = useRoute()
 const modalOpen = ref(false)
 const page = ref(1) // 현재 페이지 번호
 const itemsPerPage = 10 // 페이지당 보여지는 채널 개수
-const listData = ref([]) // 전체 채널 데이터 저장할 배열 
+const listData = ref({ channels: [], pageInfo: null }) // 채널 데이터와 페이지네이션 정보를 포함한 객체
 const error = ref(null)
 
 const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
@@ -94,23 +141,50 @@ const initializeFromQuery = () => {
 }
 
 const pagedListData = computed(() => { 
-  const startIndex = (page.value - 1) * itemsPerPage  
-  const endIndex = startIndex + itemsPerPage 
-  return listData.value.slice(startIndex, endIndex)
+  // API에서 이미 페이지네이션이 처리되어 오므로 그대로 반환
+  return listData.value.channels || []
 })
 
 const reviewStatsMap = ref({}) // { [channelId]: { avg, count } }
 
 async function fetchAllReviewStats(channels) {
-  const statsArr = await Promise.all(
-    channels.map(async c => ({
-      channelId: c.channelId,
-      ...(await reviewApi.getReviewStats(c.channelId))
-    }))
-  )
-  const map = {}
-  statsArr.forEach(s => { map[s.channelId] = { avg: s.avg, count: s.count } })
-  reviewStatsMap.value = map
+  console.log('리뷰 통계 조회 시작:', channels.length, '개 채널')
+  try {
+    const statsArr = await Promise.allSettled(
+      channels.map(async c => {
+        try {
+          const stats = await reviewApi.getReviewStats(c.channelId)
+          return {
+            channelId: c.channelId,
+            ...stats
+          }
+        } catch (error) {
+          console.warn(`채널 ${c.channelId} 리뷰 통계 조회 실패:`, error)
+          // 에러가 발생한 채널은 기본값 사용
+          return {
+            channelId: c.channelId,
+            avg: 0,
+            count: 0
+          }
+        }
+      })
+    )
+    
+    const map = {}
+    statsArr.forEach(result => {
+      if (result.status === 'fulfilled' && result.value) {
+        const s = result.value
+        map[s.channelId] = { avg: s.avg || 0, count: s.count || 0 }
+      }
+    })
+    
+    reviewStatsMap.value = map
+    console.log('리뷰 통계 조회 완료:', Object.keys(map).length, '개 채널 처리됨')
+  } catch (error) {
+    console.error('리뷰 통계 전체 조회 실패:', error)
+    // 전체 실패 시에도 빈 맵으로 초기화하여 페이지네이션이 계속 작동하도록 함
+    reviewStatsMap.value = {}
+  }
 }
 
 function onCategoryChange(categories) {
@@ -120,7 +194,7 @@ function onCategoryChange(categories) {
   page.value = 1 
   if (categories.length === 0) {
     // 선택된 카테고리가 없으면 빈 배열로 초기화
-    listData.value = [] 
+    listData.value = { channels: [], pageInfo: null } 
     error.value = '선택된 카테고리에 해당하는 채널이 없습니다'
   } else {
     // 선택된 카테고리에 해당하는 채널 데이터 추출
@@ -128,29 +202,75 @@ function onCategoryChange(categories) {
   }
 }
 
-// 카테고리 필터링 채널 데이터 불러오기
-async function fetchChannelsByCategories(categories) {
-  try {
-    listData.value = await channelApi.getChannelsByCategories(categories)
-    await fetchAllReviewStats(listData.value)
-  } catch (err) {
-    error.value = err.message
+// 페이지 번호 변경 시 페이지 번호 업데이트 및 API 호출
+function changePage(newPage) {
+  console.log('changePage 호출:', { 
+    newPage, 
+    currentPage: page.value, 
+    totalPages: listData.value.pageInfo?.totalPages,
+    hasNext: listData.value.pageInfo?.hasNext,
+    hasPrevious: listData.value.pageInfo?.hasPrevious
+  })
+  
+  if (newPage < 1) return // 1페이지 미만으로 갈 수 없음
+  
+  // 백엔드에서 받은 페이지 정보가 있다면 총 페이지 수 확인
+  if (listData.value.pageInfo && newPage > listData.value.pageInfo.totalPages) {
+    console.log('총 페이지 수를 넘어감:', newPage, '>', listData.value.pageInfo.totalPages)
+    return // 총 페이지 수를 넘어갈 수 없음
+  }
+  
+  page.value = newPage // 페이지 번호 업데이트
+  console.log('페이지 업데이트 완료:', page.value)
+  
+  // 선택된 카테고리가 있으면 카테고리별 조회, 없으면 전체 조회
+  if (selectedCategories.value.length > 0) {
+    console.log('카테고리별 조회 호출:', selectedCategories.value, 'page:', newPage)
+    fetchChannelsByCategories(selectedCategories.value, newPage)
+  } else {
+    console.log('전체 조회 호출, page:', newPage)
+    fetchChannels(newPage)
   }
 }
 
 // 전체 채널 데이터 추출
-async function fetchChannels() {
+async function fetchChannels(pageNumber = 1) {
+  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1 })
   try {
-    listData.value = await channelApi.getAllChannels()
-    await fetchAllReviewStats(listData.value)
+    const result = await channelApi.getAllChannels(pageNumber - 1) // 백엔드는 0부터 시작
+    console.log('전체 채널 API 응답:', result)
+    listData.value = result
+    
+    // 리뷰 통계는 선택적으로 로드 (실패해도 메인 기능에 영향 없음)
+    try {
+      await fetchAllReviewStats(listData.value.channels)
+    } catch (reviewError) {
+      console.warn('리뷰 통계 조회 실패했지만 채널 목록은 정상 표시:', reviewError)
+    }
   } catch (err) {
+    console.error('전체 채널 조회 실패:', err)
     error.value = err.message
   }
 }
 
-// 페이지 번호 변경 시 페이지 번호 업데이트
-function changePage(newPage) {
-  page.value = newPage // 페이지 번호 업데이트
+// 카테고리 필터링 채널 데이터 불러오기
+async function fetchChannelsByCategories(categories, pageNumber = 1) {
+  console.log('fetchChannelsByCategories 호출:', { categories, pageNumber, backendPage: pageNumber - 1 })
+  try {
+    const result = await channelApi.getChannelsByCategories(categories, pageNumber - 1) // 백엔드는 0부터 시작
+    console.log('카테고리별 API 응답:', result)
+    listData.value = result
+    
+    // 리뷰 통계는 선택적으로 로드 (실패해도 메인 기능에 영향 없음)
+    try {
+      await fetchAllReviewStats(listData.value.channels)
+    } catch (reviewError) {
+      console.warn('리뷰 통계 조회 실패했지만 채널 목록은 정상 표시:', reviewError)
+    }
+  } catch (err) {
+    console.error('카테고리별 채널 조회 실패:', err)
+    error.value = err.message
+  }
 }
 
 // URL 쿼리 변경 감지
@@ -191,6 +311,49 @@ onMounted(() => {
 // 채널 상세 페이지로 이동
 const goToDetail = (channelId) => {
   router.push(`/channels/${channelId}`)
+}
+
+// 페이지 번호 배열 생성
+function getPageNumbers() {
+  const pageNumbers = []
+  for (let i = 1; i <= listData.value.pageInfo.totalPages; i++) {
+    pageNumbers.push(i)
+  }
+  return pageNumbers
+}
+
+// 현재 페이지 주변의 5개 페이지만 보여주도록 수정
+function getVisiblePageNumbers() {
+  const totalPages = listData.value.pageInfo.totalPages
+  const currentPage = page.value
+  const visiblePages = []
+  
+  // 총 페이지가 5개 이하면 모든 페이지 표시
+  if (totalPages <= 5) {
+    for (let i = 1; i <= totalPages; i++) {
+      visiblePages.push(i)
+    }
+    return visiblePages
+  }
+  
+  // 현재 페이지를 중심으로 앞뒤 2개씩 총 5개 페이지 표시
+  let start = Math.max(1, currentPage - 2)
+  let end = Math.min(totalPages, currentPage + 2)
+  
+  // 시작점이나 끝점 조정
+  if (end - start < 4) {
+    if (start === 1) {
+      end = Math.min(totalPages, start + 4)
+    } else if (end === totalPages) {
+      start = Math.max(1, end - 4)
+    }
+  }
+  
+  for (let i = start; i <= end; i++) {
+    visiblePages.push(i)
+  }
+  
+  return visiblePages
 }
 </script>
 
@@ -350,24 +513,48 @@ const goToDetail = (channelId) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   margin: 32px 0 0 0;
 }
+
 .page-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: #F2F2F2;
-  color: #8C30F5;
-  font-weight: 700;
-  font-size: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #E0E0E0;
+  background: #fff;
+  color: #666;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.page-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #8C30F5;
+  color: #8C30F5;
+}
+
 .page-btn.active {
   background: #8C30F5;
   color: #fff;
+  border-color: #8C30F5;
+}
+
+.page-btn:disabled {
+  background: #f5f5f5;
+  color: #ccc;
+  border-color: #e5e5e5;
+  cursor: not-allowed;
+}
+
+.page-btn.nav-btn {
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .channel-list-page{
