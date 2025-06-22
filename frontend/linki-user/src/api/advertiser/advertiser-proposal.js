@@ -17,10 +17,10 @@ export const proposalAPI = {
     }
   },
 
-  // 캠페인에 속한 제안서들 중 특정 제안서 상세 조회
+  // 제안서 상세 조회 (캠페인 상세 페이지용)
   getProposalDetail: async (proposalId, campaignId) => {
     try {
-      const response = await httpClient.get(`/v1/api/advertiser/mypage/campaigns/${campaignId}/proposals/${proposalId}`);
+      const response = await httpClient.get(`/v1/api/advertiser/proposals/${proposalId}?campaignId=${campaignId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch proposal detail:', error);
@@ -36,7 +36,7 @@ export const proposalAPI = {
    */
   acceptProposal: async (proposalId, campaignId) => {
     try {
-      const response = await httpClient.post(`/v1/api/advertiser/mypage/campaigns/${campaignId}/proposals/${proposalId}/accept`);
+      const response = await httpClient.post(`/v1/api/advertiser/proposals/${proposalId}/accept?campaignId=${campaignId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to accept proposal:', error);
@@ -52,7 +52,7 @@ export const proposalAPI = {
    */
   rejectProposal: async (proposalId, campaignId) => {
     try {
-      const response = await httpClient.post(`/v1/api/advertiser/mypage/campaigns/${campaignId}/proposals/${proposalId}/reject`);
+      const response = await httpClient.post(`/v1/api/advertiser/proposals/${proposalId}/reject?campaignId=${campaignId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to reject proposal:', error);

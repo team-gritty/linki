@@ -6,11 +6,11 @@
       <div v-else-if="error" class="proposal-list-error">{{ error }}</div>
       <div v-else-if="proposals.length === 0" class="proposal-list-empty">등록된 제안서가 없습니다.</div>
       <div v-else class="proposal-list-table">
-        <div v-for="proposal in proposals" :key="proposal.id" class="proposal-row">
+        <div v-for="proposal in proposals" :key="proposal.proposalId" class="proposal-row">
           <div class="proposal-row-left">
-            <img :src="proposal.img" class="proposal-profile-img" />
-            <span class="proposal-user">{{ proposal.user }}</span>
-            <span class="proposal-date">신청일: {{ proposal.created_at }}</span>
+            <img :src="proposal.influencerName ? '/default-profile.jpg' : '/default-profile.jpg'" class="proposal-profile-img" />
+            <span class="proposal-user">{{ proposal.influencerName }}</span>
+            <span class="proposal-date">신청일: {{ formatDate(proposal.submittedAt) }}</span>
           </div>
           <div class="proposal-row-right">
             <span class="status-badge" :class="getStatusClass(proposal.status)">{{ getStatusText(proposal.status) }}</span>
@@ -68,6 +68,16 @@ const getStatusClass = (status) => {
   return statusLower
 }
 
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
 async function fetchProposals() {
   loading.value = true
   error.value = null
@@ -91,7 +101,7 @@ function closeDetail() {
 
 function handleRejectProposal(proposalId) {
   // Find and update the proposal status
-  const idx = proposals.value.findIndex(p => p.id === proposalId)
+  const idx = proposals.value.findIndex(p => p.proposalId === proposalId)
   if (idx !== -1) {
     proposals.value[idx].status = 'REJECTED'
   }
@@ -100,7 +110,7 @@ function handleRejectProposal(proposalId) {
 
 function handleAcceptProposal(proposalId) {
   // Find and update the proposal status
-  const idx = proposals.value.findIndex(p => p.id === proposalId)
+  const idx = proposals.value.findIndex(p => p.proposalId === proposalId)
   if (idx !== -1) {
     proposals.value[idx].status = 'ACCEPTED'
   }
@@ -108,7 +118,7 @@ function handleAcceptProposal(proposalId) {
 }
 
 function goToContractCreate(proposal) {
-  router.push(`/contract/create?proposalId=${proposal.id}`)
+  router.push(`/contract/create?proposalId=${proposal.proposalId}`)
 }
 
 watch(() => props.campaignId, fetchProposals, { immediate: true })
