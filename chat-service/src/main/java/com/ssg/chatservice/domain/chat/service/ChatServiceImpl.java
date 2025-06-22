@@ -58,7 +58,6 @@ public class ChatServiceImpl implements ChatService{
                 .partnerName(partner.getPartnerName())
                 .negoStatus(NegoStatus.valueOf(partner.getNegoStatus()))
                 .profileImage(partner.getProfileImage())
-                .channelName(partner.getChannelName())
                 .build();
     }
 

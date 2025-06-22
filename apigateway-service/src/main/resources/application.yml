@@ -28,11 +28,24 @@ spring:
               - GET
               - POST
               - PUT
+              - PATCH
               - DELETE
               - OPTIONS
             allowedHeaders:
               - "*"
             allowCredentials: true
+
+      routes:
+        - id: integration-client-service
+          uri: lb://INTEGRATION-SERVICE
+          predicates:
+            - Path=/v1/integration-service/api/**
+
+        - id: chat-client-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/v1/chat-service/api/**
+
 
 eureka:
   client:

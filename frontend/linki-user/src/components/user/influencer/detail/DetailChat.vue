@@ -70,8 +70,7 @@ if (typeof global === 'undefined') {
 
 import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
 import {chatApi} from '@/api/chat'
-import {useRoute} from 'vue-router'
-import {useAccountStore} from '@/stores/account'
+import {useAccountStore} from '@/stores/user'
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
@@ -143,7 +142,7 @@ const connectSocket = (chatId) => {
     }
 
     console.log('Connecting to SockJS with chatId:', chatId)
-    
+
     // 방법 1: SockJS를 사용하여 연결 (프록시를 통해)
     const socket = new SockJS('/v1/chat-service/ws/chat')
     stompClient.value = Stomp.over(socket)
@@ -153,13 +152,13 @@ const connectSocket = (chatId) => {
       'Authorization': `Bearer ${token}`,
       'token': token
     }
-    
-    
+
+
     stompClient.value.connect(headers, () => {
       console.log('STOMP connection established')
       isConnected.value = true
       error.value = null
-      
+
       stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
         const message = JSON.parse(msg.body)
 
@@ -183,7 +182,7 @@ const connectSocket = (chatId) => {
       console.error('STOMP connection error:', connectionError)
       isConnected.value = false
       error.value = '채팅 연결에 실패했습니다. 서버가 실행 중인지 확인해주세요.'
-      
+
       // 방법 2: 네이티브 WebSocket으로 재시도
       console.log('Attempting fallback with native WebSocket...')
       connectWithNativeWebSocket(chatId, token)
@@ -207,7 +206,7 @@ const connectWithNativeWebSocket = (chatId, token) => {
       console.log('Native WebSocket STOMP connection established')
       isConnected.value = true
       error.value = null
-      
+
       stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
         const message = JSON.parse(msg.body)
 
@@ -243,25 +242,25 @@ const sendMessage = async () => {
     console.warn('Empty message cannot be sent')
     return
   }
-  
+
   if (!isConnected.value) {
     console.warn('WebSocket connection not available')
     error.value = '채팅 연결이 되지 않았습니다. 잠시 후 다시 시도해주세요.'
     return
   }
-  
+
   if (!stompClient.value) {
     console.warn('STOMP client not available')
     error.value = '채팅 클라이언트가 초기화되지 않았습니다.'
     return
   }
-  
+
   if (!props.chatRoom) {
     console.warn('Chat room not available')
     error.value = '채팅방 정보가 없습니다.'
     return
   }
-  
+
   if (!currentUserId.value) {
     console.warn('사용자 정보가 없습니다. 로그인 후 다시 시도해주세요.')
     error.value = '사용자 정보가 없습니다. 로그인 후 다시 시도해주세요.'
@@ -269,7 +268,7 @@ const sendMessage = async () => {
   }
 
   const messageContent = newMessage.value.trim()
-  
+
   try {
   const msgObj = {
     chatId: props.chatRoom.chatId,
@@ -300,10 +299,10 @@ const sendMessage = async () => {
   chatMessages.value = [...chatMessages.value, newMessageObj]
   // 입력창 초기화
   newMessage.value = ''
-    
+
     // 에러 메시지 초기화
     error.value = null
-    
+
   } catch (error) {
     console.error('Error sending message:', error)
     error.value = '메시지 전송에 실패했습니다.'
@@ -319,15 +318,15 @@ const loadChatInfo = async () => {
       error.value = '채팅방 정보를 불러올 수 없습니다.'
       return
     }
-    
+
     if (!props.chatRoom.chatId) {
       console.warn('Chat ID is missing from chat room')
       error.value = '채팅방 ID가 없습니다.'
       return
     }
-    
+
     console.log('Loading chat messages for chatId:', props.chatRoom.chatId)
-    
+
     // 메시지 로드
     const messagesResponse = await chatApi.getMessages(props.chatRoom.chatId)
 
@@ -351,7 +350,7 @@ const loadChatInfo = async () => {
     error.value = null
   } catch (err) {
     console.error('채팅 정보 로드 에러:', err)
-    
+
     // HTTP 상태 코드에 따른 구체적인 에러 메시지
     if (err.response) {
       switch (err.response.status) {
