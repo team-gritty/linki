@@ -22,11 +22,7 @@ export const reviewApi = {
 
   // 특정 인플루언서의 리뷰 조회 (채널 상세 페이지에서 사용)
   getInfluencerReviews(influencerId) {
-    return httpClient.get(`/v1/api/advertiser/influencer-reviews`, {
-      params: {
-        influencerId: influencerId
-      }
-    });
+    return httpClient.get(`/v1/api/user/influencers/${influencerId}/reviews`);
   },
 
   /**
@@ -36,16 +32,13 @@ export const reviewApi = {
    */
   getReviewStats: async (channelId) => {
     try {
-      const res = await httpClient.get(`/v1/api/advertiser/influencer-reviews`, {
-        params: {
-          influencerId: channelId
-        }
-      });
+      const res = await httpClient.get(`/v1/api/user/influencers/${channelId}/reviews`);
       const reviews = res.data;
       const count = reviews.length;
       const avg = count > 0 ? (reviews.reduce((sum, r) => sum + (r.influencerReviewScore || 0), 0) / count) : 0;
       return { avg, count };
     } catch (e) {
+      console.warn(`채널 ${channelId} 리뷰 통계 조회 실패:`, e);
       return { avg: 0, count: 0 };
     }
   }
