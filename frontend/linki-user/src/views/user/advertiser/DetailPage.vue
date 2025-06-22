@@ -27,6 +27,7 @@
       <DetailChat 
         v-if="currentTab === 'chat.room'"
         :campaign-id="campaignId"
+        :chat-id="chatId"
       />
     </div>
   </div>

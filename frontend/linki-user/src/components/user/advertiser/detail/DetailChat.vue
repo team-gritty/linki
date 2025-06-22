@@ -14,6 +14,10 @@ const props = defineProps({
   campaignId: {
     type: [String, Number],
     required: true
+  },
+  chatId: {
+    type: String,
+    default: null
   }
 })
 
@@ -62,7 +66,7 @@ const selectedChat = computed(() =>
 
 // 선택된 채팅방의 메시지
 const selectedChatMessages = computed(() => {
-  if (!selectedChatId.value) return []
+  if (!selectedChatId.value || !Array.isArray(chatMessages.value)) return []
   console.log('Current messages:', chatMessages.value) // 디버깅용 로그 추가
   return chatMessages.value
     .filter(msg => msg.chatId === selectedChatId.value)
@@ -173,12 +177,17 @@ const loadInitialData = async () => {
         chatApi.getChatDetails(chat.chatId)
       )
       const detailResponses = await Promise.all(detailPromises)
-      chatDetails.value = detailResponses.map(response => response.data[0]).filter(Boolean)
+      chatDetails.value = detailResponses.map(response => response.data).filter(Boolean)
       console.log('Loaded chat details:', chatDetails.value)
     }
     
     // 초기 정렬 수행
     sortChats()
+
+    // chatId prop이 있으면 해당 채팅방을 선택합니다.
+    if (props.chatId) {
+      selectChat(props.chatId);
+    }
   } catch (err) {
     error.value = '데이터를 불러오는데 실패했습니다.'
     console.error('Error loading initial data:', err)
@@ -253,8 +262,8 @@ const loadMessages = async (chatId) => {
 
   try {
     const response = await chatApi.getMessages(chatId)
-    console.log('Loaded messages for chatId:', chatId, response.data)
-    chatMessages.value = response.data
+    console.log('Loaded messages for chatId:', chatId, response)
+    chatMessages.value = response || []
     
     // 스크롤을 최하단으로 이동
     setTimeout(() => {
@@ -375,6 +384,7 @@ const connectSocket = (chatId) => {
   } catch (err) {
     console.error('Error creating socket connection:', err)
     error.value = '소켓 연결을 생성하는데 실패했습니다.'
+    isConnected.value = false
   }
 }
 
@@ -397,36 +407,32 @@ const disconnectSocket = () => {
 const sendMessage = async () => {
   if (!newMessage.value.trim() || !selectedChatId.value) return
 
+  if (!stompClient.value || !isConnected.value) {
+    error.value = '채팅에 연결되지 않았습니다. 잠시 후 다시 시도해주세요.'
+    return;
+  }
+
   const messageObj = {
     chatId: selectedChatId.value,
     senderId: currentUserId.value,
-    content: newMessage.value,
+    content: newMessage.value.trim(),
     messageDate: new Date().toISOString(),
-    messageRead: false
+    messageType: 'message',
   }
 
   try {
-    // API를 통해 메시지 전송
-    const response = await chatApi.sendMessage(messageObj)
-    
-    // 로컬 상태 업데이트
-    chatMessages.value.push(response.data)
-    
-    // 소켓을 통해 메시지 전송 (실시간 통신)
-    if (stompClient.value && isConnected.value) {
-      try {
-        stompClient.value.send(`/app/chat/${selectedChatId.value}`, {}, JSON.stringify({
-          chatId: selectedChatId.value,
-          senderId: currentUserId.value,
-          content: newMessage.value,
-          messageDate: new Date().toISOString(),
-          messageType: 'message'
-        }))
-      } catch (socketError) {
-        console.error('Socket send error:', socketError)
-        // 소켓 전송 실패 시에도 API 전송은 성공했으므로 계속 진행
-      }
-    }
+    // 웹소켓으로 메시지 전송
+    stompClient.value.send(
+        '/app/send/message',
+        {},
+        JSON.stringify(messageObj)
+    );
+
+    // 낙관적 UI 업데이트
+    chatMessages.value.push({
+      ...messageObj,
+      messageId: Date.now().toString(), // 임시 ID
+    });
     
     // 채팅 목록의 마지막 메시지 업데이트
     const chatIndex = chatList.value.findIndex(chat => chat.chatId === selectedChatId.value)
@@ -435,12 +441,9 @@ const sendMessage = async () => {
         ...chatList.value[chatIndex],
         lastMessage: messageObj.content,
         lastMessageTime: messageObj.messageDate,
-        isNew: false
       }
       chatList.value.splice(chatIndex, 1)
       chatList.value.unshift(updatedChat)
-      
-      // 채팅 목록 재정렬
       sortChats()
     }
 
