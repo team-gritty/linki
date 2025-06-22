@@ -11,7 +11,7 @@ spring:
         - id: integration-service
           uri: lb://INTEGRATION-SERVICE
           predicates:
-            - Path=/v1/api/**
+            - Path=/v1/integration-service/api/**
 
         - id: chat-service
           uri: lb://CHAT-SERVICE
@@ -34,17 +34,6 @@ spring:
             allowedHeaders:
               - "*"
             allowCredentials: true
-
-      routes:
-        - id: integration-client-service
-          uri: lb://INTEGRATION-SERVICE
-          predicates:
-            - Path=/v1/integration-service/api/**
-
-        - id: chat-client-service
-          uri: lb://CHAT-SERVICE
-          predicates:
-            - Path=/v1/chat-service/api/**
 
 
 eureka:

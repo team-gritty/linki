@@ -137,6 +137,7 @@ public class ChatServiceImpl implements ChatService{
                     .lastMessageTime(lastMessages.get(chats.get(i).getChatId()).getMessageDate())
                     .isNew(lastMessages.get(chats.get(i).getChatId()).isMessageRead())
                     .proposalId(chats.get(i).getProposalId())
+                    .campaignId(chatInfos.get(i).getCampaignId())
                     .build();
             advertiserChatList.add(chatdto);
         }

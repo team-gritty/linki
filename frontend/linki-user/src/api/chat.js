@@ -59,7 +59,7 @@ export const chatApi = {
   // 사용자별 채팅방 목록 조회
   getUserChatList: async (userId = 'user1') => {
     try {
-      const response = await httpClient.get(`/v1/chat-service/api/authuser/user-chat-list/${userId}`)
+      const response = await httpClient.get(`/v1/chat-service/api/authuser/user-chat-list`)
       return response.data
     } catch (error) {
       console.error('Error getting user chat list:', error)
@@ -92,7 +92,7 @@ export const chatApi = {
   // 메시지 전송(소켓이 아닌 프론트 용)
   sendMessage: async (messageData) => {
     try {
-      return await httpClient.post(`/v1/api/chat-service/messages`, messageData)
+      return await httpClient.post(`/v1/chat-service/api/messages`, messageData)
     } catch (error) {
       console.error('Error sending message:', error)
       throw error

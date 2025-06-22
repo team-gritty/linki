@@ -13,4 +13,5 @@ public class ChatInfoDto {
     private String opponentId;
     private String opponentName;
     private String proposalId;
+    private String campaignId;
 }

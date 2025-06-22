@@ -16,6 +16,8 @@ const currentUserId = computed(() => {
   return accountStore.getUser?.userId || accountStore.getUser?.id || null
 })
 
+const userType = computed(() => accountStore.getUserType)
+
 const sortedChatList = computed(() => {
   return [...userChatList.value].sort((a, b) => {
     // 먼저 읽지 않은 메시지 우선
@@ -44,7 +46,7 @@ const loadUserChatList = async () => {
     }
     
     console.log('Loading chat list for user:', currentUserId.value)
-    const data = await chatApi.getUserChatList(currentUserId.value)
+    const data = await chatApi.getUserChatList()
     userChatList.value = data || []
   } catch (error) {
     console.error('Failed to load user chat list:', error)
@@ -63,10 +65,20 @@ const toggleDropdown = () => {
 }
 
 const goToChat = (chat) => {
-  router.push({
-    path: `/proposal/${chat.proposalId}`,
-    query: { tab: 'chat' }
-  })
+  if (userType.value === 'INFLUENCER') {
+    router.push({
+      path: `/proposal/${chat.proposalId}`,
+      query: { tab: 'chat' }
+    })
+  } else if (userType.value === 'ADVERTISER') {
+    router.push({
+      path: `/mypage/campaign-detail/${chat.campaignId}`,
+      query: { tab: 'chat', chatId: chat.chatId }
+    })
+  } else {
+    // 기본 동작 또는 오류 처리
+    console.warn('Unknown user type:', userType.value)
+  }
   showDropdown.value = false
 }
 
@@ -149,7 +161,7 @@ onUnmounted(() => {
              class="chat-item" 
              @click="goToChat(chat)">
           <div class="chat-info">
-            <div class="chat-name">{{ chat.chatPartner || '알 수 없는 사용자' }}</div>
+            <div class="chat-name">{{ chat.opponentName || '알 수 없는 사용자' }}</div>
             <div class="chat-message">{{ chat.lastMessage || '메시지가 없습니다' }}</div>
           </div>
           <div class="chat-meta">
