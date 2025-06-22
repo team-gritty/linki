@@ -32,13 +32,18 @@
                 <template v-if="reviewStatsMap[item.channelId] && reviewStatsMap[item.channelId].count > 0">
                   <span v-for="n in 5" :key="n">
                     <svg v-if="reviewStatsMap[item.channelId].avg >= n" width="16" height="16" viewBox="0 0 20 20" fill="#FFC107"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
-                    <svg v-else-if="reviewStatsMap[item.channelId].avg >= n-0.5" width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient :channelId="'half'+item.channelId+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5" :fill="'url(#half'+item.channelId+n+')'"/></svg>
+                    <svg v-else-if="reviewStatsMap[item.channelId].avg >= n-0.5" width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient :id="'half'+item.channelId+n"><stop offset="50%" stop-color="#FFC107"/><stop offset="50%" stop-color="#eee"/></linearGradient></defs><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5" :fill="'url(#half'+item.channelId+n+')'"/></svg>
                     <svg v-else width="16" height="16" viewBox="0 0 20 20" fill="#eee"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
                   </span>
                   <span class="review-avg">{{ reviewStatsMap[item.channelId].avg.toFixed(1) }}</span>
                 </template>
+                <template v-else>
+                  <span v-for="n in 5" :key="n">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="#eee"><polygon points="10,2 12,7.5 18,7.5 13.5,11.5 15,18 10,14.5 5,18 6.5,11.5 2,7.5 8,7.5"/></svg>
+                  </span>
+                  <span class="review-avg">0.0</span>
+                </template>
               </span>
-              <span class="review-count" v-if="reviewStatsMap[item.channelId] && reviewStatsMap[item.channelId].count > 0">({{ reviewStatsMap[item.channelId].count }} Reviews)</span>
             </div>
           </div>
         </div>

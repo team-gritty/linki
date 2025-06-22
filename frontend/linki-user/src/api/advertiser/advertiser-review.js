@@ -35,7 +35,7 @@ export const reviewApi = {
       const res = await httpClient.get(`/v1/api/user/influencers/${channelId}/reviews`);
       const reviews = res.data;
       const count = reviews.length;
-      const avg = count > 0 ? (reviews.reduce((sum, r) => sum + (r.influencerReviewScore || 0), 0) / count) : 0;
+      const avg = count > 0 ? (reviews.reduce((sum, r) => sum + (r.reviewScore || 0), 0) / count) : 0;
       return { avg, count };
     } catch (e) {
       console.warn(`채널 ${channelId} 리뷰 통계 조회 실패:`, e);
