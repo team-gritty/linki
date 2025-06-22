@@ -1,0 +1,102 @@
+{
+	"id": "9f3f74d2-86b6-4a89-869d-7df5f1bea077",
+	"name": "관리자 - 구독 회원",
+	"timestamp": "2025-06-17T10:53:22.405Z",
+	"collection_id": "45491549-1196fb88-9af9-4073-be35-1c4f83f34196",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-17T10:53:21.660Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "b833637a-29f1-4695-83db-a0997d381055",
+			"name": "관리자 구독 회원 조회",
+			"url": "localhost:8080/v1/admin/api/subscriberUsers",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				66,
+				33,
+				15,
+				16,
+				13,
+				15,
+				14,
+				13,
+				17,
+				15
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "defe5f95-c4a7-4d1f-b684-182723fa5815",
+			"name": "구독 회원 검색",
+			"url": "localhost:8080/v1/admin/api/subscriberUsers/search",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				20,
+				20,
+				14,
+				14,
+				26,
+				13,
+				14,
+				14,
+				15,
+				16
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 383,
+	"collection": {
+		"requests": [
+			{
+				"id": "b833637a-29f1-4695-83db-a0997d381055",
+				"method": "GET"
+			},
+			{
+				"id": "defe5f95-c4a7-4d1f-b684-182723fa5815",
+				"method": "POST"
+			}
+		]
+	}
+}

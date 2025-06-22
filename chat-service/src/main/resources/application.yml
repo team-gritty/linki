@@ -1,0 +1,55 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: chat-service
+  jwt:
+    secret: ${secret-HS256}
+
+
+  jpa:
+    hibernate:
+      #table과 entity 불일치 시 오류
+      ddl-auto: validate          # dev: update / prod: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+#
+#kafka:
+#  bootstrap-servers: localhost:9092  # Kafka 브로커 주소(임시)
+#
+#  consumer:
+#    group-id: chat-service  # Consumer Group ID
+#    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#    properties:
+#      spring.json.trusted.packages: "*"
+#      spring.json.use.type.headers: true
+
+# Kafka 관련 커스텀 설정 (리스너에서 사용)
+setting:
+  ksb:
+    topic: chat.proposal         # Kafka 토픽명
+    group: chat-service        # Consumer Group ID (리스너에서 참조)
+
+  config:
+    import: "optional:application-secret.properties"
+
+
+
+logging:
+  level:
+    root: info
+    com.ssg.chatservice: info

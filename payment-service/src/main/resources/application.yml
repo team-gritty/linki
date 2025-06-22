@@ -1,0 +1,33 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: payment-service
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/e_user_db?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: hd4628
+
+  jpa:
+    hibernate:
+      ddl-auto: update          # dev: update / prod: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+
+

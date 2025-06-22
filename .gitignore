@@ -1,0 +1,116 @@
+# ========================
+# 📁 빌드 산출물 및 임시파일
+# ========================
+*.class
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.stackdump
+.DS_Store
+Thumbs.db
+*.icloud
+
+# ========================
+# 🔐 민감 정보 및 설정 파일
+# ========================
+application-secret.properties
+.env
+.env.*
+
+# ========================
+# ⚙️ Gradle 관련 파일 및 디렉토리
+# ========================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ========================
+# 🧰 STS (Spring Tool Suite) 관련
+# ========================
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# ========================
+# 💡 IntelliJ IDEA 관련
+# ========================
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ========================
+# 🧪 NetBeans 관련
+# ========================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ========================
+# 🧑‍💻 VS Code 관련
+# ========================
+.vscode/
+**/node_modules
+
+# ========================
+# 📝 기타 문서
+# ========================
+HELP.md
+
+# ========================
+# 🖥️ macOS 관련 시스템 파일
+# ========================
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# ========================
+# 🪟 Windows 관련 시스템 파일
+# ========================
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ========================
+# 🌐 프론트엔드 (Vue / Vite) 관련
+# ========================
+/frontend/Linki/.vite
+/frontend/Linki/node_modules/
+/frontend/Linki/npm-debug.log*
+/frontend/Linki/yarn-debug.log*
+/frontend/Linki/yarn-error.log*
+/fronted/json-server/node_modules/

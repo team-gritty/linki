@@ -1,0 +1,18 @@
+[
+  {
+    "advertiserReviewId": "ADVREV0000",
+    "advertiserReviewScore": 2.6,
+    "advertiserReviewComment": "광고주 리뷰 내용0",
+    "advertiserReviewCreatedAt": "2024-11-21T00:00:00",
+    "contractId": "CONT0000",
+    "visibility": true
+  },
+  {
+    "advertiserReviewId": "ARV-1947030591656468",
+    "advertiserReviewScore": 4.5,
+    "advertiserReviewComment": "응답도 빠르고 친절하셨어요.",
+    "advertiserReviewCreatedAt": "2025-06-21T15:40:27",
+    "contractId": "CONT0001",
+    "visibility": true
+  }
+]

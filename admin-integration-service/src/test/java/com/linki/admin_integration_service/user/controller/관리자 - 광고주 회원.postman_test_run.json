@@ -1,0 +1,102 @@
+{
+	"id": "4438376c-da44-41bb-9507-8698e8b66562",
+	"name": "관리자 - 광고주 회원",
+	"timestamp": "2025-06-17T07:20:03.245Z",
+	"collection_id": "45491549-abf16b72-41cf-454e-8fcf-1ae97fe9c4f3",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-17T07:20:02.600Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "bbd51f24-290c-49b3-9a2a-1ce3f5dc81b0",
+			"name": "관리자 - 광고주 회원 조회",
+			"url": "localhost:8080/v1/admin/api/advertiserUsers",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				37,
+				12,
+				25,
+				15,
+				14,
+				27,
+				11,
+				12,
+				18,
+				12
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "c93581d0-771b-4a1a-8d44-d2cdab809dd0",
+			"name": "관리자 - 광고주 회원 검색",
+			"url": "localhost:8080/v1/admin/api/advertiserUsers/search",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				25,
+				16,
+				15,
+				14,
+				16,
+				12,
+				11,
+				11,
+				13,
+				12
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 328,
+	"collection": {
+		"requests": [
+			{
+				"id": "bbd51f24-290c-49b3-9a2a-1ce3f5dc81b0",
+				"method": "GET"
+			},
+			{
+				"id": "c93581d0-771b-4a1a-8d44-d2cdab809dd0",
+				"method": "POST"
+			}
+		]
+	}
+}

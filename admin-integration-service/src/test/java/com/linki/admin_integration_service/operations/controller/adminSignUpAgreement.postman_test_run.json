@@ -1,0 +1,182 @@
+{
+	"id": "16f01b82-1bfa-4b33-99e6-c6b50998aee7",
+	"name": "adminSignUpAgreement",
+	"timestamp": "2025-06-17T02:28:37.187Z",
+	"collection_id": "45491549-988243db-6dd3-4e10-a82a-0f7ff74d0a8f",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-17T02:28:36.184Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "8601e25e-e533-4443-b288-2331a42f6f13",
+			"name": "가입대기 관리자 가져오기",
+			"url": "localhost:8080/v1/admin/api/adminSignUp",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				28,
+				24,
+				26,
+				23,
+				12,
+				12,
+				15,
+				21,
+				15,
+				18
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "806a88ab-c61e-44cd-901a-dfb2e28585d2",
+			"name": "관리자 가입 승인",
+			"url": "localhost:8080/v1/admin/api/adminSignUp/approve",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				29,
+				14,
+				10,
+				31,
+				7,
+				7,
+				9,
+				8,
+				6,
+				9
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "d3ada2d1-2f1d-4e5e-9d86-2cfa3af20185",
+			"name": "관리자 가입 거절",
+			"url": "localhost:8080/v1/admin/api/adminSignUp/reject",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				21,
+				14,
+				11,
+				26,
+				8,
+				8,
+				10,
+				12,
+				7,
+				8
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "291bd557-f1a4-4b0f-af8b-0e3af52a633b",
+			"name": "관리자 검색",
+			"url": "localhost:8080/v1/admin/api/adminSignUp/search",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				7,
+				8,
+				6,
+				4,
+				4,
+				5,
+				6,
+				5,
+				4,
+				4
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 502,
+	"collection": {
+		"requests": [
+			{
+				"id": "8601e25e-e533-4443-b288-2331a42f6f13",
+				"method": "GET"
+			},
+			{
+				"id": "806a88ab-c61e-44cd-901a-dfb2e28585d2",
+				"method": "POST"
+			},
+			{
+				"id": "d3ada2d1-2f1d-4e5e-9d86-2cfa3af20185",
+				"method": "POST"
+			},
+			{
+				"id": "291bd557-f1a4-4b0f-af8b-0e3af52a633b",
+				"method": "POST"
+			}
+		]
+	}
+}

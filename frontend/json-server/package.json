@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "json-server": "0.17.4"
+  },
+  
+  "scripts": {
+    "start:json": "json-server --watch db.json --routes routes.json --port 3000"
+  }
+}

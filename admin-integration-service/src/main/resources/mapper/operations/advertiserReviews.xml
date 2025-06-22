@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.operations.repository.myBatis.AdvertiserReviewsMapper">
+
+    
+    <select id="getAllAdvertiserReviews" resultType="com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewDTO">
+        SELECT
+            advertiserReviewId,
+            advertiser,
+            writer,
+            rating,
+            reviewDate,
+            visibility,
+            review,
+            contractId
+        FROM advertiser_reviews_view
+    </select>
+    
+    
+    <select id="searchAdvertiserReviews"  resultType="com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewDTO">
+        SELECT
+            advertiserReviewId,
+            advertiser,
+            writer,
+            rating,
+            reviewDate,
+            visibility,
+            review,
+            contractId
+        FROM advertiser_reviews_view
+        WHERE 1 = 1
+        <choose>
+            <when test="searchType == 'advertiser'">
+                AND advertiser LIKE CONCAT('%', #{keyword}, '%')
+            </when>
+            <when test="searchType == 'writer'">
+                AND writer LIKE CONCAT('%', #{keyword}, '%')
+            </when>
+            <when test="searchType == 'contractId' or searchType == 'contractid'">
+                AND contractId LIKE CONCAT('%', #{keyword}, '%')
+            </when>
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+        </choose>
+
+
+    </select>
+
+</mapper>
