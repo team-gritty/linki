@@ -143,8 +143,8 @@ const loading = ref(true)
 const error = ref(null)
 const channels = ref([])
 
-// 항상 숫자로 변환된 id 사용
-const id = computed(() => Number(route.params.id))
+// channelId는 String 타입이므로 숫자 변환하지 않음
+const id = computed(() => route.params.id)
 
 const reviewCount = ref(0)
 const reviewAvg = ref(0)
