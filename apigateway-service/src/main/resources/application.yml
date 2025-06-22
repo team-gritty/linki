@@ -5,18 +5,6 @@ spring:
   application:
     name: apigateway-service
 
-#  cloud:
-#    gateway:
-#      routes:
-#        - id: integration-service
-#          uri: lb://INTEGRATION-SERVICE
-#          predicates:
-#            - Path=/v1/admin/api/**
-#
-#        - id: integration-service
-#          uri: lb://INTEGRATION-SERVICE
-#          predicates:
-#            - Path=/v1/api/**
   cloud:
     gateway:
       globalcors:
@@ -35,6 +23,18 @@ spring:
             allowedHeaders:
               - "*"
             allowCredentials: true
+
+      routes:
+        - id: integration-client-service
+          uri: lb://INTEGRATION-SERVICE
+          predicates:
+            - Path=/v1/integration-service/api/**
+
+        - id: chat-client-service
+          uri: lb://CHAT-SERVICE
+          predicates:
+            - Path=/v1/chat-service/api/**
+
 
 eureka:
   client:
