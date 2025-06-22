@@ -7,7 +7,7 @@
         </svg>
         <span>검색 옵션</span>
       </button>
-      <SearchBar @update:categories="onCategoryChange" />
+      <SearchBar @update:categories="onCategoryChange" @search="onSearch" />
     </div>
     <SearchOptionModal v-if="modalOpen" @close="modalOpen = false" @update:categories="onCategoryChange" />
 
@@ -130,6 +130,7 @@ const listData = ref({ channels: [], pageInfo: null }) // 채널 데이터와 �
 const error = ref(null)
 
 const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
+const searchKeyword = ref('') // 검색 키워드 저장
 
 // URL 쿼리에서 선택된 카테고리 초기화
 const initializeFromQuery = () => {
@@ -235,21 +236,21 @@ function changePage(newPage) {
   page.value = newPage // 페이지 번호 업데이트
   console.log('페이지 업데이트 완료:', page.value)
   
-  // 선택된 카테고리가 있으면 카테고리별 조회, 없으면 전체 조회
+  // 선택된 카테고리가 있으면 카테고리별 조회, 없으면 전체 조회 (검색 키워드 유지)
   if (selectedCategories.value.length > 0) {
-    console.log('카테고리별 조회 호출:', selectedCategories.value, 'page:', newPage)
-    fetchChannelsByCategories(selectedCategories.value, newPage)
+    console.log('카테고리별 조회 호출:', selectedCategories.value, 'page:', newPage, 'keyword:', searchKeyword.value)
+    fetchChannelsByCategories(selectedCategories.value, newPage, searchKeyword.value)
   } else {
-    console.log('전체 조회 호출, page:', newPage)
-    fetchChannels(newPage)
+    console.log('전체 조회 호출, page:', newPage, 'keyword:', searchKeyword.value)
+    fetchChannels(newPage, searchKeyword.value)
   }
 }
 
 // 전체 채널 데이터 추출
-async function fetchChannels(pageNumber = 1) {
-  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1 })
+async function fetchChannels(pageNumber = 1, keyword = null) {
+  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1, keyword })
   try {
-    const result = await channelApi.getAllChannels(pageNumber - 1) // 백엔드는 0부터 시작
+    const result = await channelApi.getAllChannels(pageNumber - 1, 10, keyword) // 백엔드는 0부터 시작
     console.log('전체 채널 API 응답:', result)
     listData.value = result
     
@@ -272,10 +273,10 @@ async function fetchChannels(pageNumber = 1) {
 }
 
 // 카테고리 필터링 채널 데이터 불러오기
-async function fetchChannelsByCategories(categories, pageNumber = 1) {
-  console.log('fetchChannelsByCategories 호출:', { categories, pageNumber, backendPage: pageNumber - 1 })
+async function fetchChannelsByCategories(categories, pageNumber = 1, keyword = null) {
+  console.log('fetchChannelsByCategories 호출:', { categories, pageNumber, backendPage: pageNumber - 1, keyword })
   try {
-    const result = await channelApi.getChannelsByCategories(categories, pageNumber - 1) // 백엔드는 0부터 시작
+    const result = await channelApi.getChannelsByCategories(categories, pageNumber - 1, 10, keyword) // 백엔드는 0부터 시작
     console.log('카테고리별 API 응답:', result)
     listData.value = result
     
@@ -317,20 +318,6 @@ onMounted(() => {
 const searchBtnHover = ref(false)
 function handleSearchBtnMouseEnter() { searchBtnHover.value = true } // 검색 버튼 호버 효과
 function handleSearchBtnMouseLeave() { searchBtnHover.value = false }
-
-// 검색바 엔터 입력 시 검색 동작
-function handleSearchInputKeydown(e) {
-  if (e.key === 'Enter') {
-    // 실제 검색 동작 구현 필요
-    alert('검색 기능은 추후 구현 예정입니다.')
-  }
-}
-
-// 검색바 엔터 입력 시 검색 동작
-onMounted(() => {
-  const input = document.querySelector('.search-input') // 검색바 엔터 입력 시 검색 동작
-  if (input) input.addEventListener('keydown', handleSearchInputKeydown) // 검색바 엔터 입력 시 검색 동작
-})
 
 // 채널 상세 페이지로 이동
 const goToDetail = (channelId) => {
@@ -378,6 +365,20 @@ function getVisiblePageNumbers() {
   }
   
   return visiblePages
+}
+
+// 검색 기능
+function onSearch(keyword) {
+  console.log('검색 요청:', keyword)
+  searchKeyword.value = keyword
+  page.value = 1 // 검색 시 첫 페이지로 이동
+  
+  // 선택된 카테고리가 있으면 카테고리와 키워드로 검색, 없으면 키워드만으로 검색
+  if (selectedCategories.value.length > 0) {
+    fetchChannelsByCategories(selectedCategories.value, 1, keyword)
+  } else {
+    fetchChannels(1, keyword)
+  }
 }
 </script>
 

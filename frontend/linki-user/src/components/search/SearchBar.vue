@@ -17,8 +17,13 @@
       </div>
     </div>
     <div class="divider"></div>
-    <input class="search-input" placeholder="원하는 인플루언서를 검색해보세요!" />
-    <button class="search-btn">
+    <input 
+      v-model="searchKeyword"
+      class="search-input" 
+      placeholder="원하는 인플루언서를 검색해보세요!" 
+      @keyup.enter="handleSearch"
+    />
+    <button class="search-btn" @click="handleSearch">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="11" cy="11" r="8" stroke="#8C30F5" stroke-width="2"/>
         <path d="M20 20L16.65 16.65" stroke="#8C30F5" stroke-width="2" stroke-linecap="round"/>
@@ -30,35 +35,47 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
 
-const emit = defineEmits(['update:categories'])
+const emit = defineEmits(['update:categories', 'search'])
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
 
 const selectedCategory = ref('')
+const searchKeyword = ref('')
 const dropdownOpen = ref(false)
+
 const selectedCategoryLabel = computed(() => {
   return selectedCategory.value || '카테고리'
 })
+
 const toggleDropdown = () => { dropdownOpen.value = !dropdownOpen.value }
+
 function closeDropdownAndEmit() {
   dropdownOpen.value = false
   emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
-
 }
+
+function handleSearch() {
+  console.log('검색 요청:', searchKeyword.value)
+  emit('search', searchKeyword.value.trim())
+}
+
 function onDocumentClick(e) {
   if (dropdownOpen.value) {
     const dropdown = document.querySelector('.custom-category-dropdown')
     if (dropdown && !dropdown.contains(e.target)) closeDropdownAndEmit()
   }
 }
+
 function onDocumentKeydown(e) {
   if (dropdownOpen.value && (e.key === 'Enter' || e.keyCode === 13)) closeDropdownAndEmit()
 }
+
 onMounted(() => {
   document.addEventListener('mousedown', onDocumentClick)
   document.addEventListener('keydown', onDocumentKeydown)
 })
+
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentClick)
   document.removeEventListener('keydown', onDocumentKeydown)

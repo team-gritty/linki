@@ -4,14 +4,21 @@ import httpClient from '@/utils/httpRequest'
  * 전체 채널 목록 조회
  * @param {number} page 페이지 번호 (0부터 시작)
  * @param {number} limit 페이지 크기 (기본값: 10)
+ * @param {string} keyword 검색 키워드 (선택)
  */
 const channelApi = {
-  getAllChannels: async (page = 0, limit = 10) => {
+  getAllChannels: async (page = 0, limit = 10, keyword = null) => {
     try {
       const params = {
         page: page,
         limit: limit
       }
+      
+      // 키워드가 있으면 추가
+      if (keyword && keyword.trim()) {
+        params.keyword = keyword.trim()
+      }
+      
       const response = await httpClient.get('/v1/api/nonuser/channels', params)
       // 페이징 정보를 포함한 전체 응답을 반환
       return response.data
@@ -41,9 +48,10 @@ const channelApi = {
    * @param {string[]} categories 카테고리 배열
    * @param {number} page 페이지 번호 (0부터 시작)
    * @param {number} limit 페이지 크기 (기본값: 10)
+   * @param {string} keyword 검색 키워드 (선택)
    * @returns {Promise<any[]>} 카테고리별 채널 목록
    */
-  getChannelsByCategories: async (categories, page = 0, limit = 10) => {
+  getChannelsByCategories: async (categories, page = 0, limit = 10, keyword = null) => {
     try {
       const params = {
         page: page,
@@ -64,6 +72,11 @@ const channelApi = {
             params.category.push(cat)
           }
         })
+      }
+      
+      // 키워드가 있으면 추가
+      if (keyword && keyword.trim()) {
+        params.keyword = keyword.trim()
       }
       
       const response = await httpClient.get('/v1/api/nonuser/channels', params)
