@@ -32,8 +32,8 @@ watchEffect(() => {
 
 // 내 채널의 좋아요/조회수 비율을 계산하는 computed
 const myChannelLikeRatio = computed(() => {
-   // 내 채널 찾기
-  const my = (props.channels || []).find(c => String(c.id) === String(props.channelId))
+   // 내 채널 찾기 - channelId 필드명으로 수정
+  const my = (props.channels || []).find(c => String(c.channelId) === String(props.channelId))
   if (my) {
     // 내 채널의 비율 계산 (조회수가 0 초과일 때만)
     const ratio = my.avgViewCount > 0 ? my.avgLikeCount / my.avgViewCount : 0
@@ -76,7 +76,7 @@ const chartOptions = computed(() => ({
   dataLabels: { enabled: false },                          // 데이터 라벨 숨김
   grid: { borderColor: '#eee' },                           // 차트 격자선 색
   tooltip: {
-    y: { formatter: val => (val * 100).toFixed(2) + '%' }  // 툴팁 숫자 % 형식
+    y: { formatter: val => (val * 100).toFixed(2) + '%' }  // 툴크 숫자 % 형식
   },
   plotOptions: {
     bar: {

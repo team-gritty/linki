@@ -3,17 +3,18 @@ import httpClient from '@/utils/httpRequest'
 /**
  * 전체 채널 목록 조회
  * @param {number} page 페이지 번호 (0부터 시작)
- * @param {number} limit 페이지 크기 (기본값: 10)
+ * @param {number} limit 페이지 크기 (기본값: 100)
  */
 const channelApi = {
-  getAllChannels: async (page = 0, limit = 10) => {
+  getAllChannels: async (page = 0, limit = 100) => {
     try {
       const params = {
         page: page,
         limit: limit
       }
       const response = await httpClient.get('/v1/api/nonuser/channels', params)
-      return response.data
+      // 페이징된 응답에서 실제 채널 배열을 반환
+      return response.data.channels || []
     } catch (error) {
       console.error('Error fetching all channels:', error)
       throw error

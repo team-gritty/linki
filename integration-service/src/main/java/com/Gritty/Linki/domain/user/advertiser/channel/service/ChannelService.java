@@ -90,6 +90,18 @@ public class ChannelService {
                                                 ? channel.getViewCount() / channel.getVideoCount()
                                                 : 0;
 
+                // 평균 좋아요 수 계산
+                long avgLikeCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
+                                && channel.getLikeCount() != null
+                                                ? channel.getLikeCount() / channel.getVideoCount()
+                                                : 0;
+
+                // 평균 댓글 수 계산
+                long avgCommentCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
+                                && channel.getCommentCount() != null
+                                                ? channel.getCommentCount() / channel.getVideoCount()
+                                                : 0;
+
                 return ChannelListResponse.builder()
                                 .channelId(channel.getChannelId())
                                 .channelName(channel.getChannelName())
@@ -97,6 +109,8 @@ public class ChannelService {
                                 .subscriberCount(
                                                 channel.getSubscriberCount() != null ? channel.getSubscriberCount() : 0)
                                 .avgViewCount(avgViewCount)
+                                .avgLikeCount(avgLikeCount)
+                                .avgCommentCount(avgCommentCount)
                                 .category(channel.getChannelCategory())
                                 .description(channel.getChannelDescription())
                                 .build();

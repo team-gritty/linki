@@ -165,12 +165,26 @@ onMounted(async () => {
   loading.value = true
   try {
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
-    channels.value = await channelApi.getAllChannels()
+    const channelsData = await channelApi.getAllChannels()
+    console.log('Raw API response:', channelsData)
+    
+    // API 응답이 페이지네이션 구조인지 확인
+    if (channelsData && channelsData.channels) {
+      channels.value = channelsData.channels
+      console.log('Using channels from pagination response:', channels.value)
+    } else {
+      channels.value = channelsData
+      console.log('Using direct channels response:', channels.value)
+    }
+    
     // 2. 채널 Id로 해당 채널 데이터 가져오기
     channel.value = await channelApi.getChannelById(id.value)
+    console.log('Channel detail data:', channel.value)
+    
     // 3. 리뷰 통계도 진입시 바로 fetch
     await fetchReviewStatsOnEnter()
   } catch (err) {
+    console.error('Error in onMounted:', err)
     error.value = err.message
   } finally {
     loading.value = false

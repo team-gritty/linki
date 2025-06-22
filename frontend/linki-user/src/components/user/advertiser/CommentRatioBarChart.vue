@@ -26,8 +26,8 @@ watchEffect(() => {
 
 // 내 채널 - 평균 댓글 비율 계산
 const myChannelCommentRatio = computed(() => {
-  // 내 채널 데이터 찾기. props.channels, props.channelId바뀌면 자동으로 다시 계산됨
-  const my = (props.channels || []).find(c => String(c.id) === String(props.channelId))
+  // 내 채널 데이터 찾기. props.channels, props.channelId바뀌면 자동으로 다시 계산됨 - channelId 필드명으로 수정
+  const my = (props.channels || []).find(c => String(c.channelId) === String(props.channelId))
   if (my) { // 내채널을 찾았다면 
     //  조회수가 0보다 크면 댓글 수 /조회수 계산
     // 0보다 작으면 0 바로 반환 
