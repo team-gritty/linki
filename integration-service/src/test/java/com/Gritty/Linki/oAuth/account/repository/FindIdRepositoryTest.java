@@ -1,22 +1,14 @@
 package com.Gritty.Linki.oAuth.account.repository;
 
-import com.Gritty.Linki.domain.oAuth.account.repository.FindIdRepository;
-import com.Gritty.Linki.domain.oAuth.account.service.FindIdService;
-import com.Gritty.Linki.domain.oAuth.account.service.FindIdServiceImpl;
-import com.Gritty.Linki.domain.oAuth.dto.FindIdResponseDto;
+import com.Gritty.Linki.domain.account.account.repository.FindIdRepository;
+import com.Gritty.Linki.domain.account.account.service.FindIdServiceImpl;
 import com.Gritty.Linki.entity.User;
-import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

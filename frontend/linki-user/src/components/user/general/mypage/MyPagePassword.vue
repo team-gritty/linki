@@ -69,8 +69,8 @@ const errors = ref({
 
 // 실시간 비밀번호 유효성 검사
 watch(() => passwordData.value.newPassword, (newValue) => {
-  if (newValue && newValue.length < 8) {
-    errors.value.newPassword = '비밀번호는 8자 이상이어야 합니다.'
+  if (newValue && newValue.length < 6) {
+    errors.value.newPassword = '비밀번호는 6자 이상이어야 합니다.'
   } else if (newValue && passwordData.value.currentPassword === newValue) {
     errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
   } else {
@@ -89,7 +89,7 @@ watch(() => passwordData.value.confirmPassword, (newValue) => {
 watch(() => passwordData.value.currentPassword, (newValue) => {
   if (newValue && passwordData.value.newPassword && newValue === passwordData.value.newPassword) {
     errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
-  } else if (passwordData.value.newPassword && !errors.value.newPassword.includes('8자 이상')) {
+  } else if (passwordData.value.newPassword && !errors.value.newPassword.includes('6자 이상')) {
     errors.value.newPassword = ''
   }
 })
@@ -99,7 +99,7 @@ const isFormValid = computed(() => {
     passwordData.value.currentPassword &&
     passwordData.value.newPassword &&
     passwordData.value.confirmPassword &&
-    passwordData.value.newPassword.length >= 8 &&
+    passwordData.value.newPassword.length >= 6 &&
     passwordData.value.newPassword === passwordData.value.confirmPassword &&
     passwordData.value.currentPassword !== passwordData.value.newPassword &&
     !errors.value.currentPassword &&
@@ -125,8 +125,8 @@ const validateForm = () => {
     return false
   }
 
-  if (passwordData.value.newPassword.length < 8) {
-    errors.value.newPassword = '비밀번호는 8자 이상이어야 합니다.'
+  if (passwordData.value.newPassword.length < 6) {
+    errors.value.newPassword = '비밀번호는 6자 이상이어야 합니다.'
     return false
   }
 
