@@ -126,27 +126,26 @@ public class ProposalController {
     }
 
     /**
-     * 제안서 수정
+     * 제안서 수정 (캠페인 상세 페이지용)
      * 
-     * @param campaignId 캠페인 ID
      * @param proposalId 제안서 ID
      * @param request    수정 요청 데이터
      * @param user       JWT 토큰에서 추출된 사용자 정보
      * @return 수정 완료 응답
      */
-    @PutMapping("/campaigns/{campaignId}/proposals/{proposalId}")
-    public ResponseEntity<Void> updateProposal(
-            @PathVariable String campaignId,
+    @PutMapping("/proposals/{proposalId}")
+    public ResponseEntity<ProposalResponse> updateProposal(
             @PathVariable String proposalId,
             @Valid @RequestBody ProposalUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
 
         log.info("제안서 {} 수정 요청, 사용자: {}", proposalId, user.getUserId());
 
-        proposalService.updateProposal(proposalId, user, request.getContents());
+        ProposalDto updatedProposal = proposalService.updateProposal(proposalId, user, request.getContents());
+        ProposalResponse response = dtoToResponse(updatedProposal);
 
         log.info("제안서 {} 수정 완료", proposalId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(response);
     }
 
     /**

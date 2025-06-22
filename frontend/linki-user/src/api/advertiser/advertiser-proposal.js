@@ -60,10 +60,17 @@ export const proposalAPI = {
     }
   },
 
-  // 광고주 - 제안서 수정 (승낙한 다음만 가능)
-  updateProposal: async (proposalId, proposalData) => {
+  /**
+   * 제안서 수정 (승낙한 제안서의 내용 수정)
+   * @param proposalId 제안서 ID
+   * @param contents 수정할 내용
+   * @returns {Promise<*>}
+   */
+  updateProposal: async (proposalId, contents) => {
     try {
-      const response = await httpClient.put(`/v1/api/advertiser/proposals/${proposalId}`, proposalData);
+      const response = await httpClient.put(`/v1/api/advertiser/proposals/${proposalId}`, {
+        contents: contents
+      });
       return response.data;
     } catch (error) {
       console.error('Failed to update proposal:', error);

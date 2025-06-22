@@ -146,11 +146,13 @@ function cancelEdit() {
 }
 async function saveEdit() {
   try {
-    await proposalAPI.updateProposal(props.proposal.proposalId, { ...props.proposal, contents: editContent.value })
-    props.proposal.contents = editContent.value // 즉시 반영
+    const response = await proposalAPI.updateProposal(props.proposal.proposalId, editContent.value)
+    // 백엔드에서 반환된 ProposalResponse로 업데이트
+    props.proposal.contents = response.contents
     isEditMode.value = false
     alert('제안서가 수정되었습니다.')
   } catch (e) {
+    console.error('제안서 수정 실패:', e)
     alert('제안서 수정에 실패했습니다.')
   }
 }
