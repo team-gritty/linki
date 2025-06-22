@@ -1,0 +1,154 @@
+{
+	"id": "99397ea8-9f6a-4d29-9461-c43c6d220dae",
+	"name": "ChatInfoContoller",
+	"timestamp": "2025-06-22T07:13:38.074Z",
+	"collection_id": "43490002-fc07e523-cbb9-4fa9-9039-31f63a14042b",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-22T07:13:36.738Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "76d2e2a1-0562-45de-9d33-8e38464ee0f9",
+			"name": "getPartnerInfo(influencer)",
+			"url": "http://localhost:8000/v1/integration-service/api/partners/PRP-0000000000000000",
+			"time": 213,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				213
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "25cf810e-25bd-40d6-a4a9-17e7486631f5",
+			"name": "getPartnerInfo(advertiser)",
+			"url": "http://localhost:8000/v1/integration-service/api/partners/PRP-0000000000000000",
+			"time": 56,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				56
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "a3521296-a3e8-41d1-9cc1-519f0ffe4500",
+			"name": "getChatInfo(advertiser)",
+			"url": "http://localhost:8000/v1/integration-service/api/chatInfo/CMP-0000000000000000",
+			"time": 36,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				36
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "575aa8ba-b076-4005-8160-672dca146d31",
+			"name": "getChatInfo(influencer)",
+			"url": "http://localhost:8000/v1/integration-service/api/chatInfo/CMP-0000000000000000",
+			"time": 33,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				33
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "b1ac3c72-8f08-4629-99d0-d483002876d0",
+			"name": "getUserChatInfo(influencer)",
+			"url": "http://localhost:8000/v1/integration-service/api/user-chat",
+			"time": 34,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				34
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "bc424963-2395-43fb-bdbd-b4a96d096e15",
+			"name": "getUserChatInfo(advertiser)",
+			"url": "http://localhost:8000/v1/integration-service/api/user-chat",
+			"time": 36,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				36
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 408,
+	"collection": {
+		"requests": [
+			{
+				"id": "76d2e2a1-0562-45de-9d33-8e38464ee0f9",
+				"method": "GET"
+			},
+			{
+				"id": "25cf810e-25bd-40d6-a4a9-17e7486631f5",
+				"method": "GET"
+			},
+			{
+				"id": "a3521296-a3e8-41d1-9cc1-519f0ffe4500",
+				"method": "GET"
+			},
+			{
+				"id": "575aa8ba-b076-4005-8160-672dca146d31",
+				"method": "GET"
+			},
+			{
+				"id": "b1ac3c72-8f08-4629-99d0-d483002876d0",
+				"method": "GET"
+			},
+			{
+				"id": "bc424963-2395-43fb-bdbd-b4a96d096e15",
+				"method": "GET"
+			}
+		]
+	}
+}

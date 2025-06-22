@@ -8,10 +8,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 import java.util.List;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract,String> {
+    Optional<Contract> findByProposal_ProposalId(String proposalId);
     @Query("""
 SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO(
     c.contractId,
