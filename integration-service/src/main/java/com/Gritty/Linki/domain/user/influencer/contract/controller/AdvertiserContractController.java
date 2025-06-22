@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.influencer.contract.controller;
 
 import com.Gritty.Linki.domain.user.influencer.contract.service.AdvertiserContractService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import lombok.RequiredArgsConstructor;
@@ -39,4 +40,15 @@ public class AdvertiserContractController {
 
         return advertiserContractService.getContractsByStatus(statuses);
     }
+
+    @GetMapping("/v1/api/advertiser/mypage/contracts/{contractId}")
+    public ResponseEntity<ContractDetailResponseDTO> getContractDetail(
+            @PathVariable String contractId) {
+
+        ContractDetailResponseDTO response =
+                advertiserContractService.getContractDetail(contractId);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

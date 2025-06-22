@@ -2,7 +2,10 @@ package com.Gritty.Linki.domain.user.influencer.contract.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +30,15 @@ public class InfluencerContractServiceImpl implements InfluencerContractService 
 
         // 계약 목록 조회
         return contractRepository.findContractsByInfluencerIdAndStatus(influencerId, statuses);
+    }
+
+    @Override
+    public ContractDetailResponseDTO getContractDetailForInfluencer(String contractId) {
+        String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(
+                (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+        return contractRepository
+                .findContractDetailForInfluencer(contractId, influencerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONTRACT_NOT_FOUND));
     }
 }

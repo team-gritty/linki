@@ -1,6 +1,7 @@
 package com.Gritty.Linki.user.influencer.contract.repository;
 
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.netflix.discovery.converters.Auto;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,23 +52,25 @@ public class InfContractRepositoryTest {
 
 
     @Test
-    @DisplayName("광고주의 계약 목록 조회")
-    void findContractsByAdvertiserIdAndStatusTest() {
-        // given
-        String advertiserId = "ADV0001"; // 테스트용 더미 광고주 ID
-        List<ContractStatus> statuses = List.of(ContractStatus.ONGOING, ContractStatus.COMPLETED, ContractStatus.PENDING_SIGN);
+    @DisplayName("인플루언서의 계약 상세 조회")
+    void testFindContractDetailForInfluencer() {
+        String contractId = "CONT0000";    // 실제 존재하는 값
+        String influencerId = "INF0000";   // 실제 존재하는 값
 
-        // when
-        List<ContractListResponseDTO> result = contractRepository.findContractsByAdvertiserIdAndStatus(advertiserId, statuses);
+        Optional<ContractDetailResponseDTO> result =
+                contractRepository.findContractDetailForInfluencer(contractId, influencerId);
 
-        // then
-        assertThat(result).isNotNull();
-        log.info("조회된 계약 수: {}", result.size());
-        result.forEach(contract -> {
-            log.info("계약 ID: {}, 상태: {}", contract.getContractId(), contract.getContractStatus());
-            assertThat(statuses).contains(contract.getContractStatus());
-        });
+        assertThat(result).isPresent();
+        ContractDetailResponseDTO dto = result.get();
+        log.info("✅ 계약 ID: {}", dto.getContractId());
+        assertThat(dto.getInfluencerId()).isEqualTo(influencerId);
     }
+
+
+
+
+
+
 
 
 }

@@ -8,6 +8,7 @@ import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractR
 import com.Gritty.Linki.domain.user.influencer.dto.ContractDTO;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.entity.Contract;
 import com.Gritty.Linki.entity.Proposal;
@@ -86,4 +87,18 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
         // 해당 광고주의 계약 목록 조회
         return contractRepository.findContractsByAdvertiserIdAndStatus(advertiserId, statuses);
     }
-}
+
+
+    // 광고주 계약 상세조회
+    @Override
+    public ContractDetailResponseDTO getContractDetail(String contractId) {
+        // 현재 로그인한 광고주의 ID 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(userDetails);
+
+        // 광고주의 계약 상세 정보 조회
+        return contractRepository.findContractDetailForAdvertiser(contractId, advertiserId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 계약을 찾을 수 없거나 권한이 없습니다."));
+    }
+    }
+

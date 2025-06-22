@@ -1,5 +1,6 @@
 package com.Gritty.Linki.domain.user.influencer.contract.repository.jpa;
 
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO;
 import com.Gritty.Linki.entity.Contract;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract,String> {
@@ -62,4 +64,34 @@ AND s.settlementStatus = 'COMPLETED'
             @Param("advertiserId") String advertiserId,
             @Param("statuses") List<ContractStatus> statuses
     );
+
+    // 인플루언서용 계약 상세 조회
+    @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO(" +
+            "c.contractId, c.contractTitle, c.contractStatus, c.contractStartDate, " +
+            "c.contractEndDate, c.contractAmount, p.proposalId, camp.campaignName, c.adDeliveryStatus, " +
+            "c.pdfFilePath, c.contractCreatedAt, c.contractCompletedAt, c.contractSpecialTerms, p.influencer.influencerId) " +
+            "FROM Contract c " +
+            "JOIN c.proposal p " +
+            "JOIN p.campaign camp " +
+            "WHERE c.contractId = :contractId AND p.influencer.influencerId = :influencerId")
+    Optional<ContractDetailResponseDTO> findContractDetailForInfluencer(
+            @Param("contractId") String contractId,
+            @Param("influencerId") String influencerId);
+
+
+    // 광고주용 계약 상세 조회
+    @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO(" +
+            "c.contractId, c.contractTitle, c.contractStatus, c.contractStartDate, " +
+            "c.contractEndDate, c.contractAmount, p.proposalId, camp.campaignName, c.adDeliveryStatus, " +
+            "c.pdfFilePath, c.contractCreatedAt, c.contractCompletedAt, c.contractSpecialTerms, p.influencer.influencerId) " +  // ✅ 마지막에 influencerId 추가
+            "FROM Contract c " +
+            "JOIN c.proposal p " +
+            "JOIN p.campaign camp " +
+            "JOIN camp.advertiser a " +  // ✅ advertiser 명시적 조인
+            "WHERE c.contractId = :contractId AND a.advertiserId = :advertiserId")
+    Optional<ContractDetailResponseDTO> findContractDetailForAdvertiser(
+            @Param("contractId") String contractId,
+            @Param("advertiserId") String advertiserId);
+
+
 }

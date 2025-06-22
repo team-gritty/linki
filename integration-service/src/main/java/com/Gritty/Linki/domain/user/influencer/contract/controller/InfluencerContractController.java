@@ -2,11 +2,14 @@ package com.Gritty.Linki.domain.user.influencer.contract.controller;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.service.InfluencerContractService;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +33,16 @@ public class InfluencerContractController {
     ) {
 
         return influencerContractService.getContractsByStatus(statuses);
+    }
+
+    @GetMapping("/v1/api/influencer/mypage/contracts/{contractId}")
+    public ResponseEntity<ContractDetailResponseDTO> getContractDetail(
+            @PathVariable String contractId) {
+
+        ContractDetailResponseDTO response =
+                influencerContractService.getContractDetailForInfluencer(contractId);
+
+        return ResponseEntity.ok(response);
     }
 
 }
