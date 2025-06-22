@@ -41,20 +41,18 @@ public class ChatClientServiceImpl implements ChatClientService {
         if (partner instanceof AdvertiserDto advertiser) {
             User partnerUser = userRepository.findById(advertiser.getUserId()).orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다. "));
             return PartnerInfoDto.builder()
-                    .partnerId(advertiser.getUserId())
+                    .partnerId(partnerUser.getUserId())
                     .partnerName(partnerUser.getUserLoginId())
                     .proposalId(proposalId)
                     .negoStatus(getNegoStatust(proposalId))
                     .build();
         }
         else {
-            Channel channel = channelJpaRepository.findById(String.valueOf(((InfluencerDto) partner).getInfluencerId())).orElseThrow(()->new RuntimeException("존재하지않는 채널입니다."));
             User partnerUser = userRepository.findById(((InfluencerDto) partner).getUserId()).orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다. "));
             return PartnerInfoDto.builder()
                     .partnerId(partnerUser.getUserId())
                     .partnerName(partnerUser.getUserLoginId())
                     .proposalId(proposalId)
-                    .profileImage(channel.getChannelBannerUrl())
                     .negoStatus(getNegoStatust(proposalId))
                     .build();
         }
@@ -86,10 +84,9 @@ public class ChatClientServiceImpl implements ChatClientService {
     @Override
     public String getNegoStatust(String proposalId) {
         Proposal proposal = proposalRepository.findById(proposalId).orElseThrow(() -> new RuntimeException("존재하지 않는 제안서 입니다. "));
-        Contract contract = contractRepository.findByProposalId(proposalId).orElseThrow(() -> new RuntimeException("계약서가 존재하지 않습니다."));
-
-        if (contract == null) return proposal.getStatus().toString();
-        else return contract.getContractStatus().toString();
+        return contractRepository.findByProposal_ProposalId(proposalId)
+                .map(contract -> contract.getContractStatus().toString()) // 계약 있으면 계약 상태 반환
+                .orElse(proposal.getStatus().toString());
     }
 
     /*
@@ -118,10 +115,10 @@ public class ChatClientServiceImpl implements ChatClientService {
         String role = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).findFirst().orElseThrow(() -> new RuntimeException("권한 없음"));
         if(role.equals("ROLE_INFLUENCER")) {
-            List<InterfaceChatInfoDto> interfaceChatInfoDtos = userRepository.findInfluencerChatInfoByUserId(user.getUserId());
+            List<InterfaceChatInfoDto> interfaceChatInfoDtos = proposalRepository.findInfluencerChatInfoByUserId(user.getUserId());
             return getChatInfoDtos(interfaceChatInfoDtos);
         } else {
-            List<InterfaceChatInfoDto> interfaceChatInfoDtos = userRepository.findAdvertiserChatInfoByUserId(user.getUserId());
+            List<InterfaceChatInfoDto> interfaceChatInfoDtos = proposalRepository.findAdvertiserChatInfoByUserId(user.getUserId());
             return getChatInfoDtos(interfaceChatInfoDtos);
         }
     }

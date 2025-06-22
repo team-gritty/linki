@@ -12,6 +12,5 @@ public class PartnerInfoResponse  {
     private String partnerName;
     private String proposalId;
     private String profileImage;
-    private String channelName;
     private String negoStatus;
 }

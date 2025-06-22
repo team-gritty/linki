@@ -44,6 +44,5 @@ public interface CampaignRepository extends JpaRepository<Campaign, String> {
     List<Campaign> findByCampaignIdsAndAdvertiserId(@Param("campaignIds") List<String> campaignIds,
             @Param("advertiserId") String advertiserId);
 
-    Optional<Campaign> findByProposalId(String proposalId);
 
 }

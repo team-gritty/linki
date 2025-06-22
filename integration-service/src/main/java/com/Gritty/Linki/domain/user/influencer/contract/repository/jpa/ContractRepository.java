@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract,String> {
-    Optional<Contract> findByProposalId(String proposalId);
+    Optional<Contract> findByProposal_ProposalId(String proposalId);
     @Query("""
 SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO(
     c.contractId,

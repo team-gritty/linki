@@ -60,4 +60,33 @@ public interface ProposalRepository extends JpaRepository<Proposal, String> {
             where c.campaign_id = :campaignId
         """,nativeQuery = true)
         List<InterfaceChatInfoDto>findInfluencerChatInfoByCampaignId(@Param("campaignId") String campaignId);
+
+        //유저 아이디(광고주)로 상대방 chatInfo 조회
+        @Query(value = """
+                SELECT u.user_id AS userId,
+              u.user_login_id AS userLoginId,
+              p.proposal_id AS proposalId
+       FROM proposal p
+       JOIN campaign c ON p.campaign_id = c.campaign_id
+       JOIN advertiser a ON c.advertiser_id = a.advertiser_id
+       JOIN influencer i ON p.influencer_id = i.influencer_id
+       JOIN user u ON i.user_id = u.user_id
+       WHERE a.user_id = :loginUserId
+       """,nativeQuery = true)
+        List<InterfaceChatInfoDto> findAdvertiserChatInfoByUserId(@Param("loginUserId") String loginUserId);
+
+        //유저 아이디(인플루언서)로 상대방 chatInfo 조회
+        @Query(value = """
+       SELECT u.user_id AS userId,
+       u.user_login_id AS userLoginId,
+       p.proposal_id AS proposalId
+        FROM proposal p
+        JOIN campaign c ON p.campaign_id = c.campaign_id
+        JOIN advertiser a ON c.advertiser_id = a.advertiser_id
+        JOIN user u ON a.user_id = u.user_id
+        WHERE p.influencer_id = (SELECT influencer_id FROM influencer WHERE user_id = :userId)
+        """, nativeQuery = true)
+        List<InterfaceChatInfoDto> findInfluencerChatInfoByUserId(@Param("userId") String influencerUserId);
+
+
 }
