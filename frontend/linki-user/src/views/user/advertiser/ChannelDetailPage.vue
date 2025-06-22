@@ -72,11 +72,13 @@
         <div class="bar-charts-row">
           <div class="bar-chart-item">
             <h2>조회수 대비 좋아요 비율</h2>
-            <LikeRatioBarChart :channels="channels" :channelId="id" />
+            <LikeRatioBarChart v-if="id && channels.length > 0" :channels="channels" :channelId="id" />
+            <div v-else>차트 로딩 중...</div>
           </div>
           <div class="bar-chart-item">
             <h2>조회수 대비 댓글 비율</h2>
-            <CommentRatioBarChart :channels="channels" :channelId="id" />
+            <CommentRatioBarChart v-if="id && channels.length > 0" :channels="channels" :channelId="id" />
+            <div v-else>차트 로딩 중...</div>
           </div>
         </div>
       </div>
@@ -96,7 +98,8 @@
           <span class="graph-rate">{{ chartData[period].rate }}</span>
           <span class="graph-rate-label">상승률</span>
         </div>
-        <SubscriberHistoryChart :channelId="id" />
+        <SubscriberHistoryChart v-if="id" :channelId="id" />
+        <div v-else>구독자 차트 로딩 중...</div>
       </div>
       
       <div class="tab-section">
@@ -120,7 +123,8 @@
         </div>
       </div>
       <div v-else>
-        <ReviewTab :channelId="id" @review-stats="onReviewStats" />
+        <ReviewTab v-if="id" :channelId="id" @review-stats="onReviewStats" />
+        <div v-else>리뷰 탭 로딩 중...</div>
       </div>
 
     </template>
@@ -144,7 +148,14 @@ const error = ref(null)
 const channels = ref([])
 
 // channelId는 String 타입이므로 숫자 변환하지 않음
-const id = computed(() => route.params.id)
+const id = computed(() => {
+  const channelId = route.params.id
+  console.log('현재 라우트 파라미터 id:', channelId)
+  console.log('route.params 전체:', route.params)
+  return channelId
+})
+
+console.log('초기 id 값:', id.value)
 
 const reviewCount = ref(0)
 const reviewAvg = ref(0)
@@ -164,6 +175,13 @@ function onReviewStats({ count, avg }) {
 onMounted(async () => {
   loading.value = true
   try {
+    console.log('onMounted 시작 - id:', id.value)
+    
+    // 먼저 id가 존재하는지 확인
+    if (!id.value) {
+      throw new Error('채널 ID가 존재하지 않습니다.')
+    }
+    
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
     const channelsData = await channelApi.getAllChannels()
     console.log('Raw API response:', channelsData)
@@ -178,6 +196,7 @@ onMounted(async () => {
     }
     
     // 2. 채널 Id로 해당 채널 데이터 가져오기
+    console.log('채널 상세 데이터 조회 시작 - channelId:', id.value)
     channel.value = await channelApi.getChannelById(id.value)
     console.log('Channel detail data:', channel.value)
     

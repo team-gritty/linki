@@ -35,9 +35,29 @@ const myChannelLikeRatio = computed(() => {
    // 내 채널 찾기 - channelId 필드명으로 수정
   console.log('=== LikeRatioBarChart 디버그 ===')
   console.log('내채널 찾는중:', props.channelId)
-  console.log('채널 목록:', props.channels)
+  console.log('채널 목록:', props.channels?.length || 0, '개 채널')
   
-  const my = (props.channels || []).find(c => String(c.channelId) === String(props.channelId))
+  // 기본값 체크
+  if (!props.channelId || !props.channels || props.channels.length === 0) {
+    console.warn('channelId 또는 channels 데이터가 없음')
+    return 0
+  }
+  
+  // 다양한 방식으로 채널 검색 시도
+  let my = props.channels.find(c => String(c.channelId) === String(props.channelId))
+  
+  if (!my) {
+    // channelId 대신 id 필드로 시도
+    my = props.channels.find(c => String(c.id) === String(props.channelId))
+  }
+  
+  if (!my) {
+    // 다른 가능한 필드명들로 시도
+    console.log('첫 번째 채널 객체 구조:', props.channels[0])
+    console.warn('내채널 찾지 못함. 0 반환하기---')
+    return 0
+  }
+  
   console.log('내채널 찾음:', my)
   
   if (my) {
@@ -46,7 +66,7 @@ const myChannelLikeRatio = computed(() => {
     console.log('채널 평균 좋아요 수:', my.avgLikeCount)
     
     const ratio = my.avgViewCount > 0 ? my.avgLikeCount / my.avgViewCount : 0
-    console.log('계산 된 댓글 비율:', ratio)
+    console.log('계산 된 좋아요 비율:', ratio)
     return ratio
   }
 

@@ -30,6 +30,14 @@
     try {
       console.log('=== SubscriberHistoryChart 디버그 ===')
       console.log('Fetching subscriber history for channelId:', props.channelId)
+      
+      // channelId 존재 여부 확인
+      if (!props.channelId) {
+        console.error('channelId가 존재하지 않습니다')
+        history.value = []
+        return
+      }
+      
       const data = await channelApi.getSubscriberHistory(props.channelId)
       console.log('구독자 히스토리 응답 데이터 :', data)
       
