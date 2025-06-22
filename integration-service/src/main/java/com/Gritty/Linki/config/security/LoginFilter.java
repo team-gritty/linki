@@ -1,6 +1,6 @@
 package com.Gritty.Linki.config.security;
 
-import com.Gritty.Linki.domain.oAuth.account.service.RefreshTokenService;
+import com.Gritty.Linki.domain.account.account.service.RefreshTokenService;
 import com.Gritty.Linki.entity.RefreshToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

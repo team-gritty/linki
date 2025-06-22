@@ -1,9 +1,7 @@
 package com.Gritty.Linki.oAuth.account.service;
 
-import com.Gritty.Linki.domain.oAuth.account.repository.FindIdRepository;
-import com.Gritty.Linki.domain.oAuth.account.service.FindIdService;
-import com.Gritty.Linki.domain.oAuth.account.service.FindIdServiceImpl;
-import com.Gritty.Linki.domain.oAuth.dto.FindIdResponseDto;
+import com.Gritty.Linki.domain.account.account.repository.FindIdRepository;
+import com.Gritty.Linki.domain.account.account.service.FindIdServiceImpl;
 import com.Gritty.Linki.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -19,7 +16,6 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @Slf4j
 @SpringBootTest
