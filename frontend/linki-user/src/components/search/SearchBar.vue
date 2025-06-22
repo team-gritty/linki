@@ -36,11 +36,29 @@
 import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
 
 const emit = defineEmits(['update:categories', 'search'])
+
+// 프론트엔드 표시용 한국어 카테고리
 const categories = [
-  '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
+  '전체', '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
 
-const selectedCategory = ref('')
+// 한국어 -> 영어 카테고리 매핑 (백엔드 API용)
+const categoryMapping = {
+  '전체': null, // 전체는 카테고리 필터 없음
+  '패션': 'FASHION',
+  '뷰티': 'BEAUTY', 
+  '푸드 / 먹방': 'FOOD',
+  '엔터테인먼트': 'ENTERTAINMENT',
+  '여행': 'TRAVEL',
+  '스포츠': 'SPORTS',
+  '음악': 'MUSIC',
+  '전자기기': 'ELECTRONICS',
+  'Vlog/라이프스타일': 'VLOG',
+  '교육': 'EDUCATION',
+  '동물/펫': 'ANIMAL'
+}
+
+const selectedCategory = ref('전체')
 const searchKeyword = ref('')
 const dropdownOpen = ref(false)
 
@@ -52,7 +70,10 @@ const toggleDropdown = () => { dropdownOpen.value = !dropdownOpen.value }
 
 function closeDropdownAndEmit() {
   dropdownOpen.value = false
-  emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
+  // 한국어 카테고리를 영어로 변환하여 emit
+  // "전체"인 경우 null이므로 빈 배열을 emit (전체 채널 조회)
+  const englishCategory = selectedCategory.value ? categoryMapping[selectedCategory.value] : null
+  emit('update:categories', englishCategory ? [englishCategory] : [])
 }
 
 function handleSearch() {

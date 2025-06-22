@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class="td td-category">
-          <span class="badge-category">{{ item.category }}</span>
+          <span class="badge-category">{{ getCategoryDisplayName(item.category) }}</span>
         </div>
         <div class="td td-subscribers">{{ item.subscriberCount }}</div>
         <div class="td td-views">{{ item.avgViewCount }}</div>
@@ -132,6 +132,26 @@ const error = ref(null)
 const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
 const searchKeyword = ref('') // 검색 키워드 저장
 
+// 영어 -> 한국어 카테고리 매핑 (백엔드 응답 표시용)
+const categoryDisplayMapping = {
+  'FASHION': '패션',
+  'BEAUTY': '뷰티', 
+  'FOOD': '푸드 / 먹방',
+  'ENTERTAINMENT': '엔터테인먼트',
+  'TRAVEL': '여행',
+  'SPORTS': '스포츠',
+  'MUSIC': '음악',
+  'ELECTRONICS': '전자기기',
+  'VLOG': 'Vlog/라이프스타일',
+  'EDUCATION': '교육',
+  'ANIMAL': '동물/펫'
+}
+
+// 카테고리 표시명 변환 함수
+const getCategoryDisplayName = (category) => {
+  return categoryDisplayMapping[category] || category
+}
+
 // URL 쿼리에서 선택된 카테고리 초기화
 const initializeFromQuery = () => {
   const categoriesFromQuery = route.query.selectedCategories
@@ -205,13 +225,17 @@ function onCategoryChange(categories) {
   selectedCategories.value = categories
   // 카테고리 변경 시 페이지 1로 이동
   page.value = 1 
+  
+  console.log('카테고리 변경:', categories)
+  
   if (categories.length === 0) {
-    // 선택된 카테고리가 없으면 빈 배열로 초기화
-    listData.value = { channels: [], pageInfo: null } 
-    error.value = '선택된 카테고리에 해당하는 채널이 없습니다'
+    // 전체 카테고리 선택 또는 카테고리 선택 해제 시 전체 채널 조회
+    console.log('전체 채널 조회 호출')
+    fetchChannels(1, searchKeyword.value)
   } else {
-    // 선택된 카테고리에 해당하는 채널 데이터 추출
-    fetchChannelsByCategories(categories)
+    // 특정 카테고리 선택 시 카테고리별 채널 조회
+    console.log('카테고리별 채널 조회 호출:', categories)
+    fetchChannelsByCategories(categories, 1, searchKeyword.value)
   }
 }
 
