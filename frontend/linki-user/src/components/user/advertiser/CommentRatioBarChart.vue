@@ -27,15 +27,24 @@ watchEffect(() => {
 // 내 채널 - 평균 댓글 비율 계산
 const myChannelCommentRatio = computed(() => {
   // 내 채널 데이터 찾기. props.channels, props.channelId바뀌면 자동으로 다시 계산됨 - channelId 필드명으로 수정
+  console.log('=== CommentRatioBarChart 디버깅 ===')
+  console.log('찾아야 하는 채널 아이디 : {}', props.channelId)
+  console.log('채널 목록은:', props.channels)
+  
   const my = (props.channels || []).find(c => String(c.channelId) === String(props.channelId))
+  console.log('내채널 찾음:', my)
+  
   if (my) { // 내채널을 찾았다면 
     //  조회수가 0보다 크면 댓글 수 /조회수 계산
     // 0보다 작으면 0 바로 반환 
+    console.log('채널 평균 조회수:', my.avgViewCount)
+    console.log('채널 평균 댓글 수 :', my.avgCommentCount)
+    
     const ratio = my.avgViewCount > 0 ? my.avgCommentCount / my.avgViewCount : 0
-    console.log('내 채널(댓글):', my)
-    console.log('내 채널 댓글 비율:', ratio)
+    console.log('댓글 비율 계산 완료:', ratio)
     return ratio
   }
+  console.warn('내채널 찾지 못함. 0 반환하기---')
   return 0
 })
 

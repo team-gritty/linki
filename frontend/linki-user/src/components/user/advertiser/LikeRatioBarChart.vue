@@ -33,14 +33,23 @@ watchEffect(() => {
 // 내 채널의 좋아요/조회수 비율을 계산하는 computed
 const myChannelLikeRatio = computed(() => {
    // 내 채널 찾기 - channelId 필드명으로 수정
+  console.log('=== LikeRatioBarChart 디버그 ===')
+  console.log('내채널 찾는중:', props.channelId)
+  console.log('채널 목록:', props.channels)
+  
   const my = (props.channels || []).find(c => String(c.channelId) === String(props.channelId))
+  console.log('내채널 찾음:', my)
+  
   if (my) {
     // 내 채널의 비율 계산 (조회수가 0 초과일 때만)
+    console.log('채널 평균 조회수', my.avgViewCount)
+    console.log('채널 평균 좋아요 수:', my.avgLikeCount)
+    
     const ratio = my.avgViewCount > 0 ? my.avgLikeCount / my.avgViewCount : 0
-    console.log('내 채널:', my)
-    console.log('내 채널 비율:', ratio)
+    console.log('계산 된 댓글 비율:', ratio)
     return ratio
   }
+
   return 0
 })
 

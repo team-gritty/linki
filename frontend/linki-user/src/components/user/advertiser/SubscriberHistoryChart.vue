@@ -28,22 +28,25 @@
   // 컴포넌트가 마운트되면, 구독자 수 변화 그래프를 그리기 위한 데이터를 조회하는 함수
   onMounted(async () => {
     try {
+      console.log('=== SubscriberHistoryChart 디버그 ===')
       console.log('Fetching subscriber history for channelId:', props.channelId)
       const data = await channelApi.getSubscriberHistory(props.channelId)
-      console.log('Response data:', data)
+      console.log('구독자 히스토리 응답 데이터 :', data)
       
       if (Array.isArray(data)) {
-        history.value = data
+        const filteredData = data
           .filter(item => String(item.channelId) === String(props.channelId))
           .sort((a, b) => new Date(a.collectedAt) - new Date(b.collectedAt))
+        
+        history.value = filteredData
+        console.log('필터된 구독자 히스토리:', history.value)
       } else {
-        console.error('Expected array but got:', typeof data)
+        console.error('배열이 아님 -----', typeof data, data)
         history.value = []
       }
       
-      console.log('Filtered history:', history.value)
     } catch (error) {
-      console.error('Error fetching subscriber history:', error)
+      console.error('구독자 히스토리 데이터 가져오는 중 에러 ', error)
       history.value = []
     }
   })
