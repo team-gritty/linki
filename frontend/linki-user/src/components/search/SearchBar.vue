@@ -33,9 +33,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, defineEmits, defineProps, watch } from 'vue'
 
 const emit = defineEmits(['update:categories', 'search'])
+
+const props = defineProps({
+  selectedCategoryProp: {
+    type: String,
+    default: '전체'
+  }
+})
 
 // 프론트엔드 표시용 한국어 카테고리
 const categories = [
@@ -58,9 +65,14 @@ const categoryMapping = {
   '동물/펫': 'ANIMAL'
 }
 
-const selectedCategory = ref('전체')
+const selectedCategory = ref(props.selectedCategoryProp)
 const searchKeyword = ref('')
 const dropdownOpen = ref(false)
+
+// props 변경 감지하여 내부 상태 업데이트
+watch(() => props.selectedCategoryProp, (newCategory) => {
+  selectedCategory.value = newCategory
+}, { immediate: true })
 
 const selectedCategoryLabel = computed(() => {
   return selectedCategory.value || '카테고리'

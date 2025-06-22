@@ -7,9 +7,23 @@
         </svg>
         <span>검색 옵션</span>
       </button>
-      <SearchBar @update:categories="onCategoryChange" @search="onSearch" />
+      <SearchBar 
+        @update:categories="onCategoryChange" 
+        @search="onSearch"
+        :selected-category-prop="getCurrentDisplayCategory()"
+      />
     </div>
-    <SearchOptionModal v-if="modalOpen" @close="modalOpen = false" @apply-filters="applyModalFilters" />
+    <SearchOptionModal 
+      v-if="modalOpen" 
+      @close="modalOpen = false" 
+      @apply-filters="applyModalFilters"
+      :init-category="getCurrentCategoryForModal()"
+      :init-subscriber-min="getSubscriberMinForModal()"
+      :init-subscriber-max="getSubscriberMaxForModal()"
+      :init-subscriber-checks="getSubscriberChecksForModal()"
+      :init-view-direct="getViewDirectForModal()"
+      :init-view-checks="getViewChecksForModal()"
+    />
 
     <div class="channel-list-table">
       <div class="table-header">
@@ -132,6 +146,7 @@ const error = ref(null)
 const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
 const searchKeyword = ref('') // 검색 키워드 저장
 const currentFilters = ref({}) // 현재 적용된 필터 저장
+const currentDisplayCategory = ref('전체') // SearchBar에 표시할 현재 카테고리
 
 // 영어 -> 한국어 카테고리 매핑 (백엔드 응답 표시용)
 const categoryDisplayMapping = {
@@ -228,6 +243,28 @@ function onCategoryChange(categories) {
   page.value = 1 
   
   console.log('카테고리 변경:', categories)
+  
+  // SearchBar 표시용 카테고리 업데이트
+  if (categories.length > 0) {
+    // 영어 -> 한국어 역방향 매핑
+    const reverseMapping = {
+      'FASHION': '패션',
+      'BEAUTY': '뷰티', 
+      'FOOD': '푸드 / 먹방',
+      'ENTERTAINMENT': '엔터테인먼트',
+      'TRAVEL': '여행',
+      'SPORTS': '스포츠',
+      'MUSIC': '음악',
+      'ELECTRONICS': '전자기기',
+      'VLOG': 'Vlog/라이프스타일',
+      'EDUCATION': '교육',
+      'ANIMAL': '동물/펫'
+    }
+    currentDisplayCategory.value = reverseMapping[categories[0]] || '전체'
+  } else {
+    currentDisplayCategory.value = '전체'
+  }
+  console.log('SearchBar 카테고리 업데이트됨:', currentDisplayCategory.value)
   
   // 카테고리 선택 시 currentFilters에 카테고리 정보 업데이트
   if (categories.length > 0) {
@@ -408,27 +445,24 @@ function applyModalFilters(filters) {
   console.log('=== 모달 필터 적용 시작 ===')
   console.log('모달에서 전달된 원본 필터:', JSON.stringify(filters, null, 2))
   
-  // 필터 상태 업데이트
-  currentFilters.value = { ...filters }
+  // 필터 상태 업데이트 (모달 초기화를 위한 추가 정보도 저장)
+  currentFilters.value = { 
+    ...filters,
+    // 모달 재오픈을 위한 원본 데이터 저장
+    originalModalData: filters.originalModalData || {}
+  }
   console.log('currentFilters 업데이트됨:', JSON.stringify(currentFilters.value, null, 2))
+  
+  // SearchBar 표시용 카테고리 업데이트
+  if (filters.originalModalData?.selectedCategory) {
+    currentDisplayCategory.value = filters.originalModalData.selectedCategory
+  } else {
+    currentDisplayCategory.value = '전체'
+  }
+  console.log('currentDisplayCategory 업데이트됨:', currentDisplayCategory.value)
   
   // 카테고리 필터가 있으면 selectedCategories도 업데이트 (UI 표시용)
   if (filters.category) {
-    // 영어 -> 한국어 역방향 매핑 추가
-    const reverseMapping = {
-      'FASHION': '패션',
-      'BEAUTY': '뷰티', 
-      'FOOD': '푸드 / 먹방',
-      'ENTERTAINMENT': '엔터테인먼트',
-      'TRAVEL': '여행',
-      'SPORTS': '스포츠',
-      'MUSIC': '음악',
-      'ELECTRONICS': '전자기기',
-      'VLOG': 'Vlog/라이프스타일',
-      'EDUCATION': '교육',
-      'ANIMAL': '동물/펫'
-    }
-    
     selectedCategories.value = [filters.category]
     console.log('selectedCategories 업데이트됨:', selectedCategories.value)
   } else {
@@ -442,6 +476,42 @@ function applyModalFilters(filters) {
   console.log('=== 모달 필터 적용 끝 ===')
   
   fetchChannels(1, searchKeyword.value, currentFilters.value)
+}
+
+// 현재 모달에 초기화할 카테고리 반환 (영어 -> 한국어 변환)
+function getCurrentCategoryForModal() {
+  // 원본 모달 데이터에서 선택된 카테고리 반환 (한국어)
+  return currentFilters.value.originalModalData?.selectedCategory || ''
+}
+
+// 현재 모달에 초기화할 구독자 최소값 반환
+function getSubscriberMinForModal() {
+  return currentFilters.value.originalModalData?.subscriberMin || ''
+}
+
+// 현재 모달에 초기화할 구독자 최대값 반환
+function getSubscriberMaxForModal() {
+  return currentFilters.value.originalModalData?.subscriberMax || ''
+}
+
+// 현재 모달에 초기화할 구독자 체크 배열 반환
+function getSubscriberChecksForModal() {
+  return currentFilters.value.originalModalData?.subscriberChecks || [true, false, false, false, false, false, false, false, false]
+}
+
+// 현재 모달에 초기화할 뷰 직접 반환
+function getViewDirectForModal() {
+  return currentFilters.value.originalModalData?.viewDirect || ''
+}
+
+// 현재 모달에 초기화할 뷰 체크 배열 반환
+function getViewChecksForModal() {
+  return currentFilters.value.originalModalData?.viewChecks || [true, false, false, false, false, false]
+}
+
+// 현재 모달에 초기화할 카테고리 반환 (영어 -> 한국어 변환)
+function getCurrentDisplayCategory() {
+  return currentDisplayCategory.value
 }
 </script>
 

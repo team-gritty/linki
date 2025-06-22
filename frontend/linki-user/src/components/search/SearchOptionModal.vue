@@ -214,7 +214,16 @@ function handleSearch() {
   console.log('계산된 viewCountRange:', viewCountRange)
   
   const filters = {
-    category: selectedCategory.value ? categoryMapping[selectedCategory.value] : null
+    category: selectedCategory.value ? categoryMapping[selectedCategory.value] : null,
+    // 모달 재오픈을 위한 원본 데이터 저장
+    originalModalData: {
+      selectedCategory: selectedCategory.value,
+      subscriberMin: subscriberMin.value,
+      subscriberMax: subscriberMax.value,
+      subscriberChecks: [...subscriberChecks.value],
+      viewDirect: viewDirect.value,
+      viewChecks: [...viewChecks.value]
+    }
   }
   
   // 구독자 수 필터가 있을 때만 추가
