@@ -99,22 +99,27 @@ const campaignApi = {
     }
   },
 
-  /**
- * 마이페이지 - 캠페인 공개/비공개 처리
- * @param {boolean} makePublic - true: 공개, false: 비공개
- * @returns {Promise<Object>} 응답 데이터
- */
-updateCampaignVisibility: async (makePublic) => {
-  try {
-    const response = await httpClient.put(`/v1/api/advertiser/mypage/campaigns/visibility`, null, {
-      params: { makePublic }
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error updating campaign visibility:', error)
-    throw error
-  }
-}
+  // 캠페인 상태 업데이트 (단일 캠페인용)
+  updateCampaignStatus: async (campaignId, statusData) => {
+    try {
+      // ACTIVE/HIDDEN 상태를 makePublic boolean으로 변환
+      const makePublic = statusData.campaignStatus === 'ACTIVE'
+      
+      const response = await httpClient.patch(`/v1/api/advertiser/mypage/campaigns/visibility`, 
+        [campaignId], // 캠페인 ID 배열로 전송
+        {
+          params: { makePublic }
+        }
+      )
+      return response.data
+    } catch (error) {
+      console.error('Error updating campaign status:', error)
+      throw error
+    }
+  },
+
+
+
 }
 
 export default campaignApi
