@@ -99,6 +99,19 @@ const campaignApi = {
     }
   },
 
+  // 캠페인 삭제
+  deleteCampaign: async (campaignId) => {
+    try {
+      console.log('API: Deleting campaign with ID:', campaignId)
+      const response = await httpClient.delete(`/v1/api/advertiser/mypage/campaigns/${campaignId}`)
+      console.log('API: Campaign deletion response:', response)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting campaign:', error)
+      throw error
+    }
+  },
+
   // 캠페인 상태 업데이트 (단일 캠페인용)
   updateCampaignStatus: async (campaignId, statusData) => {
     try {
