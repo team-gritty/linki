@@ -9,7 +9,7 @@
       </button>
       <SearchBar @update:categories="onCategoryChange" @search="onSearch" />
     </div>
-    <SearchOptionModal v-if="modalOpen" @close="modalOpen = false" @update:categories="onCategoryChange" />
+    <SearchOptionModal v-if="modalOpen" @close="modalOpen = false" @apply-filters="applyModalFilters" />
 
     <div class="channel-list-table">
       <div class="table-header">
@@ -131,6 +131,7 @@ const error = ref(null)
 
 const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
 const searchKeyword = ref('') // 검색 키워드 저장
+const currentFilters = ref({}) // 현재 적용된 필터 저장
 
 // 영어 -> 한국어 카테고리 매핑 (백엔드 응답 표시용)
 const categoryDisplayMapping = {
@@ -228,15 +229,20 @@ function onCategoryChange(categories) {
   
   console.log('카테고리 변경:', categories)
   
-  if (categories.length === 0) {
-    // 전체 카테고리 선택 또는 카테고리 선택 해제 시 전체 채널 조회
-    console.log('전체 채널 조회 호출')
-    fetchChannels(1, searchKeyword.value)
+  // 카테고리 선택 시 currentFilters에 카테고리 정보 업데이트
+  if (categories.length > 0) {
+    currentFilters.value = { 
+      ...currentFilters.value, 
+      category: categories[0] // 첫 번째 카테고리 사용
+    }
   } else {
-    // 특정 카테고리 선택 시 카테고리별 채널 조회
-    console.log('카테고리별 채널 조회 호출:', categories)
-    fetchChannelsByCategories(categories, 1, searchKeyword.value)
+    // 전체 선택 시 카테고리 필터 제거
+    const { category, ...restFilters } = currentFilters.value
+    currentFilters.value = restFilters
   }
+  
+  // 모든 경우에 getAllChannels 사용
+  fetchChannels(1, searchKeyword.value, currentFilters.value)
 }
 
 // 페이지 번호 변경 시 페이지 번호 업데이트 및 API 호출
@@ -260,21 +266,15 @@ function changePage(newPage) {
   page.value = newPage // 페이지 번호 업데이트
   console.log('페이지 업데이트 완료:', page.value)
   
-  // 선택된 카테고리가 있으면 카테고리별 조회, 없으면 전체 조회 (검색 키워드 유지)
-  if (selectedCategories.value.length > 0) {
-    console.log('카테고리별 조회 호출:', selectedCategories.value, 'page:', newPage, 'keyword:', searchKeyword.value)
-    fetchChannelsByCategories(selectedCategories.value, newPage, searchKeyword.value)
-  } else {
-    console.log('전체 조회 호출, page:', newPage, 'keyword:', searchKeyword.value)
-    fetchChannels(newPage, searchKeyword.value)
-  }
+  // 모든 경우에 getAllChannels 사용 (검색 키워드와 필터 유지)
+  fetchChannels(newPage, searchKeyword.value, currentFilters.value)
 }
 
 // 전체 채널 데이터 추출
-async function fetchChannels(pageNumber = 1, keyword = null) {
-  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1, keyword })
+async function fetchChannels(pageNumber = 1, keyword = null, filters = {}) {
+  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1, keyword, filters })
   try {
-    const result = await channelApi.getAllChannels(pageNumber - 1, 10, keyword) // 백엔드는 0부터 시작
+    const result = await channelApi.getAllChannels(pageNumber - 1, 10, keyword, filters) // 백엔드는 0부터 시작
     console.log('전체 채널 API 응답:', result)
     listData.value = result
     
@@ -297,10 +297,10 @@ async function fetchChannels(pageNumber = 1, keyword = null) {
 }
 
 // 카테고리 필터링 채널 데이터 불러오기
-async function fetchChannelsByCategories(categories, pageNumber = 1, keyword = null) {
-  console.log('fetchChannelsByCategories 호출:', { categories, pageNumber, backendPage: pageNumber - 1, keyword })
+async function fetchChannelsByCategories(categories, pageNumber = 1, keyword = null, filters = {}) {
+  console.log('fetchChannelsByCategories 호출:', { categories, pageNumber, backendPage: pageNumber - 1, keyword, filters })
   try {
-    const result = await channelApi.getChannelsByCategories(categories, pageNumber - 1, 10, keyword) // 백엔드는 0부터 시작
+    const result = await channelApi.getChannelsByCategories(categories, pageNumber - 1, 10, keyword, filters) // 백엔드는 0부터 시작
     console.log('카테고리별 API 응답:', result)
     listData.value = result
     
@@ -334,7 +334,9 @@ onMounted(() => {
   initializeFromQuery() // URL 쿼리 파라미터 처리
   // 선택된 카테고리가 없을 경우에만 전체 채널 데이터를 불러옴
   if (selectedCategories.value.length === 0) {
-    fetchChannels()
+    // 테스트: 필터 없이 기본 호출
+    console.log('기본 채널 목록 로드 시작')
+    fetchChannels(1, null, {})
   }
 })
 
@@ -397,12 +399,49 @@ function onSearch(keyword) {
   searchKeyword.value = keyword
   page.value = 1 // 검색 시 첫 페이지로 이동
   
-  // 선택된 카테고리가 있으면 카테고리와 키워드로 검색, 없으면 키워드만으로 검색
-  if (selectedCategories.value.length > 0) {
-    fetchChannelsByCategories(selectedCategories.value, 1, keyword)
+  // 모든 경우에 getAllChannels 사용 (필터 유지)
+  fetchChannels(1, keyword, currentFilters.value)
+}
+
+// 모달 필터 적용
+function applyModalFilters(filters) {
+  console.log('=== 모달 필터 적용 시작 ===')
+  console.log('모달에서 전달된 원본 필터:', JSON.stringify(filters, null, 2))
+  
+  // 필터 상태 업데이트
+  currentFilters.value = { ...filters }
+  console.log('currentFilters 업데이트됨:', JSON.stringify(currentFilters.value, null, 2))
+  
+  // 카테고리 필터가 있으면 selectedCategories도 업데이트 (UI 표시용)
+  if (filters.category) {
+    // 영어 -> 한국어 역방향 매핑 추가
+    const reverseMapping = {
+      'FASHION': '패션',
+      'BEAUTY': '뷰티', 
+      'FOOD': '푸드 / 먹방',
+      'ENTERTAINMENT': '엔터테인먼트',
+      'TRAVEL': '여행',
+      'SPORTS': '스포츠',
+      'MUSIC': '음악',
+      'ELECTRONICS': '전자기기',
+      'VLOG': 'Vlog/라이프스타일',
+      'EDUCATION': '교육',
+      'ANIMAL': '동물/펫'
+    }
+    
+    selectedCategories.value = [filters.category]
+    console.log('selectedCategories 업데이트됨:', selectedCategories.value)
   } else {
-    fetchChannels(1, keyword)
+    selectedCategories.value = []
+    console.log('selectedCategories 초기화됨')
   }
+  
+  // 첫 페이지로 이동하고 필터 적용해서 검색 (모든 필터를 getAllChannels로 처리)
+  page.value = 1
+  console.log('API 호출 직전 - currentFilters:', JSON.stringify(currentFilters.value, null, 2))
+  console.log('=== 모달 필터 적용 끝 ===')
+  
+  fetchChannels(1, searchKeyword.value, currentFilters.value)
 }
 </script>
 
