@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.influencer.responseDTO;
+package com.Gritty.Linki.domain.user.influencer.responseDTO.review;
 
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.Gritty.Linki.vo.enums.SettlementStatus;

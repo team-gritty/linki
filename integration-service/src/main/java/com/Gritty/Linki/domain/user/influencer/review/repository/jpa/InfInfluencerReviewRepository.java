@@ -1,6 +1,6 @@
 package com.Gritty.Linki.domain.user.influencer.review.repository.jpa;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReceivedInfluencerReviewResponseDTO;
 import com.Gritty.Linki.entity.InfluencerReview;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +12,7 @@ public interface InfInfluencerReviewRepository extends JpaRepository<InfluencerR
 
     // 로그인한 인플루언서가 광고주에게 받은 리뷰 조회
     @Query("""
-    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO(
+    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReceivedInfluencerReviewResponseDTO(
         r.influencerReviewId,
         r.influencerReviewScore,
         r.influencerReviewComment,

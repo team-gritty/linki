@@ -1,15 +1,12 @@
 package com.Gritty.Linki.domain.user.influencer.proposal.service;
 
-import com.Gritty.Linki.config.actuator.InfoContributor;
 import com.Gritty.Linki.config.security.CustomUserDetails;
-import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
-import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerCampaignRepository;
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
 import com.Gritty.Linki.entity.Influencer;
 import com.Gritty.Linki.entity.Proposal;

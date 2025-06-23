@@ -1,10 +1,9 @@
-package com.Gritty.Linki.domain.user.influencer.responseDTO;
+package com.Gritty.Linki.domain.user.influencer.responseDTO.campaign;
 
 import com.Gritty.Linki.vo.enums.CampaignPublishStatus;
 import com.Gritty.Linki.vo.enums.Category;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

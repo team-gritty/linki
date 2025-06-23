@@ -1,7 +1,10 @@
 package com.Gritty.Linki.config.security;
 
 import com.Gritty.Linki.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 @Builder
+
 
 //유저 디테일즈 서비스에서 사용할 객체
 public class CustomUserDetails implements UserDetails {
@@ -18,6 +23,7 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final String role;
 
+    @Builder
     public CustomUserDetails(String userId, String userLoginId, String password, String role) {
         this.userId = userId;
         this.userLoginId = userLoginId;
