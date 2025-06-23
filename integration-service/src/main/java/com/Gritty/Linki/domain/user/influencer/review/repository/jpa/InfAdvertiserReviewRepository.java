@@ -1,7 +1,7 @@
 package com.Gritty.Linki.domain.user.influencer.review.repository.jpa;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.InfAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.WrittenAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.entity.AdvertiserReview;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +14,7 @@ public interface InfAdvertiserReviewRepository extends JpaRepository<AdvertiserR
     boolean existsByContract_ContractId(String contractId);
 
     // 특정 캠페인을 등록한 광고주 리뷰 리스트 조회
-    @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO(" +
+    @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.review.InfAdvertiserReviewResponseDTO(" +
             "r.advertiserReviewId,r.advertiserReviewScore, r.advertiserReviewComment, r.advertiserReviewCreatedAt, c.contractId,r.visibility) " +
             "FROM AdvertiserReview r " +
             "JOIN r.contract c " +
@@ -25,7 +25,7 @@ public interface InfAdvertiserReviewRepository extends JpaRepository<AdvertiserR
 
     // 인플루언서가 작성한 광고주 리뷰 조회
     @Query("""
-    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO(
+    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.review.WrittenAdvertiserReviewResponseDTO(
         ar.advertiserReviewId,
         ar.advertiserReviewScore,
         ar.advertiserReviewComment,

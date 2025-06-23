@@ -1,8 +1,8 @@
 package com.Gritty.Linki.domain.user.influencer.campaign.service;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignCategoryResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignListResponseDTO;
 import com.Gritty.Linki.vo.enums.Category;
 
 import java.util.List;

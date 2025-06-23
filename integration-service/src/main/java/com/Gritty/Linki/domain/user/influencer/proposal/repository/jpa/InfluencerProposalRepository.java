@@ -1,7 +1,7 @@
 package com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO;
 import com.Gritty.Linki.entity.Proposal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface InfluencerProposalRepository extends JpaRepository<Proposal, String> {
 
     @Query("""
-    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO(
+    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO(
         p.proposalId,
         p.campaign.campaignId,
         p.campaign.campaignName,
@@ -27,7 +27,7 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
     List<ProposalListResponseDTO>findAllByInfluencerId(@Param("influencerId") String influencerId);
 
     @Query("""
-    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO(
+    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO(
         p.campaign.campaignName,
         p.proposalId,
         p.contents,

@@ -40,6 +40,7 @@
           </button>
 
           <button
+              type="button"
               class="user-google-button"
               @click="handleGoogleLogin"
               :disabled="isLoading"
@@ -112,17 +113,17 @@ const handleLogin = async () => {
     alert('아이디를 입력해주세요.')
     return
   }
-  
+
   if (!password.value.trim()) {
     alert('비밀번호를 입력해주세요.')
     return
   }
-  
+
   if (userId.value.length < 3) {
     alert('아이디는 3자 이상 입력해주세요.')
     return
   }
-  
+
   if (password.value.length < 4) {
     alert('비밀번호는 6자 이상 입력해주세요.')
     return
@@ -137,15 +138,15 @@ const handleLogin = async () => {
 
     // 백엔드에서 Authorization 헤더로 토큰을 전송하므로 헤더에서 추출
     const accessToken = response.data.accessToken || response.headers['authorization']?.replace('Bearer ', '')
-    
+
     if (accessToken) {
       // JWT 토큰에서 사용자 정보 추출
       const tokenPayload = parseJwtToken(accessToken)
-      
+
       if (tokenPayload) {
         const userRole = tokenPayload.userRole
         const userId = tokenPayload.userId
-        
+
         // 백엔드 role을 프론트엔드 userType으로 매핑
         let userType = 'general'
         if (userRole === 'ROLE_INFLUENCER') {
@@ -153,20 +154,20 @@ const handleLogin = async () => {
         } else if (userRole === 'ROLE_ADVERTISER') {
           userType = 'advertiser'
         }
-        
+
         // Store에 로그인 정보 저장
         accountStore.setLoginInfo(accessToken, { userId, userRole }, userType)
-        
+
         // localStorage에도 토큰 저장 (앱 재시작 시 복원용)
         localStorage.setItem('token', accessToken)
-        
+
         // 콘솔에 사용자 정보 출력
         console.log('로그인 성공!')
         // console.log('User ID:', userId)
         // console.log('User Role:', userRole)
         // console.log('User Type:', userType)
         // console.log('Account Store User Role:', accountStore.getUser?.userRole)
-        
+
         // 홈 페이지로 리다이렉트
         router.push('/home')
       } else {
@@ -197,33 +198,9 @@ const handleLogin = async () => {
   }
 }
 
-const handleGoogleLogin = async () => {
-  try {
-    isLoading.value = true
-    const response = await httpClient.get('/api/user/auth/google')
-    
-    if (response.data.success) {
-      // Google OAuth URL로 리다이렉트
-      window.location.href = response.data.authUrl
-    } else {
-      alert('Google 로그인을 시작할 수 없습니다.')
-    }
-  } catch (error) {
-    console.error('Google login failed:', error)
-    if (error.response) {
-      if (error.response.status === 500) {
-        alert('Google 로그인 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해주세요.')
-      } else {
-        alert(error.response.data?.message || 'Google 로그인 중 오류가 발생했습니다.')
-      }
-    } else if (error.request) {
-      alert('Google 로그인 서버와 통신할 수 없습니다. 잠시 후 다시 시도해주세요.')
-    } else {
-      alert('Google 로그인 요청을 보내지 못했습니다. 잠시 후 다시 시도해주세요.')
-    }
-  } finally {
-    isLoading.value = false
-  }
+const handleGoogleLogin = () => {
+  // OAuth2 인증 시작: 백엔드 스프링 시큐리티가 자동 처리하는 URL로 이동
+  window.location.replace('http://localhost:8081/oauth2/authorization/google');
 }
 
 const goToFindId = () => {

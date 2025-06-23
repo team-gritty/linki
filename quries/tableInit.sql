@@ -23,7 +23,9 @@ DROP TABLE IF EXISTS influencer;
 
 CREATE TABLE `influencer` (
 	`influencer_id`	varchar(25)	NOT NULL	COMMENT '인플루언서 식별 아이디',
-	`user_id`	VARCHAR(25)	NOT NULL	COMMENT 'UUID or 스노우플레이크'
+	`user_id`	VARCHAR(25)	NOT NULL	COMMENT 'UUID or 스노우플레이크',
+     `influencer_intro` LONGTEXT NULL COMMENT '인플루언서 자기 소개',
+    `influencer_img` LONGTEXT NULL COMMENT '인플루언서 프로필 사진'
 );
 
 DROP TABLE IF EXISTS settlement;
@@ -155,15 +157,18 @@ DROP TABLE IF EXISTS user;
 
 CREATE TABLE `user` (
 	`user_id`	VARCHAR(25)	NOT NULL,
-	`user_login_id`	VARCHAR(20)	NOT NULL,
-	`user_login_pw`	VARCHAR(255)	NOT NULL,
+	`user_login_id`	VARCHAR(20),
+	`user_login_pw`	VARCHAR(255),
 	`user_name`	VARCHAR(20)	NOT NULL,
-	`user_phone`	VARCHAR(15)	NOT NULL,
+	`user_phone`	VARCHAR(15),
 	`user_email`	VARCHAR(50)	NOT NULL,
 	`user_pay_status`	INTEGER	NULL,
 	`user_status`	INTEGER	NOT NULL DEFAULT 1,
 	`user_enter_day`	DATE	NOT NULL,
-	`user_role`	VARCHAR(20)	NOT NULL	COMMENT '일반유자,인플루언서,광고주'
+	`user_role`	VARCHAR(20)	NOT NULL	COMMENT '일반유자,인플루언서,광고주',
+    `user_oauth_provider` VARCHAR(20) COMMENT 'google, naver, kakaod 등',
+    `user_oauth_id` VARCHAR(50) COMMENT '구글에서 제공하는 식별값',
+    `user_oauth_user` boolean DEFAULT  FALSE
 );
 
 DROP TABLE IF EXISTS qna_comment;
