@@ -45,21 +45,43 @@ import DetailChat from '@/components/user/advertiser/detail/DetailChat.vue'
 const route = useRoute()
 const campaignId = computed(() => route.params.id)
 const currentTab = ref('campaign.info')
+const chatId = ref(null)
 
-// URL 쿼리 파라미터에서 탭 정보 초기화
+// 탭 매핑 함수
+const mapTabFromQuery = (queryTab) => {
+  const tabMapping = {
+    'info': 'campaign.info',
+    'proposal': 'proposal.list', 
+    'contract': 'contract.list',
+    'chat': 'chat.room'
+  }
+  return tabMapping[queryTab] || 'campaign.info'
+}
+
+// URL 쿼리 파라미터에서 탭 및 채팅 정보 초기화
 onMounted(() => {
   const tabFromQuery = route.query.tab
+  const chatIdFromQuery = route.query.chatId
+  
   if (tabFromQuery) {
-    currentTab.value = tabFromQuery
+    currentTab.value = mapTabFromQuery(tabFromQuery)
+  }
+  
+  if (chatIdFromQuery) {
+    chatId.value = chatIdFromQuery
   }
 })
 
 // route.query 변경 감지
-watch(() => route.query.tab, (newTab) => {
-  if (newTab) {
-    currentTab.value = newTab
+watch(() => route.query, (newQuery) => {
+  if (newQuery.tab) {
+    currentTab.value = mapTabFromQuery(newQuery.tab)
   }
-})
+  
+  if (newQuery.chatId) {
+    chatId.value = newQuery.chatId
+  }
+}, { deep: true })
 </script>
 
 <style>

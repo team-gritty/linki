@@ -65,12 +65,12 @@ const toggleDropdown = () => {
 }
 
 const goToChat = (chat) => {
-  if (userType.value === 'INFLUENCER') {
+  if (userType.value === 'influencer') {
     router.push({
       path: `/proposal/${chat.proposalId}`,
       query: { tab: 'chat' }
     })
-  } else if (userType.value === 'ADVERTISER') {
+  } else if (userType.value === 'advertiser') {
     router.push({
       path: `/mypage/campaign-detail/${chat.campaignId}`,
       query: { tab: 'chat', chatId: chat.chatId }
