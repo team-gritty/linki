@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
+
 /**
  * 채널 검색 서비스
  * 검색 필터를 통한 채널 조회 기능 제공
@@ -103,19 +106,15 @@ public class ChannelService {
                                                 ? channel.getCommentCount() / channel.getVideoCount()
                                                 : 0;
 
-                // 임시 해결책: 데이터가 없는 경우 가상의 비율 생성 (실제 데이터가 없을 때만)
+                // 데이터가 없는 경우 예외 처리
                 if (avgLikeCount == 0 && avgViewCount > 0) {
-                        // 일반적인 좋아요 비율 2-5% 적용
-                        avgLikeCount = (long) (avgViewCount * (0.02 + Math.random() * 0.03));
-                        log.warn("실제 데이터가 아닌 더미 데이터 사용, 채널 아이디: {}, 평균 좋아요 수: {}",
-                                        channel.getChannelId(), avgLikeCount);
+                        log.warn("좋아요 데이터가 없습니다. 채널 ID: {}", channel.getChannelId());
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "좋아요 통계 데이터를 찾을 수 없습니다");
                 }
 
                 if (avgCommentCount == 0 && avgViewCount > 0) {
-                        // 일반적인 댓글 비율 0.1-0.5% 적용
-                        avgCommentCount = (long) (avgViewCount * (0.001 + Math.random() * 0.004));
-                        log.warn("실제 데이터가 아닌 더미 데이터 사용: {}, avgCommentCount: {}",
-                                        channel.getChannelId(), avgCommentCount);
+                        log.warn("댓글 데이터가 없습니다. 채널 ID: {}", channel.getChannelId());
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "댓글 통계 데이터를 찾을 수 없습니다");
                 }
 
                 log.debug("실제 데이터 계산 완료: channelId={}, avgViewCount={}, avgLikeCount={}, avgCommentCount={}",
@@ -146,7 +145,7 @@ public class ChannelService {
 
                 // 1. 데이터베이스에서 채널 기본 정보 조회
                 Channel channel = channelRepository.findById(channelId)
-                                .orElseThrow(() -> new RuntimeException("채널을 찾을 수 없습니다: " + channelId));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "채널을 찾을 수 없습니다"));
 
                 // 2. YouTube API를 통해 평균 좋아요/댓글 수, 배너 url 조회 (최근 30개 영상 기준)
                 long avgLikeCount = 0;
@@ -188,17 +187,15 @@ public class ChannelService {
                         avgViewCount = channel.getViewCount() / channel.getVideoCount();
                 }
 
-                // 임시 해결책: 데이터가 없는 경우 가상의 비율 생성 (상세 페이지용)
+                // 데이터가 없는 경우 예외 처리
                 if (avgLikeCount == 0 && avgViewCount > 0) {
-                        // 일반적인 좋아요 비율 2-5% 적용
-                        avgLikeCount = (long) (avgViewCount * (0.02 + Math.random() * 0.03));
-                        log.warn("더미데이터 계산--------------");
+                        log.warn("좋아요 데이터가 없습니다. 채널 ID: {}", channelId);
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "좋아요 통계 데이터를 찾을 수 없습니다");
                 }
 
                 if (avgCommentCount == 0 && avgViewCount > 0) {
-                        // 일반적인 댓글 비율 0.1-0.5% 적용
-                        avgCommentCount = (long) (avgViewCount * (0.001 + Math.random() * 0.004));
-                        log.warn("더미데이터 계산--------------");
+                        log.warn("댓글 데이터가 없습니다. 채널 ID: {}", channelId);
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "댓글 통계 데이터를 찾을 수 없습니다");
                 }
 
                 // 4. Response DTO 생성
