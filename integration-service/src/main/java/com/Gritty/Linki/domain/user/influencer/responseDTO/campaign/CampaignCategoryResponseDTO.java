@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.influencer.responseDTO;
+package com.Gritty.Linki.domain.user.influencer.responseDTO.campaign;
 
 import lombok.*;
 

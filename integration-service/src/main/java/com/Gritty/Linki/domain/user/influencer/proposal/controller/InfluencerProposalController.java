@@ -3,15 +3,13 @@ package com.Gritty.Linki.domain.user.influencer.proposal.controller;
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.proposal.service.InfluencerProposalService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalListResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;

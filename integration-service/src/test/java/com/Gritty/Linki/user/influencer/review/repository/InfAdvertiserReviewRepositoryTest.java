@@ -1,9 +1,9 @@
 package com.Gritty.Linki.user.influencer.review.repository;
 
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.InfAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.WrittenAdvertiserReviewResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.review.repository.jpa.InfAdvertiserReviewRepository;
 import com.Gritty.Linki.entity.AdvertiserReview;
 import com.Gritty.Linki.entity.Contract;

@@ -2,10 +2,9 @@ package com.Gritty.Linki.user.influencer.campaign.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampaignService;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignCategoryResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.CampaignListResponseDTO;
-import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignCategoryResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignListResponseDTO;
 import com.Gritty.Linki.vo.enums.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
