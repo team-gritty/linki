@@ -96,6 +96,9 @@ dependencies {
 	// 랜덤한 고유 숏코드 생성
 	implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
 
+	// Spring oAuth2 Client
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 
 }
 

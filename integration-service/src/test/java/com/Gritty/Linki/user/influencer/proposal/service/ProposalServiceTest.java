@@ -2,15 +2,12 @@ package com.Gritty.Linki.user.influencer.proposal.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.config.security.CustomUserDetailsService;
-import com.Gritty.Linki.domain.user.advertiser.proposal.service.ProposalService;
-import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.service.InfluencerProposalService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ProposalDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO;
 import com.Gritty.Linki.entity.Proposal;
 import com.Gritty.Linki.util.AuthenticationUtil;
-import lombok.Builder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

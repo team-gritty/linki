@@ -1,6 +1,6 @@
 use linkiDB;
 
-DROP TABLE IF EXISTS linki_score;
+drop table if exists subscriber_history;
 
 CREATE TABLE subscriber_history (
     id VARCHAR(25) NOT NULL PRIMARY KEY COMMENT '구독자 히스토리 ID',
