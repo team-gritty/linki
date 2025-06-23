@@ -1,9 +1,9 @@
-package com.Gritty.Linki.domain.user.User.mypage.controller;
+package com.Gritty.Linki.domain.user.mypage.controller;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
-import com.Gritty.Linki.domain.user.User.mypage.dto.UserMypageRequestDto;
-import com.Gritty.Linki.domain.user.User.mypage.dto.UserMypageResponseDto;
-import com.Gritty.Linki.domain.user.User.mypage.service.UserMypageService;
+import com.Gritty.Linki.domain.user.mypage.dto.UserMypageRequestDto;
+import com.Gritty.Linki.domain.user.mypage.dto.UserMypageResponseDto;
+import com.Gritty.Linki.domain.user.mypage.service.UserMypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
