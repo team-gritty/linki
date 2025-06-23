@@ -23,6 +23,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -155,7 +158,7 @@ public class ReviewServiceImpl implements ReviewService {
 
                 if (channelCount == 0) {
                     log.warn("존재하지 않는 채널입니다: channelId={}", influencerId);
-                    return List.of();
+                    throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 채널입니다");
                 }
 
                 log.info("채널 정보 조회 완료: channelId={}, exists=true", influencerId);
@@ -167,7 +170,7 @@ public class ReviewServiceImpl implements ReviewService {
                     log.info("채널 ID로 리뷰 조회 완료: channelId={}, reviewCount={}", influencerId, reviews.size());
                 } catch (Exception e) {
                     log.error("채널 ID로 리뷰 조회 실패: channelId={}, error={}", influencerId, e.getMessage());
-                    return List.of();
+                    throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "리뷰 조회 중 오류가 발생했습니다");
                 }
 
                 return convertInfluencerReviewsToDto(reviews);
@@ -182,8 +185,7 @@ public class ReviewServiceImpl implements ReviewService {
 
                 if (influencerCount == 0) {
                     log.warn("존재하지 않는 인플루언서입니다: influencerId={}", influencerId);
-                    // 존재하지 않는 인플루언서의 경우 빈 리스트 반환 (예외 발생하지 않음)
-                    return List.of();
+                    throw new BusinessException(ErrorCode.INFLUENCER_NOT_FOUND);
                 }
 
                 log.info("인플루언서 정보 조회 완료: influencerId={}, exists=true", influencerId);
@@ -203,8 +205,7 @@ public class ReviewServiceImpl implements ReviewService {
                     } catch (Exception fetchError) {
                         log.error("FETCH JOIN 쿼리도 실패: influencerId={}, error={}", influencerId,
                                 fetchError.getMessage());
-                        // 빈 리스트 반환
-                        return List.of();
+                        throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "리뷰 조회 중 오류가 발생했습니다");
                     }
                 }
 
@@ -289,7 +290,7 @@ public class ReviewServiceImpl implements ReviewService {
                     .getSingleResult();
             return settlement.getSettlementStatus().name();
         } catch (Exception e) {
-            return SettlementStatus.PENDING.name(); // 기본값
+            throw new BusinessException(ErrorCode.SETTLEMENT_LOOKUP_ERROR, "정산 상태 조회에 실패했습니다");
         }
     }
 }

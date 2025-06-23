@@ -14,6 +14,9 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
+
 /**
  * 구독자 히스토리 비즈니스 로직 처리 서비스
  */
@@ -58,8 +61,8 @@ public class SubscriberHistoryService {
                     startDate);
 
             if (history.isEmpty()) {
-                log.warn("구독자 히스토리 데이터가 없습니다. 더미 데이터를 생성합니다 - channelId: {}", channelId);
-                return generateDummySubscriberHistory(channelId, days);
+                log.warn("구독자 히스토리 데이터가 없습니다 - channelId: {}", channelId);
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "구독자 히스토리 데이터를 찾을 수 없습니다");
             }
 
             log.info("구독자 히스토리 조회 완료 - channelId: {}, 조회된 데이터 수: {}", channelId, history.size());
@@ -67,8 +70,7 @@ public class SubscriberHistoryService {
 
         } catch (Exception e) {
             log.error("구독자 히스토리 조회 중 오류 발생 - channelId: {}", channelId, e);
-            log.warn("오류로 인해 더미 데이터를 생성합니다 - channelId: {}", channelId);
-            return generateDummySubscriberHistory(channelId, days);
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "구독자 히스토리 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -197,7 +199,7 @@ public class SubscriberHistoryService {
             // 유튜브 채널 아이디가 널이라면 (디비 컬럼에 값이 없다면)
             if (youtubeChannelId == null) {
                 log.warn(" 채널 {}에 대한 YouTube 채널 ID를 찾을 수 없습니다", channelId);
-                return null;
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "YouTube 채널 ID를 찾을 수 없습니다");
             }
 
             // youtubeChannelId의 수독자 수 수집
@@ -208,7 +210,7 @@ public class SubscriberHistoryService {
             return subscriberCount;
         } catch (Exception e) {
             log.error(" 채널 {} 구독자 수 조회 중 오류 발생", channelId, e);
-            return null;
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "구독자 수 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
