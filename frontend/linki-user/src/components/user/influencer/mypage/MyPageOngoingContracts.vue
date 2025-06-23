@@ -37,7 +37,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import httpClient from '../../../../utils/httpRequest';
+import { contractApi } from '@/api/contract';
 
 export default {
   name: 'MyPageOngoingContracts',
@@ -48,12 +48,14 @@ export default {
 
     const fetchContracts = async () => {
       try {
-        const response = await httpClient.get('/v1/api/influencer/contracts');
-        // ONGOING 또는 PENDING_SIGN 상태인 계약만 필터링
-        contracts.value = response.data.filter(contract => 
-          contract.contractStatus === 'ONGOING' || contract.contractStatus === 'PENDING_SIGN'
-        );
-        console.log('Fetched contracts:', contracts.value);
+        console.log('Fetching ongoing contracts...');
+        // ONGOING 상태의 계약만 조회
+        const response = await contractApi.getMyContracts(['ONGOING', 'PENDING_SIGN']);
+        console.log('Contracts response:', response);
+        
+        // 이미 백엔드에서 필터링된 데이터이므로 그대로 사용
+        contracts.value = Array.isArray(response) ? response : [];
+        console.log('Fetched ongoing contracts:', contracts.value);
       } catch (error) {
         console.error('계약 목록 조회 실패:', error);
         contracts.value = [];
@@ -62,22 +64,33 @@ export default {
 
     const viewContractDetail = async (contract) => {
       try {
-        // 계약서 상세 페이지로 이동 (제안서 상세 페이지와 동일한 라우트 사용)
-        router.push({
-          path: `/proposal/${contract.proposal_id}`,
-          query: { tab: 'contract' }
-        });
+        console.log('Viewing contract detail:', contract);
+        // 계약서 상세 페이지로 이동 (제안서 상세 페이지의 계약 탭 사용)
+        if (contract.proposalId && contract.contractId) {
+          router.push({
+            path: `/proposal/${contract.proposalId}`,
+            query: { 
+              tab: 'contract',
+              contractId: contract.contractId  // contractId도 함께 전달
+            }
+          });
+        } else {
+          console.error('Missing required data:', { proposalId: contract.proposalId, contractId: contract.contractId });
+          alert('제안서 또는 계약서 정보를 찾을 수 없습니다.');
+        }
       } catch (error) {
         console.error('페이지 이동 실패:', error);
       }
     };
 
     const formatDate = (dateString) => {
+      if (!dateString) return '';
       const date = new Date(dateString);
       return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
     };
 
     const formatAmount = (amount) => {
+      if (!amount) return '0';
       return new Intl.NumberFormat('ko-KR').format(amount);
     };
 

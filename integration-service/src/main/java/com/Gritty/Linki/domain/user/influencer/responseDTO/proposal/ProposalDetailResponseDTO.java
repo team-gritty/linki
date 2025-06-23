@@ -1,5 +1,6 @@
 package com.Gritty.Linki.domain.user.influencer.responseDTO.proposal;
 
+import com.Gritty.Linki.vo.enums.ContractStatus;
 import com.Gritty.Linki.vo.enums.ProposalStatus;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class ProposalDetailResponseDTO {
     private LocalDateTime respondedAt;
     private String influencerId;
     private String campaignId;
+    private ContractStatus contractStatus;
 
 
     public ProposalDetailResponseDTO(
@@ -28,7 +30,8 @@ public class ProposalDetailResponseDTO {
             LocalDateTime submittedAt,
             LocalDateTime respondedAt,
             String influencerId,
-            String campaignId
+            String campaignId,
+            ContractStatus contractStatus
     ) {
         this.campaignName = campaignName;
         this.proposalId = proposalId;
@@ -38,6 +41,7 @@ public class ProposalDetailResponseDTO {
         this.respondedAt = respondedAt;
         this.influencerId = influencerId;
         this.campaignId = campaignId;
+        this.contractStatus = contractStatus;
     }
 }
 

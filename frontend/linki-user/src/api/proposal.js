@@ -36,7 +36,7 @@ export const proposalAPI = {
   // 제안서 수정
   updateProposal: async (proposalId, proposalData) => {
     try {
-      const response = await httpClient.put(`/v1/api/influencer/proposals/${proposalId}`, proposalData);
+      const response = await httpClient.put(`/v1/api/influencer/mypage/proposals/${proposalId}`, proposalData);
       return response.data;
     } catch (error) {
       console.error('Failed to update proposal:', error);
@@ -47,7 +47,7 @@ export const proposalAPI = {
   // 제안서 삭제
   deleteProposal: async (proposalId) => {
     try {
-      const response = await httpClient.delete(`/v1/api/influencer/proposals/${proposalId}`);
+      const response = await httpClient.delete(`/v1/api/influencer/mypage/proposals/${proposalId}`);
       return response.data;
     } catch (error) {
       console.error('Failed to delete proposal:', error);
@@ -81,12 +81,12 @@ export const proposalAPI = {
    // 제안서 제출
    submitProposal: async (campaignId, contents) => {
     try {
-      const response = await httpClient.post(`/v1/api/influencer/campaigns/${campaignId}/proposals`, {
+      const response = await httpClient.post(`/v1/api/influencer/mypage/campaigns/${campaignId}/proposals`, {
         contents: contents,
-        campaign_id: String(campaignId),
-        status: 'PENDING',
-        submitted_at: new Date().toISOString(),
-        influencer_id: 'INF001' // TODO: 실제 로그인한 사용자 ID로 대체
+        campaignId: String(campaignId)
+        // submittedAt: 백엔드에서 현재 시간으로 자동 설정
+        // status: 백엔드에서 기본값 PENDING으로 자동 설정
+        // influencerId: 백엔드에서 JWT 토큰을 파싱해서 자동으로 설정
       })
       return response.data
     } catch (error) {
