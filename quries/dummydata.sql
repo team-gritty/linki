@@ -397,21 +397,16 @@ WHERE seq < 5000;  -- 1000개의 리다이렉트 링크 * 5개의 클릭
 
 -- 채팅방 데이터 생성 (수정된 제안서 기반)
 INSERT INTO `chat` (`chat_id`, `chat_date`, `chat_status`, `proposal_id`)
-SELECT 
-    CONCAT('CHT-', LPAD(seq, 16, '0')),
+SELECT
+    CONCAT('CHT-', LPAD(SUBSTRING_INDEX(proposal_id, '-', -1), 16, '0')),
     NOW(),
-    'PENDING',
-    CONCAT('PRP-', LPAD(seq, 16, '0'))
-FROM (
-         SELECT a.N + b.N * 10 + c.N * 100 AS seq
-         FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL
-               SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
-              (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL
-               SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b,
-              (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) c
-     ) numbers
-WHERE seq < 500;
-
+    CASE status
+        WHEN 'ACCEPTED' THEN 'ACTIVE'
+        ELSE 'PENDING'
+        END,
+    proposal_id
+FROM proposal
+WHERE SUBSTRING_INDEX(proposal_id, '-', -1) < 500;
 -- 서명 데이터 생성
 INSERT INTO `signature` (`signature_id`, `signature_signer_name`, `signature_signed_at`, `signature_status`, `contract_id`)
 SELECT 
