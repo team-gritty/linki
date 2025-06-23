@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 export const useAccountStore = defineStore('account', {
+    persist: true,
     state: () => ({
         accessToken: null,
         user: null,
