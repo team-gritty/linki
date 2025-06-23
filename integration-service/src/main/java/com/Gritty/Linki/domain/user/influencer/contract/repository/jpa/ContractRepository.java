@@ -1,20 +1,21 @@
 package com.Gritty.Linki.domain.user.influencer.contract.repository.jpa;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
 import com.Gritty.Linki.entity.Contract;
-import com.Gritty.Linki.vo.enums.ContractStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
+
+import java.util.List;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract,String> {
+    Optional<Contract> findByProposal_ProposalId(String proposalId);
+
 
     // 정산, 계약 상태가 완료된 리뷰 가능한 계약 조회
     @Query("""
