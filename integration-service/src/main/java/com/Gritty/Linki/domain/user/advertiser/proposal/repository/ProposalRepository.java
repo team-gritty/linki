@@ -52,7 +52,8 @@ public interface ProposalRepository extends JpaRepository<Proposal, String> {
         @Query(value = """
            select u.user_id AS userId,
                    u.user_login_id AS userLoginId,
-                   p.proposal_id AS proposalId
+                   p.proposal_id AS proposalId,
+                   c.campaign_id AS campaignId
             from proposal p
             join campaign c on p.campaign_id = c.campaign_id
             join influencer i on i.influencer_id = p.influencer_id
@@ -66,7 +67,7 @@ public interface ProposalRepository extends JpaRepository<Proposal, String> {
                 SELECT u.user_id AS userId,
               u.user_login_id AS userLoginId,
               p.proposal_id AS proposalId,
-              p.campaign_id AS campaignId
+              c.campaign_id AS campaignId
        FROM proposal p
        JOIN campaign c ON p.campaign_id = c.campaign_id
        JOIN advertiser a ON c.advertiser_id = a.advertiser_id
