@@ -23,7 +23,9 @@ DROP TABLE IF EXISTS influencer;
 
 CREATE TABLE `influencer` (
 	`influencer_id`	varchar(25)	NOT NULL	COMMENT '인플루언서 식별 아이디',
-	`user_id`	VARCHAR(25)	NOT NULL	COMMENT 'UUID or 스노우플레이크'
+	`user_id`	VARCHAR(25)	NOT NULL	COMMENT 'UUID or 스노우플레이크',
+     `influencer_intro` LONGTEXT NULL COMMENT '인플루언서 자기 소개',
+    `influencer_img` LONGTEXT NULL COMMENT '인플루언서 프로필 사진'
 );
 
 DROP TABLE IF EXISTS settlement;
