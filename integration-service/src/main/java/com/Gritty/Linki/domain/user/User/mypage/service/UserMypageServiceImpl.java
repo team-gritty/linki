@@ -6,6 +6,7 @@ import com.Gritty.Linki.domain.user.User.mypage.dto.UserPasswordChangeRequestDto
 import com.Gritty.Linki.domain.user.User.mypage.repository.UserMypageRepository;
 import com.Gritty.Linki.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserMypageServiceImpl implements UserMypageService {
 
     private final UserMypageRepository userMypageRepository;
@@ -21,8 +23,15 @@ public class UserMypageServiceImpl implements UserMypageService {
     @Override
     @Transactional(readOnly = true)
     public UserMypageResponseDto getUserMypage(String userId) {
+        log.info("사용자 마이페이지 조회 시작 - userId: {}", userId);
+        
         User user = userMypageRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> {
+                    log.error("사용자를 찾을 수 없습니다. - userId: {}", userId);
+                    return new RuntimeException("사용자를 찾을 수 없습니다.");
+                });
+
+        log.info("사용자 조회 성공 - userName: {}, userEmail: {}", user.getUserName(), user.getUserEmail());
 
         UserMypageResponseDto response = new UserMypageResponseDto();
         response.setUserId(user.getUserId());
@@ -31,6 +40,7 @@ public class UserMypageServiceImpl implements UserMypageService {
         response.setUserEmail(user.getUserEmail());
         response.setUserEnterDay(user.getUserEnterDay());
 
+        log.info("마이페이지 응답 생성 완료 - userName: {}", response.getUserName());
         return response;
     }
 

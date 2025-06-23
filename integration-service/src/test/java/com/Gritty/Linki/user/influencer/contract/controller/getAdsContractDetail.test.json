@@ -1,0 +1,16 @@
+{
+  "contractId": "CTR-0000000000000093",
+  "contractTitle": "계약서93",
+  "contractStatus": "COMPLETED",
+  "contractStartDate": "2023-03-31",
+  "contractEndDate": "2024-04-18",
+  "contractAmount": 309800,
+  "proposalId": "PROP0004",
+  "campaignName": "캠페인2",
+  "adDeliveryStatus": false,
+  "pdfDownloadUrl": "/contracts/93.pdf",
+  "contractCreatedAt": "2025-06-11T00:00:00",
+  "contractCompletedAt": "2025-06-22T17:58:58",
+  "contractSpecialTerms": "특별 조항93",
+  "influencerId": "INF0002"
+}

@@ -1,5 +1,6 @@
 package com.Gritty.Linki.domain.user.advertiser.proposal.repository;
 
+import com.Gritty.Linki.client.chatClient.dto.InterfaceChatInfoDto;
 import com.Gritty.Linki.entity.Proposal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -46,4 +47,46 @@ public interface ProposalRepository extends JpaRepository<Proposal, String> {
                         "WHERE p.campaign.campaignId = :campaignId AND c.advertiser.advertiserId = :advertiserId")
         List<Proposal> findByCampaignIdAndAdvertiserId(@Param("campaignId") String campaignId,
                         @Param("advertiserId") String advertiserId);
+
+        //캠페인 아이디로 chatInfo 조회
+        @Query(value = """
+           select u.user_id AS userId,
+                   u.user_login_id AS userLoginId,
+                   p.proposal_id AS proposalId
+            from proposal p
+            join campaign c on p.campaign_id = c.campaign_id
+            join influencer i on i.influencer_id = p.influencer_id
+            join user u on u.user_id = i.user_id
+            where c.campaign_id = :campaignId
+        """,nativeQuery = true)
+        List<InterfaceChatInfoDto>findInfluencerChatInfoByCampaignId(@Param("campaignId") String campaignId);
+
+        //유저 아이디(광고주)로 상대방 chatInfo 조회
+        @Query(value = """
+                SELECT u.user_id AS userId,
+              u.user_login_id AS userLoginId,
+              p.proposal_id AS proposalId
+       FROM proposal p
+       JOIN campaign c ON p.campaign_id = c.campaign_id
+       JOIN advertiser a ON c.advertiser_id = a.advertiser_id
+       JOIN influencer i ON p.influencer_id = i.influencer_id
+       JOIN user u ON i.user_id = u.user_id
+       WHERE a.user_id = :loginUserId
+       """,nativeQuery = true)
+        List<InterfaceChatInfoDto> findAdvertiserChatInfoByUserId(@Param("loginUserId") String loginUserId);
+
+        //유저 아이디(인플루언서)로 상대방 chatInfo 조회
+        @Query(value = """
+       SELECT u.user_id AS userId,
+       u.user_login_id AS userLoginId,
+       p.proposal_id AS proposalId
+        FROM proposal p
+        JOIN campaign c ON p.campaign_id = c.campaign_id
+        JOIN advertiser a ON c.advertiser_id = a.advertiser_id
+        JOIN user u ON a.user_id = u.user_id
+        WHERE p.influencer_id = (SELECT influencer_id FROM influencer WHERE user_id = :userId)
+        """, nativeQuery = true)
+        List<InterfaceChatInfoDto> findInfluencerChatInfoByUserId(@Param("userId") String influencerUserId);
+
+
 }

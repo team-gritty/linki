@@ -145,6 +145,13 @@ const router = createRouter({
       component: MyPage
 
     },
+
+    { //구글로그인 성공
+      path: '/oauth/google/success',
+      name: 'GoogleSuccess',
+      component: () => import('@/views/oAuth/login/GoogleCallback.vue')  // 또는 '@/components/GoogleCallback.vue'
+    },
+
     {
       path: '/go',
       name: 'redirect-url',

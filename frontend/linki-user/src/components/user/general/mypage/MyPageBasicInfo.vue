@@ -55,7 +55,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import httpRequest from '@/utils/httpRequest'
+import httpClient from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
 import { useAccountStore } from '@/stores/account'
 
@@ -132,7 +132,7 @@ watch(rawPhone, (newValue) => {
 const loadUserInfo = async () => {
   try {
     isLoading.value = true
-    const response = await httpRequest.get('v1/api/user/mypage')
+    const response = await httpClient.get('v1/api/user/mypage')
     profileData.value = {
       name: response.data.userName || '',
       phone: response.data.userPhone || '',
@@ -198,7 +198,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const response = await httpRequest.patch('v1/api/user/mypage', {
+    const response = await httpClient.patch('v1/api/user/mypage', {
       userName: profileData.value.name,
       userPhone: profileData.value.phone,
       userEmail: profileData.value.email
