@@ -1,7 +1,10 @@
 package com.Gritty.Linki.domain.user.influencer.contract.repository.jpa;
 
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO;
 import com.Gritty.Linki.entity.Contract;
+import com.Gritty.Linki.vo.enums.ContractStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
