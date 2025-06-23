@@ -7,7 +7,7 @@
 
     <!-- 구독 안내/버튼 카드 -->
     <div class="subscribe-action-card">
-      <button class="subscribe-btn">지금 바로 구독하고 신청하기</button>
+      <button class="subscribe-btn" @click="requestBillingAuth">지금 바로 구독하고 신청하기</button>
     </div>
 
     <!-- 혜택 아이콘/설명 영역 -->
@@ -48,6 +48,8 @@
 
 <script>
 import { getRecommendedProducts } from '@/api/product'
+import httpClient from '@/utils/httpRequest'
+import { useAccountStore } from '@/stores/account'
 
 export default {
   name: 'MyPageSubscriptionApply',
@@ -77,11 +79,30 @@ export default {
       ],
       products: [],
       loading: false,
-      error: null
+      error: null,
+      userEmail: '',
+      userName: ''
     }
   },
   async mounted() {
+    // TossPayments SDK 동적 로드
+    if (!document.querySelector('script[src="https://js.tosspayments.com/v2/standard"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://js.tosspayments.com/v2/standard';
+      script.async = true;
+      document.head.appendChild(script);
+      // 스크립트가 로드될 때까지 기다림 (필요시 Promise로 처리 가능)
+    }
     this.fetchProducts()
+    // 로그인 유저 정보 가져오기
+    try {
+      const res = await httpClient.get('/v1/api/user/email-name')
+      this.userEmail = res.data.email
+      this.userName = res.data.name
+    } catch (e) {
+      this.userEmail = ''
+      this.userName = ''
+    }
   },
   methods: {
     async fetchProducts() {
@@ -94,6 +115,37 @@ export default {
         this.error = '상품을 불러오지 못했습니다.'
       } finally {
         this.loading = false
+      }
+    },
+    async requestBillingAuth() {
+      // Pinia store에서 userId 가져오기
+      const accountStore = useAccountStore()
+      const customerKey = accountStore.getUser?.userId
+
+      if (!customerKey) {
+        // userId가 없으면 로그인 페이지로 이동
+        window.alert('로그인이 필요합니다.')
+        this.$router.push('/login') // Vue Router 사용 시
+        return
+      }
+
+      const clientKey = "test_ck_AQ92ymxN342adlxYQPByrajRKXvd";
+      if (!window.TossPayments) {
+        alert('토스페이먼츠 SDK가 로드되지 않았습니다.');
+        return;
+      }
+      const tossPayments = window.TossPayments(clientKey);
+      const payment = tossPayments.payment({ customerKey });
+      try {
+        await payment.requestBillingAuth({
+          method: "CARD",
+          successUrl: window.location.origin + "/success",
+          failUrl: window.location.origin + "/fail",
+          customerEmail: this.userEmail,
+          customerName: this.userName,
+        });
+      } catch (e) {
+        console.error(e);
       }
     }
   }
