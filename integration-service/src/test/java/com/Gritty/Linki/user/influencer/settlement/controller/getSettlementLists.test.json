@@ -1,0 +1,18 @@
+[
+  {
+    "settlementId": "SET0000",
+    "contractId": "CONT0000",
+    "settlementAmount": 1094581,
+    "settlementStatus": "COMPLETED",
+    "settlementDate": "2024-07-03",
+    "campaignName": "캠페인0"
+  },
+  {
+    "settlementId": "SET0001",
+    "contractId": "CONT0001",
+    "settlementAmount": 638482,
+    "settlementStatus": "COMPLETED",
+    "settlementDate": "2024-06-11",
+    "campaignName": "캠페인0"
+  }
+]

@@ -25,17 +25,22 @@ FROM (
 WHERE seq < 1500;
 
 -- 인플루언서 데이터 생성 (user_id가 일치하도록)
-INSERT INTO `influencer` (`influencer_id`, `user_id`)
-SELECT 
+INSERT INTO `influencer` (`influencer_id`, `user_id`, `influencer_intro`, `influencer_img`)
+SELECT
     CONCAT('INF-', LPAD(seq, 16, '0')),
-    CONCAT('USR-', LPAD(seq, 16, '0'))
+    CONCAT('USR-', LPAD(seq, 16, '0')),
+    CONCAT('이 인플루언서는 자기소개를 작성하지 않았습니다. ID: ', LPAD(seq, 3, '0')),
+    CONCAT('https://example.com/profile/image_', LPAD(seq, 3, '0'), '.jpg')
 FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
-WHERE seq < 500;  -- 인플루언서는 0-499까지
+         SELECT a.N + b.N * 10 + c.N * 100 AS seq
+         FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+               UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+               UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+               UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
+     ) numbers
+WHERE seq < 500;
 
 -- 광고주 데이터 생성 (user_id가 일치하도록)
 INSERT INTO `advertiser` (`advertiser_id`, `business_number`, `company_name`, `user_id`)

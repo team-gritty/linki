@@ -1,21 +1,19 @@
 package com.Gritty.Linki.oAuth.account.controller;
 
-import com.Gritty.Linki.domain.oAuth.account.controller.FindPasswordController;
-import com.Gritty.Linki.domain.oAuth.account.service.FindPasswordService;
-import com.Gritty.Linki.domain.oAuth.dto.FindPasswordRequestDto;
-import com.Gritty.Linki.domain.oAuth.dto.FindPasswordVerificationRequestDto;
-import com.Gritty.Linki.domain.oAuth.dto.FindPasswordChangeRequestDto;
+import com.Gritty.Linki.domain.account.account.controller.FindPasswordController;
+import com.Gritty.Linki.domain.account.account.service.FindPasswordService;
+import com.Gritty.Linki.domain.account.dto.FindPasswordRequestDto;
+import com.Gritty.Linki.domain.account.dto.FindPasswordVerificationRequestDto;
+import com.Gritty.Linki.domain.account.dto.FindPasswordChangeRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

@@ -1,7 +1,9 @@
 package com.Gritty.Linki.config.security;
 
-import com.Gritty.Linki.domain.oAuth.account.service.RefreshTokenService;
+import com.Gritty.Linki.domain.account.account.service.RefreshTokenService;
+import com.Gritty.Linki.domain.account.oAuth.service.oAuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +26,12 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final oAuthService oAuthService;
+
+
+
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,12 +42,21 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
                 //권한별 설정
+                .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/v1/api/nonuser/**").permitAll()
                 .requestMatchers("/v1/api/user/**").permitAll()
                 .requestMatchers("/v1/api/influencer/**").permitAll()
                 .requestMatchers("/v1/api/advertiser/**").permitAll()
+                .requestMatchers("/v1/api/user/auth/login-success").permitAll()
                 .anyRequest().permitAll());
-        
+
+        // ✅ OAuth2 로그인 추가
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(oAuthService))
+                .successHandler(oAuth2LoginSuccessHandler)
+        );
+
         // 로그인 필터를 먼저 추가 (JwtFilter보다 먼저 실행)
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userRepository, refreshTokenService), UsernamePasswordAuthenticationFilter.class);
         

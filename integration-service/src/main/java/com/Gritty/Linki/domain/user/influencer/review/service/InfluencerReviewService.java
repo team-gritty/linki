@@ -1,10 +1,10 @@
 package com.Gritty.Linki.domain.user.influencer.review.service;
 
 import com.Gritty.Linki.domain.user.influencer.requestDTO.InfAdvertiserReviewRequestDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.InfAdvertiserReviewResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ReceivedInfluencerReviewResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.ReviewableContractResponseDTO;
-import com.Gritty.Linki.domain.user.influencer.responseDTO.WrittenAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.InfAdvertiserReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReceivedInfluencerReviewResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.ReviewableContractResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.review.WrittenAdvertiserReviewResponseDTO;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;

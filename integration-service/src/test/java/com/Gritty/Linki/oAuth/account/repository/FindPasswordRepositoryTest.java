@@ -1,6 +1,6 @@
 package com.Gritty.Linki.oAuth.account.repository;
 
-import com.Gritty.Linki.domain.oAuth.account.repository.FindPasswordRepository;
+import com.Gritty.Linki.domain.account.account.repository.FindPasswordRepository;
 import com.Gritty.Linki.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
