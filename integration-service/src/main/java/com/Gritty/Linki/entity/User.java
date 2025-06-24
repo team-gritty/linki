@@ -55,4 +55,6 @@ public class User {
 
     @Column(name = "user_oauth_user", nullable = false)
     private Boolean isOauthUser = false;
+
+
 }

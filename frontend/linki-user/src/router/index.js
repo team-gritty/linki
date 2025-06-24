@@ -153,7 +153,7 @@ const router = createRouter({
     {
       path: '/google-callback',
       name: 'GoogleCallback',
-      component: () => import('@/components/user/general/mypage/MyPageChannelChange.vue')
+      component: () => import('@/views/common/GoogleCallback.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

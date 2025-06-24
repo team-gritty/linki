@@ -1,14 +1,13 @@
 package com.Gritty.Linki.domain.user.mypage.controller;
 
+import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.mypage.dto.YoutubeChannelInfo;
 import com.Gritty.Linki.domain.user.mypage.service.YoutubeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,4 +50,21 @@ public class YoutubeController {
             return ResponseEntity.internalServerError().body("유튜브 인증 중 오류가 발생했습니다.");
         }
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerChannel(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody YoutubeChannelInfo channelInfo) {
+
+        try {
+            youtubeService.registerChannel(userDetails, channelInfo);
+            return ResponseEntity.ok("채널 등록 성공");
+        } catch (Exception e) {
+            log.error("채널 등록 실패", e);
+            return ResponseEntity.internalServerError().body("채널 등록 중 오류 발생");
+        }
+    }
+
+
+
 }
