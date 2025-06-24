@@ -115,6 +115,29 @@ public class YouTubeChannelCollectService {
                             "인플루언서를 찾을 수 없습니다: " + influencerId);
                 });
 
+        // 좋아요/댓글 통계 변수 초기화
+        long avgLikeCount = 0L;
+        long avgCommentCount = 0L;
+
+        try {
+            log.info("채널 수집 시점에 좋아요/댓글 통계 계산 시작 - channelId: {}", channelItem.getId());
+
+            // YouTube API를 통해 평균 좋아요/댓글 수 계산 (최근 30개 영상 기준)
+            long[] averages = youTubeApiService.getChannelVideoAverages(channelItem.getId(), 30);
+
+            avgLikeCount = averages[0];
+            avgCommentCount = averages[1];
+
+            log.info("채널 통계 계산 완료 - channelId: {}, avgLikes: {}, avgComments: {}",
+                    channelItem.getId(), avgLikeCount, avgCommentCount);
+
+        } catch (Exception e) {
+            log.warn("채널 수집 시 통계 계산 실패, 기본값 사용 - channelId: {}, error: {}", channelItem.getId(), e.getMessage());
+            // 통계 계산 실패 시 기본값 0 사용
+            avgLikeCount = 0L;
+            avgCommentCount = 0L;
+        }
+
         try {
             return Channel.builder()
                     .channelId(generateChannelId())
@@ -129,8 +152,8 @@ public class YouTubeChannelCollectService {
                     .videoCount(parseInt(statistics.getVideoCount()))
                     .viewCount(parseLong(statistics.getViewCount()))
                     .channelCreatedAt(parseDateTime(snippet.getPublishedAt()))
-                    .likeCount(0L)
-                    .commentCount(0L)
+                    .likeCount(avgLikeCount)
+                    .commentCount(avgCommentCount)
                     .influencer(influencer)
                     .collectedAt(LocalDateTime.now())
                     .build();
