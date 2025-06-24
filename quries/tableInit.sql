@@ -295,7 +295,7 @@ CREATE TABLE `contract` (
 	`contract_id`	VARCHAR(25)	NOT NULL,
 	`contract_title`	VARCHAR(255)	NOT NULL,
 	`document_id`	VARCHAR(100)	NOT NULL,
-	`contract_status`	ENUM('PENDING SIGN', 'COMPLETED','ONGOING')	NOT NULL DEFAULT 'PENDING SIGN',
+	`contract_status`	ENUM('PENDING_SIGN', 'COMPLETED','ONGOING')	NOT NULL DEFAULT 'PENDING_SIGN',
 	`contract_start_date`	DATE	NOT NULL,
 	`contract_end_date`	DATE	NOT NULL,
 	`contract_amount`	DECIMAL(15,2)	NOT NULL,
