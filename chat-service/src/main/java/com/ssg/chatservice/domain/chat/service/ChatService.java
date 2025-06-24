@@ -3,6 +3,7 @@ package com.ssg.chatservice.domain.chat.service;
 import com.ssg.chatservice.client.ChatInfoResponse;
 import com.ssg.chatservice.domain.chat.dto.ChatDTO;
 import com.ssg.chatservice.domain.chat.dto.ChatDetailDTO;
+import com.ssg.chatservice.domain.kafka.enums.EventType;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.entity.Chat;
 
@@ -36,4 +37,8 @@ public interface ChatService {
     Chat softDeleteChat(String proposalId);
     //유저 아이디로 채팅정보 조회
     List<ChatInfoResponse> userChatinfo(String token);
+    //이벤트 수신 후 계약상태 변경
+    void updateNegoStatus(String proposalId, EventType eventType);
+    //제안서에 해당하는 채팅방 비활성
+    Chat inactiveChat(String proposalId);
 }

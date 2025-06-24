@@ -7,6 +7,7 @@ import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import com.ssg.chatservice.domain.chat.enums.ErrorCode;
 import com.ssg.chatservice.domain.chat.enums.NegoStatus;
 import com.ssg.chatservice.domain.chat.repository.ChatRepository;
+import com.ssg.chatservice.domain.kafka.enums.EventType;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
 import com.ssg.chatservice.entity.Chat;
@@ -39,9 +40,10 @@ public class ChatServiceImpl implements ChatService{
     }
 
     //제안서 아이디로 ChatDetailDTO 반환
+    //채팅방 입장
     @Override
     public ChatDetailDTO getChatDtoByProposalId(String token,String proposalId){
-        //제안서 아이디로 채팅방 조회 (Optional 예외처리)
+        //제안서 아이디로 채팅방 조회
         Chat chat = findByProposalId(proposalId);
         //feign client : partner Info 조회
         PartnerInfoResponse partner = chatApiClient.getPartnerInfo(token, chat.getProposalId());
@@ -187,11 +189,30 @@ public class ChatServiceImpl implements ChatService{
         return chatRepository.save(chat);
     }
 
+    @Override
+    //제안서에 해당하는 채팅방 비활성
+    public Chat inactiveChat(String proposalId){
+        Chat chat = findByProposalId(proposalId);
+        chat.setChatStatus(ChatStatus.INACTIVE);
+        return chatRepository.save(chat);
+    }
+
 
     @Override
     //유저 아이디로 채팅정보 조회
     public List<ChatInfoResponse> userChatinfo(String token){
        return chatApiClient.getUserChatInfo(token);
+    }
+
+    @Override
+    //이벤트 수신 후 계약상태 변경
+    public void updateNegoStatus(String proposalId, EventType eventType) {
+        ChatDetailDTO chat = modelMapper.map(findByProposalId(proposalId), ChatDetailDTO.class);
+        NegoStatus newStatus = eventType.getNegoStatus();
+        if (newStatus == null) {
+            throw new ChatException(ErrorCode.KAFKA_NEGO_STATUS_NULL);
+        }
+        chat.setNegoStatus(newStatus);
     }
 
 
