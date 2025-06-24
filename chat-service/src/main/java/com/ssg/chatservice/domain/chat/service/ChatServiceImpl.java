@@ -10,14 +10,11 @@ import com.ssg.chatservice.domain.chat.repository.ChatRepository;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
 import com.ssg.chatservice.entity.Chat;
-import com.ssg.chatservice.entity.Message;
 import com.ssg.chatservice.exception.ChatException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -52,7 +49,7 @@ public class ChatServiceImpl implements ChatService{
             throw new ChatException(ErrorCode.PARTNER_API_FAILED);
         }
 
-        return ChatDetailDTO.builder()
+        ChatDetailDTO chatDetailDTO = ChatDetailDTO.builder()
                 .chatId(chat.getChatId())
                 .chatStatus(chat.getChatStatus())
                 .proposalId(chat.getProposalId())
@@ -61,6 +58,9 @@ public class ChatServiceImpl implements ChatService{
                 .negoStatus(NegoStatus.valueOf(partner.getNegoStatus()))
                 .profileImage(partner.getProfileImage())
                 .build();
+
+        if (chatDetailDTO.getChatStatus() != ChatStatus.DELETE) return chatDetailDTO;
+        else return chatDetailDTO;
     }
 
     //채팅방 생성
@@ -90,7 +90,9 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public List<ChatDTO> campaignToChatList (String token, String campaignId){
         List<ChatInfoResponse> chatInfos = campaignToChatInfo(token, campaignId);
-        List<Chat> chats = chatInfoGetChat(chatInfos);
+        //삭제된 채팅방 필터링
+        List<Chat> chats = chatInfoGetChat(chatInfos).stream().filter(chat ->
+                chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
         return chatDTOs(chats,chatInfos,lastMessages);
@@ -100,7 +102,8 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public List<ChatDTO> userToChatList (String token){
         List<ChatInfoResponse> chatInfos = userChatinfo(token);
-        List<Chat> chats = chatInfoGetChat(chatInfos);
+        List<Chat> chats = chatInfoGetChat(chatInfos).stream()
+                .filter(chat->chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
         
