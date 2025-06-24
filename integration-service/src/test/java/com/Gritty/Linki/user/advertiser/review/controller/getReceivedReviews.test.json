@@ -1,0 +1,22 @@
+[
+  {
+    "reviewId": "ARV-0000000000000004",
+    "reviewScore": 2,
+    "reviewComment": "광고주 리뷰 내용4",
+    "reviewCreatedAt": "2023-09-05T09:00:00",
+    "visibility": true,
+    "contractTitle": "계약서4",
+    "contractStartDate": "2023-07-29",
+    "contractEndDate": "2024-04-10"
+  },
+  {
+    "reviewId": "ARV-0000000000000007",
+    "reviewScore": 1,
+    "reviewComment": "광고주 리뷰 내용7",
+    "reviewCreatedAt": "2024-06-10T09:00:00",
+    "visibility": true,
+    "contractTitle": "계약서7",
+    "contractStartDate": "2024-10-16",
+    "contractEndDate": "2023-09-18"
+  }
+]

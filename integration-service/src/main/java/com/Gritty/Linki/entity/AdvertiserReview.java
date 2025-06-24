@@ -27,7 +27,7 @@ public class AdvertiserReview {
     @Column(name = "advertiser_review_created_at", nullable = false)
     private LocalDateTime advertiserReviewCreatedAt;
 
-    @Column(name = "visivility", nullable = false)
+    @Column(name = "visibility", nullable = false)
     // 빌더 패턴 사용 시 기본값 설정
     @Builder.Default
     private Boolean visibility = true;
