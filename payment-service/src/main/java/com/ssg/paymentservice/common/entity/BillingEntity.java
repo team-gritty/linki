@@ -20,7 +20,7 @@ public class BillingEntity {
     @Column(name = "billing_key", length = 100, nullable = false)
     private String billingKey;
 
-    @Column(name = "user_id", length = 50, nullable = false)
+    @Column(name = "user_id", length = 50, nullable = false, unique = true)
     private String userId;
 
     @Column(name = "billing_createat", nullable = false)
@@ -50,10 +50,6 @@ public class BillingEntity {
 
     @Column(name = "acquirer_code", length = 10)
     private String acquirerCode;
-
-    /* 연관 관계 */
-    @OneToMany(mappedBy = "billingEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PaymentEntity> payments = new ArrayList<>();
 }
 
 

@@ -6,12 +6,16 @@ import com.ssg.paymentservice.common.util.IdGenerator;
 import com.ssg.paymentservice.common.util.TossBasicAuthHeaderUtil;
 import com.ssg.paymentservice.dto.requestdto.AuthCardRequestDto;
 import com.ssg.paymentservice.dto.requestdto.BillingKeyResponseDto;
+import com.ssg.paymentservice.exception.BillingNotFoundException;
 import com.ssg.paymentservice.feignClient.FeignGetBillingKey;
 import com.ssg.paymentservice.repository.BillingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +34,18 @@ public class TossBillingService implements BillingService {
         //Basic 인증 헤더
         String authorizationHeader = tossBasicAuthHeaderUtil.createBasicAuth(tossConfig.getSecretKey());
 
-
+        // successurl 오는 값 받는 dto
         AuthCardRequestDto authCardRequestDto = AuthCardRequestDto.builder()
                 .customerKey(customerKey)
                 .authKey(authKey)
                 .build();
 
+        // 토스 api 요청해서 billingkey 응답
         BillingKeyResponseDto res = feignGetBillingKey
                 .getBillingKey(authorizationHeader, authCardRequestDto)
                 .getBody();
 
+        //billing Entity 생성
         BillingEntity billing = BillingEntity.builder()
                 .billingId(idGenerator.billingId())
                 .billingKey(res.getBillingKey())
@@ -55,8 +61,23 @@ public class TossBillingService implements BillingService {
                 .acquirerCode(res.getCard().getAcquirerCode())
                 .build();
 
+        //billing 튜플 저장
         billingRepository.save(billing);
 
         return res.getBillingKey();
+    }
+
+    public String getBillingKeyByUserId(String userId) {
+        //billingEntity 에서 billingKey 얻어옴
+        String billingKey = billingRepository.findByUserId(userId)
+                .orElseThrow(() -> new BillingNotFoundException("해당 유저아이디의 빌링키를 확인할 수 없습니다."))
+                .getBillingKey();
+
+
+
+
+
+
+        return null;
     }
 }

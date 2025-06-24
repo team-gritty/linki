@@ -161,6 +161,11 @@ const router = createRouter({
       path: '/success',
       name: 'payment-success',
       component: () => import('../views/common/PaymentSuccess.vue')
+    },
+    {
+      path: '/fail',
+      name: 'payment-fail',
+      component: () => import('@/views/common/Fail.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

@@ -31,8 +31,8 @@ public class RefundEntity{
     @Column(name = "admin_id", length = 255, nullable = false)
     private String adminId;
 
-    /* 연관 관계 */
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", nullable = false, unique = true)
-    private PaymentEntity paymentEntity;
+//    /* 연관 관계 */
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "payment_id", nullable = false, unique = true)
+//    private PaymentEntity paymentEntity;
 }

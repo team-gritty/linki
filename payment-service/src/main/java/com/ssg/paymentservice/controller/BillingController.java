@@ -22,7 +22,6 @@ public class BillingController {
      */
     @PostMapping("/success")
     public ResponseEntity<Void> billingSuccess(@RequestBody AuthCardRequestDto authCardRequestDto) {
-
         //토스 서버에 billing키 요청 (Feign)
         tossBillingService.confirmBilling(authCardRequestDto.getAuthKey(), authCardRequestDto.getCustomerKey());
 
