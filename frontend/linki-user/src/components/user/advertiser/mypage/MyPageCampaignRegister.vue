@@ -187,24 +187,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentClick)
 })
 
-// 프론트엔드 카테고리를 백엔드 enum으로 매핑하는 함수
-const mapCategoryToEnum = (category) => {
-  const categoryMap = {
-    '뷰티': 'BEAUTY',
-    '패션': 'FASHION', 
-    '스포츠': 'SPORTS',
-    '음식': 'FOOD',
-    '브이로그': 'VLOG',
-    '여행': 'TRAVEL',
-    '음악': 'MUSIC',
-    '교육': 'EDUCATION',
-    '동물': 'ANIMAL',
-    '전자제품': 'ELECTRONICS',
-    '엔터테인먼트': 'ENTERTAINMENT'
-  }
-  return categoryMap[category] || category
-}
-
 /**
  * 필수 항목 입력 후 캠페인 등록 폼 제출
  */
@@ -228,7 +210,7 @@ async function submitForm() {
     campaignImg: imageUrl.value || 'https://via.placeholder.com/80x60?text=이미지',
     campaignDeadline: deadlineDate.toISOString(),
     campaignPublishStatus: selectedPublishStatus.value,
-    campaignCategory: mapCategoryToEnum(selectedCategory.value)
+    campaignCategory: selectedCategory.value // 한국어 카테고리 값을 그대로 전송
   };
   
   console.log('전송할 캠페인 데이터:', campaignData);
