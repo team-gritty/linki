@@ -131,6 +131,7 @@ public class ChatClientServiceImpl implements ChatClientService {
                     .opponentId(interfaceChatInfoDto.getUserId())
                     .opponentName(interfaceChatInfoDto.getUserLoginId())
                     .proposalId(interfaceChatInfoDto.getProposalId())
+                    .campaignId(interfaceChatInfoDto.getCampaignId())
                     .build()
         ).collect(Collectors.toList());
     }

@@ -36,7 +36,7 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
                 //권한별 설정
-                .requestMatchers("/v1/chat-service/ws/chat").permitAll()
+                .requestMatchers("/v1/chat-service/ws/chat/**").permitAll()
                 .requestMatchers("/v1/chat-service/api/nonuser/**").permitAll()
                 .requestMatchers("/v1/chat-service/api/user/**").hasAnyRole("USER","INFLUENCER","ADVERTISER")
                 .requestMatchers("/v1/chat-service/api/influencer/**").hasRole("INFLUENCER")

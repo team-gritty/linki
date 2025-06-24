@@ -1,0 +1,46 @@
+package com.ssg.paymentservice.controller;
+
+import com.ssg.paymentservice.dto.requestdto.AuthCardRequestDto;
+import com.ssg.paymentservice.service.BillingService;
+import com.ssg.paymentservice.service.TossBillingService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/v1/payment-service/api/billing")
+@RequiredArgsConstructor
+@Slf4j
+public class BillingController {
+
+    private final BillingService tossBillingService;   // billing 키 발급 서비스
+
+    /**
+     * 토스 빌링 성공 콜백
+     *
+     */
+    @PostMapping("/success")
+    public ResponseEntity<Void> billingSuccess(@RequestBody AuthCardRequestDto authCardRequestDto) {
+
+        //토스 서버에 billing키 요청 (Feign)
+        tossBillingService.confirmBilling(authCardRequestDto.getAuthKey(), authCardRequestDto.getCustomerKey());
+
+        log.info(authCardRequestDto.getAuthKey());
+        log.info(authCardRequestDto.getCustomerKey());
+        //비즈니스 처리 완료 → 200 OK (본문 없음)
+        return ResponseEntity.ok().build();
+    }
+
+//    @GetMapping("/fail")
+//    public ResponseEntity<Void> billingSuccess(
+//            @RequestParam("customerKey") String customerKey,
+//            @RequestParam("authKey")     String authKey) {
+//
+//        //토스 서버에 authKey 확정 요청 (Feign)
+//        tossBillingService.confirmAuthorization(customerKey, authKey);
+//
+//        //비즈니스 처리 완료 → 200 OK (본문 없음)
+//        return ResponseEntity.ok().build();
+//    }
+}

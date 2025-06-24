@@ -10,15 +10,15 @@
     @FeignClient(name="chatInfo-api",url="http://localhost:8000")
     public interface ChatApiClient {
 
-        @GetMapping("/v1/integration-service/api/partners/{id}")
+        @GetMapping("/v1/integration-service/api/partners/{proposalId}")
         PartnerInfoResponse getPartnerInfo(
                 @RequestHeader("Authorization") String authorization,
-                @PathVariable("id") String proposalId);
+                @PathVariable("proposalId") String proposalId);
 
-        @GetMapping("/v1/integration-service/api/chatInfo/{id}")
+        @GetMapping("/v1/integration-service/api/chatInfo/{campaignId}")
         List<ChatInfoResponse> getChatInfo(
                 @RequestHeader("Authorization") String authorization,
-                @PathVariable("id") String campaign);
+                @PathVariable("campaignId") String campaignId);
 
         @GetMapping("/v1/integration-service/api/user-chat")
         List<ChatInfoResponse> getUserChatInfo(

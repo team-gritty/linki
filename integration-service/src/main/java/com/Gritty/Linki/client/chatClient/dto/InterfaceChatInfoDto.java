@@ -9,4 +9,5 @@ public interface InterfaceChatInfoDto {
     String getUserId();
     String getUserLoginId();
     String getProposalId();
+    String getCampaignId();
 }
