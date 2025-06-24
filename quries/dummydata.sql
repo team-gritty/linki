@@ -1,36 +1,23 @@
 -- 기본 사용자 데이터 생성
 INSERT INTO `user` (
     `user_id`, `user_login_id`, `user_login_pw`, `user_name`, `user_phone`,
-    `user_email`, `user_pay_status`, `user_status`, `user_enter_day`, `user_role`,
-    `user_oauth_provider`, `user_oauth_id`, `user_oauth_user`
-)
-SELECT
-    CONCAT('USR-', LPAD(seq, 16, '0')),
-    CONCAT('user', seq),
-    '$2a$10$Z5NqLagdRBQ88seEZUEtN.IB9s4z7.3ra4dDDWui9eLrM.qtKGPn2',
-    CONCAT('사용자', seq),
-    CONCAT('010-', LPAD(FLOOR(RAND() * 10000), 4, '0'), '-', LPAD(FLOOR(RAND() * 10000), 4, '0')),
-    CONCAT('user', seq, '@example.com'),
-    FLOOR(RAND() * 2),
-    1,
+    ELSE 'REJECTED'
+    END,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    CASE 
-        WHEN seq < 500 THEN 'ROLE_INFLUENCER'
-        WHEN seq < 1000 THEN 'ROLE_ADVERTISER'
-        ELSE 'ROLE_USER'
-        END,
-    NULL, -- user_oauth_provider
-    NULL, -- user_oauth_id
-    FALSE -- user_oauth_user
-FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 + d.N * 1000 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
-    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
-    ) numbers
-WHERE seq < 1500;
 
+    CASE FLOOR(RAND() * 2)
+        WHEN 0 THEN NULL
+        ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY)
+        END,
+    CONCAT('INF-', LPAD(seq % 200, 6, '0')),    -- 200명 인플루언서 (0~199)
+    CONCAT('CMP-', LPAD(FLOOR(seq / 1), 6, '0'))  -- 캠페인 1000개 전부 생성
+FROM (
+         SELECT a.N + b.N * 10 + c.N * 100 AS seq
+         FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
+     ) numbers
+WHERE seq < 1000;
 -- 인플루언서 데이터 생성 (user_id가 일치하도록)
 INSERT INTO `influencer` (`influencer_id`, `user_id`, `influencer_intro`, `influencer_img`)
 SELECT
