@@ -10,7 +10,7 @@
           </div>
         </template>
         <div v-else class="summary-info">
-          <h2 class="summary-title">{{ detailData.proposal?.campaignTitle || detailData.proposal?.campaignName || '데이터 로딩중...' }}</h2>
+          <h2 class="summary-title">{{ detailData.proposal?.campaignTitle || detailData.proposal?.campaignName || detailData.campaign?.campaignName || '데이터 로딩중...' }}</h2>
         </div>
       </div>
       <div class="header-buttons">
@@ -41,6 +41,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { proposalAPI } from '@/api/proposal';
+import { campaignAPI } from '@/api/campaign';
 import {chatApi} from "@/api/chat.js";
 
 const props = defineProps({
@@ -74,17 +75,47 @@ const chatRoom = ref(null)
         const proposalId = route.params.id;
         console.log('Starting data fetch for ID:', proposalId);
 
-        // 제안서 상세 정보 조회 (캠페인 정보 포함)
+        // 제안서 상세 정보 조회
         const response = await proposalAPI.getProposalDetail(proposalId);
         console.log('Fetched proposal detail:', response);
         
-                 // 제안서와 캠페인 정보 설정
-         detailData.value.proposal = response;
-         detailData.value.campaign = {
-           campaignName: response.campaignTitle || response.campaignName || '캠페인 제목 없음',
-           campaignDesc: response.campaignDescription || response.campaignDesc || '',
-           campaignImg: response.campaignImg || response.campaignImage || ''
-         };
+        // 제안서 정보 설정
+        detailData.value.proposal = response;
+        
+        // campaignId로 별도 캠페인 상세 정보 조회
+        if (response.campaignId) {
+          try {
+            const campaignDetail = await campaignAPI.getCampaignDetail(response.campaignId);
+            console.log('Fetched campaign detail:', campaignDetail);
+            
+            detailData.value.campaign = {
+              campaignName: campaignDetail.campaignName || '캠페인 제목 없음',
+              campaignDesc: campaignDetail.campaignDesc || '캠페인 설명 없음',
+              campaignImg: campaignDetail.campaignImg || ''
+            };
+            
+            console.log('Campaign info mapped from separate API:', {
+              campaignId: response.campaignId,
+              campaignName: campaignDetail.campaignName,
+              finalCampaignName: detailData.value.campaign.campaignName
+            });
+          } catch (campaignError) {
+            console.error('Failed to fetch campaign detail:', campaignError);
+            // 캠페인 정보 조회 실패 시 기본값 설정
+            detailData.value.campaign = {
+              campaignName: response.campaignTitle || '캠페인 정보 로딩 실패',
+              campaignDesc: response.campaignCondition || '',
+              campaignImg: ''
+            };
+          }
+        } else {
+          // campaignId가 없는 경우 기본값 설정
+          detailData.value.campaign = {
+            campaignName: response.campaignTitle || '캠페인 정보 없음',
+            campaignDesc: response.campaignCondition || '',
+            campaignImg: ''
+          };
+        }
 
         // 채팅 조회
         chatRoom.value = await chatApi.getChatRoom(proposalId);

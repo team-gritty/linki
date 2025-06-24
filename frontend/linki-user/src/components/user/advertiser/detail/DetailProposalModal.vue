@@ -7,16 +7,16 @@
     </div>
     <div class="proposal-detail-body">
       <div class="proposal-detail-profile">
-        <img :src="proposal.img" class="proposal-detail-img" />
+        <img :src="proposal.influencerName ? '/default-profile.jpg' : '/default-profile.jpg'" class="proposal-detail-img" />
         <div class="proposal-detail-meta">
-          <div>이름 : {{ proposal.user }}</div>
-          <div>채널 : {{ proposal.channel }}</div>
+          <div>이름 : {{ proposal.influencerName }}</div>
+          <div>채널 : {{ proposal.influencerName + ' 채널' }}</div>
         </div>
       </div>
       <hr class="proposal-detail-divider" />
       <div class="proposal-detail-content-block">
         <div class="proposal-detail-content-title">내용</div>
-        <div v-if="!isEditMode" class="proposal-detail-content-text">{{ proposal.content }}</div>
+        <div v-if="!isEditMode" class="proposal-detail-content-text">{{ proposal.contents }}</div>
         <div v-else>
           <textarea v-model="editContent" rows="6" style="width:100%;margin-bottom:12px;"></textarea>
         </div>
@@ -111,8 +111,8 @@ function handleRejectCancel() {
 }
 async function handleRejectConfirm() {
   try {
-    await proposalAPI.rejectProposal(props.proposal.id, props.campaignId)
-    emit('reject', props.proposal.id)
+    await proposalAPI.rejectProposal(props.proposal.proposalId, props.campaignId)
+    emit('reject', props.proposal.proposalId)
     rejectModalOpen.value = false
     alert('제안서가 거절되었습니다.')
   } catch (error) {
@@ -124,8 +124,8 @@ async function handleRejectConfirm() {
 // 승낙 관련 함수
 async function handleAcceptClick() {
   try {
-    await proposalAPI.acceptProposal(props.proposal.id, props.campaignId)
-    emit('accept', props.proposal.id)
+    await proposalAPI.acceptProposal(props.proposal.proposalId, props.campaignId)
+    emit('accept', props.proposal.proposalId)
     alert('제안서가 승낙되었습니다.')
   } catch (error) {
     console.error('제안서 승낙 실패:', error)
@@ -139,18 +139,20 @@ const editContent = ref('')
 
 function startEdit() {
   isEditMode.value = true
-  editContent.value = props.proposal.content
+  editContent.value = props.proposal.contents
 }
 function cancelEdit() {
   isEditMode.value = false
 }
 async function saveEdit() {
   try {
-    await proposalAPI.updateProposal(props.proposal.id, { ...props.proposal, content: editContent.value })
-    props.proposal.content = editContent.value // 즉시 반영
+    const response = await proposalAPI.updateProposal(props.proposal.proposalId, editContent.value)
+    // 백엔드에서 반환된 ProposalResponse로 업데이트
+    props.proposal.contents = response.contents
     isEditMode.value = false
     alert('제안서가 수정되었습니다.')
   } catch (e) {
+    console.error('제안서 수정 실패:', e)
     alert('제안서 수정에 실패했습니다.')
   }
 }

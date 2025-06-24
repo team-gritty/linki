@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
 import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
 import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelPageResponse;
 import com.Gritty.Linki.entity.Channel;
 import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
 import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelDetailResponse;
@@ -14,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
 
 /**
  * 채널 검색 서비스
@@ -33,9 +37,9 @@ public class ChannelService {
          * 검색 조건에 따라 채널을 필터링하여 반환
          * 
          * @param request 검색 조건
-         * @return 필터링된 채널 목록
+         * @return 필터링된 채널 목록과 페이지네이션 정보
          */
-        public List<ChannelListResponse> searchChannels(ChannelSearchRequest request) {
+        public ChannelPageResponse searchChannels(ChannelSearchRequest request) {
                 log.info("채널 검색 서비스 호출: keyword={}, category={}, page={}, limit={}",
                                 request.getKeyword(), request.getCategory(), request.getPage(), request.getLimit());
 
@@ -51,19 +55,70 @@ public class ChannelService {
                                 PageRequest.of(request.getPage(), request.getLimit()));
 
                 // 엔티티를 DTO로 변환
-                return channelPage.getContent().stream()
+                List<ChannelListResponse> channels = channelPage.getContent().stream()
                                 .map(this::convertToDto)
                                 .collect(Collectors.toList());
+
+                // 페이지네이션 정보 생성
+                ChannelPageResponse.PageInfo pageInfo = ChannelPageResponse.PageInfo.builder()
+                                .currentPage(channelPage.getNumber())
+                                .pageSize(channelPage.getSize())
+                                .totalElements(channelPage.getTotalElements())
+                                .totalPages(channelPage.getTotalPages())
+                                .first(channelPage.isFirst())
+                                .last(channelPage.isLast())
+                                .hasNext(channelPage.hasNext())
+                                .hasPrevious(channelPage.hasPrevious())
+                                .build();
+
+                log.info("채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
+                                channelPage.getTotalElements(),
+                                channelPage.getNumber() + 1,
+                                channelPage.getNumber() * channelPage.getSize() + 1,
+                                Math.min((channelPage.getNumber() + 1) * channelPage.getSize(),
+                                                channelPage.getTotalElements()));
+
+                return ChannelPageResponse.builder()
+                                .channels(channels)
+                                .pageInfo(pageInfo)
+                                .build();
         }
 
         /**
          * Channel 엔티티를 ChannelListResponse DTO로 변환
          */
         private ChannelListResponse convertToDto(Channel channel) {
+
                 long avgViewCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
                                 && channel.getViewCount() != null
                                                 ? channel.getViewCount() / channel.getVideoCount()
                                                 : 0;
+
+                // 평균 좋아요 수 계산
+                long avgLikeCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
+                                && channel.getLikeCount() != null && channel.getLikeCount() > 0
+                                                ? channel.getLikeCount() / channel.getVideoCount()
+                                                : 0;
+
+                // 평균 댓글 수 계산
+                long avgCommentCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
+                                && channel.getCommentCount() != null && channel.getCommentCount() > 0
+                                                ? channel.getCommentCount() / channel.getVideoCount()
+                                                : 0;
+
+                // 데이터가 없는 경우 예외 처리
+                if (avgLikeCount == 0 && avgViewCount > 0) {
+                        log.warn("좋아요 데이터가 없습니다. 채널 ID: {}", channel.getChannelId());
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "좋아요 통계 데이터를 찾을 수 없습니다");
+                }
+
+                if (avgCommentCount == 0 && avgViewCount > 0) {
+                        log.warn("댓글 데이터가 없습니다. 채널 ID: {}", channel.getChannelId());
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "댓글 통계 데이터를 찾을 수 없습니다");
+                }
+
+                log.debug("실제 데이터 계산 완료: channelId={}, avgViewCount={}, avgLikeCount={}, avgCommentCount={}",
+                                channel.getChannelId(), avgViewCount, avgLikeCount, avgCommentCount);
 
                 return ChannelListResponse.builder()
                                 .channelId(channel.getChannelId())
@@ -72,6 +127,8 @@ public class ChannelService {
                                 .subscriberCount(
                                                 channel.getSubscriberCount() != null ? channel.getSubscriberCount() : 0)
                                 .avgViewCount(avgViewCount)
+                                .avgLikeCount(avgLikeCount)
+                                .avgCommentCount(avgCommentCount)
                                 .category(channel.getChannelCategory())
                                 .description(channel.getChannelDescription())
                                 .build();
@@ -88,7 +145,7 @@ public class ChannelService {
 
                 // 1. 데이터베이스에서 채널 기본 정보 조회
                 Channel channel = channelRepository.findById(channelId)
-                                .orElseThrow(() -> new RuntimeException("채널을 찾을 수 없습니다: " + channelId));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "채널을 찾을 수 없습니다"));
 
                 // 2. YouTube API를 통해 평균 좋아요/댓글 수, 배너 url 조회 (최근 30개 영상 기준)
                 long avgLikeCount = 0;
@@ -112,12 +169,14 @@ public class ChannelService {
                                                 e.getMessage());
                                 // YouTube API 호출 실패 시 기존 DB 데이터로 계산
                                 if (channel.getVideoCount() != null && channel.getVideoCount() > 0) {
-                                        avgLikeCount = channel.getLikeCount() != null
+                                        avgLikeCount = channel.getLikeCount() != null && channel.getLikeCount() > 0
                                                         ? channel.getLikeCount() / channel.getVideoCount()
                                                         : 0;
                                         avgCommentCount = channel.getCommentCount() != null
-                                                        ? channel.getCommentCount() / channel.getVideoCount()
-                                                        : 0;
+                                                        && channel.getCommentCount() > 0
+                                                                        ? channel.getCommentCount()
+                                                                                        / channel.getVideoCount()
+                                                                        : 0;
                                 }
                         }
                 }
@@ -126,6 +185,17 @@ public class ChannelService {
                 long avgViewCount = 0;
                 if (channel.getVideoCount() != null && channel.getVideoCount() > 0 && channel.getViewCount() != null) {
                         avgViewCount = channel.getViewCount() / channel.getVideoCount();
+                }
+
+                // 데이터가 없는 경우 예외 처리
+                if (avgLikeCount == 0 && avgViewCount > 0) {
+                        log.warn("좋아요 데이터가 없습니다. 채널 ID: {}", channelId);
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "좋아요 통계 데이터를 찾을 수 없습니다");
+                }
+
+                if (avgCommentCount == 0 && avgViewCount > 0) {
+                        log.warn("댓글 데이터가 없습니다. 채널 ID: {}", channelId);
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "댓글 통계 데이터를 찾을 수 없습니다");
                 }
 
                 // 4. Response DTO 생성

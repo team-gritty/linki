@@ -3,8 +3,14 @@
     <div v-if="loading" class="loading-state">
       <p>데이터 로딩중...</p>
     </div>
+    <div v-else-if="error" class="error-state">
+      <p>{{ error }}</p>
+    </div>
+    <div v-else-if="!contract || !contract.contractId" class="error-state">
+      <p>계약 정보가 없습니다.</p>
+    </div>
     <div v-else>
-      <!-- <div class="page-header">
+      <div class="page-header">
         <div class="header-content">
           <h2>{{ contract.contractTitle }}</h2>
           <button class="back-button" @click="goToContractList">
@@ -13,8 +19,8 @@
         </div>
         <div v-if="contract.contractStatus" class="status-badge" :class="getStatusClass(contract.contractStatus)">
           {{ getStatusText(contract.contractStatus) }}
-        </div> -->
-      <!-- </div>  -->
+        </div>
+      </div>
 
       <div class="contract-info-section">
         <h2 class="section-title">계약 정보</h2>
@@ -44,9 +50,9 @@
           계약서 조회
         </button>
         <button 
+          v-if="contract.contractStatus === 'PENDING_SIGN'"
           class="action-button sign-contract" 
           @click="signContract"
-          :disabled="contract.contractStatus !== 'PENDING'"
         >
           <i class="fas fa-signature"></i>
           전자 서명
@@ -57,8 +63,8 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { contractApi } from '@/api/contract';
 
 export default {
@@ -66,40 +72,79 @@ export default {
   props: {
     detailData: {
       type: Object,
-      required: true
+      required: false
     }
   },
 
   setup(props) {
     const router = useRouter();
+    const route = useRoute();
     const loading = ref(true);
     const error = ref(null);
     const contract = ref({});
 
-    // detailData 변경 감지하여 계약 정보 설정
-    watch(() => props.detailData, (newData) => {
-      loading.value = true;
-      console.log('DetailContract received data:', newData);
-      
-      if (newData) {
-        // contract 직접 접근 또는 contract 속성 접근 시도
-        const contractData = newData.contract || newData;
-        if (contractData) {
-          console.log('Setting contract detail:', contractData);
-          contract.value = contractData;
-        } else {
-          console.warn('No contract data found in:', newData);
-          contract.value = {};
-          error.value = '계약 정보를 찾을 수 없습니다.';
+    // 계약 상세 정보 조회
+    const fetchContractDetail = async () => {
+      try {
+        loading.value = true;
+        error.value = null;
+        
+        // 1. contractId 추출 시도 (URL query가 최우선)
+        let contractId = null;
+        
+        if (route.query.contractId) {
+          contractId = route.query.contractId;
+        } else if (props.detailData?.contract?.contractId) {
+          contractId = props.detailData.contract.contractId;
+        } else if (props.detailData?.contractId) {
+          contractId = props.detailData.contractId;
         }
-      } else {
-        console.warn('No detail data received');
+        
+        console.log('Contract ID sources:', {
+          queryContractId: route.query.contractId,
+          detailDataContract: props.detailData?.contract?.contractId,
+          detailDataContractId: props.detailData?.contractId,
+          finalContractId: contractId
+        });
+        
+        if (!contractId) {
+          console.error('Contract ID not found in any source');
+          throw new Error('계약 ID를 찾을 수 없습니다.');
+        }
+        
+        // 2. API로 계약 상세 정보 조회
+        console.log('Fetching contract detail for ID:', contractId);
+        const response = await contractApi.getContractDetail(contractId);
+        console.log('Contract detail response:', response);
+        
+        if (!response) {
+          throw new Error('계약 정보를 가져올 수 없습니다.');
+        }
+        
+        contract.value = response;
+        
+      } catch (err) {
+        console.error('계약 상세 정보 조회 실패:', err);
+        error.value = err.message || '계약 정보를 불러오는데 실패했습니다.';
         contract.value = {};
-        error.value = '데이터를 받지 못했습니다.';
+      } finally {
+        loading.value = false;
       }
-      
-      loading.value = false;
-    }, { immediate: true });
+    };
+
+    // detailData 변경 감지
+    watch(() => props.detailData, (newData) => {
+      if (newData) {
+        fetchContractDetail();
+      }
+    }, { immediate: true, deep: true });
+
+    // route query 변경 감지
+    watch(() => route.query.contractId, (newContractId) => {
+      if (newContractId) {
+        fetchContractDetail();
+      }
+    });
 
     const viewContractDocument = async () => {
       try {
@@ -135,6 +180,10 @@ export default {
       }
     };
 
+    const goToContractList = () => {
+      router.push({ name: 'influencer-mypage', query: { currentMenu: 'contract.ongoing' } });
+    };
+
     const formatDate = (dateString) => {
       if (!dateString) return '';
       const date = new Date(dateString);
@@ -149,6 +198,7 @@ export default {
     const getStatusClass = (status) => {
       return {
         'status-pending': status === 'PENDING',
+        'status-pending-sign': status === 'PENDING_SIGN',
         'status-active': status === 'ACTIVE',
         'status-completed': status === 'COMPLETED'
       };
@@ -158,10 +208,15 @@ export default {
       const statusMap = {
         'PENDING': '진행중',
         'PENDING_SIGN': '서명 대기중',
+        'ACTIVE': '활성',
         'COMPLETED': '완료'
       };
       return statusMap[status] || status;
     };
+
+    onMounted(() => {
+      fetchContractDetail();
+    });
 
     return {
       contract,
@@ -169,6 +224,7 @@ export default {
       error,
       viewContractDocument,
       signContract,
+      goToContractList,
       formatDate,
       formatAmount,
       getStatusClass,

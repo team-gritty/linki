@@ -35,9 +35,11 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
         p.submittedAt,
         p.respondedAt,
         p.influencer.influencerId,
-        p.campaign.campaignId
+        p.campaign.campaignId,
+        c.contractStatus
     )
     FROM Proposal p
+    LEFT JOIN Contract c ON c.proposal.proposalId = p.proposalId
     WHERE p.proposalId = :proposalId
 """)
     Optional<ProposalDetailResponseDTO> findDetailByProposalId(@Param("proposalId") String proposalId);

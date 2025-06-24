@@ -23,8 +23,16 @@ public class InfluencerReviewController  {
 
     @PostMapping("/v1/api/influencer/mypage/reviews/advertiser-write")
     public ResponseEntity<String> submitAdvertiserReview(@Valid @RequestBody InfAdvertiserReviewRequestDTO requestDTO) throws AccessDeniedException {
-        influencerReviewService.submitAdvertiserReview(requestDTO);
-        return ResponseEntity.ok("리뷰가 성공적으로 등록되었습니다");
+        try {
+            influencerReviewService.submitAdvertiserReview(requestDTO);
+            return ResponseEntity.ok("리뷰가 성공적으로 등록되었습니다");
+        } catch (IllegalStateException e) {
+            log.warn("리뷰 작성 실패: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("리뷰 작성 중 예상치 못한 오류 발생", e);
+            return ResponseEntity.internalServerError().body("리뷰 작성 중 오류가 발생했습니다.");
+        }
     }
 
     @GetMapping("/v1/api/influencer/mypage/reviews/available-contracts")

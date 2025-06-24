@@ -72,24 +72,31 @@
             아직 등록된 리뷰가 없습니다.
           </div>
           <div v-else class="reviews-list">
-            <div v-for="review in reviews" :key="review.reviewId" class="review-item">
+            <div v-for="review in reviews" :key="review.advertiserReviewId" class="review-item">
               <div class="review-content">
                 <div class="review-rating">
                   <div class="stars">
-                    <div class="stars-filled" :style="{ width: `${review.reviewScore * 20}%` }"></div>
+                    <div class="stars-filled" :style="{ width: `${review.advertiserReviewScore * 20}%` }"></div>
                     <div class="stars-empty"></div>
                   </div>
-                  <span class="rating-text">{{ review.reviewScore.toFixed(1) }}</span>
+                  <span class="rating-text">{{ review.advertiserReviewScore.toFixed(1) }}</span>
                 </div>
-                <p class="review-comment">{{ review.reviewComment }}</p>
-                <span class="review-date">{{ formatDate(review.reviewCreatedAt) }}</span>
+                <p class="review-comment">{{ review.advertiserReviewComment }}</p>
+                <span class="review-date">{{ formatDate(review.advertiserReviewCreatedAt) }}</span>
               </div>
             </div>
           </div>
         </section>
 
         <div class="action-buttons">
-          <button class="apply-button" @click="goToProposal">지원하기</button>
+          <button 
+            class="apply-button" 
+            @click="goToProposal"
+            :disabled="!isApplicationAvailable"
+            :class="{ 'disabled': !isApplicationAvailable }"
+          >
+            {{ getApplyButtonText() }}
+          </button>
           <button class="back-button" @click="goBack">목록으로</button>
         </div>
       </div>
@@ -125,7 +132,7 @@ const fetchCampaignDetail = async () => {
     console.log('CreatedAt:', data.createdAt, typeof data.createdAt)
     console.log('CampaignDeadline:', data.campaignDeadline, typeof data.campaignDeadline)
     // 캠페인 정보를 가져온 후 광고주 리뷰를 가져옴
-    if (data?.advertiserId) {
+    if (data?.campaignId) {
       await fetchAdvertiserReviews()
     }
   } catch (err) {
@@ -142,11 +149,16 @@ const fetchAdvertiserReviews = async () => {
     reviewError.value = null
     // 캠페인의 campaignId로 리뷰 조회
     if (campaign.value?.campaignId) {
+      console.log('Fetching reviews for campaignId:', campaign.value.campaignId)
       const data = await reviewApi.getAdvertiserReviewsByCampaign(campaign.value.campaignId)
-      reviews.value = data
+      console.log('Received reviews:', data)
+      reviews.value = data || []
+    } else {
+      console.warn('campaignId가 없어서 리뷰를 조회할 수 없습니다.')
     }
   } catch (err) {
     console.error('광고주 리뷰 로딩 실패:', err)
+    console.error('Error details:', err.response?.data)
     reviewError.value = '리뷰를 불러오는데 실패했습니다.'
   } finally {
     loadingReviews.value = false
@@ -197,7 +209,26 @@ const getStatusText = (status) => {
   return statusMap[status] || status
 }
 
+// 지원 가능 여부 계산
+const isApplicationAvailable = computed(() => {
+  if (!campaign.value) return false
+  return campaign.value.campaignPublishStatus === 'ACTIVE'
+})
+
+// 지원하기 버튼 텍스트
+const getApplyButtonText = () => {
+  if (!campaign.value) return '지원하기'
+  if (campaign.value.campaignPublishStatus === 'HIDDEN') {
+    return '지원 불가 (비활성 캠페인)'
+  }
+  return '지원하기'
+}
+
 const goToProposal = () => {
+  if (!isApplicationAvailable.value) {
+    alert('비활성 상태의 캠페인에는 지원할 수 없습니다.')
+    return
+  }
   router.push(`/campaign/${route.params.id}/proposal`)
 }
 
@@ -390,8 +421,21 @@ watch(() => route.params.id, () => {
   transition: background-color 0.2s;
 }
 
-.apply-button:hover {
+.apply-button:hover:not(:disabled) {
   background: #6d28d9;
+}
+
+.apply-button:disabled,
+.apply-button.disabled {
+  background: #9ca3af;
+  color: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.apply-button:disabled:hover,
+.apply-button.disabled:hover {
+  background: #9ca3af;
 }
 
 .back-button {
