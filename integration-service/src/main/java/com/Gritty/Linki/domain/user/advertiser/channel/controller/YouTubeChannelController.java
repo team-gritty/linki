@@ -1,10 +1,15 @@
 package com.Gritty.Linki.domain.user.advertiser.channel.controller;
 
+import com.Gritty.Linki.domain.user.advertiser.channel.service.ChannelService;
 import com.Gritty.Linki.domain.user.advertiser.channel.service.YouTubeChannelCollectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * YouTube 채널 수집 관련 API 컨트롤러
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class YouTubeChannelController {
 
+    private final ChannelService channelService;
     private final YouTubeChannelCollectService youTubeChannelCollectService;
 
     /**
@@ -41,5 +47,41 @@ public class YouTubeChannelController {
         youTubeChannelCollectService.collectChannels(keyword, category, maxResults);
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 모든 채널의 YouTube API 통계를 업데이트 (스케줄러로 하루에 한번씩 혹은 특정 시간에만 업데이트)
+     *
+     * @param maxResults 조회할 최근 영상 수 (기본값: 30개)
+     * @return 업데이트 결과
+     */
+    @PostMapping("/youtube-api/channels/update-all-statistics")
+    public ResponseEntity<Map<String, Object>> updateAllChannelStatistics(
+            @RequestParam(defaultValue = "30") int maxResults) {
+
+        log.info("모든 채널 통계 업데이트 요청 - maxResults: {}", maxResults);
+
+        try {
+            // 모든 채널 ID 조회
+            List<String> allChannelIds = channelService.getAllChannelIds();
+
+            // 일괄 업데이트 실행
+            channelService.updateChannelStatisticsBatch(allChannelIds);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "모든 채널의 통계 업데이트가 완료되었습니다.");
+            response.put("totalChannels", allChannelIds.size());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("모든 채널 통계 업데이트 실패 - error: {}", e.getMessage());
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "모든 채널 통계 업데이트에 실패했습니다: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 }

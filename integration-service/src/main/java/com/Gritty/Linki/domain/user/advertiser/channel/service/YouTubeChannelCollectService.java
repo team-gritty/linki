@@ -100,11 +100,11 @@ public class YouTubeChannelCollectService {
         YouTubeChannelDto.Snippet snippet = channelItem.getSnippet();
         YouTubeChannelDto.Statistics statistics = channelItem.getStatistics();
 
-        // 순차적으로 인플루언서 ID 할당 (INF0000부터 시작, 순환)
+        // 순차적으로 인플루언서 ID 할당 (INF-0000000000000000 형식으로 변경)
         // 인플루언서가 이미 플랫폼에 가입했다고 가정하고 유튜브로 부터 데이터 수집하는 것이기 때문에 더미데이터의 influencer id를 채널
         // 테이블에 넣어주기
         int currentCount = counter.getAndIncrement() % 500;
-        String influencerId = String.format("INF%04d", currentCount);
+        String influencerId = String.format("INF-%016d", currentCount);
 
         // 인플루언서 조회 시도 (인플루언서 respository 사용)
         // influencer id 찾아 더미데이터로 들어간 인플루언서의 채널을 넣기위해
@@ -114,6 +114,29 @@ public class YouTubeChannelCollectService {
                     return new BusinessException(ErrorCode.ENTITY_NOT_FOUND,
                             "인플루언서를 찾을 수 없습니다: " + influencerId);
                 });
+
+        // 좋아요/댓글 통계 변수 초기화
+        long avgLikeCount = 0L;
+        long avgCommentCount = 0L;
+
+        try {
+            log.info("채널 수집 시점에 좋아요/댓글 통계 계산 시작 - channelId: {}", channelItem.getId());
+
+            // YouTube API를 통해 평균 좋아요/댓글 수 계산 (최근 30개 영상 기준)
+            long[] averages = youTubeApiService.getChannelVideoAverages(channelItem.getId(), 30);
+
+            avgLikeCount = averages[0];
+            avgCommentCount = averages[1];
+
+            log.info("채널 통계 계산 완료 - channelId: {}, avgLikes: {}, avgComments: {}",
+                    channelItem.getId(), avgLikeCount, avgCommentCount);
+
+        } catch (Exception e) {
+            log.warn("채널 수집 시 통계 계산 실패, 기본값 사용 - channelId: {}, error: {}", channelItem.getId(), e.getMessage());
+            // 통계 계산 실패 시 기본값 0 사용
+            avgLikeCount = 0L;
+            avgCommentCount = 0L;
+        }
 
         try {
             return Channel.builder()
@@ -129,8 +152,8 @@ public class YouTubeChannelCollectService {
                     .videoCount(parseInt(statistics.getVideoCount()))
                     .viewCount(parseLong(statistics.getViewCount()))
                     .channelCreatedAt(parseDateTime(snippet.getPublishedAt()))
-                    .likeCount(0L)
-                    .commentCount(0L)
+                    .likeCount(avgLikeCount)
+                    .commentCount(avgCommentCount)
                     .influencer(influencer)
                     .collectedAt(LocalDateTime.now())
                     .build();

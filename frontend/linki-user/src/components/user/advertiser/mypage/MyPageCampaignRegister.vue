@@ -39,6 +39,23 @@
           </div>
           <div v-if="showError && selectedCategory.trim() === ''" class="field-error">카테고리를 선택해주세요.</div>
         </div>
+        <div class="form-group">
+          <label>공개 상태 <span class="required-asterisk">*</span></label>
+          <div class="publish-status-dropdown" @click="togglePublishStatusDropdown">
+            <span class="status-label">{{ getPublishStatusLabel(selectedPublishStatus) || '공개 상태 선택' }}</span>
+            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div v-if="publishStatusDropdownOpen" class="dropdown-menu compact-dropdown-menu" @click.stop>
+              <div class="status-list">
+                <div v-for="status in publishStatuses" :key="status.value" class="status-item compact-status-item" @click="selectPublishStatus(status)">
+                  {{ status.label }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="showError && selectedPublishStatus.trim() === ''" class="field-error">공개 상태를 선택해주세요.</div>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -80,7 +97,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import httpClient from '@/utils/httpRequest'
+import campaignApi from '@/api/advertiser/advertiser-campaign'
 
 const productName = ref('')
 const productCondition = ref('')
@@ -95,8 +112,16 @@ const warningMessage = ref('')
 const showError = ref(false)
 
 const categories = [
-  '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
+  '뷰티', '패션', '스포츠', '음식', '브이로그', '여행', '음악', '교육', '동물', '전자제품', '엔터테인먼트'
 ]
+
+const publishStatuses = [
+  { value: 'HIDDEN', label: '숨김' },
+  { value: 'ACTIVE', label: '공개' }
+]
+
+const selectedPublishStatus = ref('ACTIVE')
+const publishStatusDropdownOpen = ref(false)
 
 // 필수 입력 항목이 모두 입력되었는지 확인하기
 const isFormValid = computed(() => {
@@ -106,7 +131,8 @@ const isFormValid = computed(() => {
     selectedCategory.value.trim() !== '' &&
     (imageUrl.value.trim() !== '' || fileName.value.trim() !== '') &&
     adStartDate.value.trim() !== '' &&
-    adEndDate.value.trim() !== ''
+    adEndDate.value.trim() !== '' &&
+    selectedPublishStatus.value.trim() !== ''
   );
 });
 
@@ -134,11 +160,21 @@ function selectCategory(cat) {
   categoryDropdownOpen.value = false
 }
 
+function togglePublishStatusDropdown() {
+  publishStatusDropdownOpen.value = !publishStatusDropdownOpen.value
+}
+
+function selectPublishStatus(status) {
+  selectedPublishStatus.value = status.value
+  publishStatusDropdownOpen.value = false
+}
+
 function onDocumentClick(e) {
-  if (categoryDropdownOpen.value) {
+  if (categoryDropdownOpen.value || publishStatusDropdownOpen.value) {
     const dropdown = document.querySelector('.dropdown-menu')
     if (dropdown && !dropdown.contains(e.target)) {
       categoryDropdownOpen.value = false
+      publishStatusDropdownOpen.value = false
     }
   }
 }
@@ -151,6 +187,24 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentClick)
 })
 
+// 프론트엔드 카테고리를 백엔드 enum으로 매핑하는 함수
+const mapCategoryToEnum = (category) => {
+  const categoryMap = {
+    '뷰티': 'BEAUTY',
+    '패션': 'FASHION', 
+    '스포츠': 'SPORTS',
+    '음식': 'FOOD',
+    '브이로그': 'VLOG',
+    '여행': 'TRAVEL',
+    '음악': 'MUSIC',
+    '교육': 'EDUCATION',
+    '동물': 'ANIMAL',
+    '전자제품': 'ELECTRONICS',
+    '엔터테인먼트': 'ENTERTAINMENT'
+  }
+  return categoryMap[category] || category
+}
+
 /**
  * 필수 항목 입력 후 캠페인 등록 폼 제출
  */
@@ -162,17 +216,25 @@ async function submitForm() {
     showError.value = true;
     return;
   }
-  const payload = {
-    productName: productName.value,
-    adCondition: productCondition.value,
-    description: productDesc.value,
-    category: selectedCategory.value,
-    imageUrl: imageUrl.value || 'https://via.placeholder.com/80x60?text=이미지',
-    startDate: adStartDate.value,
-    deadline: adEndDate.value
+  
+  // 날짜를 LocalDateTime 형식으로 변환 (ISO 8601 형식)
+  const deadlineDate = new Date(adEndDate.value + 'T23:59:59');
+  
+  // 백엔드 CampaignRequest DTO에 맞는 데이터 구조로 변환
+  const campaignData = {
+    campaignName: productName.value,
+    campaignDesc: productDesc.value,
+    campaignCondition: productCondition.value || '',
+    campaignImg: imageUrl.value || 'https://via.placeholder.com/80x60?text=이미지',
+    campaignDeadline: deadlineDate.toISOString(),
+    campaignPublishStatus: selectedPublishStatus.value,
+    campaignCategory: mapCategoryToEnum(selectedCategory.value)
   };
+  
+  console.log('전송할 캠페인 데이터:', campaignData);
+  
   try {
-    await httpClient.post('/campaign-register', payload);
+    await campaignApi.registerCampaign(campaignData);
     // 폼 초기화
     productName.value = '';
     productCondition.value = '';
@@ -182,59 +244,239 @@ async function submitForm() {
     imageUrl.value = '';
     fileName.value = '';
     selectedCategory.value = '';
+    selectedPublishStatus.value = 'ACTIVE';
     alert('등록이 완료되었습니다!');
   } catch (e) {
-    alert('등록에 실패했습니다.');
+    console.error('캠페인 등록 실패:', e);
+    console.error('에러 상세:', e.response?.data);
+    alert('등록에 실패했습니다. 콘솔을 확인해주세요.');
   }
+}
+
+function getPublishStatusLabel(value) {
+  const status = publishStatuses.find(s => s.value === value);
+  return status ? status.label : null;
 }
 </script>
 
 <style>
 @import '@/assets/css/mypage.css';
-/* Required asterisk style */
-.required-asterisk {
-  color: #dc2626;
-  margin-left: 2px;
-  font-size: 1.1em;
-}
-.input-error {
-  border: 1.5px solid #dc2626 !important;
-  background: #fff0f0;
-}
-.field-error {
-  color: #dc2626;
-  font-size: 0.95em;
-  margin-top: 4px;
-}
-/* Global error message for form */
-.form-global-error {
-  color: #dc2626;
-  background: #fff0f0;
-  border: 1px solid #dc2626;
-  border-radius: 6px;
-  padding: 10px 16px;
-  margin-bottom: 18px;
-  font-size: 1.05em;
-  text-align: center;
-}
-/* Compact category dropdown item */
-.compact-category-item {
-  padding: 2px 8px !important;  /* 기존보다 작은 패딩 */
-  font-size: 0.85rem !important;  /* 폰트 사이즈 줄이기 */
-  min-height: 18px !important;  /* 최소 높이 줄이기 */
-  line-height: 1 !important;  /* 라인 높이 줄이기 */
+
+.register-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
 }
 
-.compact-category-item:hover {
-  background: #f3f4f6 !important;
-  color: #7B21E8 !important;
+.register-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+  text-align: center;
 }
-/* Compact dropdown menu */
-.compact-dropdown-menu {
-  max-height: 220px;
-  overflow-y: auto;
-  min-width: 160px;
+
+.register-form {
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px;
+  box-shadow: 0 4px 20px rgba(123, 33, 232, 0.08);
+}
+
+.form-row {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  flex: 1;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.required-asterisk {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group textarea {
   width: 100%;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.2s ease;
   box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #7B21E8;
+  box-shadow: 0 0 0 3px rgba(123, 33, 232, 0.1);
+}
+
+.input-error {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+.field-error {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.form-global-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.category-dropdown,
+.publish-status-dropdown {
+  position: relative;
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.category-dropdown:hover,
+.publish-status-dropdown:hover {
+  border-color: #7B21E8;
+}
+
+.category-label,
+.status-label {
+  font-size: 16px;
+  color: #333;
+}
+
+.dropdown-icon {
+  transition: transform 0.2s ease;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.category-list,
+.status-list {
+  padding: 8px 0;
+}
+
+.category-item,
+.status-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 16px;
+  color: #333;
+}
+
+.category-item:hover,
+.status-item:hover {
+  background: #f8f9fa;
+  color: #7B21E8;
+}
+
+.image-preview {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.image-preview img {
+  max-width: 200px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+}
+
+.filename {
+  font-size: 14px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #7B21E8 0%, #9333EA 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 48px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(123, 33, 232, 0.3);
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(123, 33, 232, 0.4);
+}
+
+.submit-btn:disabled {
+  background: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .register-form {
+    padding: 32px 24px;
+  }
+  
+  .register-content {
+    padding: 16px;
+  }
 }
 </style> 

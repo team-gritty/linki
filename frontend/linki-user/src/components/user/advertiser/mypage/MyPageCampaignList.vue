@@ -122,10 +122,25 @@
     deleteModalOpen.value = true
   }
   
-  function confirmDelete() {
+  async function confirmDelete() {
     if (deleteIdx.value !== null) {
-      campaigns.value.splice(deleteIdx.value, 1)
+      const campaign = campaigns.value[deleteIdx.value]
+      
+      try {
+        // API를 통해 캠페인 삭제
+        await campaignApi.deleteCampaign(campaign.id)
+        
+        // API 호출 성공 후 로컬 배열에서 제거
+        campaigns.value.splice(deleteIdx.value, 1)
+        
+        console.log('캠페인이 성공적으로 삭제되었습니다.')
+      } catch (error) {
+        console.error('캠페인 삭제 실패:', error)
+        alert('캠페인 삭제에 실패했습니다. 다시 시도해주세요.')
+        // 에러 발생 시 로컬 상태는 변경하지 않음
+      }
     }
+    
     deleteModalOpen.value = false
     deleteIdx.value = null
   }

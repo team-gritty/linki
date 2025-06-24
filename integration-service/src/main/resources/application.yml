@@ -11,6 +11,10 @@ spring:
   jwt:
     secret: ${secret-HS256}
 
+    spring:
+      jackson:
+        property-naming-strategy: SNAKE_CASE
+
 
 
 

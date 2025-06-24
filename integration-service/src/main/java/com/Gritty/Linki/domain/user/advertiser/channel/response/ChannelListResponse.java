@@ -43,6 +43,16 @@ public class ChannelListResponse {
     private long avgViewCount;
 
     /**
+     * 평균 좋아요 수
+     */
+    private long avgLikeCount;
+
+    /**
+     * 평균 댓글 수
+     */
+    private long avgCommentCount;
+
+    /**
      * 카테고리
      */
     private String category;
