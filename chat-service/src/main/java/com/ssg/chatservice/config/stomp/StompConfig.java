@@ -27,8 +27,8 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         //엔드포인트 경로
         registry.addEndpoint("/v1/chat-service/ws/chat")
-                .setAllowedOriginPatterns("*");
-        registry.setErrorHandler(new StompSubProtocolErrorHandler());
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override

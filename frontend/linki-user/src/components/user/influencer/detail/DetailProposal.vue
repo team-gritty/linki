@@ -58,11 +58,37 @@
           </div>
         </div>
 
-        <div class="action-buttons" v-if="proposalData.status === 'PENDING'">
-          <button v-if="!isEditing" class="submit-button" @click="startEdit">수정</button>
-          <button v-if="!isEditing" class="delete-button" @click="deleteProposal">삭제</button>
+        <div class="action-buttons" v-if="showActionButtons">
+          <button v-if="!isEditing && canEditProposal" class="submit-button" @click="startEdit">수정</button>
+          <button v-if="!isEditing && canDeleteProposal" class="delete-button" @click="deleteProposal">삭제</button>
           <button v-if="isEditing" class="submit-button" @click="saveProposal">저장</button>
           <button v-if="isEditing" class="cancel-button" @click="cancelEdit">취소</button>
+        </div>
+        
+        <!-- 상태별 안내 메시지 -->
+        <div v-if="proposalData && proposalData.contractStatus === 'ONGOING'" class="status-message">
+          <div class="status-info ongoing">
+            <i class="icon-info"></i>
+            <span>계약이 진행 중인 제안서는 수정할 수 없습니다.</span>
+          </div>
+        </div>
+        <div v-if="proposalData && proposalData.contractStatus === 'COMPLETED'" class="status-message">
+          <div class="status-info completed">
+            <i class="icon-check"></i>
+            <span>계약이 완료된 제안서는 수정할 수 없습니다.</span>
+          </div>
+        </div>
+        <div v-if="proposalData && proposalData.status === 'ACCEPTED' && !canDeleteProposal && proposalData.contractStatus !== 'ONGOING' && proposalData.contractStatus !== 'COMPLETED'" class="status-message">
+          <div class="status-info accepted">
+            <i class="icon-check"></i>
+            <span>제안서가 승인되었습니다. 삭제할 수 없지만 수정은 가능합니다.</span>
+          </div>
+        </div>
+        <div v-if="proposalData && proposalData.status === 'REJECTED'" class="status-message">
+          <div class="status-info rejected">
+            <i class="icon-close"></i>
+            <span>제안서가 거절되었습니다.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -73,7 +99,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { proposalAPI } from '@/api/proposal'
-import axios from 'axios'
 
 export default {
   name: 'DetailProposal',
@@ -122,8 +147,7 @@ export default {
       const statusMap = {
         'PENDING': '검토중',
         'ACCEPTED': '수락됨',
-        'REJECTED': '거절됨',
-        'COMPLETED': '완료'
+        'REJECTED': '거절됨'
       }
       return statusMap[status] || status
     }
@@ -138,7 +162,45 @@ export default {
       })
     }
 
+    // 제안서 상태에 따른 권한 제어
+    const canEditProposal = computed(() => {
+      if (!proposalData.value?.status) return false
+      
+      // 계약이 진행 중(ONGOING)인 경우 수정 불가
+      if (proposalData.value.contractStatus === 'ONGOING') return false
+
+          // 계약이 완료인 경우 수정 불가
+          if (proposalData.value.contractStatus === 'COMPLETED') return false
+      
+      // 검토중(PENDING)과 수락됨(ACCEPTED) 상태일 때 수정 가능
+      return proposalData.value.status === 'PENDING' || proposalData.value.status === 'ACCEPTED'
+    })
+
+    const canDeleteProposal = computed(() => {
+      if (!proposalData.value?.status) return false
+      // 검토중(PENDING) 상태일 때만 삭제 가능
+      return proposalData.value.status === 'PENDING'
+    })
+
+    const showActionButtons = computed(() => {
+      if (!proposalData.value?.status) return false
+      // PENDING, ACCEPTED 상태이거나 편집 중일 때 액션 버튼 표시
+      return proposalData.value.status === 'PENDING' || proposalData.value.status === 'ACCEPTED' || isEditing.value
+    })
+
     const startEdit = () => {
+      // 수정 권한 검증
+      if (!canEditProposal.value) {
+        if (proposalData.value?.contractStatus === 'ONGOING') {
+          alert('계약이 진행 중인 제안서는 수정할 수 없습니다.')
+        } else if (proposalData.value?.contractStatus === 'COMPLETED') {
+          alert('계약이 완료된 제안서는 수정할 수 없습니다.')
+        } else {
+          alert('검토중이거나 승인된 제안서만 수정할 수 있습니다.')
+        }
+        return
+      }
+      
       editingContent.value = proposalData.value.contents
       isEditing.value = true
     }
@@ -152,13 +214,14 @@ export default {
       try {
         if (!proposalData.value?.proposalId) return
         
-        await axios.patch(`/v1/api/influencer/proposals/${proposalData.value.proposalId}`, {
+        await proposalAPI.updateProposal(proposalData.value.proposalId, {
           contents: editingContent.value,
-          submittedAt: new Date().toISOString()
+          
         })
         
         proposalData.value.contents = editingContent.value
         isEditing.value = false
+        alert('제안서가 성공적으로 수정되었습니다.')
       } catch (error) {
         console.error('Failed to save proposal:', error)
         alert('제안서 저장에 실패했습니다.')
@@ -166,12 +229,23 @@ export default {
     }
 
     const deleteProposal = async () => {
+      // 삭제 권한 검증
+      if (!canDeleteProposal.value) {
+        alert('검토중인 제안서만 삭제할 수 있습니다.')
+        return
+      }
+      
       if (!confirm('정말로 제안서를 삭제하시겠습니까?')) return
+      
       try {
         if (!proposalData.value?.proposalId) return
         
-        await axios.delete(`/v1/api/influencer/proposals/${proposalData.value.proposalId}`)
-        router.push('/mypage?currentMenu=campaign.proposals')
+        await proposalAPI.deleteProposal(proposalData.value.proposalId)
+        alert('제안서가 성공적으로 삭제되었습니다.')
+        
+        // 삭제 후 인플루언서 마이페이지의 제안서 목록으로 이동
+        router.push({ name: 'influencer-mypage', query: { currentMenu: 'campaign.proposals' } })
+        
       } catch (error) {
         console.error('Failed to delete proposal:', error)
         alert('제안서 삭제에 실패했습니다.')
@@ -186,6 +260,9 @@ export default {
       statusClass,
       getStatusText,
       formatDate,
+      canEditProposal,
+      canDeleteProposal,
+      showActionButtons,
       startEdit,
       cancelEdit,
       saveProposal,
@@ -276,10 +353,7 @@ export default {
   color: #721c24;
 }
 
-.completed {
-  background-color: #e2e8f0;
-  color: #4a5568;
-}
+
 
 .proposal-content {
   margin: 24px 0;
@@ -384,4 +458,56 @@ export default {
 .cancel-button:hover {
   background: #f5f5f5;
 }
+
+/* 상태 메시지 스타일 */
+.status-message {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-info.accepted {
+  color: #28a745;
+}
+
+.status-info.rejected {
+  color: #dc3545;
+}
+
+.status-info.ongoing {
+  color: #ffc107;
+}
+
+.status-info.completed {
+  color: #28a745;
+}
+
+
+
+.status-info i {
+  font-size: 16px;
+}
+
+.icon-check::before {
+  content: "✓";
+}
+
+.icon-close::before {
+  content: "✗";
+}
+
+.icon-info::before {
+  content: "ℹ";
+}
+
+
 </style> 

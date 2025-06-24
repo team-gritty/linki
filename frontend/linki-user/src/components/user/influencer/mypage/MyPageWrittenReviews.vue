@@ -6,22 +6,22 @@
         <p>작성한 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.influencerReviewId" class="review-item">
+        <div v-for="review in reviews" :key="review.advertiserReviewId" class="review-item">
           <div class="review-header">
             <div class="review-info">
               <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+              <span class="review-date">{{ formatDate(review.advertiserReviewCreatedAt) }}</span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.influencerReviewScore }}</span>
+                <span class="score-value">{{ review.advertiserReviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.influencerReviewScore) }"
+                    :class="{ 'filled': index <= Math.round(review.advertiserReviewScore) }"
                   >
                     ★
                   </span>
@@ -30,7 +30,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.influencerReviewComment }}</p>
+            <p class="review-comment">{{ review.advertiserReviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -45,7 +45,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import httpClient from '../../../../utils/httpRequest';
+import { reviewApi } from '@/api/review';
 
 export default {
   name: 'MyPageWrittenReviews',
@@ -55,10 +55,13 @@ export default {
 
     const fetchReviews = async () => {
       try {
-        const response = await httpClient.get('/v1/api/influencer/reviews/written');
-        reviews.value = response.data;
+        console.log('Fetching written reviews...');
+        const response = await reviewApi.getWrittenReviews();
+        reviews.value = Array.isArray(response) ? response : [];
+        console.log('Fetched written reviews:', reviews.value);
       } catch (error) {
-        console.error('리뷰 목록 조회 실패:', error);
+        console.error('Error fetching written reviews:', error);
+        reviews.value = [];
       }
     };
 

@@ -1,9 +1,9 @@
-package com.Gritty.Linki.domain.user.User.mypage.service;
+package com.Gritty.Linki.domain.user.mypage.service;
 
-import com.Gritty.Linki.domain.user.User.mypage.dto.UserMypageRequestDto;
-import com.Gritty.Linki.domain.user.User.mypage.dto.UserMypageResponseDto;
-import com.Gritty.Linki.domain.user.User.mypage.dto.UserPasswordChangeRequestDto;
-import com.Gritty.Linki.domain.user.User.mypage.repository.UserMypageRepository;
+import com.Gritty.Linki.domain.user.mypage.dto.UserMypageRequestDto;
+import com.Gritty.Linki.domain.user.mypage.dto.UserMypageResponseDto;
+import com.Gritty.Linki.domain.user.mypage.dto.UserPasswordChangeRequestDto;
+import com.Gritty.Linki.domain.user.mypage.repository.UserMypageRepository;
 import com.Gritty.Linki.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

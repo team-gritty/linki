@@ -3,8 +3,11 @@
     <div class="user-signup-container">
       <div class="user-signup-box">
         <div class="user-signup-form">
-          <h1 class="user-signup-title">Create an account</h1>
-          <p class="user-signup-subtitle">Enter your details below</p>
+          <h1 class="user-signup-title">회원가입</h1>
+          <bl></bl>
+          <bl></bl>
+          <bl></bl>
+
 
           <div class="user-input-group">
             <input type="text" v-model="userId" class="user-input" placeholder="아이디" :disabled="isLoading" />
@@ -99,17 +102,17 @@
           </div>
 
           <button class="user-signup-button" @click="handleSignup" :disabled="isLoading || !isFormValid || !isTermsValid">
-            {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+            {{ isLoading ? 'Creating Account...' : '회원가입' }}
           </button>
 
-          <button class="user-google-button" @click="handleGoogleSignup" :disabled="isLoading">
+          <button type="button" class="user-google-button" @click="handleGoogleLogin" :disabled="isLoading">
             <img src="@/assets/google-icon.svg" alt="Google" class="user-google-icon" />
-            Sign up with Google
+            구글 로그인
           </button>
 
           <div class="user-login-prompt">
-            <span>Already have account?</span>
-            <router-link to="/login" class="user-login-link">Log in</router-link>
+            <span>이미 계정이 있으신가요?</span>
+            <router-link to="/login" class="user-login-link">로그인</router-link>
           </div>
         </div>
       </div>
@@ -413,17 +416,9 @@ const handleSignup = async () => {
   }
 }
 
-const handleGoogleSignup = async () => {
-  try {
-    isLoading.value = true
-    const response = await httpClient.get('/api/user/auth/google')
-    window.location.href = response.data.authUrl
-  } catch (error) {
-    console.error('Google signup failed:', error)
-    showAlert('Google 로그인 연동 중 오류가 발생했습니다.', 'error')
-  } finally {
-    isLoading.value = false
-  }
+const handleGoogleLogin = () => {
+  // OAuth2 인증 시작: 백엔드 스프링 시큐리티가 자동 처리하는 URL로 이동
+  window.location.replace('http://localhost:8081/oauth2/authorization/google');
 }
 
 defineOptions({

@@ -28,7 +28,13 @@ public class ChatRoutes {
                         .path("/v1/chat-service/api/**")
                         .uri("lb://CHAT-SERVICE"))
 
-                // ── 2) WebSocket
+                // SockJS fallback (XHR, /info 등)
+                .route("chat-sockjs-fallback", r -> r
+                        .path("/v1/chat-service/ws/**")
+                        .and().method("GET")
+                        .uri("lb://CHAT-SERVICE"))
+
+                // 진짜 WebSocket (Upgrade 헤더 있는 것만)
                 .route("chat-ws", r -> r
                         .path("/v1/chat-service/ws/**")
                         .and().header("Upgrade", "websocket")

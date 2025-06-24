@@ -34,18 +34,15 @@ public class TossBillingService implements BillingService {
         //Basic 인증 헤더
         String authorizationHeader = tossBasicAuthHeaderUtil.createBasicAuth(tossConfig.getSecretKey());
 
-        // successurl 오는 값 받는 dto
         AuthCardRequestDto authCardRequestDto = AuthCardRequestDto.builder()
                 .customerKey(customerKey)
                 .authKey(authKey)
                 .build();
 
-        // 토스 api 요청해서 billingkey 응답
         BillingKeyResponseDto res = feignGetBillingKey
                 .getBillingKey(authorizationHeader, authCardRequestDto)
                 .getBody();
 
-        //billing Entity 생성
         BillingEntity billing = BillingEntity.builder()
                 .billingId(idGenerator.billingId())
                 .billingKey(res.getBillingKey())

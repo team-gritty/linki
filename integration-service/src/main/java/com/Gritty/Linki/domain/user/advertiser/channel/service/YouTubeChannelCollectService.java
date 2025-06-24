@@ -100,11 +100,11 @@ public class YouTubeChannelCollectService {
         YouTubeChannelDto.Snippet snippet = channelItem.getSnippet();
         YouTubeChannelDto.Statistics statistics = channelItem.getStatistics();
 
-        // 순차적으로 인플루언서 ID 할당 (INF0000부터 시작, 순환)
+        // 순차적으로 인플루언서 ID 할당 (INF-0000000000000000 형식으로 변경)
         // 인플루언서가 이미 플랫폼에 가입했다고 가정하고 유튜브로 부터 데이터 수집하는 것이기 때문에 더미데이터의 influencer id를 채널
         // 테이블에 넣어주기
         int currentCount = counter.getAndIncrement() % 500;
-        String influencerId = String.format("INF%04d", currentCount);
+        String influencerId = String.format("INF-%016d", currentCount);
 
         // 인플루언서 조회 시도 (인플루언서 respository 사용)
         // influencer id 찾아 더미데이터로 들어간 인플루언서의 채널을 넣기위해

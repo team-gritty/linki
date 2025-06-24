@@ -17,4 +17,5 @@ public class ChatResponeDTO {
     private LocalDateTime lastMessageTime;
     private boolean isNew;
     private String proposalId;
+    private String campaignId;
 }

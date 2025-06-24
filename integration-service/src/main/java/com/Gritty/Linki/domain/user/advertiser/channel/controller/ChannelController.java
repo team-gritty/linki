@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.advertiser.channel.controller;
 
 import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
 import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelPageResponse;
 import com.Gritty.Linki.domain.user.advertiser.channel.response.SubscriberHistoryResponse;
 import com.Gritty.Linki.domain.user.advertiser.channel.service.ChannelService;
 import com.Gritty.Linki.domain.user.advertiser.channel.service.SubscriberHistoryService;
@@ -43,10 +44,10 @@ public class ChannelController {
          * @param maxAvgViewCount 최대 평균 조회수 (기본값: Long.MAX_VALUE)
          * @param page            페이지 번호 (기본값: 0)
          * @param limit           페이지 크기 (기본값: 10)
-         * @return 필터링된 채널 목록
+         * @return 필터링된 채널 목록과 페이지네이션 정보
          */
         @GetMapping("/nonuser/channels")
-        public ResponseEntity<List<ChannelListResponse>> getChannels(
+        public ResponseEntity<ChannelPageResponse> getChannels(
                         @RequestParam(required = false) String keyword,
                         @RequestParam(required = false) String category,
                         @RequestParam(defaultValue = "0") long minSubscribers,
@@ -74,11 +75,10 @@ public class ChannelController {
                                 .build();
 
                 // Service 호출하여 채널 검색
-                List<ChannelListResponse> channels = channelService.searchChannels(request);
+                ChannelPageResponse channelPageResponse = channelService.searchChannels(request);
 
-                return ResponseEntity.ok(channels);
+                return ResponseEntity.ok(channelPageResponse);
         }
-
 
         /**
          * 특정 채널의 상세(통계 정보 포함)정보 조회
@@ -101,6 +101,7 @@ public class ChannelController {
                         return ResponseEntity.status(500).build();
                 }
         }
+
         /**
          * 특정 채널의 구독자 히스토리 조회
          * 

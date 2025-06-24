@@ -32,15 +32,44 @@ watchEffect(() => {
 
 // 내 채널의 좋아요/조회수 비율을 계산하는 computed
 const myChannelLikeRatio = computed(() => {
-   // 내 채널 찾기
-  const my = (props.channels || []).find(c => String(c.id) === String(props.channelId))
+   // 내 채널 찾기 - channelId 필드명으로 수정
+  console.log('=== LikeRatioBarChart 디버그 ===')
+  console.log('내채널 찾는중:', props.channelId)
+  console.log('채널 목록:', props.channels?.length || 0, '개 채널')
+  
+  // 기본값 체크
+  if (!props.channelId || !props.channels || props.channels.length === 0) {
+    console.warn('channelId 또는 channels 데이터가 없음')
+    return 0
+  }
+  
+  // 다양한 방식으로 채널 검색 시도
+  let my = props.channels.find(c => String(c.channelId) === String(props.channelId))
+  
+  if (!my) {
+    // channelId 대신 id 필드로 시도
+    my = props.channels.find(c => String(c.id) === String(props.channelId))
+  }
+  
+  if (!my) {
+    // 다른 가능한 필드명들로 시도
+    console.log('첫 번째 채널 객체 구조:', props.channels[0])
+    console.warn('내채널 찾지 못함. 0 반환하기---')
+    return 0
+  }
+  
+  console.log('내채널 찾음:', my)
+  
   if (my) {
     // 내 채널의 비율 계산 (조회수가 0 초과일 때만)
+    console.log('채널 평균 조회수', my.avgViewCount)
+    console.log('채널 평균 좋아요 수:', my.avgLikeCount)
+    
     const ratio = my.avgViewCount > 0 ? my.avgLikeCount / my.avgViewCount : 0
-    console.log('내 채널:', my)
-    console.log('내 채널 비율:', ratio)
+    console.log('계산 된 좋아요 비율:', ratio)
     return ratio
   }
+
   return 0
 })
 
@@ -76,7 +105,7 @@ const chartOptions = computed(() => ({
   dataLabels: { enabled: false },                          // 데이터 라벨 숨김
   grid: { borderColor: '#eee' },                           // 차트 격자선 색
   tooltip: {
-    y: { formatter: val => (val * 100).toFixed(2) + '%' }  // 툴팁 숫자 % 형식
+    y: { formatter: val => (val * 100).toFixed(2) + '%' }  // 툴크 숫자 % 형식
   },
   plotOptions: {
     bar: {
