@@ -74,6 +74,12 @@ dependencies {
 	implementation 'org.springframework.retry:spring-retry'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.apache.commons:commons-pool2' // 커넥션 풀 관리
+
+	// 객체 ↔ JSON 변환용 (Redis에 DTO 저장 시 필요)
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
 }
 
 
