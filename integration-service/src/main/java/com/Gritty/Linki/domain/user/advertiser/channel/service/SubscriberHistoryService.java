@@ -75,38 +75,6 @@ public class SubscriberHistoryService {
     }
 
     /**
-     * 더미 구독자 히스토리 데이터 생성
-     */
-    private List<SubscriberHistoryDto> generateDummySubscriberHistory(String channelId, Integer days) {
-        List<SubscriberHistoryDto> dummyData = new ArrayList<>();
-
-        // 기본 구독자 수 (10만 ~ 100만 사이)
-        long baseSubscribers = 100000 + (long) (Math.random() * 900000);
-
-        // 날짜별 더미 데이터 생성 (30일 정도)
-        int dataPoints = Math.min(days, 30);
-        for (int i = dataPoints; i >= 0; i--) {
-            LocalDateTime date = LocalDateTime.now().minusDays(i);
-
-            // 구독자 수는 시간이 지날수록 점진적으로 증가
-            long variation = (long) (Math.random() * 1000 - 500); // -500 ~ +500
-            long subscriberCount = baseSubscribers + (dataPoints - i) * 50 + variation;
-
-            SubscriberHistoryDto dto = SubscriberHistoryDto.builder()
-                    .id("DUMMY-" + channelId + "-" + i)
-                    .channelId(channelId)
-                    .subscriberCount(subscriberCount)
-                    .collectedAt(date)
-                    .build();
-
-            dummyData.add(dto);
-        }
-
-        log.info("더미 구독자 히스토리 데이터 생성 완료 - channelId: {}, 생성된 데이터 수: {}", channelId, dummyData.size());
-        return dummyData;
-    }
-
-    /**
      * 구독자 히스토리 저장
      * 
      * @param channelId       채널 ID (String 형식)
