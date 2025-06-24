@@ -98,6 +98,8 @@ dependencies {
 
 	// Spring oAuth2 Client
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	//kafka
+	implementation 'org.springframework.kafka:spring-kafka'
 
 
 }

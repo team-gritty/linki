@@ -11,19 +11,24 @@ spring:
   jwt:
     secret: ${secret-HS256}
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
-    spring:
-      jackson:
-        property-naming-strategy: SNAKE_CASE
+  kafka:
+    bootstrap-servers: localhost:9092
 
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+        retries: 3
 
+custom:
+  kafka-setting:
+    topic:
+     chat-proposal : chat.proposal
+     chat-contract: chat.contract
 
-
-
-
-
-
-
-
-
-
+    group:
+      chat: chat-service

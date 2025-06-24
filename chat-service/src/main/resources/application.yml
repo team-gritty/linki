@@ -40,8 +40,9 @@ kafka:
 
 # Kafka 관련 커스텀 설정 (리스너에서 사용)
   setting:
-    ksb:
-      topic: chat.proposal         # Kafka 토픽명
+      topic: # Kafka 토픽명
+        proposal : chat.proposal
+        contract : chat.contract
       group: chat-service        # Consumer Group ID (리스너에서 참조)
 
   config:

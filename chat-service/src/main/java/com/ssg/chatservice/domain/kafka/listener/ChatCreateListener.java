@@ -39,8 +39,8 @@ public class ChatCreateListener {
      * @param acknowledgment 수동 커밋을 수행하기 위한 객체
      */
     @KafkaListener(
-            topics = "${setting.ksb.topic}",            // application.yml에 정의된 토픽명
-            groupId = "${setting.ksb.group}",        // Kafka consumer group
+            topics = "${kafka.setting.topic.proposal}",            // application.yml에 정의된 토픽명
+            groupId = "${kafka.setting.group}",        // Kafka consumer group
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void createRoom(ConsumerRecord<String, String> consumerRecord,
