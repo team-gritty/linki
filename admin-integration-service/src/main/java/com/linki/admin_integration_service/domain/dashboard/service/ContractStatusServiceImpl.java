@@ -3,6 +3,8 @@ package com.linki.admin_integration_service.domain.dashboard.service;
 import com.linki.admin_integration_service.domain.dashboard.dto.ContractStatusDTO;
 import com.linki.admin_integration_service.domain.dashboard.repository.myBatis.ContractStatusMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,6 +16,10 @@ public class ContractStatusServiceImpl implements ContractStatusService {
 
     private final ContractStatusMapper statusMapper;
 
+
+
+    @Cacheable(value = "dashboard", key = "'contractStatus'")
+    @Scheduled(cron = "0 0 * * * *")
     @Override
     public ContractStatusDTO getContractStatus() {
         ContractStatusDTO contractStatusDTO = new ContractStatusDTO();
@@ -27,7 +33,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
         return Math.toIntExact(statusMapper.getContractStatusMapper().stream()
                 .filter(dto -> dto.getStartDate().isBefore(LocalDate.now()))
                 .filter(dto -> dto.getEndDate().isAfter(LocalDate.now()))
-                .filter(dto -> !dto.getContractStatus().equals("ACTIVE"))
+                .filter(dto -> dto.getContractStatus().equals("ACTIVE"))
                 .count());
     }
 
@@ -54,7 +60,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
         LocalDate lastDay = yearMonth.atEndOfMonth();
 
         return Math.toIntExact(statusMapper.getContractStatusMapper().stream()
-                .filter(dto -> dto.getContractStatus().equals("PENDING SIGN"))
+                .filter(dto -> dto.getContractStatus().equals("PENDING_SIGN"))
                 .filter(dto -> {
                     LocalDate createdAt = dto.getContractCreatedDate();
                     return !createdAt.isBefore(firstDay) && !createdAt.isAfter(lastDay);

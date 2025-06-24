@@ -63,6 +63,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
+import {chatApi} from "@/api/chat.js";
 
 const props = defineProps({
   proposal: {
@@ -115,6 +116,8 @@ async function handleRejectConfirm() {
     emit('reject', props.proposal.proposalId)
     rejectModalOpen.value = false
     alert('제안서가 거절되었습니다.')
+    //채팅방 삭제
+    await chatApi.rejectChat(props.proposal.proposalId)
   } catch (error) {
     console.error('제안서 거절 실패:', error)
     alert('제안서 거절에 실패했습니다.')
@@ -127,6 +130,9 @@ async function handleAcceptClick() {
     await proposalAPI.acceptProposal(props.proposal.proposalId, props.campaignId)
     emit('accept', props.proposal.proposalId)
     alert('제안서가 승낙되었습니다.')
+    //채팅방 활성
+    await chatApi.activateRoom(props.proposal.proposalId)
+
   } catch (error) {
     console.error('제안서 승낙 실패:', error)
     alert('제안서 승낙에 실패했습니다.')

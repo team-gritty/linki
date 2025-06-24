@@ -40,13 +40,21 @@ public class DashBoardLLMServiceImpl implements DashBoardLLMService{
     }
 
     @PostConstruct
-    public void init() {
-        updateDashboardLLM();
+    public void init(){
+        new Thread(() -> {
+            try {
+                Thread.sleep(15_000);
+                updateDashboardLLM();
+            } catch (Exception e) {
+                log.error("lLM  분석 실패", e);
+            }
+        }).start();
+
     }
+
 
     @Scheduled(fixedRate = 600000)
     public void updateDashboardLLM() {
-
 
         StringBuilder msg = new StringBuilder();
 
@@ -60,12 +68,7 @@ public class DashBoardLLMServiceImpl implements DashBoardLLMService{
             msg.append(campaignDTO.getCampaignTitle());
             msg.append("\n");
 
-            log.info("Campaign Title: " + campaignDTO.getCampaignTitle());
         }
-
-
-
-
 
         // GPT 붙이기
         String result = gptClient.request("GPT/DashBoard.json", String.valueOf(msg));
