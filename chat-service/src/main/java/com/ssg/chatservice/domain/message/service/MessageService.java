@@ -13,7 +13,12 @@ public interface MessageService{
      Message saveMessage(ChatMessageDTO messageDTO);
 
     //해당 채팅창의 모든 메세지 조회
-    List<ChatMessageDTO> findByChatId(String chatId);
+    public List<ChatMessageDTO> findByChatId(String chatId,String userId);
     //채팅방 리스트의 마지막 메세지 조회
     Map<String,ChatMessageDTO> lastMessage(List<Chat> chats);
+    //채팅창 접속 시 안읽은 메세지 읽음 처리
+    void markMessagesAsRead(List<Message> messages, String userId);
+    //알람 읽음 처리
+    Message notificationMarkAsRead(String messageId);
+
 }

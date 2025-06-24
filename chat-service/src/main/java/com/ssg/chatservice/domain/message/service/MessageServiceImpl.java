@@ -32,10 +32,13 @@ public class MessageServiceImpl implements MessageService{
 
     @Override
     //해당 채팅창의 모든 메세지 조회
-    public List<ChatMessageDTO> findByChatId(String chatId){
+    public List<ChatMessageDTO> findByChatId(String chatId,String userId){
         List<Message> messages = messageRepository.findByChatId(chatId);
+        //조회한 메세지 읽음 처리
+        markMessagesAsRead(messages,userId);
         List<ChatMessageDTO> chatMessages = messages.stream()
                 .map(message -> modelMapper.map(message,ChatMessageDTO.class)).collect(Collectors.toList());
+
         return chatMessages;
     }
 
@@ -55,5 +58,30 @@ public class MessageServiceImpl implements MessageService{
         }
         return lastMessageMap;
     }
+
+    @Override
+    //메세지 읽음 처리
+    public void markMessagesAsRead(List<Message> messages, String userId) {
+        List<Message> unreadMessages = messages.stream()
+                .filter(m -> !m.isMessageRead())
+                .filter(m -> !m.getMessageSenderId().equals(userId))  //내가 보낸 메시지는 제외
+                .peek(m -> m.setMessageRead(true))
+                .collect(Collectors.toList());
+
+        if (!unreadMessages.isEmpty()) {
+            messageRepository.saveAll(unreadMessages);
+        }
+    }
+
+    //알림 메세지 읽음 처리
+    @Override
+    public Message notificationMarkAsRead(String messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ChatException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        message.setMessageRead(true);
+        return messageRepository.save(message); // 업데이트 반영
+    }
+
 
 }

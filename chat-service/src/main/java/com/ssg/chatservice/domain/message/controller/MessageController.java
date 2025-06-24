@@ -10,7 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,11 +43,11 @@ public class MessageController {
 
     //해당 채팅창의 모든 메세지 조회
     @GetMapping("/v1/chat-service/api/authuser/messages/{chatId}")
-    public List<ChatMessageResponeDTO> loadmessges(@PathVariable String chatId){
-        List<ChatMessageDTO> messageDTOs = messageService.findByChatId(chatId);
-        List<ChatMessageResponeDTO> chatMessages = messageDTOs.stream()
-                .map(messageDTO-> modelMapper.map(messageDTO,ChatMessageResponeDTO.class)).collect(Collectors.toList());
-        return chatMessages;
+    public List<ChatMessageResponeDTO> loadMessages(@PathVariable String chatId,Principal principal) {
+        List<ChatMessageDTO> messageDTOs = messageService.findByChatId(chatId,principal.getName());
+        return messageDTOs.stream()
+                .map(dto -> modelMapper.map(dto, ChatMessageResponeDTO.class))
+                .collect(Collectors.toList());
     }
 
 }
