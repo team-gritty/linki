@@ -13,7 +13,8 @@
 
 <script>
 import { ref, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useAccountStore } from '@/stores/account'
 import MyPageSideBar from '@/components/user/general/mypage/MyPageSideBar.vue'
 import MyPageBasicInfo from '@/components/user/general/mypage/MyPageBasicInfo.vue'
 import MyPageChannelChange from '@/components/user/general/mypage/MyPageChannelChange.vue'
@@ -30,6 +31,8 @@ export default {
   
   setup() {
     const route = useRoute()
+    const router = useRouter()
+    const accountStore = useAccountStore()
     const currentMenu = ref('profile.basic')
     
     const updateMenuFromQuery = () => {
@@ -39,7 +42,19 @@ export default {
       }
     }
 
+    const checkUserRoleAndRedirect = () => {
+      const userType = accountStore.getUserType
+      
+      if (userType === 'influencer') {
+        router.replace('/mypage/influencer')
+      } else if (userType === 'advertiser') {
+        router.replace('/mypage/advertiser')
+      }
+      // 일반 사용자(ROLE_USER)인 경우에만 현재 페이지에 머무름
+    }
+
     onMounted(() => {
+      checkUserRoleAndRedirect()
       updateMenuFromQuery()
     })
 

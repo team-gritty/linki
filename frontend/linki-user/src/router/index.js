@@ -2,12 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ChannelListPage from '@/views/user/advertiser/ChannelListPage.vue'
 import ChannelDetailPage from '@/views/user/advertiser/ChannelDetailPage.vue'
 import HomeView from '../views/HomeView.vue'
-import advertiserMypage from '@/views/user/advertiser/MyPage.vue'
+import AdvertiserMyPage from '@/views/user/advertiser/MyPage.vue'
 import DetailPage from '@/views/user/advertiser/DetailPage.vue'
-import influencerMypage from '@/views/user/influencer/MyPage.vue'
+import InfluencerMyPage from '@/views/user/influencer/MyPage.vue'
 import DetailContract from '@/components/user/influencer/detail/DetailContract.vue'
-import MyPage from '@/views/user/advertiser/MyPage.vue'
 import UserMyPage from '@/views/user/general/MyPage.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -90,15 +90,13 @@ const router = createRouter({
     {
       path: '/mypage/influencer',
       name: 'influencer-mypage',
-      component: influencerMypage
+      component: InfluencerMyPage
     },
-
     {
       path: '/mypage/advertiser',
-      name: 'advertiser-profile',
-      component: advertiserMypage
+      name: 'advertiser-mypage',
+      component: AdvertiserMyPage
     },
-
     {
       path: '/proposal/:id',
       name: 'proposal-detail',
@@ -108,7 +106,7 @@ const router = createRouter({
     {
       path: '/mypage/advertiser/campaigns',
       name: 'advertiser-campaign-list',
-      component: advertiserMypage
+      component: AdvertiserMyPage
     },
     {
       path: '/mypage/campaign-detail/:id',
@@ -119,43 +117,38 @@ const router = createRouter({
     {
       path: '/mypage/advertiser/campaign-register',
       name: 'campaign-register',
-      component: advertiserMypage
+      component: AdvertiserMyPage
     },
     {
       path: '/mypage/advertiser/contracts',
-      name: 'ContractList',
-      component: advertiserMypage
+      name: 'advertiser-contracts',
+      component: AdvertiserMyPage
     },
-
     {
       path: '/contract/:contractId',
       name: 'contract-detail',
       component: DetailContract,
-      props: true},
-
+      props: true
+    },
     {
       path: '/contract/create',
       name: 'contract-create',
       component: () => import('../views/user/advertiser/ContractCreate.vue')
     },
-
-    {  // 광고주 마이페이지
-      path: '/mypage/advertiser',
-      name: 'AdvertiserMypage',
-      component: MyPage
-
-    },
-
-    { //구글로그인 성공
+    {
       path: '/oauth/google/success',
       name: 'GoogleSuccess',
-      component: () => import('@/views/oAuth/login/GoogleCallback.vue')  // 또는 '@/components/GoogleCallback.vue'
+      component: () => import('@/views/oAuth/login/GoogleCallback.vue')
     },
-
     {
       path: '/go',
       name: 'redirect-url',
       component: () => import('../views/common/RedirectUrl.vue')
+    },
+    {
+      path: '/success',
+      name: 'payment-success',
+      component: () => import('../views/common/PaymentSuccess.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {
