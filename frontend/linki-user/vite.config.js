@@ -13,6 +13,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  define: {
+    global: 'globalThis',
+  },
   server: {
     port: 3002,
     host: '0.0.0.0',
@@ -20,8 +23,9 @@ export default defineConfig({
     proxy: {
       '/v1': {
         target: 'http://localhost:8000',
-        changeOrigin: true
-      }
+        changeOrigin: true,
+        ws: true
+      },
     }
   }
 })

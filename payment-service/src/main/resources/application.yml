@@ -4,12 +4,16 @@ server:
 spring:
   application:
     name: payment-service
+  config:
+    import: "optional:classpath:application-secret.properties"
+  jwt:
+    secret: ${secret-HS256}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/e_user_db?serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: hd4628
+    url: jdbc:mysql://localhost:3307/linkiDB?serverTimezone=UTC&characterEncoding=UTF-8
+    username: linki
+    password: linki1234
 
   jpa:
     hibernate:
@@ -29,5 +33,8 @@ eureka:
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
 
-
+toss:
+  api:
+    clientkey: test_ck_AQ92ymxN342adlxYQPByrajRKXvd
+    secretKey: test_sk_pP2YxJ4K871gq5gWJnbpVRGZwXLO
 

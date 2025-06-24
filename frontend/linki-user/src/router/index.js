@@ -156,6 +156,11 @@ const router = createRouter({
       path: '/go',
       name: 'redirect-url',
       component: () => import('../views/common/RedirectUrl.vue')
+    },
+    {
+      path: '/success',
+      name: 'payment-success',
+      component: () => import('../views/common/PaymentSuccess.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

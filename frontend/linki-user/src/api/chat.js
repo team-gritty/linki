@@ -17,7 +17,7 @@ export const chatApi = {
   // 채팅방 활성화 요청
   activateRoom: async (proposalId) => {
     try {
-      const response = await httpClient.post(`/v1/api/chat-service/rooms/activate/${proposalId}`)
+      const response = await httpClient.post(`/v1/chat-service/api/advertiser/rooms/activate/${proposalId}`)
       return response.data
     } catch (error) {
       console.error('Error activating chat room:', error)
@@ -28,7 +28,7 @@ export const chatApi = {
   // 광고주의 채팅방 목록 조회
   getChatList: async (campaignId) => {
     try {
-      return await httpClient.get(`/v1/api/chat-service/list/${campaignId}`)
+      return await httpClient.get(`/v1/chat-service/api/advertiser/list/${campaignId}`)
     } catch (error) {
       console.error('Error getting chat list:', error)
       throw error
@@ -38,7 +38,7 @@ export const chatApi = {
   // 광고주의 채팅방 조회
   getChatDetails: async (chatId) => {
     try {
-      return await httpClient.get(`/v1/api/chat-service/chat-detail/${chatId}`)
+      return await httpClient.get(`/v1/chat-service/api/advertiser/chat-detail/${chatId}`)
     } catch (error) {
       console.error('Error getting chat details:', error)
       throw error
@@ -59,7 +59,7 @@ export const chatApi = {
   // 사용자별 채팅방 목록 조회
   getUserChatList: async (userId = 'user1') => {
     try {
-      const response = await httpClient.get(`/v1/chat-service/api/user-chat-list/${userId}`)
+      const response = await httpClient.get(`/v1/chat-service/api/authuser/user-chat-list`)
       return response.data
     } catch (error) {
       console.error('Error getting user chat list:', error)
@@ -82,7 +82,7 @@ export const chatApi = {
   // 제안서 거절
   rejectChat: async (proposalId) => {
     try {
-      return await httpClient.post(`/v1/chat-service/api/proposals/${proposalId}/reject`)
+      return await httpClient.post(`/v1/chat-service/api/advertiser/proposals/${proposalId}/reject`)
     } catch (error) {
       console.error('Error rejecting proposal:', error)
       throw error
@@ -92,7 +92,7 @@ export const chatApi = {
   // 메시지 전송(소켓이 아닌 프론트 용)
   sendMessage: async (messageData) => {
     try {
-      return await httpClient.post(`/v1/api/chat-service/messages`, messageData)
+      return await httpClient.post(`/v1/chat-service/api/messages`, messageData)
     } catch (error) {
       console.error('Error sending message:', error)
       throw error
@@ -102,7 +102,7 @@ export const chatApi = {
   // 제안서 상세 조회
   getProposal: async (proposalId) => {
     try {
-      const response = await httpClient.get(`/v1/api/chat-service/proposals/${proposalId}`)
+      const response = await httpClient.get(`/v1/chat-service/api/proposals/${proposalId}`)
       return {
         data: Array.isArray(response.data) ? response.data[0] : response.data
       }
