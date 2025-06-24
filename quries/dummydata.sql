@@ -1,6 +1,11 @@
+use linkiDB;
 -- 기본 사용자 데이터 생성
-INSERT INTO `user` (`user_id`, `user_login_id`, `user_login_pw`, `user_name`, `user_phone`, `user_email`, `user_pay_status`, `user_status`, `user_enter_day`, `user_role`)
-SELECT 
+INSERT INTO `user` (
+    `user_id`, `user_login_id`, `user_login_pw`, `user_name`, `user_phone`,
+    `user_email`, `user_pay_status`, `user_status`, `user_enter_day`, `user_role`,
+    `user_oauth_provider`, `user_oauth_id`, `user_oauth_user`
+)
+SELECT
     CONCAT('USR-', LPAD(seq, 16, '0')),
     CONCAT('user', seq),
     '$2a$10$Z5NqLagdRBQ88seEZUEtN.IB9s4z7.3ra4dDDWui9eLrM.qtKGPn2',
@@ -14,14 +19,17 @@ SELECT
         WHEN seq < 500 THEN 'ROLE_INFLUENCER'
         WHEN seq < 1000 THEN 'ROLE_ADVERTISER'
         ELSE 'ROLE_USER'
-    END
+        END,
+    NULL, -- user_oauth_provider
+    NULL, -- user_oauth_id
+    FALSE -- user_oauth_user
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 + d.N * 1000 AS seq
     FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
-) numbers
+    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
+    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
+    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
+    ) numbers
 WHERE seq < 1500;
 
 -- 인플루언서 데이터 생성 (user_id가 일치하도록)
@@ -286,6 +294,7 @@ FROM (
 WHERE seq < 1000;
 
 -- 제안서 데이터 생성
+-- 인플루언서 0~499, 캠페인 0~499 → 정확히 1:1 대응
 INSERT INTO `proposal` (`proposal_id`, `contents`, `status`, `submitted_at`, `responded_at`, `influencer_id`, `campaign_id`)
 SELECT 
     CONCAT('PRP-', LPAD(seq, 16, '0')),
@@ -296,19 +305,18 @@ SELECT
         ELSE 'REJECTED'
     END,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    CASE FLOOR(RAND() * 2)
-        WHEN 0 THEN NULL
-        ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY)
-    END,
-    CONCAT('INF-', LPAD(FLOOR(seq/2), 16, '0')),  -- 각 인플루언서당 2개의 제안
-    CONCAT('CMP-', LPAD(FLOOR(seq/2), 16, '0'))  -- 각 캠페인당 2개의 제안
+    NULL,
+    CONCAT('INF-', LPAD(seq, 16, '0')),
+    CONCAT('CMP-', LPAD(seq, 16, '0'))
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
-WHERE seq < 1000;
+    FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL
+    SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
+    (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL
+    SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b,
+    (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) c
+    ) numbers
+WHERE seq < 500;
 
 -- 계약 데이터 생성
 INSERT INTO `contract` (
@@ -323,7 +331,7 @@ SELECT
     CONCAT('계약서', seq),
     CONCAT('DOC', LPAD(seq, 4, '0')),
     CASE FLOOR(RAND() * 3)
-        WHEN 0 THEN 'PENDING SIGN'
+        WHEN 0 THEN 'PENDING_SIGN'
         WHEN 1 THEN 'COMPLETED'
         ELSE 'ONGOING'
         END,
@@ -359,11 +367,10 @@ FROM (
 WHERE seq < 1000;
 
 -- 리다이렉트 링크 데이터 생성
-INSERT INTO `redirect_links` (`redirect_id`, `origin_url`, `short_url`, `redirect_url`, `advertiser_id`, `contract_id`)
-SELECT 
+INSERT INTO `redirect_links` (`redirect_id`, `origin_url`, `redirect_url`, `advertiser_id`, `contract_id`)
+SELECT
     CONCAT('RED-', LPAD(seq, 16, '0')),
     CONCAT('https://original.com/', seq),
-    CONCAT('https://short.link/', seq),
     CONCAT('ADV-', LPAD(FLOOR(seq/2), 16, '0')),  -- 각 광고주당 2개의 리다이렉트 링크
     CONCAT('ADV-', LPAD(FLOOR(seq/2), 16, '0')),  -- contract_id와 1:1 매칭
     CONCAT('CTR-', LPAD(seq, 16, '0'))  -- contract_id와 1:1 매칭
@@ -389,47 +396,18 @@ FROM (
 ) numbers
 WHERE seq < 5000;  -- 1000개의 리다이렉트 링크 * 5개의 클릭
 
--- 채팅방 데이터 생성
+-- 채팅방 데이터 생성 (수정된 제안서 기반)
 INSERT INTO `chat` (`chat_id`, `chat_date`, `chat_status`, `proposal_id`)
-SELECT 
-    CONCAT('CHT-', LPAD(seq, 16, '0')),
-    DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    CASE FLOOR(RAND() * 4)
-        WHEN 0 THEN 'PENDING'
-        WHEN 1 THEN 'ACTIVE'
-        WHEN 2 THEN 'INACTIVE'
-        ELSE 'DELETE'
-    END,
-    CONCAT('PRP-', LPAD(seq, 16, '0'))  -- proposal_id와 1:1 매칭
-FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
-WHERE seq < 1000;
-
--- 채팅 알람 데이터 생성
-INSERT INTO `chat_alarm` (`chat_alarm_id`, `chat_alarm_is_read`, `chat_alarm_read_at`, `chat_id`)
-SELECT 
-    CONCAT('CAL-', LPAD(seq, 16, '0')),
-    CASE FLOOR(RAND() * 2)
-        WHEN 0 THEN FALSE
-        ELSE TRUE
-    END,
-    CASE FLOOR(RAND() * 2)
-        WHEN 0 THEN NULL
-        ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY)
-    END,
-    CONCAT('CHT-', LPAD(seq, 16, '0'))  -- chat_id와 1:1 매칭
-FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
-WHERE seq < 1000;
-
+SELECT
+    CONCAT('CHT-', LPAD(SUBSTRING_INDEX(proposal_id, '-', -1), 16, '0')),
+    NOW(),
+    CASE status
+        WHEN 'ACCEPTED' THEN 'ACTIVE'
+        ELSE 'PENDING'
+        END,
+    proposal_id
+FROM proposal
+WHERE SUBSTRING_INDEX(proposal_id, '-', -1) < 500;
 -- 서명 데이터 생성
 INSERT INTO `signature` (`signature_id`, `signature_signer_name`, `signature_signed_at`, `signature_status`, `contract_id`)
 SELECT 

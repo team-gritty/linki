@@ -15,4 +15,5 @@ public class ChatDTO {
     private LocalDateTime lastMessageTime;
     private boolean isNew;
     private String proposalId;
+    private String campaignId;
 }

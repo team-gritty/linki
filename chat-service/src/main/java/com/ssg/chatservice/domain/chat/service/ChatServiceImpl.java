@@ -14,6 +14,7 @@ import com.ssg.chatservice.entity.Message;
 import com.ssg.chatservice.exception.ChatException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ChatServiceImpl implements ChatService{
@@ -101,7 +103,10 @@ public class ChatServiceImpl implements ChatService{
         List<Chat> chats = chatInfoGetChat(chatInfos);
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
-        return chatDTOs(chats,chatInfos,lastMessages);
+        
+        List<ChatDTO> finalChatDtos = chatDTOs(chats,chatInfos,lastMessages);
+        log.info("Final ChatDTOs to be sent to frontend: {}", finalChatDtos);
+        return finalChatDtos;
     }
 
 
@@ -126,21 +131,32 @@ public class ChatServiceImpl implements ChatService{
     public List<ChatDTO> chatDTOs (List<Chat> chats ,
                                    List<ChatInfoResponse> chatInfos,
                                    Map<String, ChatMessageDTO>  lastMessages){
-        List<ChatDTO> advertiserChatList = new ArrayList<>();
+        // chatInfos를 proposalId를 키로 하는 Map으로 변환하여 검색 효율을 높임
+        Map<String, ChatInfoResponse> chatInfoMap = chatInfos.stream()
+                .collect(Collectors.toMap(ChatInfoResponse::getProposalId, chatInfo -> chatInfo, (existing, replacement) -> existing));
 
-        for(int i = 0; i< chats.size(); i++){
-            ChatDTO chatdto = ChatDTO.builder()
-                    .chatId((chats.get(i).getChatId()))
-                    .opponentId(chatInfos.get(i).getOpponentId())
-                    .opponentName(chatInfos.get(i).getOpponentName())
-                    .lastMessage(lastMessages.get(chats.get(i).getChatId()).getContent())
-                    .lastMessageTime(lastMessages.get(chats.get(i).getChatId()).getMessageDate())
-                    .isNew(lastMessages.get(chats.get(i).getChatId()).isMessageRead())
-                    .proposalId(chats.get(i).getProposalId())
+        return chats.stream().map(chat -> {
+            ChatInfoResponse chatInfo = chatInfoMap.get(chat.getProposalId());
+            ChatMessageDTO lastMessage = lastMessages.get(chat.getChatId());
+
+            if (chatInfo == null || lastMessage == null) {
+                // 매칭되는 정보가 없는 경우, 로그를 남기고 리스트에서 제외하거나 기본값으로 처리
+                // 여기서는 null을 반환하여 filter로 걸러냄
+                return null;
+            }
+
+            return ChatDTO.builder()
+                    .chatId(chat.getChatId())
+                    .opponentId(chatInfo.getOpponentId())
+                    .opponentName(chatInfo.getOpponentName())
+                    .lastMessage(lastMessage.getContent())
+                    .lastMessageTime(lastMessage.getMessageDate())
+                    .isNew(lastMessage.isMessageRead())
+                    .proposalId(chat.getProposalId())
+                    .campaignId(chatInfo.getCampaignId()) // Map에서 가져온 chatInfo 객체 사용
                     .build();
-            advertiserChatList.add(chatdto);
-        }
-        return advertiserChatList;
+        }).filter(Objects::nonNull) // null이 아닌 객체만 필터링
+          .collect(Collectors.toList());
     }
 
     @Override
