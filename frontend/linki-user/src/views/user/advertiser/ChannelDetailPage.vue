@@ -72,11 +72,13 @@
         <div class="bar-charts-row">
           <div class="bar-chart-item">
             <h2>조회수 대비 좋아요 비율</h2>
-            <LikeRatioBarChart :channels="channels" :channelId="id" />
+            <LikeRatioBarChart v-if="id && channels.length > 0" :channels="channels" :channelId="id" />
+            <div v-else>차트 로딩 중...</div>
           </div>
           <div class="bar-chart-item">
             <h2>조회수 대비 댓글 비율</h2>
-            <CommentRatioBarChart :channels="channels" :channelId="id" />
+            <CommentRatioBarChart v-if="id && channels.length > 0" :channels="channels" :channelId="id" />
+            <div v-else>차트 로딩 중...</div>
           </div>
         </div>
       </div>
@@ -85,7 +87,7 @@
           <span class="graph-title">채널 구독자 수 변화량</span>
           <div class="graph-tabs">
             <button
-              v-for="p in ['30일', '15일']"
+              v-for="p in ['7일', '30일', '15일']"
               :key="p"
               :class="['graph-tab', { active: period === p }]"
               @click="selectPeriod(p)"
@@ -93,10 +95,11 @@
           </div>
         </div>
         <div class="graph-rate-row">
-          <span class="graph-rate">{{ chartData[period].rate }}</span>
+          <span class="graph-rate">{{ subscriberGrowthRate }}</span>
           <span class="graph-rate-label">상승률</span>
         </div>
-        <SubscriberHistoryChart :channelId="id" />
+        <SubscriberHistoryChart v-if="id" :channelId="id" :period="period" />
+        <div v-else>구독자 차트 로딩 중...</div>
       </div>
       
       <div class="tab-section">
@@ -120,7 +123,8 @@
         </div>
       </div>
       <div v-else>
-        <ReviewTab :channelId="id" @review-stats="onReviewStats" />
+        <ReviewTab v-if="id" :channelId="id" @review-stats="onReviewStats" />
+        <div v-else>리뷰 탭 로딩 중...</div>
       </div>
 
     </template>
@@ -142,12 +146,41 @@ const channel = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const channels = ref([])
+const subscriberHistory = ref([])
 
-// 항상 숫자로 변환된 id 사용
-const id = computed(() => Number(route.params.id))
+// channelId는 String 타입이므로 숫자 변환하지 않음
+const id = computed(() => {
+  const channelId = route.params.id
+  console.log('현재 라우트 파라미터 id:', channelId)
+  console.log('route.params 전체:', route.params)
+  return channelId
+})
+
+console.log('초기 id 값:', id.value)
 
 const reviewCount = ref(0)
 const reviewAvg = ref(0)
+
+// 구독자 상승률 계산
+const subscriberGrowthRate = computed(() => {
+  if (!subscriberHistory.value || subscriberHistory.value.length < 2) {
+    return '0%'
+  }
+  
+  const history = subscriberHistory.value
+  const latest = history[history.length - 1]
+  const earliest = history[0]
+  
+  if (!latest || !earliest || earliest.subscriberCount === 0) {
+    return '0%'
+  }
+  
+  // 구독자 수 증가율 계산
+  const growthRate = ((latest.subscriberCount - earliest.subscriberCount) / earliest.subscriberCount) * 100
+  const sign = growthRate >= 0 ? '+' : ''
+  
+  return `${sign}${growthRate.toFixed(1)}%`
+})
 
 async function fetchReviewStatsOnEnter() {
   const { avg, count } = await reviewApi.getReviewStats(id.value)
@@ -160,24 +193,74 @@ function onReviewStats({ count, avg }) {
   reviewAvg.value = avg
 }
 
+// 구독자 히스토리 데이터 가져오기
+async function fetchSubscriberHistory() {
+  try {
+    if (!id.value) return
+    
+    console.log('구독자 히스토리 조회 시작:', id.value)
+    const data = await channelApi.getSubscriberHistory(id.value)
+    console.log('구독자 히스토리 응답:', data)
+    
+    if (Array.isArray(data)) {
+      // 날짜순으로 정렬
+      const sortedHistory = data
+        .filter(item => String(item.channelId) === String(id.value))
+        .sort((a, b) => new Date(a.collectedAt) - new Date(b.collectedAt))
+      
+      subscriberHistory.value = sortedHistory
+      console.log('정렬된 구독자 히스토리:', subscriberHistory.value)
+    } else {
+      subscriberHistory.value = []
+    }
+  } catch (error) {
+    console.error('구독자 히스토리 조회 중 오류:', error)
+    subscriberHistory.value = []
+  }
+}
 
 onMounted(async () => {
   loading.value = true
   try {
+    console.log('onMounted 시작 - id:', id.value)
+    
+    // 먼저 id가 존재하는지 확인
+    if (!id.value) {
+      throw new Error('채널 ID가 존재하지 않습니다.')
+    }
+    
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
-    channels.value = await channelApi.getAllChannels()
+    const channelsData = await channelApi.getAllChannels()
+    console.log('Raw API response:', channelsData)
+    
+    // API 응답이 페이지네이션 구조인지 확인
+    if (channelsData && channelsData.channels) {
+      channels.value = channelsData.channels
+      console.log('Using channels from pagination response:', channels.value)
+    } else {
+      channels.value = channelsData
+      console.log('Using direct channels response:', channels.value)
+    }
+    
     // 2. 채널 Id로 해당 채널 데이터 가져오기
+    console.log('채널 상세 데이터 조회 시작 - channelId:', id.value)
     channel.value = await channelApi.getChannelById(id.value)
+    console.log('Channel detail data:', channel.value)
+    
     // 3. 리뷰 통계도 진입시 바로 fetch
     await fetchReviewStatsOnEnter()
+    
+    // 4. 구독자 히스토리 데이터 가져오기
+    await fetchSubscriberHistory()
   } catch (err) {
+    console.error('Error in onMounted:', err)
     error.value = err.message
   } finally {
     loading.value = false
   }
 })
 
-const period = ref('30일')
+const period = ref('7일')
 const chartOptions = ref({
   chart: { type: 'line', height: 320, toolbar: { show: false } },
   xaxis: { categories: [] },
@@ -188,6 +271,11 @@ const chartOptions = ref({
 })
 
 const chartData = ref({
+  '7일': {
+    categories: ['오늘-6', '오늘-5', '오늘-4', '오늘-3', '오늘-2', '어제', '오늘'],
+    data: [9800000, 9850000, 9900000, 9950000, 10000000, 10050000, 10100000],
+    rate: '3.1%'
+  },
   '30일': {
     categories: ['03-01', '03-05', '03-10', '03-15', '03-20', '03-25', '03-30'],
     data: [9000000, 9200000, 9500000, 9700000, 10000000, 10500000, 11000000],

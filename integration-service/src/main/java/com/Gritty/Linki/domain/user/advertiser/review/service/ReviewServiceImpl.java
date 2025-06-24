@@ -23,6 +23,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -129,15 +132,93 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<InfluencerReviewDto> getInfluencerReviews(String influencerId) {
-        // 인플루언서 정보 조회
-        Influencer influencer = entityManager.find(Influencer.class, influencerId);
-        if (influencer == null) {
-            throw new IllegalArgumentException("존재하지 않는 인플루언서입니다.");
+        log.info("특정 인플루언서가 받은 리뷰 조회 시작: influencerId={}", influencerId);
+
+        // 입력값 검증
+        if (influencerId == null || influencerId.trim().isEmpty()) {
+            log.error("인플루언서 ID가 null이거나 빈 값입니다.");
+            throw new IllegalArgumentException("인플루언서 ID는 필수값입니다.");
         }
 
-        // 인플루언서가 받은 리뷰 조회
-        List<InfluencerReview> reviews = influencerReviewRepository.findByInfluencerId(influencerId);
-        return convertInfluencerReviewsToDto(reviews);
+        try {
+            // 인플루언서 정보 조회
+            log.debug("인플루언서 정보 조회 시작: influencerId={}", influencerId);
+
+            // CHN- 접두사가 있으면 채널 ID로 처리
+            boolean isChannelId = influencerId.startsWith("CHN-");
+
+            if (isChannelId) {
+                log.info("채널 ID로 인식됨: channelId={}", influencerId);
+
+                // 채널 존재 여부 확인
+                Long channelCount = entityManager.createQuery(
+                        "SELECT COUNT(c) FROM Channel c WHERE c.channelId = :channelId", Long.class)
+                        .setParameter("channelId", influencerId)
+                        .getSingleResult();
+
+                if (channelCount == 0) {
+                    log.warn("존재하지 않는 채널입니다: channelId={}", influencerId);
+                    throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 채널입니다");
+                }
+
+                log.info("채널 정보 조회 완료: channelId={}, exists=true", influencerId);
+
+                // 채널 ID로 리뷰 조회
+                List<InfluencerReview> reviews;
+                try {
+                    reviews = influencerReviewRepository.findByChannelId(influencerId);
+                    log.info("채널 ID로 리뷰 조회 완료: channelId={}, reviewCount={}", influencerId, reviews.size());
+                } catch (Exception e) {
+                    log.error("채널 ID로 리뷰 조회 실패: channelId={}, error={}", influencerId, e.getMessage());
+                    throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "리뷰 조회 중 오류가 발생했습니다");
+                }
+
+                return convertInfluencerReviewsToDto(reviews);
+
+            } else {
+                // 기존 인플루언서 ID 처리 로직
+                // 먼저 JPQL로 인플루언서 존재 여부 확인
+                Long influencerCount = entityManager.createQuery(
+                        "SELECT COUNT(i) FROM Influencer i WHERE i.influencerId = :influencerId", Long.class)
+                        .setParameter("influencerId", influencerId)
+                        .getSingleResult();
+
+                if (influencerCount == 0) {
+                    log.warn("존재하지 않는 인플루언서입니다: influencerId={}", influencerId);
+                    throw new BusinessException(ErrorCode.INFLUENCER_NOT_FOUND);
+                }
+
+                log.info("인플루언서 정보 조회 완료: influencerId={}, exists=true", influencerId);
+
+                // 인플루언서가 받은 리뷰 조회 (먼저 간단한 쿼리로 시도)
+                List<InfluencerReview> reviews;
+                try {
+                    reviews = influencerReviewRepository.findByInfluencerId(influencerId);
+                    log.info("인플루언서가 받은 리뷰 조회 완료 (기본 쿼리): influencerId={}, reviewCount={}", influencerId,
+                            reviews.size());
+                } catch (Exception e) {
+                    log.warn("기본 쿼리 실패, FETCH JOIN 쿼리로 재시도: influencerId={}, error={}", influencerId, e.getMessage());
+                    try {
+                        reviews = influencerReviewRepository.findByInfluencerIdWithFetch(influencerId);
+                        log.info("인플루언서가 받은 리뷰 조회 완료 (FETCH 쿼리): influencerId={}, reviewCount={}", influencerId,
+                                reviews.size());
+                    } catch (Exception fetchError) {
+                        log.error("FETCH JOIN 쿼리도 실패: influencerId={}, error={}", influencerId,
+                                fetchError.getMessage());
+                        throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "리뷰 조회 중 오류가 발생했습니다");
+                    }
+                }
+
+                return convertInfluencerReviewsToDto(reviews);
+            }
+
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 요청: influencerId={}, error={}", influencerId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("인플루언서 리뷰 조회 중 오류 발생: influencerId={}, error={}", influencerId, e.getMessage(), e);
+            throw new RuntimeException("인플루언서 리뷰 조회 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
     }
 
     private List<AdvertiserReviewDto> convertAdvertiserReviewsToDto(List<AdvertiserReview> reviews) {
@@ -157,18 +238,46 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private List<InfluencerReviewDto> convertInfluencerReviewsToDto(List<InfluencerReview> reviews) {
+        if (reviews == null || reviews.isEmpty()) {
+            log.info("변환할 인플루언서 리뷰가 없습니다.");
+            return List.of();
+        }
+
         return reviews.stream()
                 .map(review -> {
-                    InfluencerReviewDto dto = modelMapper.map(review, InfluencerReviewDto.class);
-                    dto.setReviewId(review.getInfluencerReviewId());
-                    dto.setReviewScore(review.getInfluencerReviewScore().intValue());
-                    dto.setReviewComment(review.getInfluencerReviewComment());
-                    dto.setReviewCreatedAt(review.getInfluencerReviewCreatedAt());
-                    dto.setContractTitle(review.getContract().getContractTitle());
-                    dto.setContractStartDate(review.getContract().getContractStartDate());
-                    dto.setContractEndDate(review.getContract().getContractEndDate());
-                    return dto;
+                    try {
+                        if (review == null) {
+                            log.warn("null인 리뷰가 발견되어 건너뜁니다.");
+                            return null;
+                        }
+
+                        InfluencerReviewDto dto = modelMapper.map(review, InfluencerReviewDto.class);
+                        dto.setReviewId(review.getInfluencerReviewId());
+                        dto.setReviewScore(
+                                review.getInfluencerReviewScore() != null ? review.getInfluencerReviewScore().intValue()
+                                        : 0);
+                        dto.setReviewComment(review.getInfluencerReviewComment());
+                        dto.setReviewCreatedAt(review.getInfluencerReviewCreatedAt());
+                        dto.setVisibility(review.getVisibility());
+
+                        // Contract 정보 안전하게 처리
+                        Contract contract = review.getContract();
+                        if (contract != null) {
+                            dto.setContractTitle(contract.getContractTitle());
+                            dto.setContractStartDate(contract.getContractStartDate());
+                            dto.setContractEndDate(contract.getContractEndDate());
+                        } else {
+                            log.warn("리뷰에 연결된 계약 정보가 없습니다: reviewId={}", review.getInfluencerReviewId());
+                        }
+
+                        return dto;
+                    } catch (Exception e) {
+                        log.error("리뷰 DTO 변환 중 오류 발생: reviewId={}, error={}",
+                                review != null ? review.getInfluencerReviewId() : "null", e.getMessage(), e);
+                        return null;
+                    }
                 })
+                .filter(dto -> dto != null) // null인 dto 제거
                 .collect(Collectors.toList());
     }
 
@@ -181,7 +290,7 @@ public class ReviewServiceImpl implements ReviewService {
                     .getSingleResult();
             return settlement.getSettlementStatus().name();
         } catch (Exception e) {
-            return SettlementStatus.PENDING.name(); // 기본값
+            throw new BusinessException(ErrorCode.SETTLEMENT_LOOKUP_ERROR, "정산 상태 조회에 실패했습니다");
         }
     }
 }

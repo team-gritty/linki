@@ -6,10 +6,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
 
 /**
  * 구독자 히스토리 비즈니스 로직 처리 서비스
@@ -17,6 +23,7 @@ import java.util.Random;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SubscriberHistoryService {
 
     private final SubscriberHistoryRepository subscriberHistoryRepository;
@@ -31,10 +38,10 @@ public class SubscriberHistoryService {
     private final Random random = new Random();
 
     /**
-     * 특정 채널의 구독자 히스토리 조회
+     * 구독자 히스토리 조회
      * 
      * @param channelId 채널 ID (String 형식)
-     * @param days      조회할 이전 일수 (기본 30일)
+     * @param days      조회할 일수
      * @return 구독자 히스토리 목록
      */
     public List<SubscriberHistoryDto> getSubscriberHistory(String channelId, Integer days) {
@@ -45,14 +52,58 @@ public class SubscriberHistoryService {
             days = 30;
         }
 
+        // 날짜 범위 계산
         LocalDateTime startDate = LocalDateTime.now().minusDays(days);
 
-        List<SubscriberHistoryDto> history = subscriberHistoryRepository.findByChannelIdAndDateRange(channelId,
-                startDate);
+        try {
+            // 데이터베이스에서 구독자 히스토리 조회
+            List<SubscriberHistoryDto> history = subscriberHistoryRepository.findByChannelIdAndDateRange(channelId,
+                    startDate);
 
-        log.info("구독자 히스토리 조회 완료 - channelId: {}, 조회된 데이터 수: {}", channelId, history.size());
+            if (history.isEmpty()) {
+                log.warn("구독자 히스토리 데이터가 없습니다 - channelId: {}", channelId);
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "구독자 히스토리 데이터를 찾을 수 없습니다");
+            }
 
-        return history;
+            log.info("구독자 히스토리 조회 완료 - channelId: {}, 조회된 데이터 수: {}", channelId, history.size());
+            return history;
+
+        } catch (Exception e) {
+            log.error("구독자 히스토리 조회 중 오류 발생 - channelId: {}", channelId, e);
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "구독자 히스토리 조회 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 더미 구독자 히스토리 데이터 생성
+     */
+    private List<SubscriberHistoryDto> generateDummySubscriberHistory(String channelId, Integer days) {
+        List<SubscriberHistoryDto> dummyData = new ArrayList<>();
+
+        // 기본 구독자 수 (10만 ~ 100만 사이)
+        long baseSubscribers = 100000 + (long) (Math.random() * 900000);
+
+        // 날짜별 더미 데이터 생성 (30일 정도)
+        int dataPoints = Math.min(days, 30);
+        for (int i = dataPoints; i >= 0; i--) {
+            LocalDateTime date = LocalDateTime.now().minusDays(i);
+
+            // 구독자 수는 시간이 지날수록 점진적으로 증가
+            long variation = (long) (Math.random() * 1000 - 500); // -500 ~ +500
+            long subscriberCount = baseSubscribers + (dataPoints - i) * 50 + variation;
+
+            SubscriberHistoryDto dto = SubscriberHistoryDto.builder()
+                    .id("DUMMY-" + channelId + "-" + i)
+                    .channelId(channelId)
+                    .subscriberCount(subscriberCount)
+                    .collectedAt(date)
+                    .build();
+
+            dummyData.add(dto);
+        }
+
+        log.info("더미 구독자 히스토리 데이터 생성 완료 - channelId: {}, 생성된 데이터 수: {}", channelId, dummyData.size());
+        return dummyData;
     }
 
     /**
@@ -148,7 +199,7 @@ public class SubscriberHistoryService {
             // 유튜브 채널 아이디가 널이라면 (디비 컬럼에 값이 없다면)
             if (youtubeChannelId == null) {
                 log.warn(" 채널 {}에 대한 YouTube 채널 ID를 찾을 수 없습니다", channelId);
-                return null;
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "YouTube 채널 ID를 찾을 수 없습니다");
             }
 
             // youtubeChannelId의 수독자 수 수집
@@ -159,7 +210,7 @@ public class SubscriberHistoryService {
             return subscriberCount;
         } catch (Exception e) {
             log.error(" 채널 {} 구독자 수 조회 중 오류 발생", channelId, e);
-            return null;
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "구독자 수 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
