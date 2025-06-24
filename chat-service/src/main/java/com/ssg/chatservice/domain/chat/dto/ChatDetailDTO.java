@@ -2,13 +2,13 @@ package com.ssg.chatservice.domain.chat.dto;
 
 import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import com.ssg.chatservice.domain.chat.enums.NegoStatus;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatDetailDTO {
     private String chatId;
     private String partnerId;
