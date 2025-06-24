@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * 광고주 제안서 관리 컨트롤러
  */
 @RestController
-@RequestMapping("/v1/api/advertiser/mypage")
+@RequestMapping("/v1/api/advertiser")
 @RequiredArgsConstructor
 @Slf4j
 public class ProposalController {
@@ -29,18 +29,18 @@ public class ProposalController {
     private final ProposalService proposalService;
 
     /**
-     * 캠페인에 속한 제안서 목록 조회
+     * 캠페인별 제안서 목록 조회 (캠페인 상세 페이지용)
      * 
-     * @param campaignId 캠페인 ID
+     * @param campaignId 캠페인 ID (쿼리 파라미터)
      * @param user       JWT 토큰에서 추출된 사용자 정보
      * @return 제안서 목록
      */
-    @GetMapping("/campaigns/{campaignId}/proposals")
-    public ResponseEntity<List<ProposalResponse>> getProposalsByCampaign(
-            @PathVariable String campaignId,
+    @GetMapping("/proposals")
+    public ResponseEntity<List<ProposalResponse>> getProposalsByCampaignQuery(
+            @RequestParam String campaignId,
             @AuthenticationPrincipal CustomUserDetails user) {
 
-        log.info("캠페인 {} 제안서 목록 조회 요청, 사용자: {}", campaignId, user.getUserId());
+        log.info("캠페인 {} 제안서 목록 조회 요청 (쿼리 파라미터), 사용자: {}", campaignId, user.getUserId());
 
         List<ProposalDto> proposals = proposalService.getProposalsByCampaign(campaignId, user);
 
@@ -53,17 +53,17 @@ public class ProposalController {
     }
 
     /**
-     * 제안서 상세 조회
+     * 제안서 상세 조회 (캠페인 상세 페이지용)
      * 
-     * @param campaignId 캠페인 ID
      * @param proposalId 제안서 ID
+     * @param campaignId 캠페인 ID (쿼리 파라미터)
      * @param user       JWT 토큰에서 추출된 사용자 정보
      * @return 제안서 상세 정보
      */
-    @GetMapping("/campaigns/{campaignId}/proposals/{proposalId}")
+    @GetMapping("/proposals/{proposalId}")
     public ResponseEntity<ProposalResponse> getProposalDetail(
-            @PathVariable String campaignId,
             @PathVariable String proposalId,
+            @RequestParam String campaignId,
             @AuthenticationPrincipal CustomUserDetails user) {
 
         log.info("제안서 {} 상세 조회 요청, 캠페인: {}, 사용자: {}", proposalId, campaignId, user.getUserId());
@@ -76,18 +76,18 @@ public class ProposalController {
     }
 
     /**
-     * 제안서 수락
+     * 제안서 수락 (캠페인 상세 페이지용)
      * 
-     * @param campaignId 캠페인 ID
      * @param proposalId 제안서 ID
+     * @param campaignId 캠페인 ID (쿼리 파라미터)
      * @param request    수락 요청 데이터
      * @param user       JWT 토큰에서 추출된 사용자 정보
      * @return 수락된 제안서 정보
      */
-    @PostMapping("/campaigns/{campaignId}/proposals/{proposalId}/accept")
+    @PostMapping("/proposals/{proposalId}/accept")
     public ResponseEntity<ProposalResponse> acceptProposal(
-            @PathVariable String campaignId,
             @PathVariable String proposalId,
+            @RequestParam String campaignId,
             @RequestBody(required = false) ProposalAcceptRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
 
@@ -101,18 +101,18 @@ public class ProposalController {
     }
 
     /**
-     * 제안서 거절
+     * 제안서 거절 (캠페인 상세 페이지용)
      * 
-     * @param campaignId 캠페인 ID
      * @param proposalId 제안서 ID
+     * @param campaignId 캠페인 ID (쿼리 파라미터)
      * @param request    거절 요청 데이터
      * @param user       JWT 토큰에서 추출된 사용자 정보
      * @return 거절된 제안서 정보
      */
-    @PostMapping("/campaigns/{campaignId}/proposals/{proposalId}/reject")
+    @PostMapping("/proposals/{proposalId}/reject")
     public ResponseEntity<ProposalResponse> rejectProposal(
-            @PathVariable String campaignId,
             @PathVariable String proposalId,
+            @RequestParam String campaignId,
             @RequestBody(required = false) ProposalRejectRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
 
@@ -126,27 +126,26 @@ public class ProposalController {
     }
 
     /**
-     * 제안서 수정
+     * 제안서 수정 (캠페인 상세 페이지용)
      * 
-     * @param campaignId 캠페인 ID
      * @param proposalId 제안서 ID
      * @param request    수정 요청 데이터
      * @param user       JWT 토큰에서 추출된 사용자 정보
      * @return 수정 완료 응답
      */
-    @PutMapping("/campaigns/{campaignId}/proposals/{proposalId}")
-    public ResponseEntity<Void> updateProposal(
-            @PathVariable String campaignId,
+    @PutMapping("/proposals/{proposalId}")
+    public ResponseEntity<ProposalResponse> updateProposal(
             @PathVariable String proposalId,
             @Valid @RequestBody ProposalUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
 
         log.info("제안서 {} 수정 요청, 사용자: {}", proposalId, user.getUserId());
 
-        proposalService.updateProposal(proposalId, user, request.getContents());
+        ProposalDto updatedProposal = proposalService.updateProposal(proposalId, user, request.getContents());
+        ProposalResponse response = dtoToResponse(updatedProposal);
 
         log.info("제안서 {} 수정 완료", proposalId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(response);
     }
 
     /**

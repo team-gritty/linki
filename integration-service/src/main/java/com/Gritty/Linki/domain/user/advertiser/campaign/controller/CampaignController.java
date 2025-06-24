@@ -78,29 +78,39 @@ public class CampaignController {
     /**
      * 광고주 새로운 캠페인 등록
      *
-     * @param campaignId
-     * @param user       JWT 토큰에서 추출된 사용자 정보
-     * @param request
+     * @param user    JWT 토큰에서 추출된 사용자 정보
+     * @param request 캠페인 등록 요청 데이터
      * @return
      */
-    @PostMapping("/{campaignId}")
+    @PostMapping
     public ResponseEntity<CampaignResponse> createCampaign(
-            @PathVariable String campaignId,
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CampaignRequest request) {
 
-        log.info("광고주 {}의 캠페인 등록 요청, 사용자: {}", campaignId, user.getUserId());
+        try {
+            // Request를 DTO로 변환
+            CampaignDto campaignDto = requestToDto(request);
+            log.info("변환된 캠페인 DTO: {}", campaignDto);
 
-        // Request를 DTO로 변환
-        CampaignDto campaignDto = requestToDto(request);
+            // 서비스 호출 - advertiserId를 전달
+            String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(user);
+            CampaignDto createdCampaign = campaignService.createCampaign(campaignDto, advertiserId);
+            log.info("생성된 캠페인: {}", createdCampaign);
 
-        // 서비스 호출
-        CampaignDto createdCampaign = campaignService.createCampaign(campaignDto, campaignId);
+            // DTO를 Response로 변환
+            CampaignResponse response = dtoToResponse(createdCampaign);
 
-        // DTO를 Response로 변환
-        CampaignResponse response = dtoToResponse(createdCampaign);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("캠페인 등록 중 오류 발생", e);
+            log.error("오류 메시지: {}", e.getMessage());
+            log.error("오류 클래스: {}", e.getClass().getSimpleName());
+            if (e.getCause() != null) {
+                log.error("원인: {}", e.getCause().getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     /**

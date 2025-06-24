@@ -76,7 +76,9 @@ const campaignApi = {
   // 마이페이지 - 캠페인 등록
   registerCampaign: async (campaignData) => {
     try {
+      console.log('API: 캠페인 등록 시작:', campaignData)
       const response = await httpClient.post('/v1/api/advertiser/mypage/campaigns', campaignData)
+      console.log('API: 캠페인 등록 한 후 응답:', response)
       return response.data
     } catch (error) {
       console.error('Error registering campaign:', error)
@@ -99,22 +101,40 @@ const campaignApi = {
     }
   },
 
-  /**
- * 마이페이지 - 캠페인 공개/비공개 처리
- * @param {boolean} makePublic - true: 공개, false: 비공개
- * @returns {Promise<Object>} 응답 데이터
- */
-updateCampaignVisibility: async (makePublic) => {
-  try {
-    const response = await httpClient.put(`/v1/api/advertiser/mypage/campaigns/visibility`, null, {
-      params: { makePublic }
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error updating campaign visibility:', error)
-    throw error
-  }
-}
+  // 캠페인 삭제
+  deleteCampaign: async (campaignId) => {
+    try {
+      console.log('API: Deleting campaign with ID:', campaignId)
+      const response = await httpClient.delete(`/v1/api/advertiser/mypage/campaigns/${campaignId}`)
+      console.log('API: Campaign deletion response:', response)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting campaign:', error)
+      throw error
+    }
+  },
+
+  // 캠페인 상태 업데이트 (단일 캠페인용)
+  updateCampaignStatus: async (campaignId, statusData) => {
+    try {
+      // ACTIVE/HIDDEN 상태를 makePublic boolean으로 변환
+      const makePublic = statusData.campaignStatus === 'ACTIVE'
+      
+      const response = await httpClient.patch(`/v1/api/advertiser/mypage/campaigns/visibility`, 
+        [campaignId], // 캠페인 ID 배열로 전송
+        {
+          params: { makePublic }
+        }
+      )
+      return response.data
+    } catch (error) {
+      console.error('Error updating campaign status:', error)
+      throw error
+    }
+  },
+
+
+
 }
 
 export default campaignApi

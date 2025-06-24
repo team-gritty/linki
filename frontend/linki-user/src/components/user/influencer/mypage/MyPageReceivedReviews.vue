@@ -6,22 +6,23 @@
         <p>받은 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.advertiserReviewId" class="review-item">
+        <div v-for="review in reviews" :key="review.influencerReviewId" class="review-item">
           <div class="review-header">
             <div class="review-info">
               <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="review-date">{{ formatDate(review.advertiserReviewCreatedAt) }}</span>
+              <span class="campaign-name">캠페인명: {{ review.campaignName }}</span>
+              <span class="review-date">{{ formatDate(review.influencerReviewCreatedAt) }}</span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.advertiserReviewScore }}</span>
+                <span class="score-value">{{ review.influencerReviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.advertiserReviewScore) }"
+                    :class="{ 'filled': index <= Math.round(review.influencerReviewScore) }"
                   >
                     ★
                   </span>
@@ -30,7 +31,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.advertiserReviewComment }}</p>
+            <p class="review-comment">{{ review.influencerReviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -45,7 +46,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
-import httpClient from '../../../../utils/httpRequest';
+import { reviewApi } from '@/api/review';
 
 export default {
   name: 'MyPageReceivedReviews',
@@ -55,16 +56,19 @@ export default {
 
     const sortedReviews = computed(() => {
       return [...reviews.value].sort((a, b) => {
-        return new Date(b.advertiserReviewCreatedAt) - new Date(a.advertiserReviewCreatedAt);
+        return new Date(b.influencerReviewCreatedAt) - new Date(a.influencerReviewCreatedAt);
       });
     });
 
     const fetchReviews = async () => {
       try {
-        const response = await httpClient.get('/v1/api/influencer/reviews/received');
-        reviews.value = response.data;
+        console.log('🔍 DEBUG: Fetching received reviews for influencer...');
+        const response = await reviewApi.getAdvertiserReviews();
+        reviews.value = Array.isArray(response) ? response : [];
+        console.log('Fetched received reviews:', reviews.value);
       } catch (error) {
-        console.error('리뷰 목록 조회 실패:', error);
+        console.error('Error fetching received reviews:', error);
+        reviews.value = [];
       }
     };
 
@@ -151,6 +155,11 @@ export default {
 .contract-id {
   font-size: 15px;
   color: #1a1a1a;
+  font-weight: 500;
+}
+
+.campaign-name {
+  color: #6c5ce7;
   font-weight: 500;
 }
 

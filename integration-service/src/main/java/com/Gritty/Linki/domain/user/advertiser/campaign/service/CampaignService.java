@@ -4,6 +4,8 @@ import com.Gritty.Linki.domain.user.advertiser.campaign.dto.CampaignDto;
 import com.Gritty.Linki.domain.user.advertiser.campaign.repository.CampaignRepository;
 import com.Gritty.Linki.entity.Advertiser;
 import com.Gritty.Linki.entity.Campaign;
+import com.Gritty.Linki.exception.BusinessException;
+import com.Gritty.Linki.exception.ErrorCode;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +38,11 @@ public class CampaignService {
         public CampaignDto createCampaign(CampaignDto campaignDto, String advertiserId) {
                 log.info("광고주 {}의 캠페인을 생성합니다", advertiserId);
 
-                // 엔티티 매니저로 부터 Advertiser 참조 가져오기
-                Advertiser advertiser = entityManager.getReference(Advertiser.class, advertiserId);
+                // 광고주 존재 여부 확인
+                Advertiser advertiser = entityManager.find(Advertiser.class, advertiserId);
+                if (advertiser == null) {
+                        throw new BusinessException(ErrorCode.ADVERTISER_NOT_FOUND);
+                }
 
                 Campaign campaign = Campaign.builder()
                                 .campaignName(campaignDto.getCampaignName())
@@ -70,7 +75,8 @@ public class CampaignService {
 
                 // 광고주 아이디와 캠페인 아이디 받아서 레포에서 찾기
                 Campaign campaign = campaignRepository.findByCampaignIdAndAdvertiserId(campaignId, advertiserId)
-                                .orElseThrow(() -> new RuntimeException("캠페인을 찾을 수 없거나 접근 권한이 없습니다"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND,
+                                                "캠페인을 찾을 수 없거나 접근 권한이 없습니다"));
 
                 campaign.setCampaignName(campaignDto.getCampaignName());
                 campaign.setCampaignDesc(campaignDto.getCampaignDesc());
@@ -97,7 +103,8 @@ public class CampaignService {
 
                 // 광고주 아이디와 캠페인 아이디로 삭제할 캠페인 찾기
                 Campaign campaign = campaignRepository.findByCampaignIdAndAdvertiserId(campaignId, advertiserId)
-                                .orElseThrow(() -> new RuntimeException("캠페인을 찾을 수 없거나 접근 권한이 없습니다"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND,
+                                                "캠페인을 찾을 수 없거나 접근 권한이 없습니다"));
 
                 campaignRepository.delete(campaign);
                 log.info("캠페인이 성공적으로 삭제되었습니다. 캠페인 ID: {}", campaignId);
@@ -120,7 +127,7 @@ public class CampaignService {
                                 advertiserId);
 
                 if (campaigns.size() != campaignIds.size()) {
-                        throw new RuntimeException("일부 캠페인을 찾을 수 없거나 접근 권한이 없습니다");
+                        throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "일부 캠페인을 찾을 수 없거나 접근 권한이 없습니다");
                 }
 
                 campaigns.forEach(campaign -> campaign.setCampaignPublishStatus(
@@ -165,7 +172,8 @@ public class CampaignService {
                 log.info("광고주 {}의 캠페인 {}을 조회합니다", advertiserId, campaignId);
 
                 Campaign campaign = campaignRepository.findByCampaignIdAndAdvertiserId(campaignId, advertiserId)
-                                .orElseThrow(() -> new RuntimeException("캠페인을 찾을 수 없거나 접근 권한이 없습니다"));
+                                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND,
+                                                "캠페인을 찾을 수 없거나 접근 권한이 없습니다"));
 
                 log.info("캠페인 조회가 완료되었습니다. 캠페인 ID: {}", campaignId);
                 return mapToDto(campaign);

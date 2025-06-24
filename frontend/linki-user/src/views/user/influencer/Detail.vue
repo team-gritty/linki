@@ -30,10 +30,8 @@
       <DetailContract 
         v-if="currentTab === 'contract'"
         :detailData="{
-          contract: {
-            contractId: contractId,
-            ...proposal?.contract || {}
-          },
+          contractId: proposal?.contractId || route.query.contractId,
+          contract: proposal?.contract || {},
           campaign: campaignDetail
         }"
       />
@@ -88,6 +86,12 @@ const fetchData = async () => {
     
     proposal.value = response;
     
+    // 계약 ID 설정
+    if (response.contractId) {
+      contractId.value = response.contractId;
+      console.log('Contract ID found:', contractId.value);
+    }
+    
     // 캠페인 정보도 포함되어 있다면 설정
     if (response.campaignTitle) {
       campaignDetail.value = response;
@@ -96,7 +100,7 @@ const fetchData = async () => {
   } catch (error) {
     console.error('Failed to fetch data:', error);
     alert(error.message || '데이터를 불러오는데 실패했습니다.');
-    router.push('/mypage/influencer');
+    router.push({ name: 'influencer-mypage', query: { currentMenu: 'campaign.proposals' } });
   }
 };
 
@@ -112,7 +116,7 @@ const goToCampaignDetail = () => {
 };
 
 const goToProposalList = () => {
-  router.push('/mypage/influencer');
+  router.push({ name: 'influencer-mypage', query: { currentMenu: 'campaign.proposals' } });
 };
 
 const goToContractDetail = (contractId) => {

@@ -1,12 +1,12 @@
 package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
+import com.Gritty.Linki.domain.user.advertiser.channel.config.YouTubeApiConfig;
 import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeChannelDto;
 import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeSearchDto;
 import com.Gritty.Linki.domain.user.advertiser.channel.dto.YouTubeVideoDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
-import com.Gritty.Linki.domain.user.advertiser.channel.config.YouTubeApiConfig;
-import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +63,7 @@ public class YouTubeApiService {
 
             if (searchResponse == null || searchResponse.getItems() == null) {
                 log.warn("YouTube Search API 응답이 비어있습니다. keyword: {}", keyword);
-                return List.of();
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "YouTube API 응답이 비어있습니다");
             }
 
             // 채널 ID 목록 추출
@@ -88,7 +88,7 @@ public class YouTubeApiService {
      */
     public List<YouTubeChannelDto.ChannelItem> getChannelsDetails(List<String> channelIds) {
         if (channelIds == null || channelIds.isEmpty()) {
-            return List.of();
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "채널 ID 목록이 비어있습니다");
         }
 
         try {
@@ -108,7 +108,7 @@ public class YouTubeApiService {
 
             if (channelResponse == null || channelResponse.getItems() == null) {
                 log.warn("YouTube Channels API 응답이 비어있습니다. channelIds: {}", channelIds);
-                return List.of();
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "YouTube Channels API 응답이 비어있습니다");
             }
 
             log.info("채널 상세 정보 조회 완료: 요청 채널 수={}",
@@ -149,7 +149,7 @@ public class YouTubeApiService {
 
             if (response == null) {
                 log.warn("YouTube API 응답이 null----- channelId: {}", youtubeChannelId);
-                return 0L;
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "YouTube API 응답이 null입니다");
             }
 
             // response: "{"items": [...]}" 같은 JSON 문자열
@@ -162,13 +162,13 @@ public class YouTubeApiService {
 
             if (itemsNode == null || itemsNode.size() == 0) {
                 log.warn("YouTube API 응답에 채널 정보가 없음 - channelId: {}", youtubeChannelId);
-                return 0L;
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "채널 정보를 찾을 수 없습니다");
             }
 
             JsonNode statisticsNode = itemsNode.get(0).get("statistics");
             if (statisticsNode == null) {
                 log.warn("YouTube API 응답에 statistics 정보 없음 - channelId: {}", youtubeChannelId);
-                return 0L;
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "채널 통계 정보를 찾을 수 없습니다");
             }
 
             log.info("statistics 정보 -----------{}", statisticsNode);
@@ -176,7 +176,7 @@ public class YouTubeApiService {
             JsonNode subscriberCountNode = statisticsNode.get("subscriberCount");
             if (subscriberCountNode == null) {
                 log.warn("YouTube API 응답에 구독자 수 정보가 없습니다 - channelId: {}", youtubeChannelId);
-                return 0L;
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "구독자 수 정보를 찾을 수 없습니다");
             }
 
             Long subscriberCount = subscriberCountNode.asLong();
@@ -186,7 +186,8 @@ public class YouTubeApiService {
 
         } catch (Exception e) {
             log.error("YouTube API 호출 중 오류 발생 - channelId: {}", youtubeChannelId, e);
-            return 0L;
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
+                    "YouTube API 호출 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -208,11 +209,12 @@ public class YouTubeApiService {
                 return youtubeChannelId.get();
             } else {
                 log.warn("YouTube 채널 ID를 찾을 수 없습니다 - 내부 채널 ID: {}", channelId);
-                return null;
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "YouTube 채널 ID를 찾을 수 없습니다");
             }
         } catch (Exception e) {
             log.error("YouTube 채널 ID 조회 중 오류 발생 - 내부 채널 ID: {}", channelId, e);
-            return null;
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
+                    "YouTube 채널 ID 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -224,18 +226,19 @@ public class YouTubeApiService {
      * @return {avgLikeCount, avgCommentCount} 배열
      */
     public long[] getChannelVideoAverages(String youtubeChannelId, int maxResults) {
+        log.info("getChannelVideoAverages-----");
         try {
+            log.info("getChannelVideoAverages try 문 시작-----");
             // 1. 채널의 업로드 플레이리스트 ID 가져오기
             String uploadsPlaylistId = getUploadsPlaylistId(youtubeChannelId);
             if (uploadsPlaylistId == null) {
-                return new long[] { 0, 0 };
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "업로드 플레이리스트를 찾을 수 없습니다");
             }
 
             // 2. 플레이리스트에서 영상 ID 목록 가져오기
             List<String> videoIds = getVideoIdsFromPlaylist(uploadsPlaylistId, maxResults);
             if (videoIds.isEmpty()) {
-                // 영상목록이 비어있으면
-                return new long[] { 0, 0 };
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "영상 목록을 찾을 수 없습니다");
             }
 
             // 3. 영상들의 통계 정보 가져오기
@@ -275,7 +278,8 @@ public class YouTubeApiService {
 
         } catch (Exception e) {
             log.error("YouTube 채널 영상 평균 통계 조회 실패 - channelId: {}", youtubeChannelId, e);
-            return new long[] { 0, 0 };
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
+                    "YouTube 채널 영상 평균 통계 조회에 실패했습니다: " + e.getMessage());
         }
     }
 
@@ -292,7 +296,7 @@ public class YouTubeApiService {
 
             String response = restTemplate.getForObject(url, String.class);
             if (response == null)
-                return null;
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "YouTube API 응답이 null입니다");
 
             JsonNode rootNode = objectMapper.readTree(response);
             JsonNode itemsNode = rootNode.get("items");
@@ -307,10 +311,10 @@ public class YouTubeApiService {
                     }
                 }
             }
-            return null;
+            throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "업로드 플레이리스트를 찾을 수 없습니다");
         } catch (Exception e) {
             log.error("업로드 플레이리스트 ID 조회 실패", e);
-            return null;
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "업로드 플레이리스트 ID 조회에 실패했습니다: " + e.getMessage());
         }
     }
 
@@ -329,7 +333,7 @@ public class YouTubeApiService {
 
             String response = restTemplate.getForObject(url, String.class);
             if (response == null)
-                return List.of();
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "YouTube API 응답이 null입니다");
 
             JsonNode rootNode = objectMapper.readTree(response);
             JsonNode itemsNode = rootNode.get("items");
@@ -349,7 +353,7 @@ public class YouTubeApiService {
             return videoIds;
         } catch (Exception e) {
             log.error("플레이리스트 영상 ID 조회 실패", e);
-            return List.of();
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "플레이리스트 영상 ID 조회에 실패했습니다: " + e.getMessage());
         }
     }
 
@@ -370,7 +374,7 @@ public class YouTubeApiService {
             return response != null && response.getItems() != null ? response.getItems() : List.of();
         } catch (Exception e) {
             log.error("영상 통계 정보 조회 실패", e);
-            return List.of();
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "영상 통계 정보 조회에 실패했습니다: " + e.getMessage());
         }
     }
 

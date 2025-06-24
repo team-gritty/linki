@@ -6,22 +6,23 @@
         <p>받은 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.influencerReviewId || review.id" class="review-item">
+        <div v-for="review in reviews" :key="review.influencerReviewId" class="review-item">
           <div class="review-header">
             <div class="review-info">
               <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="review-date">{{ formatDate(review.createdAt || review.influencerReviewCreatedAt) }}</span>
+              <span class="campaign-name">캠페인: {{ review.campaignName }}</span>
+              <span class="review-date">{{ formatDate(review.influencerReviewCreatedAt) }}</span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.influencerReviewScore ?? review.score ?? '-' }}</span>
+                <span class="score-value">{{ review.influencerReviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.influencerReviewScore ?? review.score ?? 0) }"
+                    :class="{ 'filled': index <= Math.round(review.influencerReviewScore) }"
                   >
                     ★
                   </span>
@@ -30,7 +31,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.influencerReviewComment ?? review.comment ?? '-' }}</p>
+            <p class="review-comment">{{ review.influencerReviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -45,7 +46,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { reviewApi } from '@/api/advertiser/advertiser-review';
+import { reviewApi } from '@/api/review';
 
 export default {
   name: 'MyPageReceivedReviews',
@@ -55,11 +56,14 @@ export default {
 
     const fetchReviews = async () => {
       try {
-        // 받은 리뷰 API로 변경
-        const response = await reviewApi.getReceivedReviews();
-        reviews.value = response.data;
+        console.log('Fetching received reviews...');
+        // 인플루언서가 받은 리뷰 조회 (백엔드 API)
+        const response = await reviewApi.getAdvertiserReviews();
+        reviews.value = Array.isArray(response) ? response : [];
+        console.log('Fetched received reviews:', reviews.value);
       } catch (error) {
-        console.error('리뷰 목록 조회 실패:', error);
+        console.error('Error fetching received reviews:', error);
+        reviews.value = [];
       }
     };
 
@@ -135,9 +139,20 @@ export default {
 
 .review-info {
   display: flex;
-  gap: 16px;
+  flex-direction: column;
+  gap: 6px;
   color: #666;
   font-size: 14px;
+}
+
+.contract-id {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.campaign-name {
+  color: #6c5ce7;
+  font-weight: 500;
 }
 
 .review-score {

@@ -5,7 +5,6 @@
       <div class="modal-section">
         <div class="form-row">
           <div class="form-group">
-
             <label class="section-label">카테고리</label>
             <div class="category-dropdown-modal" @click="toggleCategoryDropdown">
               <span class="category-label-modal">{{ selectedCategoryLabel }}</span>
@@ -16,7 +15,6 @@
                 <div class="category-list">
                   <label v-for="cat in categories" :key="cat" class="category-item">
                     <input type="radio" name="category-radio" v-model="selectedCategory" :value="cat" />
-
                     <span>{{ cat }}</span>
                   </label>
                 </div>
@@ -33,7 +31,10 @@
               <input type="number" placeholder="최대" class="direct-input" v-model="subscriberMax" />
             </div>
             <div class="subscriber-options">
-              <label v-for="(opt, i) in subscriberOptions" :key="i"><input type="checkbox" v-model="subscriberChecks[i]" /> {{ opt }}</label>
+              <label v-for="(opt, i) in subscriberOptions" :key="i">
+                <input type="checkbox" v-model="subscriberChecks[i]" @change="handleSubscriberCheckChange(i)" /> 
+                {{ opt }}
+              </label>
             </div>
           </div>
         </div>
@@ -44,23 +45,25 @@
               <input type="number" placeholder="직접 입력" class="direct-input" v-model="viewDirect" />
             </div>
             <div class="subscriber-options view-checkbox-row">
-              <label v-for="(opt, i) in viewOptions" :key="i"><input type="checkbox" v-model="viewChecks[i]" /> {{ opt }}</label>
+              <label v-for="(opt, i) in viewOptions" :key="i">
+                <input type="checkbox" v-model="viewChecks[i]" @change="handleViewCheckChange(i)" /> 
+                {{ opt }}
+              </label>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-btn-row">
         <button class="clear-btn" @click="clearAll">전체해제</button>
-        <button class="modal-search-btn" @click="$emit('update:categories', selectedCategory ? [selectedCategory] : []); $emit('close')">검색</button> 
-
+        <button class="modal-search-btn" @click="handleSearch">검색</button> 
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-
 import { ref, computed, onMounted, onBeforeUnmount, defineEmits, watch } from 'vue'
+
 const props = defineProps({
   initCategory: String,
   initSubscriberChecks: Array,
@@ -70,12 +73,29 @@ const props = defineProps({
   initViewDirect: String
 })
 
+const emit = defineEmits(['close', 'apply-filters'])
+
 const subscriberOptions = [
   '전체', '~1천', '1천~5천', '5천~1만', '1만~5만', '5만~10만', '10만~50만', '50만~100만', '100만+'
 ]
 const viewOptions = [
   '전체', '~1천', '1천~1만', '1만~10만', '10만~100만', '100만+'
 ]
+
+// 한국어 -> 영어 카테고리 매핑
+const categoryMapping = {
+  '패션': 'FASHION',
+  '뷰티': 'BEAUTY', 
+  '푸드 / 먹방': 'FOOD',
+  '엔터테인먼트': 'ENTERTAINMENT',
+  '여행': 'TRAVEL',
+  '스포츠': 'SPORTS',
+  '음악': 'MUSIC',
+  '전자기기': 'ELECTRONICS',
+  'Vlog/라이프스타일': 'VLOG',
+  '교육': 'EDUCATION',
+  '동물/펫': 'ANIMAL'
+}
 
 const subscriberChecks = ref(props.initSubscriberChecks ? [...props.initSubscriberChecks] : [true, false, false, false, false, false, false, false, false])
 const viewChecks = ref(props.initViewChecks ? [...props.initViewChecks] : [true, false, false, false, false, false])
@@ -87,53 +107,173 @@ const categories = [
 ]
 const selectedCategory = ref(props.initCategory || '')
 const categoryDropdownOpen = ref(false)
-const allSelected = computed(() => selectedCategory.value !== '')
+
 const selectedCategoryLabel = computed(() => {
   return selectedCategory.value || '카테고리'
 })
-const toggleCategoryDropdown = () => { categoryDropdownOpen.value = !categoryDropdownOpen.value }
+
+const toggleCategoryDropdown = () => { 
+  categoryDropdownOpen.value = !categoryDropdownOpen.value 
+}
+
 function closeDropdownAndEmit() {
   categoryDropdownOpen.value = false
-  emit('update:categories', selectedCategory.value ? [selectedCategory.value] : [])
-
 }
+
+// 구독자 체크박스 변경 처리
+function handleSubscriberCheckChange(index) {
+  if (index === 0) { // '전체' 선택
+    if (subscriberChecks.value[0]) {
+      subscriberChecks.value = subscriberChecks.value.map((_, i) => i === 0)
+    }
+  } else {
+    subscriberChecks.value[0] = false // 다른 옵션 선택 시 '전체' 해제
+  }
+}
+
+// 평균 조회수 체크박스 변경 처리
+function handleViewCheckChange(index) {
+  if (index === 0) { // '전체' 선택
+    if (viewChecks.value[0]) {
+      viewChecks.value = viewChecks.value.map((_, i) => i === 0)
+    }
+  } else {
+    viewChecks.value[0] = false // 다른 옵션 선택 시 '전체' 해제
+  }
+}
+
+// 구독자 범위 계산
+function getSubscriberRange() {
+  // 직접 입력 값이 있으면 우선 사용
+  if (subscriberMin.value || subscriberMax.value) {
+    return {
+      min: subscriberMin.value ? parseInt(subscriberMin.value) : 0,
+      max: subscriberMax.value ? parseInt(subscriberMax.value) : 999999999 // 10억으로 제한
+    }
+  }
+  
+  // 체크박스 선택 확인 - "전체"가 아닌 특정 범위가 선택된 경우만
+  for (let i = 1; i < subscriberChecks.value.length; i++) {
+    if (subscriberChecks.value[i]) {
+      switch (i) {
+        case 1: return { min: 0, max: 1000 } // ~1천
+        case 2: return { min: 1000, max: 5000 } // 1천~5천
+        case 3: return { min: 5000, max: 10000 } // 5천~1만
+        case 4: return { min: 10000, max: 50000 } // 1만~5만
+        case 5: return { min: 50000, max: 100000 } // 5만~10만
+        case 6: return { min: 100000, max: 500000 } // 10만~50만
+        case 7: return { min: 500000, max: 1000000 } // 50만~100만
+        case 8: return { min: 1000000, max: 999999999 } // 100만+ (10억으로 제한)
+      }
+    }
+  }
+  
+  // "전체"가 선택되었거나 아무것도 선택하지 않은 경우 - 필터 적용 안함
+  return null
+}
+
+// 평균 조회수 범위 계산
+function getViewCountRange() {
+  // 직접 입력 값이 있으면 우선 사용
+  if (viewDirect.value) {
+    const value = parseInt(viewDirect.value)
+    return { min: value, max: 999999999 } // 10억으로 제한
+  }
+  
+  // 체크박스 선택 확인 - "전체"가 아닌 특정 범위가 선택된 경우만
+  for (let i = 1; i < viewChecks.value.length; i++) {
+    if (viewChecks.value[i]) {
+      switch (i) {
+        case 1: return { min: 0, max: 1000 } // ~1천
+        case 2: return { min: 1000, max: 10000 } // 1천~1만
+        case 3: return { min: 10000, max: 100000 } // 1만~10만
+        case 4: return { min: 100000, max: 1000000 } // 10만~100만
+        case 5: return { min: 1000000, max: 999999999 } // 100만+ (10억으로 제한)
+      }
+    }
+  }
+  
+  // "전체"가 선택되었거나 아무것도 선택하지 않은 경우 - 필터 적용 안함
+  return null
+}
+
+// 검색 버튼 클릭 처리
+function handleSearch() {
+  console.log('=== 모달 검색 버튼 클릭 ===')
+  console.log('selectedCategory:', selectedCategory.value)
+  console.log('subscriberMin:', subscriberMin.value, typeof subscriberMin.value)
+  console.log('subscriberMax:', subscriberMax.value, typeof subscriberMax.value)
+  console.log('viewDirect:', viewDirect.value, typeof viewDirect.value)
+  console.log('subscriberChecks:', subscriberChecks.value)
+  console.log('viewChecks:', viewChecks.value)
+  
+  const subscriberRange = getSubscriberRange()
+  const viewCountRange = getViewCountRange()
+  
+  console.log('계산된 subscriberRange:', subscriberRange)
+  console.log('계산된 viewCountRange:', viewCountRange)
+  
+  const filters = {
+    category: selectedCategory.value ? categoryMapping[selectedCategory.value] : null,
+    // 모달 재오픈을 위한 원본 데이터 저장
+    originalModalData: {
+      selectedCategory: selectedCategory.value,
+      subscriberMin: subscriberMin.value,
+      subscriberMax: subscriberMax.value,
+      subscriberChecks: [...subscriberChecks.value],
+      viewDirect: viewDirect.value,
+      viewChecks: [...viewChecks.value]
+    }
+  }
+  
+  // 구독자 수 필터가 있을 때만 추가
+  if (subscriberRange) {
+    filters.minSubscribers = subscriberRange.min
+    filters.maxSubscribers = subscriberRange.max
+  }
+  
+  // 평균 조회수 필터가 있을 때만 추가
+  if (viewCountRange) {
+    filters.minAvgViewCount = viewCountRange.min
+    filters.maxAvgViewCount = viewCountRange.max
+  }
+  
+  console.log('최종 전달할 filters:', JSON.stringify(filters, null, 2))
+  console.log('=== 모달 검색 끝 ===')
+  
+  emit('apply-filters', filters)
+  emit('close')
+}
+
 function onDocumentClick(e) {
   if (categoryDropdownOpen.value) {
     const dropdown = document.querySelector('.custom-category-dropdown')
     if (dropdown && !dropdown.contains(e.target)) closeDropdownAndEmit()
   }
 }
+
 function onDocumentKeydown(e) {
   if (categoryDropdownOpen.value && (e.key === 'Enter' || e.keyCode === 13)) closeDropdownAndEmit()
 }
+
 onMounted(() => {
   document.addEventListener('mousedown', onDocumentClick)
   document.addEventListener('keydown', onDocumentKeydown)
 })
+
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentClick)
   document.removeEventListener('keydown', onDocumentKeydown)
 })
+
 const clearAll = () => {
-  subscriberChecks.value = subscriberChecks.value.map(() => false)
-  viewChecks.value = viewChecks.value.map(() => false)
+  subscriberChecks.value = [true, false, false, false, false, false, false, false, false]
+  viewChecks.value = [true, false, false, false, false, false]
   subscriberMin.value = ''
   subscriberMax.value = ''
   viewDirect.value = ''
+  selectedCategory.value = ''
 }
-
-const emit = defineEmits(['update:categories', 'search-option-change'])
-watch([selectedCategory, subscriberChecks, subscriberMin, subscriberMax, viewChecks, viewDirect], () => {
-  emit('search-option-change', {
-    category: selectedCategory.value,
-    subscriberChecks: subscriberChecks.value,
-    subscriberMin: subscriberMin.value,
-    subscriberMax: subscriberMax.value,
-    viewChecks: viewChecks.value,
-    viewDirect: viewDirect.value
-  })
-}, { deep: true })
-
 </script>
 
 <style scoped>
