@@ -3,8 +3,8 @@
     <div class="user-login-container">
       <div class="user-login-box">
         <div class="user-login-form">
-          <h1 class="user-login-title">Log in to LINKI</h1>
-          <p class="user-login-subtitle">Enter your details below</p>
+          <h1 class="user-login-title">로그인</h1>
+
 
           <div class="user-input-group">
             <input
@@ -13,8 +13,9 @@
                 v-model="userId"
                 class="user-input"
                 placeholder="아이디"
+                tabindex="1"
                 @keyup.enter="handleLogin"
-                @keydown.tab="focusPasswordInput"
+                @keydown.tab="handleTabKey"
                 :disabled="isLoading"
             />
           </div>
@@ -26,6 +27,7 @@
                 v-model="password"
                 class="user-input"
                 placeholder="패스워드"
+                tabindex="2"
                 @keyup.enter="handleLogin"
                 :disabled="isLoading"
             />
@@ -34,19 +36,21 @@
           <button
               class="user-login-button"
               @click="handleLogin"
+              tabindex="3"
               :disabled="isLoading"
           >
-            {{ isLoading ? 'Logging in...' : 'Log In' }}
+            {{ isLoading ? 'Logging in...' : '로그인' }}
           </button>
 
           <button
               type="button"
               class="user-google-button"
               @click="handleGoogleLogin"
+              tabindex="4"
               :disabled="isLoading"
           >
             <img src="../../../assets/google-icon.svg" alt="Google" class="user-google-icon" />
-            Sign in with Google
+            구글 로그인
           </button>
 
           <div class="user-help-links">
@@ -205,6 +209,17 @@ const handleGoogleLogin = () => {
 
 const goToFindId = () => {
   router.push('/find-id')
+}
+
+// 탭 키 이벤트 처리
+const handleTabKey = (event) => {
+  event.preventDefault() // 기본 탭 동작 방지
+  event.stopPropagation() // 이벤트 전파 방지
+  setTimeout(() => {
+    if (passwordInput.value) {
+      passwordInput.value.focus()
+    }
+  }, 0)
 }
 
 defineOptions({

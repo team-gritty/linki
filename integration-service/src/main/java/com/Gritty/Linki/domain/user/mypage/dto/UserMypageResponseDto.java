@@ -1,4 +1,4 @@
-package com.Gritty.Linki.domain.user.User.mypage.dto;
+package com.Gritty.Linki.domain.user.mypage.dto;
 
 import lombok.Data;
 import java.time.LocalDate;
