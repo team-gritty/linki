@@ -126,6 +126,7 @@ public class ChannelController {
                 return ResponseEntity.ok(historyResponseList);
         }
 
+
         /**
          * 수동 구독자 수 업데이트 테스트 (스케줄러 테스트용)
          * 
