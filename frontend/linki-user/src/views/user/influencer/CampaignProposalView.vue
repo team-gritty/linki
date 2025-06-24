@@ -52,7 +52,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
 import { proposalAPI } from '@/api/proposal'
 import { useAccountStore } from '@/stores/account'
-import {chatApi} from "@/api/chat.js";
 
 const route = useRoute()
 const router = useRouter()
@@ -98,10 +97,6 @@ const submitProposal = async () => {
     }
 
     await proposalAPI.submitProposal(route.params.id, formData.value.contents)
-    
-
-    //채팅방 생성
-    await chatApi.createRoom(route.params.id)
 
     // 성공 알림
     alert('제안서가 성공적으로 제출되었습니다. 광고주의 승낙 후 채팅이 가능합니다.')

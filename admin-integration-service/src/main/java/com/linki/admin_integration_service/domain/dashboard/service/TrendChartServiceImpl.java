@@ -4,6 +4,8 @@ import com.linki.admin_integration_service.domain.dashboard.dto.TrendChartDTO;
 import com.linki.admin_integration_service.domain.dashboard.dto.TrendMapperDTO;
 import com.linki.admin_integration_service.domain.dashboard.repository.myBatis.DashBoardSummaryMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
@@ -17,6 +19,8 @@ public class TrendChartServiceImpl implements TrendChartService {
     private final DashBoardSummaryMapper dashBoardSummaryMapper;
 
     @Override
+    @Scheduled(cron = "0 0 * * * *")
+    @Cacheable(value = "dashboard", key = "'trendChart'")
     public TrendChartDTO getDashboardTrendChart() {
         TrendChartDTO trendChartDTO = new TrendChartDTO();
         trendChartDTO.setNewAdvertisers(getNewAdvertisers());
