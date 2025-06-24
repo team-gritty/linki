@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("v1/api/youtube")
+@RequestMapping("v1/api/user/youtube")
 @Slf4j
 public class YoutubeController {
     private final YoutubeService youtubeService;
@@ -38,7 +38,13 @@ public class YoutubeController {
             if (info.getPublishedAt() != null) response.put("publishedAt", info.getPublishedAt());
             if (info.getCustomUrl() != null) response.put("customUrl", info.getCustomUrl());
             if (info.getCountry() != null) response.put("country", info.getCountry());
-            return ResponseEntity.ok(response);
+
+            // 전체 응답
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);         // ✅ boolean 값
+            result.put("data", response);        // ✅ 내부 Map<String, String> 포함
+
+            return ResponseEntity.ok(result);
 
         } catch (Exception e) {
             log.error("유튜브 인증 중 에러 발생", e);

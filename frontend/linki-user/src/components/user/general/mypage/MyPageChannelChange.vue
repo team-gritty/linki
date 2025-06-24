@@ -19,7 +19,7 @@
       </button>
     </div>
 
-    <div v-if="selectedTab === 'influencer'" class="form-container">
+    <div v-show="selectedTab === 'influencer'" class="form-container">
       <div class="auth-section">
         <button class="auth-button" @click="initiateYoutubeAuth" :disabled="isLoading">
           유튜브 인증
@@ -27,39 +27,39 @@
       </div>
       <div class="info-group">
         <label>채널명</label>
-        <input type="text" :value="influencerData.channelName" readonly />
+        <span>{{ influencerData.channelName || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>채널 URL</label>
-        <input type="text" :value="influencerData.channelUrl" readonly />
+        <span>{{ influencerData.channelUrl || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>이름</label>
-        <input type="text" :value="influencerData.name" readonly />
+        <span>{{ influencerData.name || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>이메일</label>
-        <input type="text" :value="influencerData.email" readonly />
+        <span>{{ influencerData.email || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>생성 날짜</label>
-        <input type="text" :value="influencerData.creationDate" readonly />
+        <span>{{ influencerData.creationDate || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>설명</label>
-        <input type="text" :value="influencerData.description" readonly />
+        <span>{{ influencerData.description || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>생성일</label>
-        <input type="text" :value="influencerData.publishedAt" readonly />
+        <span>{{ influencerData.publishedAt || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>사용자 지정 URL</label>
-        <input type="text" :value="influencerData.customUrl" readonly />
+        <span>{{ influencerData.customUrl || '없음' }}</span>
       </div>
       <div class="info-group">
         <label>국가</label>
-        <input type="text" :value="influencerData.country" readonly />
+        <span>{{ influencerData.country || '없음' }}</span>
       </div>
       <div class="button-group" v-if="influencerData.channelName">
         <button class="submit-button" @click="handleRegistration" :disabled="isLoading">
@@ -138,7 +138,7 @@ const fetchData = async () => {
       return
     }
 
-    const response = await httpClient.get(`v1/api/user/youtubecallback?code=${code}`)
+    const response = await httpClient.get(`v1/api/user/youtube/callback?code=${code}`)
     if (response.data.success) {
       const data = response.data.data
       if (data.type === 'influencer') {

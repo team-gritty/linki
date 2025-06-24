@@ -19,7 +19,7 @@ public class YoutubeService {
     @Value("${GOOGLE_CLIENT_SECRET}")
     private String clientSecret;
 
-    @Value("http://localhost:8081/v1/api/youtube/callback")
+    @Value("http://localhost:3002/google-callback")
     private String redirectUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -38,6 +38,7 @@ public class YoutubeService {
         body.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
 
         ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
         return (String) response.getBody().get("access_token");
