@@ -27,8 +27,7 @@ spring:
 custom:
   kafka-setting:
     topic:
-     chat-proposal : chat.proposal
-     chat-contract: chat.contract
+     chat : chat
 
     group:
       chat: chat-service
