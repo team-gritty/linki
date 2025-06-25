@@ -64,35 +64,83 @@ const fetchContracts = async () => {
     
     console.log('Contract list:', contractList);
     
-    contracts.value = contractList.map(contract => ({
-      contractId: contract.contractId,
-      contractTitle: contract.contractTitle,
-      contractStatus: contract.contractStatus,
-      contractStartDate: contract.contractStartDate,
-      contractEndDate: contract.contractEndDate,
-      contractAmount: contract.contractAmount,
-      ...contract
-    }));
+    contracts.value = contractList.map(contract => {
+      console.log('Processing contract:', contract.contractId, 'status:', contract.contractStatus);
+      return {
+        contractId: contract.contractId,
+        contractTitle: contract.contractTitle,
+        contractStatus: contract.contractStatus,
+        contractStartDate: contract.contractStartDate,
+        contractEndDate: contract.contractEndDate,
+        contractAmount: contract.contractAmount,
+        ...contract
+      };
+    });
     
     console.log('Final contracts:', contracts.value);
+    
+    // 각 계약의 상태 재확인
+    contracts.value.forEach(contract => {
+      console.log(`Contract ${contract.contractId}: status = ${contract.contractStatus}`);
+      console.log(`Should be in ongoing? ${['ONGOING', 'PENDING_SIGN'].includes(contract.contractStatus)}`);
+    });
   } catch (error) {
     console.error('Error fetching contracts:', error);
     contracts.value = [];
   }
 };
 
-function viewContractDetail(contract) {
+async function viewContractDetail(contract) {
+  console.log('=== viewContractDetail 시작 ===');
   console.log('Viewing contract detail:', contract);
+  console.log('contractId:', contract.contractId);
   console.log('campaignId:', contract.campaignId);
   
-  // 4개 탭이 있는 상세 페이지로 이동 (계약 탭을 기본으로)
-  router.push({
-    path: `/mypage/campaign-detail/${contract.campaignId || 'unknown'}`,
-    query: { 
-      tab: 'contract',
-      contractId: contract.contractId
+  try {
+    // campaignId가 없으면 계약 상세 API를 먼저 호출해서 campaignId를 가져옴
+    if (!contract.campaignId) {
+      console.log('campaignId not found, fetching contract detail...');
+      console.log('Calling contractApi.getContractDetail with:', contract.contractId);
+      
+      const detailResponse = await contractApi.getContractDetail(contract.contractId);
+      console.log('Contract detail response:', detailResponse);
+      
+      if (detailResponse && detailResponse.campaignId) {
+        contract.campaignId = detailResponse.campaignId;
+        console.log('Found campaignId:', detailResponse.campaignId);
+      } else {
+        console.warn('No campaignId found in response');
+      }
     }
-  });
+    
+    console.log('Final campaignId before navigation:', contract.campaignId);
+    
+    // 4개 탭이 있는 상세 페이지로 이동 (계약 탭을 기본으로)
+    const targetPath = `/mypage/campaign-detail/${contract.campaignId || 'temp'}`;
+    console.log('Navigating to:', targetPath);
+    
+    router.push({
+      path: targetPath,
+      query: { 
+        tab: 'contract',
+        contractId: contract.contractId
+      }
+    });
+  } catch (error) {
+    console.error('Error in viewContractDetail:', error);
+    console.error('Error details:', error.message, error.stack);
+    
+    // 에러가 발생해도 일단 이동 (DetailContract에서 다시 API 호출함)
+    router.push({
+      path: `/mypage/campaign-detail/temp`,
+      query: { 
+        tab: 'contract',
+        contractId: contract.contractId
+      }
+    });
+  }
+  
+  console.log('=== viewContractDetail 종료 ===');
 }
 
 function formatDate(dateString) {
@@ -105,12 +153,15 @@ function formatAmount(amount) {
 }
 
 function getStatusText(status) {
+  console.log('Getting status text for:', status);
   const statusMap = {
     'ONGOING': '진행중',
     'PENDING_SIGN': '서명 대기중',
     'COMPLETED': '완료'
   };
-  return statusMap[status] || status;
+  const result = statusMap[status] || status;
+  console.log('Status text result:', result);
+  return result;
 }
 
 function getStatusClass(status) {

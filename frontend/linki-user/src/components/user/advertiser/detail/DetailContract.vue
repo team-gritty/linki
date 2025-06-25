@@ -83,21 +83,28 @@ const loading = ref(false)
 
 const fetchContractDetail = async () => {
   try {
+    console.log('=== fetchContractDetail 시작 ===')
     loading.value = true
     const contractId = route.query.contractId
+    
+    console.log('Route params:', route.params)
+    console.log('Route query:', route.query)
+    console.log('Contract ID from query:', contractId)
     
     if (!contractId) {
       console.error('Contract ID not found in query parameters')
       return
     }
     
-    console.log('Fetching contract detail for:', contractId)
+    console.log('Calling contractApi.getContractDetail with:', contractId)
+    console.log('API function exists:', typeof contractApi.getContractDetail)
+    
     const response = await contractApi.getContractDetail(contractId)
     contract.value = response
-    console.log('Contract detail:', response)
+    console.log('Contract detail API response:', response)
     
-    // campaignId가 URL에 없고 응답에 있으면 URL 업데이트
-    if (response.campaignId && route.params.id === 'undefined') {
+    // campaignId가 URL에 없거나 잘못된 경우 URL 업데이트
+    if (response.campaignId && (route.params.id === 'undefined' || route.params.id === 'unknown' || route.params.id === 'temp')) {
       console.log('Updating URL with correct campaignId:', response.campaignId)
       // 현재 URL을 올바른 campaignId로 업데이트
       router.replace({
@@ -106,13 +113,17 @@ const fetchContractDetail = async () => {
       })
     }
   } catch (error) {
-    console.error('Error fetching contract detail:', error)
+    console.error('Error in fetchContractDetail:', error)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
   } finally {
     loading.value = false
+    console.log('=== fetchContractDetail 종료 ===')
   }
 }
 
 onMounted(() => {
+  console.log('DetailContract onMounted - route:', route.path, route.query)
   fetchContractDetail()
 })
 

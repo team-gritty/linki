@@ -2,14 +2,17 @@ package com.Gritty.Linki.user.influencer.contract.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.UcanSign.UcanSignClient;
+import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.service.AdvertiserContractService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.UcanSignCreateRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
+import com.Gritty.Linki.entity.Contract;
 import com.Gritty.Linki.user.common.DummyOAuth2BeansConfig;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.vo.enums.ContractStatus;
+import com.netflix.discovery.converters.Auto;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +41,9 @@ public class AdContractServiceTest {
     private AdvertiserContractService adContractService;
 
     @Autowired
+    private ContractRepository contractRepository;
+
+    @Autowired
     private AuthenticationUtil authenticationUtil;
 
     @Autowired
@@ -52,8 +58,8 @@ public class AdContractServiceTest {
     void setupAuthentication() {
         // 테스트용 사용자 생성
         CustomUserDetails testUser = CustomUserDetails.builder()
-                .userId("USER0501") // 실제 DB에 존재하는 테스트 user_id 로 바꿔줘야 함
-                .userLoginId("user501")
+                .userId("USER0500") // 실제 DB에 존재하는 테스트 user_id 로 바꿔줘야 함
+                .userLoginId("user500")
                 .password("123456")
                 .build();
 
@@ -128,5 +134,21 @@ public class AdContractServiceTest {
         dto.setBusinessNumber("사업자번호");
         String result = adContractService.CreateContract(dto,testUser);
         log.info(result);
+    }
+
+    @Test
+    @DisplayName("광고주가 본인의 계약 광고 이행을 완료 처리한다")
+    void testCompleteAdDelivery() {
+        // given
+        String contractId = "CTR-0000000000000090"; // ✅ 실제 DB에 존재하는 계약 ID로 바꿔줘
+
+        // when
+        adContractService.completeAdDelivery(contractId);
+
+        // then
+        Contract updated = contractRepository.findById(contractId).orElseThrow();
+        assertThat(updated.getAdDeliveryStatus()).isTrue(); // ✅ boolean 필드 기준으로 검증
+
+        log.info("✅ 광고 이행 완료 상태 확인 - contractId: {}", contractId);
     }
 }

@@ -98,7 +98,6 @@ public class SettlementReopositoryTest {
                 .contractStartDate(LocalDate.now())
                 .contractStatus(ContractStatus.COMPLETED)
                 .contractTitle("계약서0")
-                .contractPaymentDate(LocalDate.now())
                 .adDeliveryStatus(true)
                 .contractSpecialTerms("특약")
                 .eventType("api")

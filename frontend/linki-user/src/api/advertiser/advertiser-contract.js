@@ -12,7 +12,25 @@ export const contractApi = {
   async getMyContracts(statuses = ['ONGOING', 'COMPLETED', 'PENDING_SIGN']) {
     try {
       const statusParams = statuses.map(status => `status=${status}`).join('&');
-      const response = await httpClient.get(`/v1/api/advertiser/mypage/contracts?${statusParams}`);
+      const url = `/v1/api/advertiser/mypage/contracts?${statusParams}`;
+      console.log('=== getMyContracts API 호출 ===');
+      console.log('Request URL:', url);
+      console.log('Request statuses:', statuses);
+      
+      const response = await httpClient.get(url);
+      console.log('Raw response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Is response.data array?:', Array.isArray(response.data));
+      
+      if (Array.isArray(response.data)) {
+        console.log('Response data contents:', response.data);
+        response.data.forEach((item, index) => {
+          console.log(`Item ${index}:`, item);
+          console.log(`Item ${index} status:`, item.contractStatus);
+        });
+      }
+      
       return response.data;
     } catch (error) {
       console.error('Error fetching contracts:', error);
@@ -22,10 +40,21 @@ export const contractApi = {
  // 계약 상세 조회
  async getContractDetail(contractId) {
   try {
-    const response = await httpClient.get(`/v1/api/advertiser/mypage/contracts/${contractId}`);
+    console.log('=== contractApi.getContractDetail 시작 ===');
+    console.log('Request contractId:', contractId);
+    const url = `/v1/api/advertiser/mypage/contracts/${contractId}`;
+    console.log('Request URL:', url);
+    
+    const response = await httpClient.get(url);
+    console.log('API Response:', response);
+    console.log('API Response data:', response.data);
+    
     return response.data;
   } catch (error) {
-    console.error('Error fetching contract detail:', error);
+    console.error('Error in contractApi.getContractDetail:', error);
+    console.error('Error response:', error.response);
+    console.error('Error status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
     throw error;
   }
 },

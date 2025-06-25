@@ -6,6 +6,7 @@ import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestD
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.vo.enums.ContractStatus;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,12 @@ public class AdvertiserContractController {
 
         return ResponseEntity.ok(dto);
 
+    }
 
+    @PostMapping("/v1/api/advertiser/mypage/contracts/{contractId}/complete-delivery")
+    public ResponseEntity<String>completeAdDelivery(@PathVariable String contractId){
+        advertiserContractService.completeAdDelivery(contractId);
+        return ResponseEntity.ok("success");
 
     }
 

@@ -20,4 +20,11 @@ public interface AdvertiserContractService {
 
     // 광고주 계약 상세조회
     ContractDetailResponseDTO getContractDetail(String contractId);
+
+    // 계약 상태 갱신
+    int updateContractsToCompleted();
+
+    //광고이행여부확인
+    void completeAdDelivery(String contractId);
+
 }

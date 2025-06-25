@@ -7,15 +7,19 @@ import com.Gritty.Linki.entity.Contract;
 import com.Gritty.Linki.vo.enums.ContractStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import java.util.List;
 
 @Repository
+
 public interface ContractRepository extends JpaRepository<Contract,String> {
     Optional<Contract> findByProposal_ProposalId(String proposalId);
 
@@ -96,6 +100,20 @@ AND s.settlementStatus = 'COMPLETED'
     Optional<ContractDetailResponseDTO> findContractDetailForAdvertiser(
             @Param("contractId") String contractId,
             @Param("advertiserId") String advertiserId);
+
+
+    // 계약 상태 갱신
+    @Modifying
+    @Query("UPDATE Contract c SET c.contractStatus = 'COMPLETED', c.contractCompletedAt = :now " +
+            "WHERE c.contractEndDate <= :today AND c.contractStatus != 'COMPLETED'")
+    int updateExpiredContracts(@Param("today") LocalDate today, @Param("now") LocalDateTime now);
+
+    //광고주 광고 이행 여부 확인
+    @Modifying
+    @Query("UPDATE Contract c SET c.adDeliveryStatus = true WHERE c.contractId = :contractId")
+    int updateAdDeliveryStatusToCompleted(@Param("contractId") String contractId);
+
+
 
 
 }

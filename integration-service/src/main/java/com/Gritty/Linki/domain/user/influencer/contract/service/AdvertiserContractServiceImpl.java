@@ -16,17 +16,20 @@ import com.Gritty.Linki.entity.Proposal;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.ContractStatus;
+import jakarta.persistence.EntityNotFoundException;
 import jdk.jfr.Label;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolationException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -164,5 +167,44 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
         return contractRepository.findContractDetailForAdvertiser(contractId, advertiserId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 계약을 찾을 수 없거나 권한이 없습니다."));
     }
+
+
+    // 계약 정보 갱신
+    @Transactional
+    public int updateContractsToCompleted() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
+        int updatedCount = contractRepository.updateExpiredContracts(today, now);
+        log.info("만료된 계약 상태 갱신 완료. 갱신된 건 수: {}", updatedCount);
+        return updatedCount;
     }
+
+    @Override
+    @Transactional
+    public void completeAdDelivery(String contractId) {
+        // 1. 로그인한 광고주 ID 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(userDetails);
+
+        // 2. 계약 ID로 해당 계약의 광고주 ID 조회
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 계약이 존재하지 않습니다."));
+
+        String contractAdvertiserId = contract.getProposal().getCampaign().getAdvertiser().getAdvertiserId();
+
+        // 3. 권한 확인
+        if (!advertiserId.equals(contractAdvertiserId)) {
+            throw new AccessDeniedException("본인의 계약이 아닙니다.");
+        }
+
+        // 4. 광고 이행 상태 업데이트
+        int updated = contractRepository.updateAdDeliveryStatusToCompleted(contractId);
+
+        if (updated == 0) {
+            throw new IllegalStateException("광고 이행 상태 변경 실패");
+        }
+
+        log.info("광고주 [{}] → 계약 [{}] 광고 이행 완료 처리", advertiserId, contractId);
+    }
+}
 

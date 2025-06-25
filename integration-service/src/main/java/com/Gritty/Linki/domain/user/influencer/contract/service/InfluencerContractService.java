@@ -13,4 +13,7 @@ public interface InfluencerContractService {
 
     // 인플루언서 계약 상세 조회
     ContractDetailResponseDTO getContractDetailForInfluencer(String contractId);
+
+    // 계약상태 갱신
+    int updateContractsToCompleted();
 }

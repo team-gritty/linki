@@ -60,8 +60,32 @@ const selectedContract = ref(null)
 
 const fetchContracts = async () => {
   try {
-    const response = await contractApi.getMyContracts()
-    let contractList = Array.isArray(response.data) ? response.data : []
+    console.log('=== DetailContractList fetchContracts 시작 ===')
+    console.log('campaignId:', props.campaignId)
+    console.log('route.query:', route.query)
+    
+    const response = await contractApi.getMyContracts(['ONGOING', 'PENDING_SIGN', 'COMPLETED'])
+    console.log('getMyContracts response:', response)
+    console.log('response.data:', response.data)
+    console.log('response type:', typeof response)
+    console.log('response.data type:', typeof response.data)
+    console.log('Array.isArray(response.data):', Array.isArray(response.data))
+    console.log('Array.isArray(response):', Array.isArray(response))
+    
+    let contractList
+    if (Array.isArray(response.data)) {
+      contractList = response.data
+      console.log('Using response.data')
+    } else if (Array.isArray(response)) {
+      contractList = response
+      console.log('Using response directly')
+    } else {
+      contractList = []
+      console.log('No valid array found, using empty array')
+    }
+    
+    console.log('contractList before filter:', contractList)
+    
     contracts.value = contractList
       .filter(contract => contract.campaignId === props.campaignId)
       .map(contract => ({
@@ -74,15 +98,25 @@ const fetchContracts = async () => {
         ...contract
       }))
     
+    console.log('contracts.value after filter:', contracts.value)
+    
     // URL에서 contractId 파라미터가 있으면 해당 계약서를 선택
     const contractId = route.query.contractId
+    console.log('contractId from URL:', contractId)
+    
     if (contractId) {
       const contract = contracts.value.find(c => c.contractId === contractId)
+      console.log('found contract:', contract)
+      
       if (contract) {
         selectedContract.value = contract
+        console.log('selectedContract set to:', contract)
+      } else {
+        console.warn('Contract not found in list')
       }
     }
   } catch (error) {
+    console.error('Error in fetchContracts:', error)
     contracts.value = []
   }
 }
