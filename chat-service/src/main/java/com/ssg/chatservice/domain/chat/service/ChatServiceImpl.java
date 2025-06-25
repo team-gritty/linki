@@ -36,7 +36,7 @@ public class ChatServiceImpl implements ChatService{
 
     //제안서아이디로  채팅방 조회
     public Chat findByProposalId(String proposalId){
-        return chatRepository.findByProposalId(proposalId);
+        return chatRepository.findByProposalId(proposalId).orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
     }
 
     //제안서 아이디로 ChatDetailDTO 반환
