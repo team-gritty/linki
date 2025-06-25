@@ -43,27 +43,22 @@
 
       <div class="contract-actions">
         <button class="action-button view-contract" @click="viewContractDocument">
-          <i class="fas fa-file-contract"></i>
-          계약서 조회
-        </button>
-        <button 
-          v-if="contract.contractStatus === 'PENDING_SIGN'"
-          class="action-button sign-contract" 
-          @click="signContract"
-        >
-          <i class="fas fa-signature"></i>
-          전자 서명
+          <i class="fas fa-download"></i>
+          계약서 다운로드
         </button>
       </div>
 
-      <!-- 광고 이행 확인 버튼: 진행중인 계약서(PENDING)에서만 노출 -->
-      <div v-if="contract.contractStatus === 'PENDING'" class="ad-execution-section">
+      <!-- 광고 이행 확인 버튼: 완료된 계약서(COMPLETED)에서만 노출 -->
+      <div v-if="contract.contractStatus === 'COMPLETED' " class="ad-execution-section">
         <ContractExecutionButton
           :contract-id="contract.contractId"
           :is-executed="contract.isExecuted"
+          @execution-completed="handleExecutionCompleted"
         />
       </div>
     </div>
+
+
   </div>
 </template>
 
@@ -80,6 +75,8 @@ const router = useRouter()
 // 계약 상세 정보
 const contract = ref(null)
 const loading = ref(false)
+
+
 
 const fetchContractDetail = async () => {
   try {
@@ -156,14 +153,34 @@ function getStatusText(status) {
 }
 
 async function viewContractDocument() {
-  // 실제 API 연동 필요시 contractApi.getContractDocument(props.contract.contractId)
-  alert('계약서 조회 기능은 추후 구현 예정입니다.')
+  try {
+    console.log('계약서 조회 시작, contractId:', contract.value.contractId)
+    
+    const response = await contractApi.getContractDocument(contract.value.contractId)
+    console.log('API 응답:', response)
+    
+    // contract.js API 응답 구조에 맞춰 URL 추출: response.result.file
+    const url = response?.result?.file
+    console.log('추출된 URL:', url)
+    
+    if (!url) {
+      console.error('URL을 찾을 수 없습니다. 응답 구조:', response)
+      alert('계약서 URL을 찾을 수 없습니다.')
+      return
+    }
+    
+    // 새 탭에서 계약서 열기
+    console.log('새 탭에서 열 URL:', url)
+    window.open(url, '_blank')
+    console.log('계약서 조회 성공: 새 탭에서 열림')
+    
+  } catch (error) {
+    console.error('계약서 조회 실패:', error)
+    alert('계약서 조회에 실패했습니다.')
+  }
 }
 
-async function signContract() {
-  // 실제 API 연동 필요시 contractApi.signContract(props.contract.contractId)
-  alert('전자 서명 기능은 추후 구현 예정입니다.')
-}
+
 
 function goBackToList() {
   // contractId 파라미터를 제거하여 목록으로 돌아가기
@@ -174,6 +191,18 @@ function goBackToList() {
       contractId: undefined  // contractId 제거
     }
   })
+}
+
+// 광고 이행 완료 이벤트 핸들러
+function handleExecutionCompleted(data) {
+  console.log('광고 이행 완료 이벤트 받음:', data)
+  
+  // 백엔드에서 isExecuted를 DTO로 반환하지 않으므로
+  // 프론트엔드에서 직접 상태 업데이트
+  if (contract.value) {
+    contract.value.isExecuted = true
+    console.log('계약 isExecuted 상태를 true로 업데이트')
+  }
 }
 </script>
 
@@ -294,21 +323,6 @@ function goBackToList() {
   background-color: #e2e8f0;
 }
 
-.sign-contract {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.sign-contract:hover {
-  background-color: #2563eb;
-}
-
-.sign-contract:disabled {
-  background-color: #e2e8f0;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-
 .status-badge {
   padding: 8px 16px;
   border-radius: 20px;
@@ -337,6 +351,8 @@ function goBackToList() {
   justify-content: flex-end;
 }
 
+
+
 @media (max-width: 768px) {
   .contract-detail-content {
     padding: 16px;
@@ -360,5 +376,7 @@ function goBackToList() {
     width: 100%;
     justify-content: center;
   }
+
+
 }
 </style> 

@@ -5,10 +5,12 @@ import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.UcanSign.UcanSignClient;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
+import com.Gritty.Linki.domain.user.influencer.contract.webhook.ContractWebhookService;
 import com.Gritty.Linki.domain.user.influencer.dto.ContractDTO;
 import com.Gritty.Linki.domain.user.influencer.dto.UcanCreateDTO;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractSignRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.entity.Contract;
@@ -43,6 +45,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     private final ProposalRepository proposalRepository;
     String templateId = "1937344712655597570";
     private final AuthenticationUtil authenticationUtil;
+    private final ContractWebhookService contractWebhookService;
 
 
 
@@ -137,7 +140,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
                 .build();
 
         log.info("서비스에서 계약서 entity 생성완료");
-        log.info(contract);
+        log.info(contract.getDocumentId());
 
         contractRepository.save(contract);
 
@@ -206,5 +209,28 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
 
         log.info("광고주 [{}] → 계약 [{}] 광고 이행 완료 처리", advertiserId, contractId);
     }
+
+    @Override
+    public String viewDocument(String contractId) {
+
+        // 1. 로그인한 광고주 ID 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(userDetails);
+
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(()->new EntityNotFoundException("계약을 찾을 수 없습니다"));
+
+        if (!contract.getProposal().getCampaign().getAdvertiser().getAdvertiserId().equals(advertiserId)) {
+            throw new AccessDeniedException("본인의 계약이 아닙니다.");
+        }
+
+        String documentId = contract.getDocumentId();
+
+        return ucanSignClient.getDocument(documentId);
+
+
+    }
+
+
 }
 

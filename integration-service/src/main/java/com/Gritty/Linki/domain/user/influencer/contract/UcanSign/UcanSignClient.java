@@ -2,6 +2,8 @@ package com.Gritty.Linki.domain.user.influencer.contract.UcanSign;
 
 import com.Gritty.Linki.domain.user.influencer.dto.UcanCreateDTO;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractSignRequestDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,8 @@ import lombok.extern.log4j.Log4j2;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -51,7 +55,7 @@ public class UcanSignClient {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode root = mapper.readTree(response.body().string());
                 String token = root.path("result").path("accessToken").asText();
-                log.info("토큰 발급받음 : {}",token);
+                log.info("토큰 발급받음 : {}", token);
                 TokenHolder.setToken(token);
             }
         } catch (IOException e) {
@@ -123,8 +127,8 @@ public class UcanSignClient {
                     MediaType.parse("application/json"), json
             );
             log.info("유캔싸인 요청 바디 : {}", body);
-            log.info("json : {}",json);
-            log.info("token : {}",token);
+            log.info("json : {}", json);
+            log.info("token : {}", token);
 
             Request request = new Request.Builder()
                     .url(CREATE_DOCUMENT_BASE_URL + templateId)
@@ -137,7 +141,7 @@ public class UcanSignClient {
             try (Response response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful()) {
                     JsonNode root = objectMapper.readTree(response.body().string());
-                    log.info("유캔싸인 호출 결과 : {}",root);
+                    log.info("유캔싸인 호출 결과 : {}", root);
                     return root.path("result").path("documentId").asText();
                 } else {
                     throw new RuntimeException("문서 생성 실패: " + response.body().string());
@@ -151,4 +155,32 @@ public class UcanSignClient {
 
 
 
+
+
+
+    public String getDocument(String documentId) {
+        String token = TokenHolder.getToken();
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        if (documentId == null || documentId.isBlank()) {
+            throw new IllegalArgumentException("documentId가 비어 있습니다");
+        }
+
+        MediaType mediaType = MediaType.parse("text/plain");
+        Request request = new Request.Builder()
+                .url("https://app.ucansign.com/openapi/documents/" + documentId + "/file")
+                .get()
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                throw new RuntimeException("UCanSign 문서 파일 조회 실패: " + response.code() + "\n" + response.body().string());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

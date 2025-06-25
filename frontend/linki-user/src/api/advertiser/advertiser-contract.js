@@ -58,9 +58,26 @@ export const contractApi = {
     throw error;
   }
 },
-  // 계약서 조회
-  getContractDocument(contractId) {
-    return httpClient.get(`/v1/api/advertiser/mypage/contracts/${contractId}/document`);
+  // 계약서 조회(유캔사인 api)
+  async getContractDocument(contractId) {
+    try {
+      console.log('=== getContractDocument API 호출 ===');
+      console.log('Contract ID:', contractId);
+      const url = `/v1/api/advertiser/mypage/contracts/${contractId}/document`;
+      console.log('Request URL:', url);
+      
+      const response = await httpClient.get(url);
+      console.log('getContractDocument Raw response:', response);
+      console.log('getContractDocument Response data:', response.data);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error in getContractDocument:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      throw error;
+    }
   },
 
   // 계약 서명
@@ -76,6 +93,14 @@ export const contractApi = {
 
   // 계약 이행 상태 업데이트
   executeContract(contractId, isExecuted = true) {
-    return httpClient.patch(`/v1/api/advertiser/contracts/${contractId}`, { isExecuted });
+    console.log('=== executeContract API 호출 ===');
+    console.log('Contract ID:', contractId);
+    console.log('Contract ID type:', typeof contractId);
+    console.log('Is Executed:', isExecuted);
+    
+    const url = `/v1/api/advertiser/mypage/contracts/${contractId}/complete-delivery`;
+    console.log('Request URL:', url);
+    
+    return httpClient.post(url);
   }
 };

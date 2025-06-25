@@ -16,4 +16,7 @@ public interface InfluencerContractService {
 
     // 계약상태 갱신
     int updateContractsToCompleted();
+
+    // 인플루언서 계약서 문서 조회
+    String viewDocument(String contractId);
 }

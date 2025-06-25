@@ -29,7 +29,7 @@ export const contractApi = {
   // 계약서 조회
   async getContractDocument(contractId) {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/contracts/${contractId}/document`);
+      const response = await httpClient.get(`/v1/api/influencer/mypage/contracts/${contractId}/document`);
       return response.data;
     } catch (error) {
       console.error('Error fetching contract document:', error);

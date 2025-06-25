@@ -113,6 +113,9 @@ AND s.settlementStatus = 'COMPLETED'
     @Query("UPDATE Contract c SET c.adDeliveryStatus = true WHERE c.contractId = :contractId")
     int updateAdDeliveryStatusToCompleted(@Param("contractId") String contractId);
 
+    // document 아이디로 계약 아이디 찾기
+    Contract findByDocumentId(String documentId);
+
 
 
 

@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.influencer.contract.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
+import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractSignRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.vo.enums.ContractStatus;
@@ -26,5 +27,10 @@ public interface AdvertiserContractService {
 
     //광고이행여부확인
     void completeAdDelivery(String contractId);
+
+    // 문서 확인(api)
+    String viewDocument(String contractId);
+
+
 
 }

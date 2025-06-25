@@ -64,7 +64,18 @@ public class AdvertiserContractController {
     @PostMapping("/v1/api/advertiser/mypage/contracts/{contractId}/complete-delivery")
     public ResponseEntity<String>completeAdDelivery(@PathVariable String contractId){
         advertiserContractService.completeAdDelivery(contractId);
+        log.info("amount : " + contractId);
         return ResponseEntity.ok("success");
+
+    }
+
+    @GetMapping("/v1/api/advertiser/mypage/contracts/{contractId}/document")
+    public ResponseEntity<String>viewDocument(@PathVariable String contractId){
+
+        String documentURl = advertiserContractService.viewDocument(contractId);
+        return ResponseEntity.ok(documentURl);
+
+
 
     }
 
