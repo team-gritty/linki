@@ -48,7 +48,29 @@
         </div>
       </div>
       <div class="video-stats-box">
-        <div class="video-stats-title">✔️ 최근 90일 영상 통계 데이터</div>
+        <div class="video-stats-title">
+          ✔️ 최근 30개 영상 통계 데이터
+          <div class="info-icon-container">
+            <div class="info-icon" @click="showDataInfoTooltip = !showDataInfoTooltip">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="10" r="9" stroke="#8C30F5" stroke-width="2" fill="white"/>
+                <path d="M10 7V13M10 4.5V5.5" stroke="#8C30F5" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div v-if="showDataInfoTooltip" class="data-info-tooltip">
+              <div class="tooltip-content">
+                <div class="tooltip-title">데이터 수집 정보</div>
+                <div class="tooltip-text">
+                  {{ formatDataCollectionDate(channel?.collectedAt) }} 기준으로 수집된 데이터입니다.
+                </div>
+                <div class="tooltip-note">
+                  * 30개 영상의 평균 통계를 기반으로 계산됩니다.
+                </div>
+              </div>
+              <div class="tooltip-arrow"></div>
+            </div>
+          </div>
+        </div>
         <div class="video-stats-list">
           <div class="video-stat-item">
             <div class="stat-label">영상 수</div>
@@ -132,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SubscriberHistoryChart from '@/components/user/advertiser/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from '@/components/user/advertiser/LikeRatioBarChart.vue'
@@ -251,6 +273,8 @@ onMounted(async () => {
     console.log('채널 상세 데이터 조회 시작 - channelId:', id.value)
     channel.value = await channelApi.getChannelById(id.value)
     console.log('Channel detail data:', channel.value)
+    console.log('Channel collectedAt:', channel.value?.collectedAt)
+    console.log('Channel collectedAt type:', typeof channel.value?.collectedAt)
     
     // 3. 현재 채널이 전체 목록에 있는지 확인하고 없으면 추가
     const currentChannelExists = channels.value.some(c => 
@@ -359,6 +383,72 @@ function selectPeriod(p) {
 chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
+
+const showDataInfoTooltip = ref(false)
+
+function formatDataCollectionDate(dateStr) {
+  console.log('formatDataCollectionDate 호출됨:', dateStr, typeof dateStr)
+  
+  if (!dateStr) {
+    console.log('dateStr이 없음')
+    return '데이터 수집일 정보 없음'
+  }
+  
+  try {
+    let date
+    
+    // 이미 Date 객체인 경우
+    if (dateStr instanceof Date) {
+      date = dateStr
+    }
+    // 문자열인 경우 Date 객체로 변환
+    else if (typeof dateStr === 'string') {
+      date = new Date(dateStr)
+    }
+    // 숫자(timestamp)인 경우
+    else if (typeof dateStr === 'number') {
+      date = new Date(dateStr)
+    }
+    else {
+      console.log('알 수 없는 날짜 형식:', dateStr)
+      return '데이터 수집일 정보 없음'
+    }
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      console.log('유효하지 않은 날짜:', dateStr)
+      return '데이터 수집일 정보 없음'
+    }
+    
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    
+    const formattedDate = `${year}년 ${month}월 ${day}일`
+    console.log('포맷된 날짜:', formattedDate)
+    
+    return formattedDate
+  } catch (error) {
+    console.error('날짜 포맷팅 오류:', error)
+    return '데이터 수집일 정보 없음'
+  }
+}
+
+// 툴팁 외부 클릭 시 닫기
+function handleClickOutside(event) {
+  const tooltipContainer = event.target.closest('.info-icon-container')
+  if (!tooltipContainer) {
+    showDataInfoTooltip.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 </script>
 
@@ -731,6 +821,9 @@ const tab = ref('intro')
   color: #0d0d0d;
   margin-bottom: 18px;
   padding-left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .video-stats-list {
   display: flex;
@@ -911,5 +1004,75 @@ const tab = ref('intro')
 .youtube-link:hover {
   opacity: 0.8;
   transition: opacity 0.2s;
+}
+.info-icon-container {
+  position: relative;
+  display: inline-block;
+}
+.info-icon {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.info-icon:hover {
+  transform: scale(1.1);
+}
+.data-info-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  border: 2px solid #8C30F5;
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0 8px 24px rgba(140, 48, 245, 0.15);
+  z-index: 1000;
+  margin-top: 8px;
+  animation: fadeInUp 0.3s ease;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+.tooltip-content {
+  text-align: center;
+}
+.tooltip-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #8C30F5;
+  margin-bottom: 8px;
+}
+.tooltip-text {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.tooltip-note {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+.tooltip-arrow {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #8C30F5;
 }
 </style> 

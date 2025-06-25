@@ -1,7 +1,15 @@
 <template>
   <div>
     <div v-if="!chartData.hasValidData" class="no-data-message">
-      차트 데이터를 로딩 중이거나 데이터가 없습니다.
+      <div class="no-data-icon">📊</div>
+      <div class="no-data-title">좋아요 데이터 부족</div>
+      <div class="no-data-description">
+        현재 채널과 전체 채널 모두 <br>
+        평균 좋아요 수 데이터가 부족하여 비율 분석이 불가능합니다.
+      </div>
+      <div class="no-data-note">
+        * 충분한 영상 데이터 수집 후 분석 결과를 확인하실 수 있습니다.
+      </div>
     </div>
     <apexchart 
       v-else
@@ -198,33 +206,60 @@ const series = computed(() => [
 ])
 
 // ApexCharts의 옵션을 computed로 정의
-const chartOptions = computed(() => ({
-  chart: { id: 'like-ratio-bar', toolbar: { show: false } }, // 차트 ID, 툴바 숨김
-  xaxis: { categories: ['내 채널', '전체'] },                // X축 레이블
-  yaxis: {
-    min: 0,                                                 // Y축 최소값 0
-    labels: { formatter: val => val.toFixed(2) }            // Y축 숫자 표시 형식
-  },
-  colors: ['#6B46C1', '#9F7AEA'],                          // 색상 배열
-  dataLabels: { enabled: false },                          // 데이터 라벨 숨김
-  grid: { borderColor: '#eee' },                           // 차트 격자선 색
-  tooltip: {
-    y: { formatter: val => (val * 100).toFixed(2) + '%' }  // 툴크 숫자 % 형식
-  },
-  plotOptions: {
-    bar: {
-      borderRadius: 5,                                      // 막대 둥근 정도
-      columnWidth: '40%',                                   // 막대 너비
-      distributed: true                                     // 각 막대에 다른 색
+const chartOptions = computed(() => {
+  // 데이터의 최대값에 따라 Y축 범위 동적 조정
+  const maxValue = Math.max(myChannelLikeRatio.value, overallLikeRatio.value)
+  const yAxisMax = maxValue > 0 ? Math.max(maxValue * 1.5, 0.01) : 0.1 // 최소 0.01, 여유공간 50%
+  
+  return {
+    chart: { id: 'like-ratio-bar', toolbar: { show: false } }, // 차트 ID, 툴바 숨김
+    xaxis: { categories: ['내 채널', '전체'] },                // X축 레이블
+    yaxis: {
+      min: 0, // y축 최소값 0 설정 - 막대가 아래로 내려가지 않게 
+      max: yAxisMax, // y축 최대값을 동적으로 설정
+      tickAmount: 5, // y축 간격을 5개로 유지
+      // y축 - 소수점 3자리까지 표시 (더 정밀하게)
+      labels: { formatter: val => val.toFixed(3) }
+    },
+    colors: ['#6B46C1', '#9F7AEA'],                          // 색상 배열
+    dataLabels: { enabled: false },                          // 데이터 라벨 숨김
+    grid: { borderColor: '#eee' },                           // 차트 격자선 색
+    tooltip: {
+      y: { formatter: val => (val * 100).toFixed(3) + '%' }  // 툴팁 숫자 % 형식 (더 정밀하게)
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 5,                                      // 막대 둥근 정도
+        columnWidth: '40%',                                   // 막대 너비
+        distributed: true                                     // 각 막대에 다른 색
+      }
     }
   }
-}))
+})
 
 // 차트 데이터 유효성 검증
 const chartData = computed(() => {
   const hasChannels = props.channels && props.channels.length > 0
   const hasChannelId = props.channelId
-  const hasValidData = hasChannels && hasChannelId && (myChannelLikeRatio.value > 0 || overallLikeRatio.value > 0)
+  
+  // 현재 채널의 좋아요 데이터 확인
+  const hasMyChannelLikeData = myChannelLikeRatio.value > 0
+  
+  // 전체 채널의 좋아요 데이터 확인
+  const hasOverallLikeData = overallLikeRatio.value > 0
+  
+  // 좋아요 데이터가 하나라도 있으면 차트 표시
+  const hasValidData = hasChannels && hasChannelId && (hasMyChannelLikeData || hasOverallLikeData)
+  
+  console.log('LikeRatioBarChart 유효성 검증:', {
+    hasChannels,
+    hasChannelId,
+    hasMyChannelLikeData,
+    hasOverallLikeData,
+    hasValidData,
+    myRatio: myChannelLikeRatio.value,
+    overallRatio: overallLikeRatio.value
+  })
   
   return {
     hasValidData,
@@ -257,5 +292,26 @@ export default {
   font-weight: 500;
   text-align: center;
   margin: 0;
+}
+
+.no-data-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.no-data-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.no-data-description {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.no-data-note {
+  font-size: 12px;
+  color: #6c757d;
 }
 </style> 

@@ -431,6 +431,7 @@ public class ChannelService {
                                 .thumbnailUrl(channel.getChannelThumbnailUrl())
                                 .youtubeUrl(channel.getChannelUrl())
                                 .bannerUrl(bannerUrl)
+                                .collectedAt(channel.getCollectedAt())
                                 .build();
 
                 log.info("채널 상세 정보 조회 완료 - channelId: {}", channelId);
