@@ -24,4 +24,7 @@ public class InfluencerUserDTO {
 
     @ExcelAnnotation.ExcelColumn(headerName = "SNS Link")
     private String snsLink;
+
+    @ExcelAnnotation.ExcelColumn(headerName = "userCursor")
+    private String userCursor;
 }

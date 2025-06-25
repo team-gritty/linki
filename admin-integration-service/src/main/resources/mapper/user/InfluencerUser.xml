@@ -64,4 +64,85 @@
 
     </select>
 
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+    <select id="getAllInfluencerUsersWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO">
+        SELECT
+            influencer.influencer_id AS userId,
+            user.user_name AS name,
+            user.user_email AS email,
+            user.user_phone AS phone,
+            channel.channel_name AS snsChannelName,
+            channel.channel_url AS snsLink,
+            user.user_id AS userCursor
+        FROM (
+            SELECT DISTINCT user_id
+            FROM user
+            WHERE user_role = 'ROLE_INFLUENCER'
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+            ORDER BY user_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN influencer ON influencer.user_id = temp.user_id
+        JOIN user ON user.user_id = influencer.user_id
+        JOIN (
+            SELECT 
+                channel.influencer_id,
+                MIN(channel.channel_name) AS channel_name,
+                MIN(channel.channel_url) AS channel_url
+            FROM channel
+            GROUP BY channel.influencer_id
+        ) AS channel ON channel.influencer_id = influencer.influencer_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchInfluencerUserWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO">
+        SELECT
+            influencer.influencer_id AS userId,
+            user.user_name AS name,
+            user.user_email AS email,
+            user.user_phone AS phone,
+            channel.channel_name AS snsChannelName,
+            channel.channel_url AS snsLink,
+            user.user_id AS userCursor
+        FROM (
+            SELECT DISTINCT user_id
+            FROM user
+            WHERE user_role = 'ROLE_INFLUENCER'
+            <choose>
+                <when test="searchDTO.searchType.toLowerCase() eq 'name'">
+                    AND TRIM(LOWER(user_name)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'email'">
+                    AND TRIM(LOWER(user_email)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'phone'">
+                    AND REPLACE(TRIM(user_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+            ORDER BY user_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN influencer ON influencer.user_id = temp.user_id
+        JOIN user ON user.user_id = influencer.user_id
+        JOIN (
+            SELECT 
+                channel.influencer_id,
+                MIN(channel.channel_name) AS channel_name,
+                MIN(channel.channel_url) AS channel_url
+            FROM channel
+            GROUP BY channel.influencer_id
+        ) AS channel ON channel.influencer_id = influencer.influencer_id
+    </select>
+
 </mapper>

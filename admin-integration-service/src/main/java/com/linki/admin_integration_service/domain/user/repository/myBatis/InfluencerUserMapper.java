@@ -11,4 +11,8 @@ import java.util.List;
 public interface InfluencerUserMapper {
     List<InfluencerUserDTO> getAllInfluencerUsers();
     List<InfluencerUserDTO> searchInfluencerUser(InfluencerUserSearchRequestDTO influencerUserSearchRequestDTO);
+    
+    // Keyset 페이지네이션 메서드들
+    List<InfluencerUserDTO> getAllInfluencerUsersWithKeyset(String cursor, int size);
+    List<InfluencerUserDTO> searchInfluencerUserWithKeyset(InfluencerUserSearchRequestDTO searchDTO, String cursor, int size);
 }
