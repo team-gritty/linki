@@ -27,3 +27,25 @@ export const toggleReviewVisibility = async (reviewId, visibility) => {
     visibility: visibility 
   })
 }
+
+// Keyset 페이지네이션 기본 조회
+export const getInfluencerReviewsListWithKeyset = async (cursor = null, size = 10) => {
+  const params = { size }
+  if (cursor) {
+    params.cursor = cursor
+  }
+  
+  return await httpRequester.get('/v1/admin/api/influencerReviews', { params })
+}
+
+// Keyset 페이지네이션 검색
+export const searchInfluencerReviewsWithKeyset = async (searchType, keyword, cursor = null, size = 10) => {
+  const requestBody = {
+    searchType,
+    keyword,
+    cursor,
+    size
+  }
+  
+  return await httpRequester.post('/v1/admin/api/influencerReviews/search', requestBody)
+}

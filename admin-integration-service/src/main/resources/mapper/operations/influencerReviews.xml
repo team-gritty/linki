@@ -50,4 +50,74 @@
 
     </select>
 
+
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllInfluencerReviewsWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewDTO">
+        SELECT
+        irv.influencerReviewId,
+        irv.influencer,
+        irv.writer,
+        irv.review,
+        irv.rating,
+        irv.reviewDate,
+        irv.visibility,
+        irv.contractId
+        FROM (
+        SELECT influencerReviewId
+        FROM influencer_reviews_view
+        <where>
+            <if test="cursor != null and cursor != ''">
+                influencerReviewId &gt; #{cursor}
+            </if>
+        </where>
+        ORDER BY influencerReviewId ASC
+        LIMIT #{size}
+        ) AS temp
+        JOIN influencer_reviews_view irv ON irv.influencerReviewId = temp.influencerReviewId
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchInfluencerReviewsWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewDTO">
+        SELECT
+        influencerReviewId,
+        influencer,
+        writer,
+        review,
+        rating,
+        reviewDate,
+        visibility,
+        contractId
+        FROM influencer_reviews_view
+        <where>
+            1 = 1
+
+            <choose>
+                <when test="searchType == 'influencer'">
+                    AND influencer LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'writer'">
+                    AND writer LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'contractId'">
+                    AND contractId LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND influencerReviewId &gt; #{cursor}
+            </if>
+        </where>
+        ORDER BY influencerReviewId ASC
+        LIMIT #{size}
+    </select>
+
 </mapper>
