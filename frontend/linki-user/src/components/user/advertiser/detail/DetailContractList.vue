@@ -1,41 +1,34 @@
 <template>
-  <div class="contract-list-layout">
-    <main class="contract-list-content">
-      <template v-if="!selectedContract">
-        <h1 class="content-title">계약서 목록</h1>
-        <div class="content-box">
-          <div v-if="contracts.length === 0" class="no-contracts">
-            <p>등록된 계약서가 없습니다.</p>
+  <div class="contract-list-content">
+    <h1 class="content-title">계약서 목록</h1>
+    <div class="content-box">
+      <div v-if="contracts.length === 0" class="no-contracts">
+        <p>등록된 계약서가 없습니다.</p>
+      </div>
+      <div v-else class="contracts-list">
+        <div v-for="contract in contracts" :key="contract.contractId" class="contract-item" @click="viewContractDetail(contract)" @mouseenter="hovered = contract.contractId" @mouseleave="hovered = null" :style="hovered === contract.contractId ? 'box-shadow: 0 4px 16px rgba(140,48,245,0.08); transform: translateY(-4px);' : ''">
+          <div class="contract-header">
+            <h3 class="contract-title">{{ contract.contractTitle }}</h3>
+            <span class="status-badge" :class="getStatusClass(contract.contractStatus)">
+              {{ getStatusText(contract.contractStatus) }}
+            </span>
           </div>
-          <div v-else class="contracts-list">
-            <div v-for="contract in contracts" :key="contract.contractId" class="contract-item" @click="selectContract(contract)" @mouseenter="hovered = contract.contractId" @mouseleave="hovered = null" :style="hovered === contract.contractId ? 'box-shadow: 0 4px 16px rgba(140,48,245,0.08); transform: translateY(-4px);' : ''">
-              <div class="contract-header">
-                <h3 class="contract-title">{{ contract.contractTitle }}</h3>
-                <span class="status-badge" :class="getStatusClass(contract.contractStatus)">
-                  {{ getStatusText(contract.contractStatus) }}
-                </span>
+          <div class="contract-details">
+            <div class="detail-group">
+              <div class="detail-item">
+                <span class="label">계약 기간</span>
+                <span class="value">{{ formatDate(contract.contractStartDate) }} ~ {{ formatDate(contract.contractEndDate) }}</span>
               </div>
-              <div class="contract-details">
-                <div class="detail-group">
-                  <div class="detail-item">
-                    <span class="label">계약 기간</span>
-                    <span class="value">{{ formatDate(contract.contractStartDate) }} ~ {{ formatDate(contract.contractEndDate) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">계약금액</span>
-                    <span class="value amount">{{ formatAmount(contract.contractAmount) }}원</span>
-                  </div>
-                </div>
-                <button class="detail-btn" @click.stop="selectContract(contract)">상세조회</button>
+              <div class="detail-item">
+                <span class="label">계약금액</span>
+                <span class="value amount">{{ formatAmount(contract.contractAmount) }}원</span>
               </div>
             </div>
+            <button class="detail-btn" @click.stop="viewContractDetail(contract)">상세조회</button>
           </div>
         </div>
-      </template>
-      <template v-else>
-        <DetailContract @back="goBackToList" />
-      </template>
-    </main>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,7 +36,6 @@
 import { ref, onMounted } from 'vue'
 import { contractApi } from '@/api/advertiser/advertiser-contract'
 import { useRoute, useRouter } from 'vue-router'
-import DetailContract from './DetailContract.vue'
 
 const props = defineProps({
   campaignId: {
@@ -56,36 +48,27 @@ const route = useRoute()
 const router = useRouter()
 const contracts = ref([])
 const hovered = ref(null)
-const selectedContract = ref(null)
 
 const fetchContracts = async () => {
   try {
     console.log('=== DetailContractList fetchContracts 시작 ===')
     console.log('campaignId:', props.campaignId)
-    console.log('route.query:', route.query)
     
     const response = await contractApi.getMyContracts(['ONGOING', 'PENDING_SIGN', 'COMPLETED'])
     console.log('getMyContracts response:', response)
-    console.log('response.data:', response.data)
-    console.log('response type:', typeof response)
-    console.log('response.data type:', typeof response.data)
-    console.log('Array.isArray(response.data):', Array.isArray(response.data))
-    console.log('Array.isArray(response):', Array.isArray(response))
     
     let contractList
     if (Array.isArray(response.data)) {
       contractList = response.data
-      console.log('Using response.data')
     } else if (Array.isArray(response)) {
       contractList = response
-      console.log('Using response directly')
     } else {
       contractList = []
-      console.log('No valid array found, using empty array')
     }
     
     console.log('contractList before filter:', contractList)
     
+    // 해당 캠페인의 계약서만 필터링
     contracts.value = contractList
       .filter(contract => contract.campaignId === props.campaignId)
       .map(contract => ({
@@ -99,48 +82,23 @@ const fetchContracts = async () => {
       }))
     
     console.log('contracts.value after filter:', contracts.value)
-    
-    // URL에서 contractId 파라미터가 있으면 해당 계약서를 선택
-    const contractId = route.query.contractId
-    console.log('contractId from URL:', contractId)
-    
-    if (contractId) {
-      const contract = contracts.value.find(c => c.contractId === contractId)
-      console.log('found contract:', contract)
-      
-      if (contract) {
-        selectedContract.value = contract
-        console.log('selectedContract set to:', contract)
-      } else {
-        console.warn('Contract not found in list')
-      }
-    }
   } catch (error) {
     console.error('Error in fetchContracts:', error)
     contracts.value = []
   }
 }
 
-function selectContract(contract) {
-  selectedContract.value = contract
-  // URL 업데이트 (히스토리에 추가하지 않고)
-  router.replace({
+// 계약서 상세보기로 이동 (DetailContract 컴포넌트 사용)
+function viewContractDetail(contract) {
+  console.log('Viewing contract detail:', contract.contractId)
+  
+  // URL 업데이트하여 DetailContract가 표시되도록
+  router.push({
     path: route.path,
     query: { 
       ...route.query,
+      tab: 'contract',  // 계약 탭으로 전환
       contractId: contract.contractId
-    }
-  })
-}
-
-function goBackToList() {
-  selectedContract.value = null
-  // URL에서 contractId 제거
-  router.replace({
-    path: route.path,
-    query: { 
-      ...route.query,
-      contractId: undefined
     }
   })
 }
@@ -156,16 +114,16 @@ function formatAmount(amount) {
 
 function getStatusClass(status) {
   return {
-    'status-pending': status === 'PENDING',
-    'status-active': status === 'ACTIVE',
+    'status-ongoing': status === 'ONGOING',
+    'status-pending-sign': status === 'PENDING_SIGN', 
     'status-completed': status === 'COMPLETED'
   }
 }
 
 function getStatusText(status) {
   const statusMap = {
-    'PENDING': '진행중',
-    'ACTIVE': '활성',
+    'ONGOING': '진행중',
+    'PENDING_SIGN': '서명 대기중',
     'COMPLETED': '완료'
   }
   return statusMap[status] || status
@@ -176,6 +134,64 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
 @import '@/assets/css/mypage.css';
+
+.detail-btn {
+  padding: 8px 24px;
+  background-color: #8B5CF6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.detail-btn:hover {
+  background-color: #7C3AED;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-ongoing {
+  background-color: #F3F0FF;
+  color: #7B21E8;
+}
+
+.status-pending-sign {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.status-completed {
+  background-color: #F3F4F6;
+  color: #4B5563;
+}
+
+.contract-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+  border: 1px solid #E5E7EB;
+  cursor: pointer;
+}
+
+.contract-item:hover {
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.amount {
+  color: #8B5CF6;
+  font-weight: 600;
+}
 </style> 
