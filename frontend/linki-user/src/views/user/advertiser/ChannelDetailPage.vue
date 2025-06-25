@@ -222,7 +222,8 @@ async function fetchSubscriberHistory() {
 onMounted(async () => {
   loading.value = true
   try {
-    console.log('onMounted 시작 - id:', id.value)
+    console.log('=== ChannelDetailPage onMounted 시작 ===')
+    console.log('채널 ID:', id.value)
     
     // 먼저 id가 존재하는지 확인
     if (!id.value) {
@@ -230,16 +231,20 @@ onMounted(async () => {
     }
     
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
-    const channelsData = await channelApi.getAllChannels()
+    console.log('전체 채널 목록 조회 시작...')
+    const channelsData = await channelApi.getAllChannels(0, 50) // limit을 50으로 증가
     console.log('Raw API response:', channelsData)
     
     // API 응답이 페이지네이션 구조인지 확인
     if (channelsData && channelsData.channels) {
       channels.value = channelsData.channels
-      console.log('Using channels from pagination response:', channels.value)
-    } else {
+      console.log('페이지네이션 응답에서 채널 목록 추출:', channels.value.length, '개')
+    } else if (Array.isArray(channelsData)) {
       channels.value = channelsData
-      console.log('Using direct channels response:', channels.value)
+      console.log('직접 배열 응답 사용:', channels.value.length, '개')
+    } else {
+      channels.value = []
+      console.warn('예상하지 못한 응답 구조:', channelsData)
     }
     
     // 2. 채널 Id로 해당 채널 데이터 가져오기
@@ -247,11 +252,62 @@ onMounted(async () => {
     channel.value = await channelApi.getChannelById(id.value)
     console.log('Channel detail data:', channel.value)
     
-    // 3. 리뷰 통계도 진입시 바로 fetch
+    // 3. 현재 채널이 전체 목록에 있는지 확인하고 없으면 추가
+    const currentChannelExists = channels.value.some(c => 
+      String(c.channelId) === String(id.value) || String(c.id) === String(id.value)
+    )
+    
+    if (!currentChannelExists && channel.value) {
+      console.log('현재 채널이 전체 목록에 없어서 추가합니다.')
+      // 현재 채널을 차트용 데이터 형식으로 변환하여 추가
+      const currentChannelForChart = {
+        channelId: channel.value.channelId || id.value,
+        id: channel.value.channelId || id.value,
+        channelName: channel.value.name,
+        avgViewCount: channel.value.avgViewCount || 0,
+        avgLikeCount: channel.value.avgLikeCount || 0,
+        avgCommentCount: channel.value.avgCommentCount || 0,
+        subscriberCount: channel.value.subscribers || 0,
+        category: channel.value.category,
+        description: channel.value.description
+      }
+      
+      channels.value = [currentChannelForChart, ...channels.value]
+      console.log('현재 채널 추가 완료. 총 채널 수:', channels.value.length)
+    } else {
+      console.log('현재 채널이 전체 목록에 이미 존재합니다.')
+    }
+    
+    // 첫 번째 채널의 구조 확인
+    if (channels.value.length > 0) {
+      console.log('첫 번째 채널 데이터 구조:', channels.value[0])
+      console.log('사용 가능한 필드들:', Object.keys(channels.value[0]))
+    }
+    
+    // 현재 채널이 목록에 있는지 최종 확인
+    const foundChannel = channels.value.find(c => 
+      String(c.channelId) === String(id.value) || String(c.id) === String(id.value)
+    )
+    console.log('현재 채널 검색 결과:', foundChannel ? '찾음' : '못찾음')
+    if (foundChannel) {
+      console.log('찾은 채널 데이터:', foundChannel)
+    }
+    
+    // 4. 리뷰 통계도 진입시 바로 fetch
+    console.log('리뷰 통계 조회 시작...')
     await fetchReviewStatsOnEnter()
     
-    // 4. 구독자 히스토리 데이터 가져오기
+    // 5. 구독자 히스토리 데이터 가져오기
+    console.log('구독자 히스토리 조회 시작...')
     await fetchSubscriberHistory()
+    
+    // 6. 차트 렌더링 확인
+    console.log('=== 차트 렌더링 조건 확인 ===')
+    console.log('id 존재:', !!id.value)
+    console.log('channels 길이:', channels.value.length)
+    console.log('차트 렌더링 조건:', id.value && channels.value.length > 0)
+    console.log('=== ChannelDetailPage onMounted 완료 ===')
+    
   } catch (err) {
     console.error('Error in onMounted:', err)
     error.value = err.message

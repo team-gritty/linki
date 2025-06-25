@@ -1,6 +1,10 @@
 <template>
   <div>
+    <div v-if="!chartData.hasValidData" class="no-data-message">
+      차트 데이터를 로딩 중이거나 데이터가 없습니다.
+    </div>
     <apexchart
+      v-else
       type="bar"
       height="320"
       :options="chartOptions"
@@ -26,10 +30,9 @@ watchEffect(() => {
 
 // 내 채널 - 평균 댓글 비율 계산
 const myChannelCommentRatio = computed(() => {
-  // 내 채널 데이터 찾기. props.channels, props.channelId바뀌면 자동으로 다시 계산됨 - channelId 필드명으로 수정
   console.log('=== CommentRatioBarChart 디버깅 ===')
-  console.log('찾아야 하는 채널 아이디 :', props.channelId)
-  console.log('채널 목록은:', props.channels?.length || 0, '개 채널')
+  console.log('찾아야 하는 채널 ID:', props.channelId)
+  console.log('채널 목록 길이:', props.channels?.length || 0)
   
   // 기본값 체크
   if (!props.channelId || !props.channels || props.channels.length === 0) {
@@ -37,49 +40,142 @@ const myChannelCommentRatio = computed(() => {
     return 0
   }
   
-  // 다양한 방식으로 채널 검색 시도
-  let my = props.channels.find(c => String(c.channelId) === String(props.channelId))
-  
-  if (!my) {
-    // channelId 대신 id 필드로 시도
-    my = props.channels.find(c => String(c.id) === String(props.channelId))
+  // 첫 번째 채널의 구조 출력
+  if (props.channels.length > 0) {
+    console.log('첫 번째 채널 객체 구조:', props.channels[0])
+    console.log('사용 가능한 필드들:', Object.keys(props.channels[0]))
   }
   
-  if (!my) {
-    // 다른 가능한 필드명들로 시도
-    console.log('첫 번째 채널 객체 구조:', props.channels[0])
-    console.warn('내채널 찾지 못함. 0 반환하기---')
+  // 다양한 방식으로 채널 검색 시도
+  let myChannel = null
+  
+  // 1. channelId 필드로 검색
+  myChannel = props.channels.find(c => String(c.channelId) === String(props.channelId))
+  if (myChannel) {
+    console.log('channelId 필드로 채널 찾음:', myChannel)
+  }
+  
+  // 2. id 필드로 검색
+  if (!myChannel) {
+    myChannel = props.channels.find(c => String(c.id) === String(props.channelId))
+    if (myChannel) {
+      console.log('id 필드로 채널 찾음:', myChannel)
+    }
+  }
+  
+  // 3. 다른 가능한 ID 필드들로 검색
+  if (!myChannel) {
+    const possibleIdFields = ['channel_id', 'Channel_id', 'CHANNEL_ID']
+    for (const field of possibleIdFields) {
+      myChannel = props.channels.find(c => c[field] && String(c[field]) === String(props.channelId))
+      if (myChannel) {
+        console.log(`${field} 필드로 채널 찾음:`, myChannel)
+        break
+      }
+    }
+  }
+  
+  if (!myChannel) {
+    console.warn('채널을 찾지 못했습니다.')
+    console.log('전체 채널 ID 목록:', props.channels.map(c => ({
+      channelId: c.channelId,
+      id: c.id,
+      name: c.channelName || c.name
+    })))
     return 0
   }
   
-  console.log('내채널 찾음:', my)
+  // 댓글 및 조회수 필드 확인
+  const commentFields = ['avgCommentCount', 'avgComments', 'commentCount', 'comments', 'avg_comment_count']
+  const viewFields = ['avgViewCount', 'avgViews', 'viewCount', 'views', 'avg_view_count']
   
-  if (my) { // 내채널을 찾았다면 
-    //  조회수가 0보다 크면 댓글 수 /조회수 계산
-    // 0보다 작으면 0 바로 반환 
-    console.log('채널 평균 조회수:', my.avgViewCount)
-    console.log('채널 평균 댓글 수 :', my.avgCommentCount)
-    
-    const ratio = my.avgViewCount > 0 ? my.avgCommentCount / my.avgViewCount : 0
-    console.log('댓글 비율 계산 완료:', ratio)
-    return ratio
+  let commentCount = 0
+  let viewCount = 0
+  
+  // 댓글 수 찾기
+  for (const field of commentFields) {
+    if (myChannel[field] !== undefined && myChannel[field] !== null) {
+      commentCount = Number(myChannel[field]) || 0
+      console.log(`댓글 수 찾음 (${field}):`, commentCount)
+      break
+    }
   }
   
-  return 0
+  // 조회수 찾기
+  for (const field of viewFields) {
+    if (myChannel[field] !== undefined && myChannel[field] !== null) {
+      viewCount = Number(myChannel[field]) || 0
+      console.log(`조회수 찾음 (${field}):`, viewCount)
+      break
+    }
+  }
+  
+  console.log('최종 댓글 수:', commentCount)
+  console.log('최종 조회수:', viewCount)
+  
+  const ratio = viewCount > 0 ? commentCount / viewCount : 0
+  console.log('계산된 댓글 비율:', ratio)
+  console.log('=== CommentRatioBarChart 디버깅 끝 ===')
+  
+  return ratio
 })
 
 // 전체 채널 - 평균 댓글 비율 계산
 const overallCommentRatio = computed(() => {
-    // props.channels가 undefined이거나 null 일때 []빈배열 사용 - 데이터가 로딩중일때 에러 방지 
-  const validChannels = (props.channels || []).filter(c => c.avgViewCount > 0)
-  if (validChannels.length === 0) return 0
-  // 댓글 수 합계 계산
-  const totalComment = validChannels.reduce((sum, c) => sum + c.avgCommentCount, 0)
-  // 조회수 합계 계산
-  const totalView = validChannels.reduce((sum, c) => sum + c.avgViewCount, 0)
-  // 조회수가 0보다 크면 댓글 수 /조회수 계산
-  // 0보다 작으면 0 바로 반환 
-  return totalView > 0 ? totalComment / totalView : 0
+  console.log('=== 전체 채널 댓글 비율 계산 ===')
+  // props.channels가 undefined이거나 null 일때 []빈배열 사용 - 데이터가 로딩중일때 에러 방지 
+  const allChannels = props.channels || []
+  console.log('전체 채널 수:', allChannels.length)
+  
+  if (allChannels.length === 0) {
+    console.log('전체 채널 데이터 없음')
+    return 0
+  }
+
+  // 댓글 및 조회수 필드 확인
+  const commentFields = ['avgCommentCount', 'avgComments', 'commentCount', 'comments', 'avg_comment_count']
+  const viewFields = ['avgViewCount', 'avgViews', 'viewCount', 'views', 'avg_view_count']
+  
+  let totalComments = 0
+  let totalViews = 0
+  let validChannelCount = 0
+  
+  allChannels.forEach((channel, index) => {
+    let channelComments = 0
+    let channelViews = 0
+    
+    // 댓글 수 찾기
+    for (const field of commentFields) {
+      if (channel[field] !== undefined && channel[field] !== null) {
+        channelComments = Number(channel[field]) || 0
+        break
+      }
+    }
+    
+    // 조회수 찾기
+    for (const field of viewFields) {
+      if (channel[field] !== undefined && channel[field] !== null) {
+        channelViews = Number(channel[field]) || 0
+        break
+      }
+    }
+    
+    if (channelViews > 0) {
+      totalComments += channelComments
+      totalViews += channelViews
+      validChannelCount++
+    }
+  })
+  
+  console.log('유효한 채널 수:', validChannelCount)
+  console.log('총 댓글 수:', totalComments)
+  console.log('총 조회수:', totalViews)
+  
+  const ratio = totalViews > 0 ? totalComments / totalViews : 0
+  console.log('전체 평균 댓글 비율:', ratio)
+  console.log('=== 전체 채널 댓글 비율 계산 끝 ===')
+  
+  return ratio
 })
 
 // 차트를 위한 데이터 계산
@@ -124,6 +220,27 @@ const chartOptions = computed(() => ({ // computed: 내부 값 바뀌면 자동�
 }))
 
 const chartKey = computed(() => `${props.channelId}-${myChannelCommentRatio.value}-${overallCommentRatio.value}`)
+
+// 차트 데이터 유효성 검증
+const chartData = computed(() => {
+  const hasChannels = props.channels && props.channels.length > 0
+  const hasChannelId = props.channelId
+  const hasValidData = hasChannels && hasChannelId
+  
+  console.log('CommentRatioBarChart 유효성 검증:', {
+    hasChannels,
+    hasChannelId,
+    hasValidData,
+    myRatio: myChannelCommentRatio.value,
+    overallRatio: overallCommentRatio.value
+  })
+  
+  return {
+    hasValidData,
+    hasChannels,
+    hasChannelId
+  }
+})
 </script>
 
 <script>
@@ -132,4 +249,21 @@ export default {
     apexchart: VueApexCharts
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 320px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+}
+</style> 

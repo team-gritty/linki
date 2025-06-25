@@ -1,6 +1,16 @@
 <template>
   <div>
-    <apexchart type="bar" height="320" :options="chartOptions" :series="series" :key="chartKey" />
+    <div v-if="!chartData.hasValidData" class="no-data-message">
+      차트 데이터를 로딩 중이거나 데이터가 없습니다.
+    </div>
+    <apexchart 
+      v-else
+      type="bar" 
+      height="320" 
+      :options="chartOptions" 
+      :series="series" 
+      :key="chartKey" 
+    />
   </div>
 </template>
 
@@ -32,10 +42,9 @@ watchEffect(() => {
 
 // 내 채널의 좋아요/조회수 비율을 계산하는 computed
 const myChannelLikeRatio = computed(() => {
-   // 내 채널 찾기 - channelId 필드명으로 수정
-  console.log('=== LikeRatioBarChart 디버그 ===')
-  console.log('내채널 찾는중:', props.channelId)
-  console.log('채널 목록:', props.channels?.length || 0, '개 채널')
+  console.log('=== LikeRatioBarChart 디버깅 ===')
+  console.log('찾아야 하는 채널 ID:', props.channelId)
+  console.log('채널 목록 길이:', props.channels?.length || 0)
   
   // 기본값 체크
   if (!props.channelId || !props.channels || props.channels.length === 0) {
@@ -43,46 +52,141 @@ const myChannelLikeRatio = computed(() => {
     return 0
   }
   
-  // 다양한 방식으로 채널 검색 시도
-  let my = props.channels.find(c => String(c.channelId) === String(props.channelId))
-  
-  if (!my) {
-    // channelId 대신 id 필드로 시도
-    my = props.channels.find(c => String(c.id) === String(props.channelId))
+  // 첫 번째 채널의 구조 출력
+  if (props.channels.length > 0) {
+    console.log('첫 번째 채널 객체 구조:', props.channels[0])
+    console.log('사용 가능한 필드들:', Object.keys(props.channels[0]))
   }
   
-  if (!my) {
-    // 다른 가능한 필드명들로 시도
-    console.log('첫 번째 채널 객체 구조:', props.channels[0])
-    console.warn('내채널 찾지 못함. 0 반환하기---')
+  // 다양한 방식으로 채널 검색 시도
+  let myChannel = null
+  
+  // 1. channelId 필드로 검색
+  myChannel = props.channels.find(c => String(c.channelId) === String(props.channelId))
+  if (myChannel) {
+    console.log('channelId 필드로 채널 찾음:', myChannel)
+  }
+  
+  // 2. id 필드로 검색
+  if (!myChannel) {
+    myChannel = props.channels.find(c => String(c.id) === String(props.channelId))
+    if (myChannel) {
+      console.log('id 필드로 채널 찾음:', myChannel)
+    }
+  }
+  
+  // 3. 다른 가능한 ID 필드들로 검색
+  if (!myChannel) {
+    const possibleIdFields = ['channel_id', 'Channel_id', 'CHANNEL_ID']
+    for (const field of possibleIdFields) {
+      myChannel = props.channels.find(c => c[field] && String(c[field]) === String(props.channelId))
+      if (myChannel) {
+        console.log(`${field} 필드로 채널 찾음:`, myChannel)
+        break
+      }
+    }
+  }
+  
+  if (!myChannel) {
+    console.warn('채널을 찾지 못했습니다.')
+    console.log('전체 채널 ID 목록:', props.channels.map(c => ({
+      channelId: c.channelId,
+      id: c.id,
+      name: c.channelName || c.name
+    })))
     return 0
   }
   
-  console.log('내채널 찾음:', my)
+  // 좋아요 및 조회수 필드 확인
+  const likeFields = ['avgLikeCount', 'avgLikes', 'likeCount', 'likes', 'avg_like_count']
+  const viewFields = ['avgViewCount', 'avgViews', 'viewCount', 'views', 'avg_view_count']
   
-  if (my) {
-    // 내 채널의 비율 계산 (조회수가 0 초과일 때만)
-    console.log('채널 평균 조회수', my.avgViewCount)
-    console.log('채널 평균 좋아요 수:', my.avgLikeCount)
-    
-    const ratio = my.avgViewCount > 0 ? my.avgLikeCount / my.avgViewCount : 0
-    console.log('계산 된 좋아요 비율:', ratio)
-    return ratio
+  let likeCount = 0
+  let viewCount = 0
+  
+  // 좋아요 수 찾기
+  for (const field of likeFields) {
+    if (myChannel[field] !== undefined && myChannel[field] !== null) {
+      likeCount = Number(myChannel[field]) || 0
+      console.log(`좋아요 수 찾음 (${field}):`, likeCount)
+      break
+    }
   }
-
-  return 0
+  
+  // 조회수 찾기
+  for (const field of viewFields) {
+    if (myChannel[field] !== undefined && myChannel[field] !== null) {
+      viewCount = Number(myChannel[field]) || 0
+      console.log(`조회수 찾음 (${field}):`, viewCount)
+      break
+    }
+  }
+  
+  console.log('최종 좋아요 수:', likeCount)
+  console.log('최종 조회수:', viewCount)
+  
+  const ratio = viewCount > 0 ? likeCount / viewCount : 0
+  console.log('계산된 좋아요 비율:', ratio)
+  console.log('=== LikeRatioBarChart 디버깅 끝 ===')
+  
+  return ratio
 })
 
 // 전체 채널의 평균 좋아요/조회수 비율 계산
 const overallLikeRatio = computed(() => {
-  // 조회수가 0 초과인 채널만 필터링
-  const validChannels = (props.channels || []).filter(c => c.avgViewCount > 0)
-  if (validChannels.length === 0) return 0
-  // 총 좋아요/조회수 합계
-  const totalLike = validChannels.reduce((sum, c) => sum + c.avgLikeCount, 0)
-  const totalView = validChannels.reduce((sum, c) => sum + c.avgViewCount, 0)
-   // 전체 평균 비율 계산
-  return totalView > 0 ? totalLike / totalView : 0
+  console.log('=== 전체 채널 좋아요 비율 계산 ===')
+  const allChannels = props.channels || []
+  console.log('전체 채널 수:', allChannels.length)
+  
+  if (allChannels.length === 0) {
+    console.log('전체 채널 데이터 없음')
+    return 0
+  }
+
+  // 좋아요 및 조회수 필드 확인
+  const likeFields = ['avgLikeCount', 'avgLikes', 'likeCount', 'likes', 'avg_like_count']
+  const viewFields = ['avgViewCount', 'avgViews', 'viewCount', 'views', 'avg_view_count']
+  
+  let totalLikes = 0
+  let totalViews = 0
+  let validChannelCount = 0
+  
+  allChannels.forEach((channel, index) => {
+    let channelLikes = 0
+    let channelViews = 0
+    
+    // 좋아요 수 찾기
+    for (const field of likeFields) {
+      if (channel[field] !== undefined && channel[field] !== null) {
+        channelLikes = Number(channel[field]) || 0
+        break
+      }
+    }
+    
+    // 조회수 찾기
+    for (const field of viewFields) {
+      if (channel[field] !== undefined && channel[field] !== null) {
+        channelViews = Number(channel[field]) || 0
+        break
+      }
+    }
+    
+    if (channelViews > 0) {
+      totalLikes += channelLikes
+      totalViews += channelViews
+      validChannelCount++
+    }
+  })
+  
+  console.log('유효한 채널 수:', validChannelCount)
+  console.log('총 좋아요 수:', totalLikes)
+  console.log('총 조회수:', totalViews)
+  
+  const ratio = totalViews > 0 ? totalLikes / totalViews : 0
+  console.log('전체 평균 좋아요 비율:', ratio)
+  console.log('=== 전체 채널 좋아요 비율 계산 끝 ===')
+  
+  return ratio
 })
 
 // 차트 series 데이터 (항상 최신 computed 값 반영)
@@ -115,6 +219,19 @@ const chartOptions = computed(() => ({
     }
   }
 }))
+
+// 차트 데이터 유효성 검증
+const chartData = computed(() => {
+  const hasChannels = props.channels && props.channels.length > 0
+  const hasChannelId = props.channelId
+  const hasValidData = hasChannels && hasChannelId && (myChannelLikeRatio.value > 0 || overallLikeRatio.value > 0)
+  
+  return {
+    hasValidData,
+    hasChannels,
+    hasChannelId
+  }
+})
 </script>
 
 <script>
@@ -124,4 +241,21 @@ export default {
     apexchart: VueApexCharts
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 320px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+}
+</style> 
