@@ -4,7 +4,6 @@ import com.linki.admin_integration_service.domain.user.dto.GeneralUserKeysetResp
 import com.linki.admin_integration_service.domain.user.dto.GeneralUserSearchRequestDTO;
 import com.linki.admin_integration_service.domain.user.service.GeneralUserService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class GeneralUserController {
 
     private final GeneralUserService generalUserService;
-    private final ModelMapper modelMapper;
 
     /**
      * cursor 정규화: "null" 문자열을 실제 null로 변환
