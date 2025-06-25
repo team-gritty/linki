@@ -73,21 +73,18 @@ const campaignApi = {
     }
   },
 
-  // 마이페이지 - 캠페인 등록
-  registerCampaign: async (campaignData) => {
+  // 마이페이지 - 캠페인 등록 (이미지 파일 포함)
+  registerCampaignWithImage: async (formData) => {
     try {
-      console.log('API: 캠페인 등록 시작:', campaignData)
-      const response = await httpClient.post('/v1/api/advertiser/mypage/campaigns', campaignData)
-      console.log('API: 캠페인 등록 한 후 응답:', response)
+      console.log('API: 캠페인 등록 시작 (이미지 파일 포함)')
+      const response = await httpClient.post('/v1/api/advertiser/mypage/campaigns', formData)
+      console.log('API: 캠페인 등록 완료:', response)
       return response.data
     } catch (error) {
-      console.error('Error registering campaign:', error)
+      console.error('Error registering campaign with image:', error)
       throw error
     }
   },
-
- 
- 
 
   // 캠페인 수정
   updateCampaign: async (campaignId, campaignData) => {

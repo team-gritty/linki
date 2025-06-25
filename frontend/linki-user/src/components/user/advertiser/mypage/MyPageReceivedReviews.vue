@@ -6,23 +6,25 @@
         <p>받은 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.influencerReviewId" class="review-item">
+        <div v-for="review in reviews" :key="review.reviewId" class="review-item">
           <div class="review-header">
             <div class="review-info">
-              <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="campaign-name">캠페인: {{ review.campaignName }}</span>
-              <span class="review-date">{{ formatDate(review.influencerReviewCreatedAt) }}</span>
+              <span class="contract-title">{{ review.contractTitle }}</span>
+              <span class="review-date">작성 날짜: {{ formatDate(review.reviewCreatedAt) }}</span>
+              <span class="contract-period">
+                계약 기간: {{ formatDate(review.contractStartDate) }} ~ {{ formatDate(review.contractEndDate) }}
+              </span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.influencerReviewScore }}</span>
+                <span class="score-value">{{ review.reviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.influencerReviewScore) }"
+                    :class="{ 'filled': index <= Math.round(review.reviewScore) }"
                   >
                     ★
                   </span>
@@ -31,7 +33,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.influencerReviewComment }}</p>
+            <p class="review-comment">{{ review.reviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -45,8 +47,8 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import { reviewApi } from '@/api/review';
+import { ref, onMounted, nextTick } from 'vue';
+import { reviewApi } from '@/api/advertiser/advertiser-review';
 
 export default {
   name: 'MyPageReceivedReviews',
@@ -58,9 +60,20 @@ export default {
       try {
         console.log('Fetching received reviews...');
         // 인플루언서가 받은 리뷰 조회 (백엔드 API)
-        const response = await reviewApi.getAdvertiserReviews();
-        reviews.value = Array.isArray(response) ? response : [];
-        console.log('Fetched received reviews:', reviews.value);
+        const response = await reviewApi.getReceivedReviews();
+
+        // response.data가 있는지 확인
+        const data = response.data || response;
+
+        // 반응성을 위해 배열을 새로 생성
+        const reviewsArray = Array.isArray(data) ? [...data] : [];
+
+
+        // Vue의 반응성을 위해 nextTick 사용
+        reviews.value = reviewsArray;
+        await nextTick();
+        console.log('Final reviews.value after nextTick:', reviews.value);
+        
       } catch (error) {
         console.error('Error fetching received reviews:', error);
         reviews.value = [];
@@ -89,6 +102,8 @@ export default {
 <style scoped>
 .received-reviews-content {
   padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .content-title {
@@ -101,7 +116,7 @@ export default {
 .content-box {
   background: #fff;
   border-radius: 12px;
-  padding: 24px;
+  padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -114,15 +129,16 @@ export default {
 .reviews-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .review-item {
-  padding: 20px;
+  padding: 24px;
   background: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
   transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
 }
 
 .review-item:hover {
@@ -131,34 +147,44 @@ export default {
 }
 
 .review-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
 }
 
 .review-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  color: #666;
-  font-size: 14px;
+  gap: 8px;
 }
 
-.contract-id {
-  font-weight: 500;
+.contract-title {
+  font-size: 15px;
   color: #1a1a1a;
+  font-weight: 500;
 }
 
-.campaign-name {
-  color: #6c5ce7;
-  font-weight: 500;
+.contract-period {
+  font-size: 13px;
+  color: #999;
+}
+
+.review-date {
+  font-size: 14px;
+  color: #666;
 }
 
 .review-score {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
 }
 
 .score-label {
@@ -194,24 +220,28 @@ export default {
 }
 
 .review-content {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  padding: 0 8px;
 }
 
 .review-comment {
   color: #1a1a1a;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 .review-visibility {
   display: flex;
   justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
 }
 
 .visibility-badge {
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
 }
 

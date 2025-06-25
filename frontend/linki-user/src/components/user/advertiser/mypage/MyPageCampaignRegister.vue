@@ -136,10 +136,16 @@ const isFormValid = computed(() => {
   );
 });
 
+// 파일 변경 처리를 위한 변수 추가
+const selectedFile = ref(null)
+
 function onFileChange(e) {
   const file = e.target.files[0]
   if (file) {
     fileName.value = file.name
+    selectedFile.value = file // 실제 파일 객체 저장
+    
+    // 미리보기를 위한 Base64 변환 (서버 전송용이 아님)
     const reader = new FileReader()
     reader.onload = (ev) => {
       imageUrl.value = ev.target.result
@@ -148,6 +154,7 @@ function onFileChange(e) {
   } else {
     fileName.value = ''
     imageUrl.value = ''
+    selectedFile.value = null
   }
 }
 
@@ -187,24 +194,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentClick)
 })
 
-// 프론트엔드 카테고리를 백엔드 enum으로 매핑하는 함수
-const mapCategoryToEnum = (category) => {
-  const categoryMap = {
-    '뷰티': 'BEAUTY',
-    '패션': 'FASHION', 
-    '스포츠': 'SPORTS',
-    '음식': 'FOOD',
-    '브이로그': 'VLOG',
-    '여행': 'TRAVEL',
-    '음악': 'MUSIC',
-    '교육': 'EDUCATION',
-    '동물': 'ANIMAL',
-    '전자제품': 'ELECTRONICS',
-    '엔터테인먼트': 'ENTERTAINMENT'
-  }
-  return categoryMap[category] || category
-}
-
 /**
  * 필수 항목 입력 후 캠페인 등록 폼 제출
  */
@@ -225,16 +214,29 @@ async function submitForm() {
     campaignName: productName.value,
     campaignDesc: productDesc.value,
     campaignCondition: productCondition.value || '',
-    campaignImg: imageUrl.value || 'https://via.placeholder.com/80x60?text=이미지',
+    campaignImg: '', // ObjectStorage에서 URL 생성되므로 빈 값
     campaignDeadline: deadlineDate.toISOString(),
     campaignPublishStatus: selectedPublishStatus.value,
-    campaignCategory: mapCategoryToEnum(selectedCategory.value)
+    campaignCategory: selectedCategory.value
   };
   
   console.log('전송할 캠페인 데이터:', campaignData);
   
   try {
-    await campaignApi.registerCampaign(campaignData);
+    // FormData 생성
+    const formData = new FormData();
+    
+    // 이미지 파일 추가 (있는 경우)
+    if (selectedFile.value) {
+      formData.append('campaignImage', selectedFile.value);
+    }
+    
+    // 캠페인 데이터를 JSON 문자열로 변환하여 추가
+    formData.append('campaignData', JSON.stringify(campaignData));
+    
+    // API 호출 (multipart/form-data)
+    await campaignApi.registerCampaignWithImage(formData);
+    
     // 폼 초기화
     productName.value = '';
     productCondition.value = '';
@@ -243,8 +245,10 @@ async function submitForm() {
     adEndDate.value = '';
     imageUrl.value = '';
     fileName.value = '';
+    selectedFile.value = null;
     selectedCategory.value = '';
     selectedPublishStatus.value = 'ACTIVE';
+    
     alert('등록이 완료되었습니다!');
   } catch (e) {
     console.error('캠페인 등록 실패:', e);
