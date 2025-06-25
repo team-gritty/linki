@@ -33,8 +33,9 @@ public class ChannelController {
         private final SubscriberHistoryService subscriberHistoryService;
 
         /**
-         * 채널 조회 (검색 필터 포함)
+         * 채널 조회 (검색 필터 포함) - LinkiScore 기준 정렬
          * 키워드, 카테고리, 구독자 수, 평균 조회수 등의 필터를 적용하여 채널을 검색
+         * HomeRecommendationController와 동일한 LinkiScore 로직을 사용하여 정렬
          * 
          * @param keyword         검색 키워드 (선택)
          * @param category        카테고리 (선택)
@@ -44,7 +45,7 @@ public class ChannelController {
          * @param maxAvgViewCount 최대 평균 조회수 (기본값: Long.MAX_VALUE)
          * @param page            페이지 번호 (기본값: 0)
          * @param limit           페이지 크기 (기본값: 10)
-         * @return 필터링된 채널 목록과 페이지네이션 정보
+         * @return LinkiScore 기준으로 정렬된 채널 목록과 페이지네이션 정보
          */
         @GetMapping("/nonuser/channels")
         public ResponseEntity<ChannelPageResponse> getChannels(
@@ -57,7 +58,7 @@ public class ChannelController {
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int limit) {
 
-                log.info("채널 검색 요청: keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
+                log.info("채널 검색 요청 (LinkiScore 기준): keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
                                 "minAvgViewCount={}, maxAvgViewCount={}, page={}, limit={}",
                                 keyword, category, minSubscribers, maxSubscribers,
                                 minAvgViewCount, maxAvgViewCount, page, limit);
@@ -74,7 +75,55 @@ public class ChannelController {
                                 .limit(limit)
                                 .build();
 
-                // Service 호출하여 채널 검색
+                // Service 호출하여 LinkiScore 기반 채널 검색 (기본 정렬 방식 변경)
+                ChannelPageResponse channelPageResponse = channelService.searchChannelsByLinkiScore(request);
+
+                return ResponseEntity.ok(channelPageResponse);
+        }
+
+        /**
+         * 원본 테이블 순서로 채널 조회 (검색 필터 포함)
+         * LinkiScore 정렬이 아닌 원본 데이터베이스 테이블 순서로 조회
+         * 
+         * @param keyword         검색 키워드 (선택)
+         * @param category        카테고리 (선택)
+         * @param minSubscribers  최소 구독자 수 (기본값: 0)
+         * @param maxSubscribers  최대 구독자 수 (기본값: Long.MAX_VALUE)
+         * @param minAvgViewCount 최소 평균 조회수 (기본값: 0)
+         * @param maxAvgViewCount 최대 평균 조회수 (기본값: Long.MAX_VALUE)
+         * @param page            페이지 번호 (기본값: 0)
+         * @param limit           페이지 크기 (기본값: 10)
+         * @return 원본 테이블 순서의 채널 목록과 페이지네이션 정보
+         */
+        @GetMapping("/nonuser/channels/original")
+        public ResponseEntity<ChannelPageResponse> getChannelsOriginal(
+                        @RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) String category,
+                        @RequestParam(defaultValue = "0") long minSubscribers,
+                        @RequestParam(defaultValue = "9223372036854775807") long maxSubscribers,
+                        @RequestParam(defaultValue = "0") long minAvgViewCount,
+                        @RequestParam(defaultValue = "9223372036854775807") long maxAvgViewCount,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+
+                log.info("채널 검색 요청 (원본 순서): keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
+                                "minAvgViewCount={}, maxAvgViewCount={}, page={}, limit={}",
+                                keyword, category, minSubscribers, maxSubscribers,
+                                minAvgViewCount, maxAvgViewCount, page, limit);
+
+                // Request DTO 생성
+                ChannelSearchRequest request = ChannelSearchRequest.builder()
+                                .keyword(keyword)
+                                .category(category)
+                                .minSubscribers(minSubscribers)
+                                .maxSubscribers(maxSubscribers)
+                                .minAvgViewCount(minAvgViewCount)
+                                .maxAvgViewCount(maxAvgViewCount)
+                                .page(page)
+                                .limit(limit)
+                                .build();
+
+                // Service 호출하여 원본 순서 채널 검색
                 ChannelPageResponse channelPageResponse = channelService.searchChannels(request);
 
                 return ResponseEntity.ok(channelPageResponse);
@@ -125,7 +174,6 @@ public class ChannelController {
 
                 return ResponseEntity.ok(historyResponseList);
         }
-
 
         /**
          * 수동 구독자 수 업데이트 테스트 (스케줄러 테스트용)

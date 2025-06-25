@@ -85,6 +85,58 @@ public class ChannelService {
         }
 
         /**
+         * LinkiScore 기반으로 정렬된 채널 검색
+         * HomeRecommendationController와 동일한 로직으로 LinkiScore를 기준으로 정렬하여 반환
+         * 
+         * @param request 검색 조건
+         * @return LinkiScore 기준으로 정렬된 채널 목록과 페이지네이션 정보
+         */
+        public ChannelPageResponse searchChannelsByLinkiScore(ChannelSearchRequest request) {
+                log.info("LinkiScore 기반 채널 검색 서비스 호출: keyword={}, category={}, page={}, limit={}",
+                                request.getKeyword(), request.getCategory(), request.getPage(), request.getLimit());
+
+                // JPA를 사용하여 데이터베이스에서 LinkiScore 기반으로 채널 검색
+                Page<Channel> channelPage = channelRepository.searchChannelsByLinkiScore(
+                                request.getCategory(),
+                                request.getKeyword(),
+                                request.getMinSubscribers(),
+                                request.getMaxSubscribers(),
+                                // minAvgViewCount, maxAvgViewCount는 viewCount로 매핑
+                                request.getMinAvgViewCount(),
+                                request.getMaxAvgViewCount(),
+                                PageRequest.of(request.getPage(), request.getLimit()));
+
+                // 엔티티를 DTO로 변환
+                List<ChannelListResponse> channels = channelPage.getContent().stream()
+                                .map(this::convertToDto)
+                                .collect(Collectors.toList());
+
+                // 페이지네이션 정보 생성
+                ChannelPageResponse.PageInfo pageInfo = ChannelPageResponse.PageInfo.builder()
+                                .currentPage(channelPage.getNumber())
+                                .pageSize(channelPage.getSize())
+                                .totalElements(channelPage.getTotalElements())
+                                .totalPages(channelPage.getTotalPages())
+                                .first(channelPage.isFirst())
+                                .last(channelPage.isLast())
+                                .hasNext(channelPage.hasNext())
+                                .hasPrevious(channelPage.hasPrevious())
+                                .build();
+
+                log.info("LinkiScore 기반 채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
+                                channelPage.getTotalElements(),
+                                channelPage.getNumber() + 1,
+                                channelPage.getNumber() * channelPage.getSize() + 1,
+                                Math.min((channelPage.getNumber() + 1) * channelPage.getSize(),
+                                                channelPage.getTotalElements()));
+
+                return ChannelPageResponse.builder()
+                                .channels(channels)
+                                .pageInfo(pageInfo)
+                                .build();
+        }
+
+        /**
          * Channel 엔티티를 ChannelListResponse DTO로 변환
          */
         private ChannelListResponse convertToDto(Channel channel) {

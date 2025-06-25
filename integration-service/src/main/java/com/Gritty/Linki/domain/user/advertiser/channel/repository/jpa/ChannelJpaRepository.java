@@ -37,6 +37,39 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
                         Pageable pageable);
 
         /**
+         * LinkiScore 기반으로 정렬된 채널 검색 쿼리
+         * HomeRecommendationController와 동일한 로직으로 LinkiScore를 기준으로 정렬
+         */
+        @Query("SELECT c FROM Channel c " +
+                        "LEFT JOIN c.influencer i " +
+                        "LEFT JOIN LinkiScore ls ON i.influencerId = ls.influencerId " +
+                        "WHERE (:category IS NULL OR c.channelCategory = :category) " +
+                        "AND (:keyword IS NULL OR (LOWER(c.channelName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                        "     OR LOWER(c.channelDescription) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
+                        "AND (:minSubscribers IS NULL OR c.subscriberCount >= :minSubscribers) " +
+                        "AND (:maxSubscribers IS NULL OR c.subscriberCount <= :maxSubscribers) " +
+                        "AND (:minViewCount IS NULL OR c.viewCount >= :minViewCount) " +
+                        "AND (:maxViewCount IS NULL OR c.viewCount <= :maxViewCount) " +
+                        "ORDER BY " +
+                        "CASE WHEN ls.costPerClick IS NOT NULL AND ls.dailyTraffic IS NOT NULL " +
+                        "     AND ls.averageReviewScore IS NOT NULL AND ls.contractCount IS NOT NULL " +
+                        "THEN (" +
+                        "  (COALESCE(ls.costPerClick, 0) * 0.3) + " +
+                        "  (COALESCE(ls.dailyTraffic, 0) * 0.25) + " +
+                        "  (COALESCE(ls.averageReviewScore, 0) * 0.25) + " +
+                        "  (COALESCE(ls.contractCount, 0) * 0.2)" +
+                        ") ELSE 0 END DESC, " +
+                        "c.subscriberCount DESC")
+        Page<Channel> searchChannelsByLinkiScore(
+                        @Param("category") String category,
+                        @Param("keyword") String keyword,
+                        @Param("minSubscribers") Long minSubscribers,
+                        @Param("maxSubscribers") Long maxSubscribers,
+                        @Param("minViewCount") Long minViewCount,
+                        @Param("maxViewCount") Long maxViewCount,
+                        Pageable pageable);
+
+        /**
          * 채널 ID로 YouTube 채널 ID 조회
          * 
          * @param channelId 내부 채널 ID
