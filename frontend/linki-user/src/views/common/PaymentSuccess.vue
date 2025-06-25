@@ -20,8 +20,7 @@
       </div>
       <h1 class="success-title">카드 등록 완료</h1>
       <p class="success-message">
-        회원님의 카드가 정상적으로 등록되었습니다. <br />
-        이제 모든 서비스를 자유롭게 이용하실 수 있습니다.
+        회원님의 카드가 정상적으로 등록되었습니다.
       </p>
       <div class="button-group">
         <button @click="goToHome" class="btn-home">홈으로 이동</button>

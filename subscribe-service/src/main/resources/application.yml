@@ -12,9 +12,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/e_user_db?serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: hd4628
+    url: jdbc:mysql://localhost:3308/linkiDB?serverTimezone=UTC&characterEncoding=UTF-8
+    username: linki
+    password: linki1234
 
   jpa:
     hibernate:

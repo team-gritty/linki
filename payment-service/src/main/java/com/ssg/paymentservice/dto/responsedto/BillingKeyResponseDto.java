@@ -1,4 +1,4 @@
-package com.ssg.paymentservice.dto.requestdto;
+package com.ssg.paymentservice.dto.responsedto;
 
 import lombok.*;
 
@@ -16,12 +16,9 @@ public class BillingKeyResponseDto {
     private ZonedDateTime authenticatedAt;
     private String method;
     private String billingKey;
-
     private String cardCompany;
     private String cardNumber;
-
     private Card card;
-
     @Getter
     @Setter
     @NoArgsConstructor

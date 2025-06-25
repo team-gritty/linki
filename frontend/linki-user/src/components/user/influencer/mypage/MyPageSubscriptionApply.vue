@@ -7,7 +7,13 @@
 
     <!-- 구독 안내/버튼 카드 -->
     <div class="subscribe-action-card">
-      <button class="subscribe-btn" @click="requestBillingAuth">지금 바로 구독하고 신청하기</button>
+      <template v-if="isBillingRegistered">
+        <button class="subscribe-btn" @click="startSubscription">지금 바로 구독 시작하기</button>
+        <button class="secondary-btn" @click="requestBillingAuth">카드 변경하기</button>
+      </template>
+      <template v-else>
+        <button class="subscribe-btn" @click="requestBillingAuth">카드 등록하고 구독 시작하기</button>
+      </template>
     </div>
 
     <!-- 혜택 아이콘/설명 영역 -->
@@ -81,7 +87,8 @@ export default {
       loading: false,
       error: null,
       userEmail: '',
-      userName: ''
+      userName: '',
+      isBillingRegistered: false
     }
   },
   async mounted() {
@@ -94,6 +101,7 @@ export default {
       // 스크립트가 로드될 때까지 기다림 (필요시 Promise로 처리 가능)
     }
     this.fetchProducts()
+    this.checkBillingStatus()
     // 로그인 유저 정보 가져오기
     try {
       const res = await httpClient.get('/v1/api/user/email-name')
@@ -105,6 +113,19 @@ export default {
     }
   },
   methods: {
+    async checkBillingStatus() {
+      try {
+        const res = await httpClient.get('/v1/subscribe-service/api/subscribe/billing-registered')
+        this.isBillingRegistered = res.data.billingRegistered
+      } catch (e) {
+        console.error('카드 등록 여부를 확인할 수 없습니다.', e)
+        this.isBillingRegistered = false // 에러 발생 시 기본값
+      }
+    },
+    startSubscription() {
+      // TODO: 카드가 등록된 유저가 실제 구독을 시작하는 로직 구현
+      alert('구독을 시작합니다! (실제 API 연동 필요)')
+    },
     async fetchProducts() {
       this.loading = true
       this.error = null
@@ -212,6 +233,23 @@ export default {
 .subscribe-btn:hover {
   background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
   transform: translateY(-2px) scale(1.03);
+}
+.secondary-btn {
+  background: transparent;
+  color: #7c3aed;
+  border: 2px solid #a78bfa;
+  border-radius: 20px;
+  padding: 12px 28px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  max-width: 350px;
+}
+.secondary-btn:hover {
+  background: #faf7ff;
+  border-color: #7c3aed;
 }
 .benefit-section {
   display: grid;
