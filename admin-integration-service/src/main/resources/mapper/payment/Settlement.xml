@@ -11,7 +11,7 @@
         SELECT
             contract.contract_id AS contractId,
             CONCAT(IFNULL(advertiser.company_name, '없음'), '(', IFNULL(advertiser_user.user_name, '없음'), ')') AS advertiserName,
-            CONCAT(channel.channel_name,'(',influencer_user.user_name,')') AS influencerName,
+            CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
             contract.contract_start_date AS adStartDate,
             contract.contract_end_date AS adEndDate,
             contract.contract_amount AS adAmount
@@ -34,12 +34,12 @@
 
     <select id="searchSettlement"  resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">
         SELECT
-        contract.contract_id AS contractId,
-        CONCAT(advertiser.company_name,'(',advertiser_user.user_name,')') AS advertiserName,
-        CONCAT(channel.channel_name,'(',influencer_user.user_name,')') AS influencerName,
-        contract.contract_start_date AS adStartDate,
-        contract.contract_end_date AS adEndDate,
-        contract.contract_amount AS adAmount
+            contract.contract_id AS contractId,
+            CONCAT(IFNULL(advertiser.company_name, '없음'), '(', IFNULL(advertiser_user.user_name, '없음'), ')') AS advertiserName,
+            CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
+            contract.contract_start_date AS adStartDate,
+            contract.contract_end_date AS adEndDate,
+            contract.contract_amount AS adAmount
         FROM contract
         JOIN proposal
         ON contract.proposal_id = proposal.proposal_id
@@ -76,6 +76,97 @@
 
         </choose>
 
+    </select>
+
+
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllSettlementsWithKeyset" resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">
+        SELECT
+            contract.contract_id AS contractId,
+            CONCAT(IFNULL(advertiser.company_name, '없음'), '(', IFNULL(advertiser_user.user_name, '없음'), ')') AS advertiserName,
+            CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
+            contract.contract_start_date AS adStartDate,
+            contract.contract_end_date AS adEndDate,
+            contract.contract_amount AS adAmount
+        FROM (
+            SELECT DISTINCT contract.contract_id
+            FROM contract
+            JOIN proposal ON contract.proposal_id = proposal.proposal_id
+            JOIN campaign ON proposal.campaign_id = campaign.campaign_id
+            JOIN advertiser ON campaign.advertiser_id = advertiser.advertiser_id
+            JOIN user AS advertiser_user ON advertiser.user_id = advertiser_user.user_id
+            JOIN influencer ON influencer.influencer_id = proposal.influencer_id
+            JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
+            JOIN channel ON channel.influencer_id = influencer.influencer_id
+            <where>
+                <if test="cursor != null and cursor != ''">
+                    contract.contract_id &gt; #{cursor}
+                </if>
+            </where>
+            ORDER BY contract.contract_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN contract ON contract.contract_id = temp.contract_id
+        LEFT JOIN proposal ON contract.proposal_id = proposal.proposal_id
+        LEFT JOIN campaign ON proposal.campaign_id = campaign.campaign_id
+        LEFT JOIN advertiser ON campaign.advertiser_id = advertiser.advertiser_id
+        LEFT JOIN user AS advertiser_user ON advertiser.user_id = advertiser_user.user_id
+        LEFT JOIN influencer ON influencer.influencer_id = proposal.influencer_id
+        LEFT JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
+        LEFT JOIN channel ON channel.influencer_id = influencer.influencer_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchSettlementWithKeyset" resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">
+        SELECT
+            contract.contract_id AS contractId,
+            CONCAT(IFNULL(advertiser.company_name, '없음'), '(', IFNULL(advertiser_user.user_name, '없음'), ')') AS advertiserName,
+            CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
+            contract.contract_start_date AS adStartDate,
+            contract.contract_end_date AS adEndDate,
+            contract.contract_amount AS adAmount
+        FROM (
+            SELECT DISTINCT contract.contract_id
+            FROM contract
+            JOIN proposal ON contract.proposal_id = proposal.proposal_id
+            JOIN campaign ON proposal.campaign_id = campaign.campaign_id
+            JOIN advertiser ON campaign.advertiser_id = advertiser.advertiser_id
+            JOIN user AS advertiser_user ON advertiser.user_id = advertiser_user.user_id
+            JOIN influencer ON influencer.influencer_id = proposal.influencer_id
+            JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
+            JOIN channel ON channel.influencer_id = influencer.influencer_id
+            <where>
+                <choose>
+                    <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'contractid'">
+                        AND REPLACE(TRIM(LOWER(contract.contract_id)), '-', '') LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                    </when>
+                    <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'advertisername'">
+                        AND TRIM(LOWER(CONCAT(advertiser.company_name,'(',advertiser_user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                    </when>
+                    <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'influencername'">
+                        AND TRIM(LOWER(CONCAT(channel.channel_name,'(',influencer_user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                    </when>
+                </choose>
+                <if test="cursor != null and cursor != ''">
+                    AND contract.contract_id &gt; #{cursor}
+                </if>
+            </where>
+            ORDER BY contract.contract_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN contract ON contract.contract_id = temp.contract_id
+        LEFT JOIN proposal ON contract.proposal_id = proposal.proposal_id
+        LEFT JOIN campaign ON proposal.campaign_id = campaign.campaign_id
+        LEFT JOIN advertiser ON campaign.advertiser_id = advertiser.advertiser_id
+        LEFT JOIN user AS advertiser_user ON advertiser.user_id = advertiser_user.user_id
+        LEFT JOIN influencer ON influencer.influencer_id = proposal.influencer_id
+        LEFT JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
+        LEFT JOIN channel ON channel.influencer_id = influencer.influencer_id
     </select>
 
 </mapper>
