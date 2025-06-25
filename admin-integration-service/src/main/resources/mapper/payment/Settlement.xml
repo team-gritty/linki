@@ -10,26 +10,26 @@
 
         SELECT
             contract.contract_id AS contractId,
-            CONCAT(advertiser.company_name,'(',advertiser_user.user_name,')') AS advertiserName,
+            CONCAT(IFNULL(advertiser.company_name, '없음'), '(', IFNULL(advertiser_user.user_name, '없음'), ')') AS advertiserName,
             CONCAT(channel.channel_name,'(',influencer_user.user_name,')') AS influencerName,
             contract.contract_start_date AS adStartDate,
             contract.contract_end_date AS adEndDate,
             contract.contract_amount AS adAmount
         FROM contract
-                 JOIN proposal
-                      ON contract.proposal_id = proposal.proposal_id
-                 JOIN campaign
-                      ON proposal.campaign_id = campaign.campaign_id
-                 JOIN advertiser
-                      ON campaign.advertiser_id = advertiser.advertiser_id
-                 JOIN user AS advertiser_user
-                      ON advertiser.user_id = advertiser_user.user_id
-                 JOIN influencer
-                      ON influencer.influencer_id = proposal.influencer_id
-                 JOIN user AS influencer_user
-                      ON influencer.user_id = influencer_user.user_id
-                 JOIN channel
-                      ON channel.influencer_id = influencer.influencer_id
+                 LEFT JOIN proposal
+                           ON contract.proposal_id = proposal.proposal_id
+                 LEFT JOIN campaign
+                           ON proposal.campaign_id = campaign.campaign_id
+                 LEFT JOIN advertiser
+                           ON campaign.advertiser_id = advertiser.advertiser_id
+                 LEFT JOIN user AS advertiser_user
+                           ON advertiser.user_id = advertiser_user.user_id
+                 LEFT JOIN influencer
+                           ON influencer.influencer_id = proposal.influencer_id
+                 LEFT JOIN user AS influencer_user
+                           ON influencer.user_id = influencer_user.user_id
+                 LEFT JOIN channel
+                           ON channel.influencer_id = influencer.influencer_id
     </select>
 
     <select id="searchSettlement"  resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">

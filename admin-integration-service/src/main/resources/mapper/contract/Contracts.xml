@@ -54,4 +54,74 @@
 
     </select>
 
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+    <select id="getContractsWithKeyset" resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
+        SELECT
+            cv.contractId,
+            cv.adStartDate,
+            cv.adEndDate,
+            cv.contractAmount,
+            cv.paymentDate,
+            cv.influencerName,
+            cv.advertiserName,
+            cv.contractStatus,
+            cv.contractLink
+        FROM (
+            SELECT contractId
+            FROM contract_view
+            <where>
+                <if test="cursor != null and cursor != ''">
+                    contractId &gt; #{cursor}
+                </if>
+            </where>
+            ORDER BY contractId ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN contract_view cv ON cv.contractId = temp.contractId
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchContractWithKeyset" resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
+        SELECT
+            contractId,
+            adStartDate,
+            adEndDate,
+            contractAmount,
+            paymentDate,
+            influencerName,
+            advertiserName,
+            contractStatus,
+            contractLink
+        FROM contract_view
+        <where>
+            <!-- 검색 조건 -->
+            <choose>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'contractid'">
+                    AND TRIM(LOWER(contractId)) = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'influencername'">
+                    AND TRIM(LOWER(influencerName)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'advertisername'">
+                    AND TRIM(LOWER(advertiserName)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND contractId &gt; #{cursor}
+            </if>
+        </where>
+        ORDER BY contractId ASC
+        LIMIT #{size}
+    </select>
+
+
+
 </mapper>

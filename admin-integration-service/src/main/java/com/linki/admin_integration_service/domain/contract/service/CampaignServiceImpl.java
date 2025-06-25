@@ -21,8 +21,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     private final CampaignMapper campaignMapper;
     private final ExcelUtil excelUtil;
-    // ModelMapper는 직접 생성
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
 
     @Override
     public List<CampaignDTO> getCampaigns() {
