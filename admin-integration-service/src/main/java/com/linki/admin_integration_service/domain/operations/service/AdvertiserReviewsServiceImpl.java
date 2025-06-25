@@ -9,12 +9,14 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,8 @@ public class AdvertiserReviewsServiceImpl implements  AdvertiserReviewsService {
 
     private final AdvertiserReviewsMapper advertiserReviewsMapper;
     private final ExcelUtil excelUtil;
+
+    private final ModelMapper modelMapper;
 
     @Override
     public List<AdvertiserReviewDTO> getAllAdvertiserReviews() {
@@ -84,6 +88,113 @@ public class AdvertiserReviewsServiceImpl implements  AdvertiserReviewsService {
     public String exportExcel() {
         List<AdvertiserReviewDTO> result = advertiserReviewsMapper.getAllAdvertiserReviews();
         return excelUtil.exportExcel(result,AdvertiserReviewDTO.class,"AdvertiserReviewList",null);
+    }
+
+    @Override
+    public AdvertiserReviewKeysetResponseDTO getAllAdvertiserReviewsWithKeyset(String cursor, int size) {
+        log.info("🔍 Keyset 광고주 리뷰 목록 조회 - cursor: {}, size: {}", cursor, size);
+
+        // size + 1로 조회해서 다음 페이지 존재 여부 확인
+        List<AdvertiserReviewDTO> advertiserReviewDTOList = advertiserReviewsMapper.getAllAdvertiserReviewsWithKeyset(cursor, size + 1);
+        return buildKeysetResponseDTO(advertiserReviewDTOList, cursor, size);
+    }
+    @Override
+    public AdvertiserReviewKeysetResponseDTO searchAllAdvertiserReviewsWithKeyset(AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO, String cursor, int size) {
+        log.info("🔍 Keyset 광고주 리뷰 검색 - searchType: {}, keyword: {}, cursor: {}, size: {}",
+                advertiserReviewSearchRequestDTO.getSearchType(), advertiserReviewSearchRequestDTO.getKeyword(), cursor, size);
+
+        // 검색 조건 검증 및 정규화
+        String keyword = advertiserReviewSearchRequestDTO.getKeyword();
+        String searchType = advertiserReviewSearchRequestDTO.getSearchType();
+
+        // 빈 검색 조건 처리
+        if ((keyword == null || keyword.isBlank()) && (searchType == null || searchType.isBlank())) {
+            return getAllAdvertiserReviewsWithKeyset(cursor, size);
+        }
+
+        if ((searchType == null || searchType.isBlank()) || (keyword == null || keyword.isBlank())) {
+            return AdvertiserReviewKeysetResponseDTO.builder()
+                    .list(Collections.emptyList())
+                    .hasNext(false)
+                    .size(0)
+                    .nextCursor(null)
+                    .currentCursor(cursor)
+                    .requestedSize(size)
+                    .build();
+        }
+
+        // 검색 조건 정규화
+        advertiserReviewSearchRequestDTO.setSearchType(searchType.trim().toLowerCase(Locale.ROOT));
+        advertiserReviewSearchRequestDTO.setKeyword(keyword.trim().toLowerCase(Locale.ROOT));
+
+        // size + 1로 조회해서 다음 페이지 존재 여부 확인
+        List<AdvertiserReviewDTO> searchResult = advertiserReviewsMapper.searchAdvertiserReviewsWithKeyset(advertiserReviewSearchRequestDTO, cursor, size + 1);
+
+        // 검색 결과 필터링 (기존 로직 유지)
+        List<AdvertiserReviewDTO> filteredResult = filterSearchResult(searchResult, advertiserReviewSearchRequestDTO);
+
+        return buildKeysetResponseDTO(filteredResult, cursor, size);
+    }
+
+
+    private List<AdvertiserReviewDTO> filterSearchResult(List<AdvertiserReviewDTO> searchResult, AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO) {
+        if (searchResult.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String searchType = advertiserReviewSearchRequestDTO.getSearchType();
+        String findFirstValue = switch (searchType) {
+            case "advertiser" -> searchResult.get(0).getAdvertiser();
+            case "writer" -> searchResult.get(0).getWriter();
+            case "contractId" -> searchResult.get(0).getContractId();
+            default -> null;
+        };
+
+        if (findFirstValue == null) {
+            return searchResult;
+        }
+
+        return searchResult.stream()
+                .filter(dto -> {
+                    return switch (searchType) {
+                        case "advertiser" -> dto.getAdvertiser().equals(findFirstValue);
+                        case "writer" -> dto.getWriter().equals(findFirstValue);
+                        case "contractId" -> dto.getContractId().equals(findFirstValue);
+                        default -> false;
+                    };
+                })
+                .collect(Collectors.toList());
+    }
+
+    private AdvertiserReviewKeysetResponseDTO buildKeysetResponseDTO(List<AdvertiserReviewDTO> advertiserReviewDTOList, String cursor, int size) {
+        boolean hasNext = advertiserReviewDTOList.size() > size;
+        String nextCursor = null;
+
+        // 실제 반환할 데이터 (size만큼만)
+        List<AdvertiserReviewDTO> actualData = hasNext ?
+                advertiserReviewDTOList.subList(0, size) : advertiserReviewDTOList;
+
+        // 다음 cursor 설정 (마지막 데이터의 advertiserReviewId)
+        if (hasNext && !actualData.isEmpty()) {
+            nextCursor = actualData.get(actualData.size() - 1).getAdvertiserReviewId();
+        }
+
+        // DTO 변환
+        List<AdvertiserResponseDTO> responseList = actualData.stream()
+                .map(dto -> modelMapper.map(dto, AdvertiserResponseDTO.class))
+                .collect(Collectors.toList());
+
+        log.info("📊 Keyset 응답 구성 완료 - 데이터 수: {}, hasNext: {}, nextCursor: {}",
+                responseList.size(), hasNext, nextCursor);
+
+        return AdvertiserReviewKeysetResponseDTO.builder()
+                .list(responseList)
+                .hasNext(hasNext)
+                .size(responseList.size())
+                .nextCursor(nextCursor)
+                .currentCursor(cursor)
+                .requestedSize(size)
+                .build();
     }
 
 

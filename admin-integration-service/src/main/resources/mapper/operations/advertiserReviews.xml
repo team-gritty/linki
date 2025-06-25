@@ -50,4 +50,73 @@
 
     </select>
 
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllAdvertiserReviewsWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewDTO">
+        SELECT
+            arv.advertiserReviewId,
+            arv.advertiser,
+            arv.writer,
+            arv.rating,
+            arv.reviewDate,
+            arv.visibility,
+            arv.review,
+            arv.contractId
+        FROM (
+            SELECT advertiserReviewId
+            FROM advertiser_reviews_view
+            <where>
+                <if test="cursor != null and cursor != ''">
+                    advertiserReviewId &gt; #{cursor}
+                </if>
+            </where>
+            ORDER BY advertiserReviewId ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN advertiser_reviews_view arv ON arv.advertiserReviewId = temp.advertiserReviewId
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchAdvertiserReviewsWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.AdvertiserReviewDTO">
+        SELECT
+            advertiserReviewId,
+            advertiser,
+            writer,
+            rating,
+            reviewDate,
+            visibility,
+            review,
+            contractId
+        FROM advertiser_reviews_view
+        <where>
+            1 = 1
+
+            <choose>
+                <when test="searchDTO.searchType == 'advertiser'">
+                    AND advertiser LIKE CONCAT('%', #{searchDTO.keyword}, '%')
+                </when>
+                <when test="searchDTO.searchType == 'writer'">
+                    AND writer LIKE CONCAT('%', #{searchDTO.keyword}, '%')
+                </when>
+                <when test="searchDTO.searchType == 'contractId' or searchDTO.searchType == 'contractid'">
+                    AND contractId LIKE CONCAT('%', #{searchDTO.keyword}, '%')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND advertiserReviewId &gt; #{cursor}
+            </if>
+        </where>
+        ORDER BY advertiserReviewId ASC
+        LIMIT #{size}
+    </select>
+
 </mapper>
