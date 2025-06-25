@@ -92,8 +92,14 @@ public class ChannelService {
          * @return LinkiScore 기준으로 정렬된 채널 목록과 페이지네이션 정보
          */
         public ChannelPageResponse searchChannelsByLinkiScore(ChannelSearchRequest request) {
-                log.info("LinkiScore 기반 채널 검색 서비스 호출: keyword={}, category={}, page={}, limit={}",
-                                request.getKeyword(), request.getCategory(), request.getPage(), request.getLimit());
+                log.info("LinkiScore 기반 채널 검색 서비스 호출: keyword={}, category={}, sortBy={}, sortDirection={}, page={}, limit={}",
+                                request.getKeyword(), request.getCategory(), request.getSortBy(),
+                                request.getSortDirection(), request.getPage(), request.getLimit());
+
+                // 정렬 파라미터가 있는 경우 정렬 전용 메서드 호출
+                if (request.getSortBy() != null && !request.getSortBy().isEmpty()) {
+                        return searchChannelsWithSort(request);
+                }
 
                 // JPA를 사용하여 데이터베이스에서 LinkiScore 기반으로 채널 검색
                 Page<Channel> channelPage = channelRepository.searchChannelsByLinkiScore(
@@ -124,6 +130,61 @@ public class ChannelService {
                                 .build();
 
                 log.info("LinkiScore 기반 채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
+                                channelPage.getTotalElements(),
+                                channelPage.getNumber() + 1,
+                                channelPage.getNumber() * channelPage.getSize() + 1,
+                                Math.min((channelPage.getNumber() + 1) * channelPage.getSize(),
+                                                channelPage.getTotalElements()));
+
+                return ChannelPageResponse.builder()
+                                .channels(channels)
+                                .pageInfo(pageInfo)
+                                .build();
+        }
+
+        /**
+         * 정렬 기능이 있는 채널 검색
+         * 구독자 수, 평균 조회수 등으로 정렬하여 반환
+         * 
+         * @param request 검색 조건 (정렬 파라미터 포함)
+         * @return 정렬된 채널 목록과 페이지네이션 정보
+         */
+        public ChannelPageResponse searchChannelsWithSort(ChannelSearchRequest request) {
+                log.info("정렬 기능이 있는 채널 검색 서비스 호출: keyword={}, category={}, sortBy={}, sortDirection={}, page={}, limit={}",
+                                request.getKeyword(), request.getCategory(), request.getSortBy(),
+                                request.getSortDirection(), request.getPage(), request.getLimit());
+
+                // JPA를 사용하여 데이터베이스에서 정렬 기능을 통한 채널 검색
+                Page<Channel> channelPage = channelRepository.searchChannelsWithSort(
+                                request.getCategory(),
+                                request.getKeyword(),
+                                request.getMinSubscribers(),
+                                request.getMaxSubscribers(),
+                                // minAvgViewCount, maxAvgViewCount는 viewCount로 매핑
+                                request.getMinAvgViewCount(),
+                                request.getMaxAvgViewCount(),
+                                request.getSortBy(),
+                                request.getSortDirection(),
+                                PageRequest.of(request.getPage(), request.getLimit()));
+
+                // 엔티티를 DTO로 변환
+                List<ChannelListResponse> channels = channelPage.getContent().stream()
+                                .map(this::convertToDto)
+                                .collect(Collectors.toList());
+
+                // 페이지네이션 정보 생성
+                ChannelPageResponse.PageInfo pageInfo = ChannelPageResponse.PageInfo.builder()
+                                .currentPage(channelPage.getNumber())
+                                .pageSize(channelPage.getSize())
+                                .totalElements(channelPage.getTotalElements())
+                                .totalPages(channelPage.getTotalPages())
+                                .first(channelPage.isFirst())
+                                .last(channelPage.isLast())
+                                .hasNext(channelPage.hasNext())
+                                .hasPrevious(channelPage.hasPrevious())
+                                .build();
+
+                log.info("정렬 기능이 있는 채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
                                 channelPage.getTotalElements(),
                                 channelPage.getNumber() + 1,
                                 channelPage.getNumber() * channelPage.getSize() + 1,

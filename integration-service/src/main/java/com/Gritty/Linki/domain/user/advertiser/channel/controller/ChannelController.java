@@ -43,6 +43,8 @@ public class ChannelController {
          * @param maxSubscribers  최대 구독자 수 (기본값: Long.MAX_VALUE)
          * @param minAvgViewCount 최소 평균 조회수 (기본값: 0)
          * @param maxAvgViewCount 최대 평균 조회수 (기본값: Long.MAX_VALUE)
+         * @param sortBy          정렬 기준 (subscriberCount, avgViewCount 등, 선택)
+         * @param sortDirection   정렬 방향 (desc, asc, 기본값: desc)
          * @param page            페이지 번호 (기본값: 0)
          * @param limit           페이지 크기 (기본값: 10)
          * @return LinkiScore 기준으로 정렬된 채널 목록과 페이지네이션 정보
@@ -55,13 +57,15 @@ public class ChannelController {
                         @RequestParam(defaultValue = "9223372036854775807") long maxSubscribers,
                         @RequestParam(defaultValue = "0") long minAvgViewCount,
                         @RequestParam(defaultValue = "9223372036854775807") long maxAvgViewCount,
+                        @RequestParam(required = false) String sortBy,
+                        @RequestParam(defaultValue = "desc") String sortDirection,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int limit) {
 
                 log.info("채널 검색 요청 (LinkiScore 기준): keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
-                                "minAvgViewCount={}, maxAvgViewCount={}, page={}, limit={}",
+                                "minAvgViewCount={}, maxAvgViewCount={}, sortBy={}, sortDirection={}, page={}, limit={}",
                                 keyword, category, minSubscribers, maxSubscribers,
-                                minAvgViewCount, maxAvgViewCount, page, limit);
+                                minAvgViewCount, maxAvgViewCount, sortBy, sortDirection, page, limit);
 
                 // Request DTO 생성
                 ChannelSearchRequest request = ChannelSearchRequest.builder()
@@ -71,6 +75,8 @@ public class ChannelController {
                                 .maxSubscribers(maxSubscribers)
                                 .minAvgViewCount(minAvgViewCount)
                                 .maxAvgViewCount(maxAvgViewCount)
+                                .sortBy(sortBy)
+                                .sortDirection(sortDirection)
                                 .page(page)
                                 .limit(limit)
                                 .build();

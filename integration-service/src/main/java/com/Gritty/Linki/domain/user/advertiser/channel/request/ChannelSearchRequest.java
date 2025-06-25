@@ -56,4 +56,14 @@ public class ChannelSearchRequest {
      * 페이지 크기 (기본값: 10)
      */
     private int limit;
+
+    /**
+     * 정렬 기준 (subscriberCount, avgViewCount 등)
+     */
+    private String sortBy;
+
+    /**
+     * 정렬 방향 (desc, asc)
+     */
+    private String sortDirection;
 }

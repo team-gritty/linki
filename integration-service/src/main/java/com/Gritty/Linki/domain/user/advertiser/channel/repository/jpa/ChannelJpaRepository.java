@@ -108,4 +108,44 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
          */
         @Query("SELECT c.channelId FROM Channel c ORDER BY c.channelId")
         List<String> findAllChannelIds();
+
+        /**
+         * 정렬 기능이 있는 채널 검색 쿼리 (네이티브 쿼리 사용)
+         * 구독자 수, 평균 조회수 등으로 동적 정렬 지원
+         */
+        @Query(value = "SELECT * FROM channel c " +
+                        "WHERE (:category IS NULL OR c.channel_category = :category) " +
+                        "AND (:keyword IS NULL OR (LOWER(c.channel_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                        "     OR LOWER(c.channel_description) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
+                        "AND (:minSubscribers IS NULL OR c.subscriber_count >= :minSubscribers) " +
+                        "AND (:maxSubscribers IS NULL OR c.subscriber_count <= :maxSubscribers) " +
+                        "AND (:minViewCount IS NULL OR c.view_count >= :minViewCount) " +
+                        "AND (:maxViewCount IS NULL OR c.view_count <= :maxViewCount) " +
+                        "ORDER BY " +
+                        "CASE " +
+                        "  WHEN :sortBy = 'subscriberCount' AND :sortDirection = 'desc' THEN c.subscriber_count " +
+                        "  WHEN :sortBy = 'subscriberCount' AND :sortDirection = 'asc' THEN -c.subscriber_count " +
+                        "  WHEN :sortBy = 'avgViewCount' AND :sortDirection = 'desc' THEN c.view_count " +
+                        "  WHEN :sortBy = 'avgViewCount' AND :sortDirection = 'asc' THEN -c.view_count " +
+                        "  ELSE c.subscriber_count " +
+                        "END DESC", countQuery = "SELECT COUNT(*) FROM channel c " +
+                                        "WHERE (:category IS NULL OR c.channel_category = :category) " +
+                                        "AND (:keyword IS NULL OR (LOWER(c.channel_name) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+                                        +
+                                        "     OR LOWER(c.channel_description) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
+                                        +
+                                        "AND (:minSubscribers IS NULL OR c.subscriber_count >= :minSubscribers) " +
+                                        "AND (:maxSubscribers IS NULL OR c.subscriber_count <= :maxSubscribers) " +
+                                        "AND (:minViewCount IS NULL OR c.view_count >= :minViewCount) " +
+                                        "AND (:maxViewCount IS NULL OR c.view_count <= :maxViewCount)", nativeQuery = true)
+        Page<Channel> searchChannelsWithSort(
+                        @Param("category") String category,
+                        @Param("keyword") String keyword,
+                        @Param("minSubscribers") Long minSubscribers,
+                        @Param("maxSubscribers") Long maxSubscribers,
+                        @Param("minViewCount") Long minViewCount,
+                        @Param("maxViewCount") Long maxViewCount,
+                        @Param("sortBy") String sortBy,
+                        @Param("sortDirection") String sortDirection,
+                        Pageable pageable);
 }
