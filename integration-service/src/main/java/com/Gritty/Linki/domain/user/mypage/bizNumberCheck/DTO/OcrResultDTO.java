@@ -1,12 +1,13 @@
 package com.Gritty.Linki.domain.user.mypage.bizNumberCheck.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class ResponseDTO {
-    private String businessNumber;
+@AllArgsConstructor
+@NoArgsConstructor
+public class OcrResultDTO {
     private String ocrNumber;
-    private boolean isValid;
-    private String message;
     private String companyName;
 }

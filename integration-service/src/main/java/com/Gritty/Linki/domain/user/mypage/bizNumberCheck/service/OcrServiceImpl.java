@@ -2,6 +2,7 @@ package com.Gritty.Linki.domain.user.mypage.bizNumberCheck.service;
 
 
 import com.Gritty.Linki.domain.user.mypage.bizNumberCheck.DTO.RequestDTO;
+import com.Gritty.Linki.domain.user.mypage.bizNumberCheck.DTO.OcrResultDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
@@ -30,7 +31,7 @@ public class OcrServiceImpl implements OcrService {
     String secretKey;
 
     @Override
-    public String performOcr(RequestDTO requestDTO) throws IOException {
+    public OcrResultDTO performOcr(RequestDTO requestDTO) throws IOException {
         MultipartFile imageFile = requestDTO.getFile();
         byte[] imageBytes = imageFile.getBytes();
         log.info("ocr확인 1 : {} , 2 {}", imageFile.getName(), imageFile.getContentType());
@@ -70,26 +71,35 @@ public class OcrServiceImpl implements OcrService {
 
         try (Response response = client.newCall(request).execute()) {
             log.info(response.toString());
-
             if (response.isSuccessful() && response.body() != null) {
                 String responseBody = response.body().string();
                 log.info("OCR 응답: {}", responseBody);
 
                 JsonNode root = objectMapper.readTree(responseBody);
-                StringBuilder allText = new StringBuilder();
-                for (JsonNode field : root.path("images").get(0).path("fields")) {
-                    allText.append(field.path("inferText").asText()).append(" ");
+                JsonNode fields = root.path("images").get(0).path("fields");
+
+                String ocrBizNumber = null;
+                String ocrCompanyName = null;
+
+                for (JsonNode field : fields) {
+                    String fieldName = field.path("name").asText();
+                    String text = field.path("inferText").asText();
+
+                    if ("bizCheck".equals(fieldName) && ocrBizNumber == null) {
+                        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\d{3}-\\d{2}-\\d{5}").matcher(text);
+                        if (matcher.find()) {
+                            ocrBizNumber = matcher.group();
+                        }
+                    }
+
+                    if ("bizCheckname".equals(fieldName) && ocrCompanyName == null) {
+                        ocrCompanyName = text;
+                    }
                 }
 
-                String text = allText.toString();
-                java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\d{3}-\\d{2}-\\d{5}").matcher(text);
-                if (matcher.find()) {
-                    return matcher.group();
-                } else {
-                    return "사업자번호를 찾을 수 없습니다.";
-                }
+                return new OcrResultDTO(ocrBizNumber, ocrCompanyName);
             } else {
-                return "오류: " + response.code() + " - " + response.body().string();
+                throw new IOException("오류: " + response.code() + " - " + response.body().string());
             }
         }
     }

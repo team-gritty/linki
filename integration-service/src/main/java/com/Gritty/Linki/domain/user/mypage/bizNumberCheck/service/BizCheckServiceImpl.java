@@ -1,5 +1,6 @@
 package com.Gritty.Linki.domain.user.mypage.bizNumberCheck.service;
 
+import com.Gritty.Linki.domain.user.mypage.bizNumberCheck.DTO.OcrResultDTO;
 import com.Gritty.Linki.domain.user.mypage.bizNumberCheck.DTO.RequestDTO;
 import com.Gritty.Linki.domain.user.mypage.bizNumberCheck.DTO.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,9 @@ public class BizCheckServiceImpl implements BizCheckService {
         }
 
         // 2. OCR 사업자 번호 추출
-        responseDTO.setOcrNumber(ocrService.performOcr(requestDTO));
+        OcrResultDTO ocrResult = ocrService.performOcr(requestDTO);
+        responseDTO.setOcrNumber(ocrResult.getOcrNumber());
+        responseDTO.setCompanyName(ocrResult.getCompanyName());
 
         log.info(responseDTO.toString());
         log.info("OCR사업자번호추출");

@@ -153,6 +153,14 @@
         <button class="submit-button" @click="handleBusinessValidation" :disabled="isLoading">
           {{ isLoading ? '검증 중...' : '검증하기' }}
         </button>
+        <button
+          class="submit-button"
+          style="margin-left: 8px;"
+          @click="registerBusiness"
+          :disabled="!result || !result.valid || isLoading"
+        >
+          등록
+        </button>
       </div>
     </div>
   </div>
@@ -356,6 +364,24 @@ const handleBusinessValidation = async () => {
 onMounted(() => {
   fetchData()
 })
+
+// 광고주 사업자 정보 등록 함수
+const registerBusiness = async () => {
+  // 검증 결과가 없거나 유효하지 않으면 등록 불가
+  if (!result.value || !result.value.valid) return;
+  try {
+    // 사업자명은 OCR 결과에서 추출 (예시: result.value.ocrName 등, 실제 필드명에 맞게 수정)
+    const payload = {
+      businessNumber: advertiserData.value.businessNumber,
+      companyName: result.value.companyName || '', // 실제 OCR 결과 필드에 맞게 수정
+    };
+    await httpClient.post('/v1/api/user/bizCheck/register', payload);
+    showAlert('사업자 정보가 등록되었습니다.', 'success');
+  } catch (error) {
+    console.error(error);
+    showAlert('등록 중 오류가 발생했습니다.', 'error');
+  }
+}
 
 </script>
 
