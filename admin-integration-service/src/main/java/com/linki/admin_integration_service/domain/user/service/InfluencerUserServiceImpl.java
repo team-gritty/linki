@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
 
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -71,8 +73,37 @@ public class InfluencerUserServiceImpl implements InfluencerUserService {
     public InfluencerKeysetResponseDTO getAllInfluencerUsersWithKeyset(String cursor, int size) {
         log.info("🔍 Keyset 인플루언서 목록 조회 - cursor: {}, size: {}", cursor, size);
 
-        // size + 1로 조회해서 다음 페이지 존재 여부 확인
+        // 1단계: 기본 정보 빠르게 조회 (size + 1로 조회해서 다음 페이지 존재 여부 확인)
         List<InfluencerUserDTO> influencerUserDTOList = influencerUserMapper.getAllInfluencerUsersWithKeyset(cursor, size + 1);
+        
+        // 2단계: 채널 정보 조회 및 병합
+        if (!influencerUserDTOList.isEmpty()) {
+            // 인플루언서 ID 목록 추출
+            List<String> influencerIds = influencerUserDTOList.stream()
+                .map(InfluencerUserDTO::getUserId)
+                .collect(Collectors.toList());
+            
+            // 채널 정보 조회
+            List<Map<String, Object>> channels = getChannelsByInfluencerIds(influencerIds);
+            
+            // 채널 정보를 Map으로 변환 (빠른 조회를 위해)
+            Map<String, Map<String, Object>> channelMap = channels.stream()
+                .collect(Collectors.toMap(
+                    channel -> (String) channel.get("influencerId"),
+                    channel -> channel,
+                    (existing, replacement) -> existing // 중복시 첫 번째 값 유지
+                ));
+            
+            // 사용자 정보에 채널 정보 병합
+            influencerUserDTOList.forEach(user -> {
+                Map<String, Object> channel = channelMap.get(user.getUserId());
+                if (channel != null) {
+                    user.setSnsChannelName((String) channel.get("channelName"));
+                    user.setSnsLink((String) channel.get("channelUrl"));
+                }
+            });
+        }
+        
         return buildKeysetResponseDTO(influencerUserDTOList, cursor, size);
     }
 
@@ -182,5 +213,10 @@ public class InfluencerUserServiceImpl implements InfluencerUserService {
                 .currentCursor(cursor)
                 .requestedSize(size)
                 .build();
+    }
+
+    @Cacheable(value = "influencer-channels", key = "#influencerIds")
+    List<Map<String, Object>> getChannelsByInfluencerIds(List<String> influencerIds) {
+        return influencerUserMapper.getChannelsByInfluencerIds(influencerIds);
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -121,10 +122,39 @@ public class InfluencerReviewsServiceImpl implements InfluencerReviewsService {
 
     @Override
     public InfluencerReviewKeysetResponseDTO getAllInfluencerReviewsWithKeyset(String cursor, int size) {
-        log.info("🔍 Keyset 계약 목록 조회 - cursor: {}, size: {}", cursor, size);
+        log.info("🔍 Keyset 인플루언서 리뷰 목록 조회 - cursor: {}, size: {}", cursor, size);
 
-        // size + 1로 조회해서 다음 페이지 존재 여부 확인
+        // 1단계: 기본 리뷰 정보 빠르게 조회 (size + 1로 조회해서 다음 페이지 존재 여부 확인)
         List<InfluencerReviewDTO> influencerReviewDTOList = influencerReviewsMapper.getAllInfluencerReviewsWithKeyset(cursor, size + 1);
+        
+        // 2단계: 상세 정보 조회 및 병합
+        if (!influencerReviewDTOList.isEmpty()) {
+            // 계약 ID 목록 추출
+            List<String> contractIds = influencerReviewDTOList.stream()
+                .map(InfluencerReviewDTO::getContractId)
+                .collect(Collectors.toList());
+            
+            // 상세 정보 조회
+            List<Map<String, Object>> reviewDetails = influencerReviewsMapper.getInfluencerReviewDetailsByContractIds(contractIds);
+            
+            // 상세 정보를 Map으로 변환 (빠른 조회를 위해)
+            Map<String, Map<String, Object>> detailMap = reviewDetails.stream()
+                .collect(Collectors.toMap(
+                    detail -> (String) detail.get("contractId"),
+                    detail -> detail,
+                    (existing, replacement) -> existing // 중복시 첫 번째 값 유지
+                ));
+            
+            // 리뷰 정보에 상세 정보 병합
+            influencerReviewDTOList.forEach(review -> {
+                Map<String, Object> detail = detailMap.get(review.getContractId());
+                if (detail != null) {
+                    review.setInfluencer((String) detail.get("influencer"));
+                    review.setWriter((String) detail.get("writer"));
+                }
+            });
+        }
+        
         return buildKeysetResponseDTO(influencerReviewDTOList, cursor, size);
     }
 

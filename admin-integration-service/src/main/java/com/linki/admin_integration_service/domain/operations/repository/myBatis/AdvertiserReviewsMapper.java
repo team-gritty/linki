@@ -5,6 +5,7 @@ import com.linki.admin_integration_service.domain.operations.dto.AdvertiserRevie
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdvertiserReviewsMapper {
     List<AdvertiserReviewDTO> getAllAdvertiserReviews();
@@ -13,5 +14,8 @@ public interface AdvertiserReviewsMapper {
 
     List<AdvertiserReviewDTO> getAllAdvertiserReviewsWithKeyset(@Param("cursor") String cursor, @Param("size") int size);
     List<AdvertiserReviewDTO> searchAdvertiserReviewsWithKeyset(@Param("searchDTO") AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO, @Param("cursor") String cursor, @Param("size") int size);
+    
+    // 리뷰 상세 정보 별도 조회
+    List<Map<String, Object>> getReviewDetailsByContractIds(@Param("contractIds") List<String> contractIds);
 }
 

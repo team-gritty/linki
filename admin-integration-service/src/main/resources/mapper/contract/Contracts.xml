@@ -60,53 +60,63 @@
 
     <select id="getContractsWithKeyset" resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
         SELECT
-            cv.contractId,
-            cv.adStartDate,
-            cv.adEndDate,
-            cv.contractAmount,
-            cv.paymentDate,
-            cv.influencerName,
-            cv.advertiserName,
-            cv.contractStatus,
-            cv.contractLink
-        FROM (
-            SELECT contractId
-            FROM contract_view
-            <where>
-                <if test="cursor != null and cursor != ''">
-                    contractId &gt; #{cursor}
-                </if>
-            </where>
-            ORDER BY contractId ASC
-            LIMIT #{size}
-        ) AS temp
-        JOIN contract_view cv ON cv.contractId = temp.contractId
+            c.contract_id AS contractId,
+            c.contract_start_date AS adStartDate,
+            c.contract_end_date AS adEndDate,
+            c.contract_amount AS contractAmount,
+            c.contract_payment_date AS paymentDate,
+            CONCAT(ch.channel_name, '(', iu.user_name, ')') AS influencerName,
+            CONCAT(a.company_name, '(', au.user_name, ')') AS advertiserName,
+            c.contract_status AS contractStatus,
+            c.pdf_file_path AS contractLink
+        FROM contract c
+        INNER JOIN proposal p ON c.proposal_id = p.proposal_id
+        INNER JOIN campaign cam ON p.campaign_id = cam.campaign_id
+        INNER JOIN advertiser a ON cam.advertiser_id = a.advertiser_id
+        INNER JOIN user au ON a.user_id = au.user_id
+        INNER JOIN influencer i ON p.influencer_id = i.influencer_id
+        INNER JOIN user iu ON i.user_id = iu.user_id
+        LEFT JOIN channel ch ON i.influencer_id = ch.influencer_id
+        <where>
+            <if test="cursor != null and cursor != ''">
+                c.contract_id > #{cursor}
+            </if>
+        </where>
+        ORDER BY c.contract_id ASC
+        LIMIT #{size}
     </select>
 
     <!-- Keyset 검색 조회 -->
     <select id="searchContractWithKeyset" resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
         SELECT
-            contractId,
-            adStartDate,
-            adEndDate,
-            contractAmount,
-            paymentDate,
-            influencerName,
-            advertiserName,
-            contractStatus,
-            contractLink
-        FROM contract_view
+            c.contract_id AS contractId,
+            c.contract_start_date AS adStartDate,
+            c.contract_end_date AS adEndDate,
+            c.contract_amount AS contractAmount,
+            c.contract_payment_date AS paymentDate,
+            CONCAT(ch.channel_name, '(', iu.user_name, ')') AS influencerName,
+            CONCAT(a.company_name, '(', au.user_name, ')') AS advertiserName,
+            c.contract_status AS contractStatus,
+            c.pdf_file_path AS contractLink
+        FROM contract c
+        INNER JOIN proposal p ON c.proposal_id = p.proposal_id
+        INNER JOIN campaign cam ON p.campaign_id = cam.campaign_id
+        INNER JOIN advertiser a ON cam.advertiser_id = a.advertiser_id
+        INNER JOIN user au ON a.user_id = au.user_id
+        INNER JOIN influencer i ON p.influencer_id = i.influencer_id
+        INNER JOIN user iu ON i.user_id = iu.user_id
+        LEFT JOIN channel ch ON i.influencer_id = ch.influencer_id
         <where>
             <!-- 검색 조건 -->
             <choose>
                 <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'contractid'">
-                    AND TRIM(LOWER(contractId)) = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                    AND TRIM(LOWER(c.contract_id)) = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
                 </when>
                 <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'influencername'">
-                    AND TRIM(LOWER(influencerName)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                    AND TRIM(LOWER(iu.user_name)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
                 </when>
                 <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'advertisername'">
-                    AND TRIM(LOWER(advertiserName)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                    AND TRIM(LOWER(au.user_name)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
                 </when>
                 <otherwise>
                     -- 기본 검색 없음
@@ -115,10 +125,10 @@
 
             <!-- Cursor 조건 (AND로 연결) -->
             <if test="cursor != null and cursor != ''">
-                AND contractId &gt; #{cursor}
+                AND c.contract_id > #{cursor}
             </if>
         </where>
-        ORDER BY contractId ASC
+        ORDER BY c.contract_id ASC
         LIMIT #{size}
     </select>
 

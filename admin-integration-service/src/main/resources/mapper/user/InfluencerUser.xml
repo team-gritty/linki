@@ -70,79 +70,77 @@
 
     <select id="getAllInfluencerUsersWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO">
         SELECT
-            influencer.influencer_id AS userId,
-            user.user_name AS name,
-            user.user_email AS email,
-            user.user_phone AS phone,
-            channel.channel_name AS snsChannelName,
-            channel.channel_url AS snsLink,
-            user.user_id AS userCursor
-        FROM (
-            SELECT DISTINCT user_id
-            FROM user
-            WHERE user_role = 'ROLE_INFLUENCER'
-            <if test="cursor != null and cursor != ''">
-                AND user_id &gt; #{cursor}
-            </if>
-            ORDER BY user_id ASC
-            LIMIT #{size}
-        ) AS temp
-        JOIN influencer ON influencer.user_id = temp.user_id
-        JOIN user ON user.user_id = influencer.user_id
-        JOIN (
-            SELECT 
-                channel.influencer_id,
-                MIN(channel.channel_name) AS channel_name,
-                MIN(channel.channel_url) AS channel_url
-            FROM channel
-            GROUP BY channel.influencer_id
-        ) AS channel ON channel.influencer_id = influencer.influencer_id
+            i.influencer_id AS userId,
+            u.user_name AS name,
+            u.user_email AS email,
+            u.user_phone AS phone,
+            '' AS snsChannelName,
+            '' AS snsLink,
+            u.user_id AS userCursor
+        FROM user u
+        INNER JOIN influencer i ON u.user_id = i.user_id
+        WHERE u.user_role = 'ROLE_INFLUENCER'
+        <if test="cursor != null and cursor != ''">
+            AND u.user_id > #{cursor}
+        </if>
+        ORDER BY u.user_id ASC
+        LIMIT #{size}
     </select>
 
     <!-- Keyset 검색 조회 -->
     <select id="searchInfluencerUserWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO">
         SELECT
-            influencer.influencer_id AS userId,
-            user.user_name AS name,
-            user.user_email AS email,
-            user.user_phone AS phone,
-            channel.channel_name AS snsChannelName,
-            channel.channel_url AS snsLink,
-            user.user_id AS userCursor
-        FROM (
-            SELECT DISTINCT user_id
-            FROM user
-            WHERE user_role = 'ROLE_INFLUENCER'
-            <choose>
-                <when test="searchDTO.searchType.toLowerCase() eq 'name'">
-                    AND TRIM(LOWER(user_name)) = TRIM(LOWER(#{searchDTO.keyword}))
-                </when>
-                <when test="searchDTO.searchType.toLowerCase() eq 'email'">
-                    AND TRIM(LOWER(user_email)) = TRIM(LOWER(#{searchDTO.keyword}))
-                </when>
-                <when test="searchDTO.searchType.toLowerCase() eq 'phone'">
-                    AND REPLACE(TRIM(user_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
-                </when>
-                <otherwise>
-                    -- 기본 검색 없음
-                </otherwise>
-            </choose>
-            <if test="cursor != null and cursor != ''">
-                AND user_id &gt; #{cursor}
-            </if>
-            ORDER BY user_id ASC
-            LIMIT #{size}
-        ) AS temp
-        JOIN influencer ON influencer.user_id = temp.user_id
-        JOIN user ON user.user_id = influencer.user_id
-        JOIN (
-            SELECT 
-                channel.influencer_id,
-                MIN(channel.channel_name) AS channel_name,
-                MIN(channel.channel_url) AS channel_url
-            FROM channel
-            GROUP BY channel.influencer_id
-        ) AS channel ON channel.influencer_id = influencer.influencer_id
+            i.influencer_id AS userId,
+            u.user_name AS name,
+            u.user_email AS email,
+            u.user_phone AS phone,
+            c.channel_name AS snsChannelName,
+            c.channel_url AS snsLink,
+            u.user_id AS userCursor
+        FROM user u
+        INNER JOIN influencer i ON u.user_id = i.user_id
+        LEFT JOIN channel c ON i.influencer_id = c.influencer_id
+        WHERE u.user_role = 'ROLE_INFLUENCER'
+        <choose>
+            <when test="searchDTO.searchType.toLowerCase() eq 'name'">
+                AND TRIM(LOWER(u.user_name)) = TRIM(LOWER(#{searchDTO.keyword}))
+            </when>
+            <when test="searchDTO.searchType.toLowerCase() eq 'email'">
+                AND TRIM(LOWER(u.user_email)) = TRIM(LOWER(#{searchDTO.keyword}))
+            </when>
+            <when test="searchDTO.searchType.toLowerCase() eq 'phone'">
+                AND REPLACE(TRIM(u.user_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+            </when>
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+        </choose>
+        <if test="cursor != null and cursor != ''">
+            AND u.user_id > #{cursor}
+        </if>
+        ORDER BY u.user_id ASC
+        LIMIT #{size}
     </select>
+
+    <!-- 채널 정보 별도 조회 (빠른 조회) -->
+    <select id="getChannelsByInfluencerIds" resultMap="channelResultMap">
+        SELECT 
+            i.influencer_id,
+            c.channel_name,
+            c.channel_url
+        FROM influencer i
+        LEFT JOIN channel c ON i.influencer_id = c.influencer_id
+        WHERE i.influencer_id IN
+        <foreach collection="influencerIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- ResultMap 정의 -->
+    <resultMap id="channelResultMap" type="map">
+        <result property="influencerId" column="influencer_id"/>
+        <result property="channelName" column="channel_name"/>
+        <result property="channelUrl" column="channel_url"/>
+    </resultMap>
 
 </mapper>

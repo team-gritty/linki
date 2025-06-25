@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -94,10 +95,40 @@ public class AdvertiserReviewsServiceImpl implements  AdvertiserReviewsService {
     public AdvertiserReviewKeysetResponseDTO getAllAdvertiserReviewsWithKeyset(String cursor, int size) {
         log.info("🔍 Keyset 광고주 리뷰 목록 조회 - cursor: {}, size: {}", cursor, size);
 
-        // size + 1로 조회해서 다음 페이지 존재 여부 확인
+        // 1단계: 기본 리뷰 정보 빠르게 조회 (size + 1로 조회해서 다음 페이지 존재 여부 확인)
         List<AdvertiserReviewDTO> advertiserReviewDTOList = advertiserReviewsMapper.getAllAdvertiserReviewsWithKeyset(cursor, size + 1);
+        
+        // 2단계: 상세 정보 조회 및 병합
+        if (!advertiserReviewDTOList.isEmpty()) {
+            // 계약 ID 목록 추출
+            List<String> contractIds = advertiserReviewDTOList.stream()
+                .map(AdvertiserReviewDTO::getContractId)
+                .collect(Collectors.toList());
+            
+            // 상세 정보 조회
+            List<Map<String, Object>> reviewDetails = advertiserReviewsMapper.getReviewDetailsByContractIds(contractIds);
+            
+            // 상세 정보를 Map으로 변환 (빠른 조회를 위해)
+            Map<String, Map<String, Object>> detailMap = reviewDetails.stream()
+                .collect(Collectors.toMap(
+                    detail -> (String) detail.get("contractId"),
+                    detail -> detail,
+                    (existing, replacement) -> existing // 중복시 첫 번째 값 유지
+                ));
+            
+            // 리뷰 정보에 상세 정보 병합
+            advertiserReviewDTOList.forEach(review -> {
+                Map<String, Object> detail = detailMap.get(review.getContractId());
+                if (detail != null) {
+                    review.setAdvertiser((String) detail.get("advertiser"));
+                    review.setWriter((String) detail.get("writer"));
+                }
+            });
+        }
+        
         return buildKeysetResponseDTO(advertiserReviewDTOList, cursor, size);
     }
+
     @Override
     public AdvertiserReviewKeysetResponseDTO searchAllAdvertiserReviewsWithKeyset(AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO, String cursor, int size) {
         log.info("🔍 Keyset 광고주 리뷰 검색 - searchType: {}, keyword: {}, cursor: {}, size: {}",

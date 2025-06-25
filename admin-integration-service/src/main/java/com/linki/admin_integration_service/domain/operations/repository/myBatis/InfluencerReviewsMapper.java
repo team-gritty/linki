@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface InfluencerReviewsMapper {
@@ -15,6 +16,9 @@ public interface InfluencerReviewsMapper {
 
     List<InfluencerReviewDTO> getAllInfluencerReviewsWithKeyset(@Param("cursor") String cursor, @Param("size") int size);
     List<InfluencerReviewDTO> searchInfluencerReviewsWithKeyset(@Param("searchDTO") InfluencerReviewSearchRequestDTO influencerReviewSearchRequestDTO, @Param("cursor") String cursor, @Param("size") int size);
+    
+    // 인플루언서 리뷰 상세 정보 별도 조회
+    List<Map<String, Object>> getInfluencerReviewDetailsByContractIds(@Param("contractIds") List<String> contractIds);
 }
 
 
