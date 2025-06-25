@@ -25,8 +25,11 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
                         "     OR LOWER(c.channelDescription) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
                         "AND (:minSubscribers IS NULL OR c.subscriberCount >= :minSubscribers) " +
                         "AND (:maxSubscribers IS NULL OR c.subscriberCount <= :maxSubscribers) " +
-                        "AND (:minViewCount IS NULL OR c.viewCount >= :minViewCount) " +
-                        "AND (:maxViewCount IS NULL OR c.viewCount <= :maxViewCount)")
+                        "AND (:minViewCount IS NULL OR " +
+                        "     (CASE WHEN c.videoCount > 0 THEN c.viewCount / c.videoCount ELSE 0 END) >= :minViewCount) "
+                        +
+                        "AND (:maxViewCount IS NULL OR " +
+                        "     (CASE WHEN c.videoCount > 0 THEN c.viewCount / c.videoCount ELSE 0 END) <= :maxViewCount)")
         Page<Channel> searchChannels(
                         @Param("category") String category,
                         @Param("keyword") String keyword,
@@ -48,8 +51,12 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
                         "     OR LOWER(c.channelDescription) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
                         "AND (:minSubscribers IS NULL OR c.subscriberCount >= :minSubscribers) " +
                         "AND (:maxSubscribers IS NULL OR c.subscriberCount <= :maxSubscribers) " +
-                        "AND (:minViewCount IS NULL OR c.viewCount >= :minViewCount) " +
-                        "AND (:maxViewCount IS NULL OR c.viewCount <= :maxViewCount) " +
+                        "AND (:minViewCount IS NULL OR " +
+                        "     (CASE WHEN c.videoCount > 0 THEN c.viewCount / c.videoCount ELSE 0 END) >= :minViewCount) "
+                        +
+                        "AND (:maxViewCount IS NULL OR " +
+                        "     (CASE WHEN c.videoCount > 0 THEN c.viewCount / c.videoCount ELSE 0 END) <= :maxViewCount) "
+                        +
                         "ORDER BY " +
                         "CASE WHEN ls.costPerClick IS NOT NULL AND ls.dailyTraffic IS NOT NULL " +
                         "     AND ls.averageReviewScore IS NOT NULL AND ls.contractCount IS NOT NULL " +
@@ -119,25 +126,22 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
                         "     OR LOWER(c.channel_description) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
                         "AND (:minSubscribers IS NULL OR c.subscriber_count >= :minSubscribers) " +
                         "AND (:maxSubscribers IS NULL OR c.subscriber_count <= :maxSubscribers) " +
-                        "AND (:minViewCount IS NULL OR c.view_count >= :minViewCount) " +
-                        "AND (:maxViewCount IS NULL OR c.view_count <= :maxViewCount) " +
+                        "AND (:minViewCount IS NULL OR " +
+                        "     (CASE WHEN c.video_count > 0 THEN c.view_count / c.video_count ELSE 0 END) >= :minViewCount) "
+                        +
+                        "AND (:maxViewCount IS NULL OR " +
+                        "     (CASE WHEN c.video_count > 0 THEN c.view_count / c.video_count ELSE 0 END) <= :maxViewCount) "
+                        +
                         "ORDER BY " +
                         "CASE " +
                         "  WHEN :sortBy = 'subscriberCount' AND :sortDirection = 'desc' THEN c.subscriber_count " +
                         "  WHEN :sortBy = 'subscriberCount' AND :sortDirection = 'asc' THEN -c.subscriber_count " +
-                        "  WHEN :sortBy = 'avgViewCount' AND :sortDirection = 'desc' THEN c.view_count " +
-                        "  WHEN :sortBy = 'avgViewCount' AND :sortDirection = 'asc' THEN -c.view_count " +
+                        "  WHEN :sortBy = 'avgViewCount' AND :sortDirection = 'desc' THEN " +
+                        "    (CASE WHEN c.video_count > 0 THEN c.view_count / c.video_count ELSE 0 END) " +
+                        "  WHEN :sortBy = 'avgViewCount' AND :sortDirection = 'asc' THEN " +
+                        "    -(CASE WHEN c.video_count > 0 THEN c.view_count / c.video_count ELSE 0 END) " +
                         "  ELSE c.subscriber_count " +
-                        "END DESC", countQuery = "SELECT COUNT(*) FROM channel c " +
-                                        "WHERE (:category IS NULL OR c.channel_category = :category) " +
-                                        "AND (:keyword IS NULL OR (LOWER(c.channel_name) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-                                        +
-                                        "     OR LOWER(c.channel_description) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
-                                        +
-                                        "AND (:minSubscribers IS NULL OR c.subscriber_count >= :minSubscribers) " +
-                                        "AND (:maxSubscribers IS NULL OR c.subscriber_count <= :maxSubscribers) " +
-                                        "AND (:minViewCount IS NULL OR c.view_count >= :minViewCount) " +
-                                        "AND (:maxViewCount IS NULL OR c.view_count <= :maxViewCount)", nativeQuery = true)
+                        "END DESC", nativeQuery = true)
         Page<Channel> searchChannelsWithSort(
                         @Param("category") String category,
                         @Param("keyword") String keyword,

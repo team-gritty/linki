@@ -21,7 +21,8 @@
       :init-subscriber-min="getSubscriberMinForModal()"
       :init-subscriber-max="getSubscriberMaxForModal()"
       :init-subscriber-checks="getSubscriberChecksForModal()"
-      :init-view-direct="getViewDirectForModal()"
+      :init-view-min="getViewMinForModal()"
+      :init-view-max="getViewMaxForModal()"
       :init-view-checks="getViewChecksForModal()"
     />
 
@@ -520,9 +521,14 @@ function getSubscriberChecksForModal() {
   return currentFilters.value.originalModalData?.subscriberChecks || [true, false, false, false, false, false, false, false, false]
 }
 
-// 현재 모달에 초기화할 뷰 직접 반환
-function getViewDirectForModal() {
-  return currentFilters.value.originalModalData?.viewDirect || ''
+// 현재 모달에 초기화할 뷰 최소값 반환
+function getViewMinForModal() {
+  return currentFilters.value.originalModalData?.viewMin || ''
+}
+
+// 현재 모달에 초기화할 뷰 최대값 반환
+function getViewMaxForModal() {
+  return currentFilters.value.originalModalData?.viewMax || ''
 }
 
 // 현재 모달에 초기화할 뷰 체크 배열 반환
