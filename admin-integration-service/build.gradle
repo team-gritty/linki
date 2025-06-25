@@ -80,6 +80,8 @@ dependencies {
 	// 객체 ↔ JSON 변환용 (Redis에 DTO 저장 시 필요)
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 }
 
 

@@ -16,3 +16,7 @@ CREATE INDEX idx_cover_campaign ON campaign(advertiser_id, campaign_id);
 CREATE INDEX idx_cover_influencer ON influencer(user_id, influencer_id);
 CREATE INDEX idx_cover_channel ON channel(influencer_id, channel_id, channel_name);
 CREATE INDEX idx_cover_advertiser ON advertiser(user_id, advertiser_id, company_name);
+
+
+
+CREATE INDEX idx_campaign ON campaign(campaign_id);
