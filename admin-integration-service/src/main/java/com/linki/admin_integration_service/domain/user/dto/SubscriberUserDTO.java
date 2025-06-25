@@ -25,4 +25,7 @@ public class SubscriberUserDTO {
 
     @ExcelAnnotation.ExcelColumn(headerName = "구독 종료알")
     private LocalDateTime subscriptionEndDate;
+
+    @ExcelAnnotation.ExcelColumn(headerName = "userCursor")
+    private String userCursor;
 }

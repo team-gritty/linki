@@ -26,7 +26,7 @@
         <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
-      <tr v-else v-for="user in pagedUsers" :key="user.userId">
+      <tr v-else v-for="user in users" :key="user.userId">
         <td>{{ user.userId }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
@@ -44,7 +44,7 @@
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
-    <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
+    <div v-else v-for="user in users" :key="user.userId" class="member-card">
       <div class="card-header">
         <span class="user-id">No. {{ user.userId }}</span>
         <span class="user-status" :class="user.user_status">{{ user.user_status }}</span>
@@ -70,12 +70,16 @@
     </div>
   </div>
 
-  <!-- 페이지네이션 컴포넌트: 회원 목록 페이지 이동 -->
-  <Pagination 
+  <!-- Keyset 페이지네이션 컴포넌트 -->
+  <KeysetPagination 
     v-if="users.length > 0"
-    :totalPages="totalPages" 
-    :currentPage="currentPage" 
-    @update:currentPage="val => currentPage = val" 
+    :hasNext="hasNext"
+    :hasPrevious="hasPrevious" 
+    :isLoading="isLoading"
+    :currentSize="users.length"
+    :totalLoaded="users.length"
+    @next="goToNextPage"
+    @previous="goToPreviousPage"
   />
 </template>
 
@@ -83,46 +87,177 @@
 // ----------------------
 // import 및 변수 선언
 // ----------------------
-import { ref, computed, onMounted } from 'vue'
-import { getSubscriberUserList, searchSubscriberUser, exportExcel } from '@/js/user/SubscriberUser.js'
-import Pagination from '@/components/common/Pagination.vue'
+import { ref, onMounted } from 'vue'
+import { getSubscriberUserListWithKeyset, searchSubscriberUserWithKeyset, exportExcel } from '@/js/user/SubscriberUser.js'
+import KeysetPagination from '@/components/common/KeysetPagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
 // 회원 데이터 배열
 const users = ref([])
-// 현재 페이지 번호
-const currentPage = ref(1)
-// 한 페이지에 보여줄 회원 수
+// 페이지네이션 상태
+const hasNext = ref(false)
+const hasPrevious = ref(false)
+const isLoading = ref(false)
 const pageSize = 10
+
+// 커서 스택 관리 (전역 상태)
+const cursorStack = ref([])
+let currentCursor = null
+
+// 검색 관련 상태
+const isSearchMode = ref(false)
+const searchState = ref({ searchType: '', keyword: '' })
 
 // ----------------------
 // 검색바 설정
 // ----------------------
 const searchConfig = {
   options: [
-    { value: 'userId', label: '회원번호', endpoint: '/v1/admin/api/advertiserUser/search' },
-    { value: 'name', label: '이름', endpoint: '/v1/admin/api/advertiserUser/search' },
-    { value: 'email', label: '이메일', endpoint: '/v1/admin/api/advertiserUser/search' },
-    { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/advertiserUser/search' },
+    { value: 'userId', label: '회원번호', endpoint: '/v1/admin/api/subscriberUsers/search' },
+    { value: 'name', label: '이름', endpoint: '/v1/admin/api/subscriberUsers/search' },
+    { value: 'email', label: '이메일', endpoint: '/v1/admin/api/subscriberUsers/search' },
+    { value: 'phone', label: '연락처', endpoint: '/v1/admin/api/subscriberUsers/search' },
   ],
   placeholder: '검색어를 입력하세요',
-  endpoint: '/v1/admin/api/subscriberUser'
+  endpoint: '/v1/admin/api/subscriberUsers'
+}
+
+// ----------------------
+// 데이터 로드 함수
+// ----------------------
+const loadUsers = async (cursor = null) => {
+  try {
+    isLoading.value = true
+    console.log('🔍 구독자 목록 로드 - cursor:', cursor, 'size:', pageSize)
+    
+    let response
+    if (isSearchMode.value) {
+      // 검색 모드
+      response = await searchSubscriberUserWithKeyset(
+        searchState.value.searchType,
+        searchState.value.keyword,
+        cursor,
+        pageSize
+      )
+    } else {
+      // 일반 모드
+      response = await getSubscriberUserListWithKeyset(cursor, pageSize)
+    }
+    
+    if (response.data) {
+      // Keyset 응답 구조 처리
+      if (response.data.list) {
+        users.value = response.data.list
+        hasNext.value = response.data.hasNext || false
+        // userCursor로 currentCursor 세팅
+        if (users.value.length > 0) {
+          currentCursor = users.value[users.value.length - 1].userCursor || null
+        } else {
+          currentCursor = null
+        }
+        
+        console.log('📊 구독자 데이터 로드 완료:', {
+          count: users.value.length,
+          hasNext: hasNext.value,
+          nextCursor: currentCursor
+        })
+      } else {
+        // 기존 방식 응답
+        users.value = Array.isArray(response.data) ? response.data : []
+        hasNext.value = false
+        currentCursor = null
+      }
+    }
+  } catch (error) {
+    console.error('구독자 목록 로드 중 오류:', error)
+    window.alert('구독자 목록을 불러오지 못했습니다.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ----------------------
+// 다음 페이지로 이동
+// ----------------------
+const goToNextPage = async () => {
+  if (!hasNext.value || isLoading.value) return
+  
+  // 현재 커서를 스택에 저장 (이전 페이지로 돌아갈 때 사용)
+  if (currentCursor !== null) {
+    const stackEntry = {
+      cursor: currentCursor,
+      searchMode: isSearchMode.value,
+      searchType: searchState.value.searchType,
+      keyword: searchState.value.keyword
+    }
+    cursorStack.value.push(stackEntry)
+    console.log('📚 커서 스택에 추가:', stackEntry)
+  }
+  
+  // 다음 페이지 로드
+  await loadUsers(currentCursor)
+  
+  // 이전 페이지 버튼 활성화
+  hasPrevious.value = cursorStack.value.length > 0
+}
+
+// ----------------------
+// 이전 페이지로 이동
+// ----------------------
+const goToPreviousPage = async () => {
+  if (!hasPrevious.value || cursorStack.value.length === 0 || isLoading.value) return
+  
+  // 스택에서 이전 상태 복원
+  const prevState = cursorStack.value.pop()
+  console.log('📚 커서 스택에서 복원:', prevState)
+  
+  // 검색 상태 복원
+  isSearchMode.value = prevState.searchMode
+  if (prevState.searchMode) {
+    searchState.value.searchType = prevState.searchType
+    searchState.value.keyword = prevState.keyword
+  }
+  
+  // 이전 페이지 로드
+  await loadUsers(prevState.cursor)
+  
+  // 이전 페이지 버튼 상태 업데이트
+  hasPrevious.value = cursorStack.value.length > 0
 }
 
 // ----------------------
 // 검색 이벤트 처리 함수
 // ----------------------
-const handleSearch = async (searchState) => {
+const handleSearch = async (searchEventState) => {
   try {
-    const response = await searchSubscriberUser(
-      searchState.selectedOption,
-      searchState.keyword
-    )
-    
-    if (response.data) {
-      users.value = Array.isArray(response.data) ? response.data : []
-      currentPage.value = 1 // 검색 시 첫 페이지로 이동
+    if (!searchEventState.keyword.trim()) {
+      // 빈 검색어면 일반 모드로 전환
+      isSearchMode.value = false
+      searchState.value = { searchType: '', keyword: '' }
+      // 커서 스택 초기화
+      cursorStack.value = []
+      currentCursor = null
+      hasPrevious.value = false
+      
+      await loadUsers(null)
+      return
     }
+
+    // 검색 모드로 전환
+    isSearchMode.value = true
+    searchState.value = {
+      searchType: searchEventState.selectedOption,
+      keyword: searchEventState.keyword
+    }
+    
+    // 커서 스택 초기화 (새로운 검색)
+    cursorStack.value = []
+    currentCursor = null
+    hasPrevious.value = false
+    
+    console.log('🔍 검색 모드 활성화:', searchState.value)
+    await loadUsers(null)
+    
   } catch (error) {
     console.error('검색 중 오류 발생:', error)
     window.alert('검색 중 오류가 발생했습니다.')
@@ -145,26 +280,9 @@ const handleExportExcel = async () => {
 // 컴포넌트 마운트 시 회원 목록 불러오기
 // ----------------------
 onMounted(async () => {
-  try {
-    const res = await getSubscriberUserList(1, 10)
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('회원 목록을 불러오지 못했습니다.')
-  }
+  console.log('🚀 SubscriberUserTable 마운트 시작')
+  await loadUsers(null)
 })
-
-// ----------------------
-// 현재 페이지에 보여줄 회원 데이터 계산
-// ----------------------
-const pagedUsers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return users.value.slice(start, start + pageSize)
-})
-
-// ----------------------
-// 전체 페이지 수 계산
-// ----------------------
-const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
 </script>
 
 <style scoped>
