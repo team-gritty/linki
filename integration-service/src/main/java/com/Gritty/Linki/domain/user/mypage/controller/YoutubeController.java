@@ -28,9 +28,11 @@ public class YoutubeController {
 
             YoutubeChannelInfo info = youtubeService.getMyChannel(accessToken);
             log.info("가져온 채널 정보: {}", info);
+            log.info("채널 ID: {}", info.getId());
+            log.info("채널 제목: {}", info.getTitle());
 
             Map<String, String> response = new HashMap<>();
-            if (info.getChannelId() != null) response.put("channelId", info.getChannelId());
+            if (info.getId() != null) response.put("channelId", info.getId());
             if (info.getTitle() != null) response.put("title", info.getTitle());
             if (info.getThumbnailUrl() != null) response.put("thumbnail", info.getThumbnailUrl());
             if (info.getDescription() != null) response.put("description", info.getDescription());
@@ -42,6 +44,7 @@ public class YoutubeController {
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);         // ✅ boolean 값
             result.put("data", response);        // ✅ 내부 Map<String, String> 포함
+            log.info(result.toString());
 
             return ResponseEntity.ok(result);
 

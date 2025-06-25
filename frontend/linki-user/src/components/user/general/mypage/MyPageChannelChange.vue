@@ -34,6 +34,10 @@
         <span>{{ influencerData.channelName || '없음' }}</span>
       </div>
       <div class="info-group">
+        <label>채널 ID</label>
+        <span>{{ influencerData.channelId || '없음' }}</span>
+      </div>
+      <div class="info-group">
         <label>채널 URL</label>
         <span>{{ influencerData.channelUrl || '없음' }}</span>
       </div>
@@ -134,6 +138,7 @@ const selectedFileName = ref('')
 const route = useRoute()
 
 const influencerData = ref({
+  channelId: '',
   channelName: '',
   channelUrl: '',
   name: '',
@@ -168,9 +173,13 @@ const fetchData = async () => {
     const response = await httpClient.get(`v1/api/user/youtube/callback?code=${code}`)
     if (response.data.success) {
       const data = response.data.data
+      console.log('받은 채널 데이터:', data)
+      console.log('채널 ID:', data.channelId)
+      
       // If backend always returns influencer channel data now, update accordingly:
       if (selectedTab.value === 'influencer') {
         influencerData.value = {
+          channelId: data.channelId || '',
           channelName: data.title || '',
           channelUrl: data.channelId ? `https://www.youtube.com/channel/${data.channelId}` : '',
           name: '', // You can fill this in later if you retrieve it
@@ -220,8 +229,8 @@ const handleRegistration = async () => {
     }
 
     const payload = {
-      influencerId: influencerData.value.channelUrl?.split('/').pop(), // 유튜브 채널 ID
-
+      id: influencerData.value.channelId,
+      channelId: influencerData.value.channelId,
       snippet: {
         title: influencerData.value.channelName,
         thumbnails: {

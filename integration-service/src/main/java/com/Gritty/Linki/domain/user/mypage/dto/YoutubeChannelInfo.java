@@ -2,15 +2,19 @@ package com.Gritty.Linki.domain.user.mypage.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
+@Getter
 public class YoutubeChannelInfo {
     private String id;
     private Snippet snippet;
     private String influencerId;
+    private String channelId;
+
 
     @Data
     public static class Snippet {
@@ -21,6 +25,9 @@ public class YoutubeChannelInfo {
         private String customUrl;
         private String country;
         private String category;
+
+        private LocalDateTime collectedAt;
+
     }
 
     @Data
@@ -38,9 +45,11 @@ public class YoutubeChannelInfo {
         private String url;
     }
 
-    public String getChannelId() {
+    public String getId() {
         return id;
     }
+
+    public String getchannelId() {return channelId;}
 
     public String getTitle() {
         return snippet.getTitle();
@@ -68,9 +77,10 @@ public class YoutubeChannelInfo {
         return snippet != null ? snippet.getCountry() : null;
     }
 
-    public String getcategory() {
-        return snippet != null ? snippet.getCountry() : null;
+    public String getCategory() {
+        return snippet != null ? snippet.getCategory() : null;
     }
+
 
 }
 

@@ -11,6 +11,7 @@ import com.Gritty.Linki.repository.ChannelRepository;
 import com.Gritty.Linki.repository.InfluencerRepository;
 import com.Gritty.Linki.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class YoutubeService {
     @Value("${GOOGLE_CLIENT_ID}")
     private String clientId;
@@ -89,14 +91,18 @@ public class YoutubeService {
 
                 Channel channel = Channel.builder()
                         .channelId(IdGenerator.channelId())
+                        .youtubeChannelId(channelInfo.getId())
                         .channelName(channelInfo.getTitle())
-                        .channelUrl("http://www.youtube.com/channel/" + channelInfo.getChannelId())
+                        .channelUrl("http://www.youtube.com/channel/" + channelInfo.getId())
                         .channelCountry(channelInfo.getCountry())
-                        .channelCategory(channelInfo.getcategory())
+                        .channelCategory(channelInfo.getCategory())
                         .channelCreatedAt(LocalDateTime.parse(channelInfo.getPublishedAt()))
+                        .channelDescription(channelInfo.getDescription())
+                        .channelThumbnailUrl(channelInfo.getThumbnailUrl())
                         .influencer(influencer)
                         .build();
 
+                log.info("채널아이디" + channelInfo.getId());
                 channelRepository.save(channel);
 
 
