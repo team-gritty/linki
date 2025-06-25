@@ -226,7 +226,9 @@ public class YouTubeApiService {
      * @return {avgLikeCount, avgCommentCount} 배열
      */
     public long[] getChannelVideoAverages(String youtubeChannelId, int maxResults) {
+        log.info("getChannelVideoAverages-----");
         try {
+            log.info("getChannelVideoAverages try 문 시작-----");
             // 1. 채널의 업로드 플레이리스트 ID 가져오기
             String uploadsPlaylistId = getUploadsPlaylistId(youtubeChannelId);
             if (uploadsPlaylistId == null) {
