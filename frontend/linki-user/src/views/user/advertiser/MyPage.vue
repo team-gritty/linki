@@ -22,7 +22,6 @@
       />
       <DetailContract
         v-if="selectedContract && (currentMenu === 'contract.ongoing' || currentMenu === 'contract.completed')"
-        :contract="selectedContract"
         @back="handleBackToList"
       />
       
@@ -84,6 +83,8 @@ function onContractsLoaded(data) {
 function handleShowDetail(contract) {
   selectedContract.value = contract
 }
+
+
 
 function handleBackToList() {
   selectedContract.value = null

@@ -20,6 +20,7 @@ public class ContractListResponseDTO {
     private LocalDate contractEndDate;
     private BigDecimal contractAmount;
     private String proposalId;
+    private String campaignId;
     private String campaignTitle;       // 제안서 → 캠페인 연관된 제목
     private Boolean adDeliveryStatus;   // 광고주 화면에서만 사용
 

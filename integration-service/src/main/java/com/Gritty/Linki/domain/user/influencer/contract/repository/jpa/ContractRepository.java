@@ -46,7 +46,7 @@ AND s.settlementStatus = 'COMPLETED'
     // 로그인한 인플루언서의 계약 목록 조회
     @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO(" +
             "c.contractId, c.contractTitle, c.contractStatus, c.contractStartDate, c.contractEndDate, " +
-            "c.contractAmount, p.proposalId, camp.campaignName, c.adDeliveryStatus) " +
+            "c.contractAmount, p.proposalId, camp.campaignId, camp.campaignName, c.adDeliveryStatus) " +
             "FROM Contract c " +
             "JOIN c.proposal p " +
             "JOIN p.campaign camp " +
@@ -59,7 +59,7 @@ AND s.settlementStatus = 'COMPLETED'
     // 로그인 한 광고주의 계약 목록 조회
     @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO(" +
             "c.contractId, c.contractTitle, c.contractStatus, c.contractStartDate, c.contractEndDate, " +
-            "c.contractAmount, p.proposalId, camp.campaignName, c.adDeliveryStatus) " +
+            "c.contractAmount, p.proposalId, camp.campaignId, camp.campaignName, c.adDeliveryStatus) " +
             "FROM Contract c " +
             "JOIN c.proposal p " +
             "JOIN p.campaign camp " +
@@ -72,7 +72,7 @@ AND s.settlementStatus = 'COMPLETED'
     // 인플루언서용 계약 상세 조회
     @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO(" +
             "c.contractId, c.contractTitle, c.contractStatus, c.contractStartDate, " +
-            "c.contractEndDate, c.contractAmount, p.proposalId, camp.campaignName, c.adDeliveryStatus, " +
+            "c.contractEndDate, c.contractAmount, p.proposalId, camp.campaignId, camp.campaignName, c.adDeliveryStatus, " +
             "c.pdfFilePath, c.contractCreatedAt, c.contractCompletedAt, c.contractSpecialTerms, p.influencer.influencerId) " +
             "FROM Contract c " +
             "JOIN c.proposal p " +
@@ -86,12 +86,12 @@ AND s.settlementStatus = 'COMPLETED'
     // 광고주용 계약 상세 조회
     @Query("SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO(" +
             "c.contractId, c.contractTitle, c.contractStatus, c.contractStartDate, " +
-            "c.contractEndDate, c.contractAmount, p.proposalId, camp.campaignName, c.adDeliveryStatus, " +
-            "c.pdfFilePath, c.contractCreatedAt, c.contractCompletedAt, c.contractSpecialTerms, p.influencer.influencerId) " +  // ✅ 마지막에 influencerId 추가
+            "c.contractEndDate, c.contractAmount, p.proposalId, camp.campaignId, camp.campaignName, c.adDeliveryStatus, " +
+            "c.pdfFilePath, c.contractCreatedAt, c.contractCompletedAt, c.contractSpecialTerms, p.influencer.influencerId) " +
             "FROM Contract c " +
             "JOIN c.proposal p " +
             "JOIN p.campaign camp " +
-            "JOIN camp.advertiser a " +  // ✅ advertiser 명시적 조인
+            "JOIN camp.advertiser a " +
             "WHERE c.contractId = :contractId AND a.advertiserId = :advertiserId")
     Optional<ContractDetailResponseDTO> findContractDetailForAdvertiser(
             @Param("contractId") String contractId,

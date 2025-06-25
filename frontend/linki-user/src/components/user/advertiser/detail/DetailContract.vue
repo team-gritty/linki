@@ -1,6 +1,9 @@
 <template>
   <div class="contract-detail-content">
-    <div v-if="!contract">
+    <div v-if="loading" class="loading">
+      <p>계약 정보를 불러오는 중입니다...</p>
+    </div>
+    <div v-else-if="!contract">
       <p>계약 정보가 없습니다.</p>
     </div>
     <div v-else>
@@ -65,39 +68,52 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted } from 'vue'
+import { defineEmits, ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { contractApi } from '@/api/advertiser/advertiser-contract'
 import ContractExecutionButton from '../ContractExecutionButton.vue'
 
 const emit = defineEmits(['back'])
-const props = defineProps({
-  contract: {
-    type: Object,
-    required: true
-  },
-  campaignId: {
-    type: String,
-    required: false
-  }
-})
+const route = useRoute()
+const router = useRouter()
 
-// 캠페인별 계약 목록 상태 및 fetch 함수 추가
-const contracts = ref([])
+// 계약 상세 정보
+const contract = ref(null)
+const loading = ref(false)
 
-const fetchContracts = async () => {
-  if (!props.campaignId) return
+const fetchContractDetail = async () => {
   try {
-    const response = await contractApi.getMyContracts()
-    contracts.value = (Array.isArray(response.data) ? response.data : []).filter(
-      contract => contract.campaignId === props.campaignId
-    )
+    loading.value = true
+    const contractId = route.query.contractId
+    
+    if (!contractId) {
+      console.error('Contract ID not found in query parameters')
+      return
+    }
+    
+    console.log('Fetching contract detail for:', contractId)
+    const response = await contractApi.getContractDetail(contractId)
+    contract.value = response
+    console.log('Contract detail:', response)
+    
+    // campaignId가 URL에 없고 응답에 있으면 URL 업데이트
+    if (response.campaignId && route.params.id === 'undefined') {
+      console.log('Updating URL with correct campaignId:', response.campaignId)
+      // 현재 URL을 올바른 campaignId로 업데이트
+      router.replace({
+        path: `/mypage/campaign-detail/${response.campaignId}`,
+        query: route.query
+      })
+    }
   } catch (error) {
-    contracts.value = []
+    console.error('Error fetching contract detail:', error)
+  } finally {
+    loading.value = false
   }
 }
 
 onMounted(() => {
-  fetchContracts()
+  fetchContractDetail()
 })
 
 function formatDate(dateString) {

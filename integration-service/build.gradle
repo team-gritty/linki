@@ -99,6 +99,13 @@ dependencies {
 	// Spring oAuth2 Client
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // Json 파싱
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' // ✅ 반드시 포함
+
 
 }
 

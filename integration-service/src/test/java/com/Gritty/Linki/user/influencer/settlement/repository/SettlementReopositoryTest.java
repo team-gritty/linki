@@ -51,7 +51,7 @@ public class SettlementReopositoryTest {
                 .userEnterDay(LocalDate.now())
                 .userRole("ROLE_INFLUENCER")
                 .build();
-        Influencer influencer = new Influencer("INF1234","USER0000",user);
+        Influencer influencer = Influencer.builder().build();
         em.persist(influencer);
 
         Advertiser advertiser = Advertiser.builder()

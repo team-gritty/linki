@@ -33,7 +33,7 @@
         </div>
       </template>
       <template v-else>
-        <DetailContract :contract="selectedContract" @back="goBackToList" />
+        <DetailContract @back="goBackToList" />
       </template>
     </main>
   </div>

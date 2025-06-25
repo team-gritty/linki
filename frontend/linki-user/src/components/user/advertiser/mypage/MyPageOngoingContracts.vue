@@ -44,32 +44,52 @@ const router = useRouter();
 
 const fetchContracts = async () => {
   try {
-    const response = await contractApi.getMyContracts();
-    let contractList = Array.isArray(response.data) ? response.data : [];
-    contracts.value = contractList
-      .filter(contract => 
-        contract.contractStatus === 'ONGOING' || 
-        contract.contractStatus === 'PENDING_SIGN'
-      )
-      .map(contract => ({
-        contractId: contract.contractId,
-        contractTitle: contract.contractTitle,
-        contractStatus: contract.contractStatus,
-        contractStartDate: contract.contractStartDate,
-        contractEndDate: contract.contractEndDate,
-        contractAmount: contract.contractAmount,
-        ...contract
-      }));
+    // 진행중인 계약만 조회: ONGOING, PENDING_SIGN 상태만
+    const response = await contractApi.getMyContracts(['ONGOING', 'PENDING_SIGN']);
+    console.log('API Response:', response);
+    console.log('Response data:', response.data);
+    
+    // 응답 구조 확인
+    let contractList;
+    if (Array.isArray(response.data)) {
+      contractList = response.data;
+    } else if (Array.isArray(response)) {
+      contractList = response;
+    } else if (response.data && Array.isArray(response.data.data)) {
+      contractList = response.data.data;
+    } else {
+      console.warn('Unexpected response structure:', response);
+      contractList = [];
+    }
+    
+    console.log('Contract list:', contractList);
+    
+    contracts.value = contractList.map(contract => ({
+      contractId: contract.contractId,
+      contractTitle: contract.contractTitle,
+      contractStatus: contract.contractStatus,
+      contractStartDate: contract.contractStartDate,
+      contractEndDate: contract.contractEndDate,
+      contractAmount: contract.contractAmount,
+      ...contract
+    }));
+    
+    console.log('Final contracts:', contracts.value);
   } catch (error) {
+    console.error('Error fetching contracts:', error);
     contracts.value = [];
   }
 };
 
 function viewContractDetail(contract) {
+  console.log('Viewing contract detail:', contract);
+  console.log('campaignId:', contract.campaignId);
+  
+  // 4개 탭이 있는 상세 페이지로 이동 (계약 탭을 기본으로)
   router.push({
-    path: `/mypage/campaign-detail/${contract.campaignId}`,
+    path: `/mypage/campaign-detail/${contract.campaignId || 'unknown'}`,
     query: { 
-      tab: 'contract.list',
+      tab: 'contract',
       contractId: contract.contractId
     }
   });
