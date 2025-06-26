@@ -123,17 +123,43 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
 import { reviewApi } from '@/api/review'
+import { useCampaignAccessStore } from '@/stores/campaignAccess'
 
 const route = useRoute()
 const router = useRouter()
 const campaign = ref(null)
 const loading = ref(false)
 const error = ref(null)
+const campaignAccessStore = useCampaignAccessStore()
 
 // 리뷰 관련 상태
 const reviews = ref([])
 const loadingReviews = ref(false)
 const reviewError = ref(null)
+
+// 접근 권한 체크
+const checkAccess = () => {
+  const accessResult = campaignAccessStore.attemptCampaignAccess()
+  
+  if (!accessResult.success) {
+    if (accessResult.reason === 'NOT_LOGGED_IN') {
+      alert(accessResult.message)
+      router.push('/login')
+      return false
+    } else if (accessResult.reason === 'LIMIT_EXCEEDED') {
+      alert(accessResult.message + '\n프리미엄 회원으로 업그레이드하면 무제한으로 이용하실 수 있습니다.')
+      router.back()
+      return false
+    }
+  } else {
+    // 접근 성공 시 남은 횟수 알림 (일반회원인 경우)
+    if (accessResult.reason === 'ACCESS_ALLOWED' && accessResult.remainingCount !== undefined) {
+      console.log(accessResult.message)
+    }
+  }
+  
+  return true
+}
 
 const fetchCampaignDetail = async () => {
   try {
@@ -264,12 +290,18 @@ const onImageError = (event) => {
 }
 
 onMounted(() => {
-  fetchCampaignDetail()
+  // 접근 권한 체크 후 캠페인 상세 정보 로드
+  if (checkAccess()) {
+    fetchCampaignDetail()
+  }
 })
 
 // route.params.id가 바뀔 때마다 캠페인 상세 재조회
 watch(() => route.params.id, () => {
-  fetchCampaignDetail()
+  // 접근 권한 체크 후 캠페인 상세 정보 로드
+  if (checkAccess()) {
+    fetchCampaignDetail()
+  }
 })
 </script>
 
