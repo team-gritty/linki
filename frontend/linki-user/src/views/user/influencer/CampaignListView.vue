@@ -216,7 +216,12 @@ const fetchCampaigns = async (additionalParams = {}) => {
     loading.value = true
     error.value = null
     
+    // additionalParams의 _page가 있으면 우선 사용, 없으면 currentPage.value 사용
+    const pageToFetch = additionalParams._page || currentPage.value
+    
     const params = {
+      _page: pageToFetch,
+      _limit: itemsPerPage,
       _sort: sortBy.value,
       _order: 'desc',
       ...additionalParams
@@ -226,34 +231,42 @@ const fetchCampaigns = async (additionalParams = {}) => {
       params.campaignCategory = selectedCategory.value
     }
 
-    console.log('Fetching with params:', params) // 디버깅용
+    console.log('Fetching with pagination params:', params) // 디버깅용
+    console.log('Current page state:', currentPage.value, 'Page to fetch:', pageToFetch) // 디버깅용
 
-    const response = await campaignAPI.getCampaigns(params)
-    console.log('Total campaigns from API:', response.campaigns.length) // 디버깅용
-    
-    // 인기 캠페인에 이미 표시된 캠페인들의 ID 목록
-    const popularCampaignIds = popularCampaigns.value.map(campaign => campaign.campaignId)
-    console.log('Popular campaign IDs:', popularCampaignIds) // 디버깅용
-    
-    // 인기 캠페인에 없는 캠페인들만 필터링
-    const filteredCampaigns = response.campaigns.filter(campaign => 
-      !popularCampaignIds.includes(campaign.campaignId)
-    )
-    console.log('Filtered campaigns (excluding popular):', filteredCampaigns.length) // 디버깅용
-    
-    // 전체 아이템 수 계산 (인기 캠페인 제외)
-    const totalFilteredItems = filteredCampaigns.length
-    totalPages.value = Math.ceil(totalFilteredItems / itemsPerPage)
-    console.log(`Total filtered items: ${totalFilteredItems}, Items per page: ${itemsPerPage}, Total pages: ${totalPages.value}`) // 디버깅용
-    
-    // 현재 페이지에 해당하는 캠페인만 추출
-    const startIndex = (currentPage.value - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    campaigns.value = filteredCampaigns.slice(startIndex, endIndex)
-    
-    console.log(`Showing page ${currentPage.value} of ${totalPages.value}`) // 디버깅용
-    console.log(`Start index: ${startIndex}, End index: ${endIndex}`) // 디버깅용
-    console.log('Fetched campaigns (current page):', campaigns.value.length) // 디버깅용
+    try {
+      // 먼저 페이지네이션 API 시도
+      const response = await campaignAPI.getCampaignsWithPagination(params)
+      console.log('Pagination response:', response) // 디버깅용
+      
+      campaigns.value = response.campaigns
+      totalPages.value = response.totalPages
+      
+      // 응답받은 currentPage로 현재 페이지 상태 업데이트
+      if (response.currentPage) {
+        currentPage.value = response.currentPage
+      }
+      
+      console.log(`Page ${response.currentPage} of ${response.totalPages} (state updated to: ${currentPage.value})`) // 디버깅용
+      console.log('Fetched campaigns:', campaigns.value.length) // 디버깅용
+    } catch (paginationError) {
+      console.warn('페이지네이션 API 실패, 기존 API 사용:', paginationError)
+      
+      // 페이지네이션 API 실패 시 기존 API 사용
+      const response = await campaignAPI.getCampaigns(params)
+      console.log('Fallback response:', response) // 디버깅용
+      
+      const allCampaigns = response.campaigns
+      
+      // 프론트엔드에서 페이지네이션 처리
+      const startIndex = (currentPage.value - 1) * itemsPerPage
+      const endIndex = startIndex + itemsPerPage
+      campaigns.value = allCampaigns.slice(startIndex, endIndex)
+      totalPages.value = Math.ceil(allCampaigns.length / itemsPerPage)
+      
+      console.log(`Fallback pagination: Page ${currentPage.value} of ${totalPages.value}`)
+      console.log('Fetched campaigns (fallback):', campaigns.value.length)
+    }
   } catch (err) {
     console.error('캠페인 목록 로딩 실패:', err)
     error.value = '캠페인 목록을 불러오는데 실패했습니다.'
@@ -290,7 +303,9 @@ const changePage = (page) => {
   console.log(`Changing to page: ${page}`) // 디버깅용
   
   // 현재 선택된 카테고리를 유지하면서 페이지 변경
-  const additionalParams = {}
+  const additionalParams = {
+    _page: page  // 명시적으로 페이지 번호 전달
+  }
   if (selectedCategory.value && selectedCategory.value !== '전체') {
     additionalParams.campaignCategory = selectedCategory.value
   }

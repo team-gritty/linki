@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ProposalListResponseDTO {
     private String proposalId;
-    private String campaignTitle;
+    private String campaignName;
     private String campaignId;
     private LocalDateTime submittedAt;
     private ProposalStatus status;

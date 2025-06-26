@@ -3,6 +3,7 @@ package com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.home.EndingTodayCampaignResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
 import com.Gritty.Linki.vo.enums.Category;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,12 @@ public interface InfluencerCampaignRepository extends JpaRepository<Campaign,Str
 
     // 카테고리별 조회
     List<Campaign> findAllByCampaignCategory(Category category);
+
+    // 카테고리별 조회 (페이지네이션)
+    Page<Campaign> findAllByCampaignCategory(Category category, Pageable pageable);
+
+    // 전체 캠페인 조회 (페이지네이션)
+    Page<Campaign> findAll(Pageable pageable);
 
     /**
      * proposalId, influencerId 로 Campaign 을 조회
