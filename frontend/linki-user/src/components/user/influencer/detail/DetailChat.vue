@@ -188,15 +188,7 @@ const connectSocket = (chatId) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
-          
-          console.log('🔔 [WEBSOCKET-INFLUENCER] ===== 새 메시지 수신 =====')
-          console.log('🔔 [WEBSOCKET-INFLUENCER] 받은 메시지:', message)
-          console.log('🔔 [WEBSOCKET-INFLUENCER] 메시지 chatId:', message.chatId)
-          console.log('🔔 [WEBSOCKET-INFLUENCER] 메시지 senderId:', message.senderId)
-          console.log('🔔 [WEBSOCKET-INFLUENCER] 현재 사용자 ID:', currentUserId.value)
-          console.log('🔔 [WEBSOCKET-INFLUENCER] 현재 채팅방(props.chatRoom.chatId):', props.chatRoom?.chatId)
-          console.log('🔔 [WEBSOCKET-INFLUENCER] 현재 채팅방인가?', props.chatRoom?.chatId === message.chatId)
-          console.log('🔔 [WEBSOCKET-INFLUENCER] new 값으로 설정될 값:', false) // 현재 채팅방이므로 항상 false
+
           
           // 전역 chat store 직접 업데이트 (드롭다운용)
           console.log('🔄 [WEBSOCKET-INFLUENCER] 전역 chat store 업데이트 시작')
