@@ -87,26 +87,5 @@ public class YouTubeChannelController {
         }
     }
 
-    /**
-     * 스케줄러를 통한 자동 채널 통계 업데이트
-     * 매주 일요일 오전 2시에 실행
-     * cron 표현식: 초(0) 분(0) 시(2) 일(*) 월(*) 요일(0=일요일)
-     */
-    @Scheduled(cron = "0 0 2 * * 0")
-    public void scheduledChannelStatisticsUpdate() {
-        log.info("=== 스케줄러를 통한 주간 채널 통계 업데이트 시작 ===");
 
-        try {
-            // 모든 채널 ID 조회
-            List<String> allChannelIds = channelService.getAllChannelIds();
-
-            // 일괄 업데이트 실행 (최근 30개 영상 기준)
-            channelService.updateChannelStatisticsBatch(allChannelIds);
-
-            log.info("=== 스케줄러를 통한 주간 채널 통계 업데이트 완료 - 총 {}개 채널 ===", allChannelIds.size());
-
-        } catch (Exception e) {
-            log.error("=== 스케줄러를 통한 채널 통계 업데이트 실패 - error: {} ===", e.getMessage(), e);
-        }
-    }
 }

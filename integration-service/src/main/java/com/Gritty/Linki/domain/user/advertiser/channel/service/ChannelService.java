@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -461,5 +462,21 @@ public class ChannelService {
                 log.info("모든 채널 ID 조회 완료 - 총 {}개 채널", channelIds.size());
 
                 return channelIds;
+        }
+
+        /**
+         * 모든 채널의 통계 정보를 정기적으로 업데이트하는 스케줄러
+         * 매주 일요일 새벽 2시에 실행
+         */
+        @Scheduled(cron = "0 0 2 * * 0")
+        public void scheduledChannelStatisticsUpdate() {
+                log.info("=== 주간 채널 통계 업데이트 스케줄러 시작 ===");
+
+                List<String> allChannelIds = getAllChannelIds();
+                log.info("업데이트 대상 채널 수: {}", allChannelIds.size());
+
+                updateChannelStatisticsBatch(allChannelIds);
+
+                log.info("=== 주간 채널 통계 업데이트 스케줄러 완료 ===");
         }
 }

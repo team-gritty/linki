@@ -387,7 +387,7 @@ public class YouTubeApiService {
      *         avgLikeCount, avgCommentCount]
      */
     public long[] getChannelFullDetails(String youtubeChannelId, int maxResults) {
-        log.info("YouTube 채널 전체 정보 조회 시작 - channelId: {}", youtubeChannelId);
+        log.info("한개 YouTube 채널의 전체 정보 조회 시작 - channelId: {}", youtubeChannelId);
 
         try {
             // 1. 채널 기본 통계 조회 (구독자 수, 영상 수, 조회수)
@@ -487,4 +487,6 @@ public class YouTubeApiService {
             return null;
         }
     }
+
+
 }
