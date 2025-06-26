@@ -73,6 +73,8 @@ public class ChatListener {
 
             //메일 발송
             mailService.sendPostNotification(event.getUserEmail(), notificationDto.getMessage());
+            mailService.sendPostNotification(event.getPartnerEmail(), notificationDto.getMessage());
+
             notificationService.sendNotificationToChat(event.getProposalId(), notificationDto.getMessage());
 
         } catch (JsonProcessingException e) {

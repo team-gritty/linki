@@ -15,4 +15,6 @@ public class Event {
     private String userName;
     private String proposalId;
     private String userEmail;
+    private String partnerUserId;  // 상대방 사용자 ID
+    private String partnerEmail;   // 상대방 이메일
 }
