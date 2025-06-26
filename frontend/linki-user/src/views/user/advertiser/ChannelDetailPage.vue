@@ -133,15 +133,8 @@
         <div class="intro-section">
           <h2>소개</h2>
           <p class="intro-text">
-            안녕하세요, 저는 2030대 여성을 타겟으로 뷰티와 라이프스타일 콘텐츠를 제작하고 있는 유튜버입니다. 솔직한 사용 후기와 자연스러운 생활 속 뷰티 꿀팁으로 유용한 제품을 추천하며, 광고보다는 일상 속 진정성 있는 리뷰를 선호합니다. 평균 조회수는 약 3만5천이며, 뷰티 제품의 경우 시청자 참여율이 높고, 브랜드의 핵심 메시지가 시청자의 언어로 잘 전달되는 데 집중하고 있으며, 구독자와의 신뢰를 바탕으로 한 광고를 진행합니다.
+            {{ channel.influencerIntro || '인플루언서 소개글이 등록되지 않았습니다.' }}
           </p>
-          <ul class="intro-list">
-            <li>Type Of Packing: Bottle</li>
-            <li>Color: Green, Pink, Powder Blue, Purple</li>
-            <li>Quantity Per Case: 100ml</li>
-            <li>Ethyl Alcohol: 70%</li>
-            <li>Piece In One: Carton</li>
-          </ul>
         </div>
       </div>
       <div v-else>

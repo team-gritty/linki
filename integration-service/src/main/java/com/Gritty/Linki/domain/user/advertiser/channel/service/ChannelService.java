@@ -413,6 +413,12 @@ public class ChannelService {
                         }
                 }
 
+                // 4. 인플루언서 소개글 조회
+                String influencerIntro = null;
+                if (channel.getInfluencer() != null) {
+                        influencerIntro = channel.getInfluencer().getInfluencerIntro();
+                }
+
                 // 데이터가 없는 경우 경고 로그만 남기고 계속 진행
                 if (avgLikeCount == 0 && avgViewCount > 0) {
                         log.warn("좋아요 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channelId);
@@ -422,7 +428,7 @@ public class ChannelService {
                         log.warn("댓글 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channelId);
                 }
 
-                // 4. Response DTO 생성
+                // 5. Response DTO 생성
                 ChannelDetailResponse response = ChannelDetailResponse.builder()
                                 .channelId(channel.getChannelId())
                                 .name(channel.getChannelName())
@@ -439,6 +445,7 @@ public class ChannelService {
                                 .youtubeUrl(channel.getChannelUrl())
                                 .bannerUrl(bannerUrl)
                                 .collectedAt(channel.getCollectedAt())
+                                .influencerIntro(influencerIntro)
                                 .build();
 
                 log.info("채널 상세 정보 조회 완료 - channelId: {}", channelId);
