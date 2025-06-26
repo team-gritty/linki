@@ -21,6 +21,7 @@ public class ContractDetailResponseDTO {
     private LocalDate contractEndDate;
     private BigDecimal contractAmount;
     private String proposalId;
+    private String campaignId;
     private String campaignName;
     private Boolean adDeliveryStatus;
     private String pdfDownloadUrl;     // 가공된 링크

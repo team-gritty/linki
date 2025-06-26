@@ -4,7 +4,7 @@ const BASE_URL = ''; // vite proxy를 사용하므로 BASE_URL은 비워둡니�
 
 export const contractApi = {
   // 계약 목록 조회 (상태별)
-  async getMyContracts(statuses = ['ONGOING', 'COMPLETED']) {
+  async getMyContracts(statuses = ['ONGOING', 'COMPLETED', 'PENDING_SIGN']) {
     try {
       const statusParams = statuses.map(status => `status=${status}`).join('&');
       const response = await httpClient.get(`/v1/api/influencer/mypage/contracts?${statusParams}`);
@@ -29,7 +29,7 @@ export const contractApi = {
   // 계약서 조회
   async getContractDocument(contractId) {
     try {
-      const response = await httpClient.get(`/v1/api/influencer/contracts/${contractId}/document`);
+      const response = await httpClient.get(`/v1/api/influencer/mypage/contracts/${contractId}/document`);
       return response.data;
     } catch (error) {
       console.error('Error fetching contract document:', error);

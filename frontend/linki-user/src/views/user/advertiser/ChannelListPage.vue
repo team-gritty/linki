@@ -158,7 +158,6 @@ import { useAccountStore } from '@/stores/account'
 import { useChannelAccessStore } from '@/stores/channelAccess'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
-import ChannelAccessTester from '@/components/dev/ChannelAccessTester.vue'
 import channelApi from '@/api/advertiser/advertiser-channel'
 import { reviewApi } from '@/api/advertiser/advertiser-review'
 

@@ -1,10 +1,12 @@
 package com.Gritty.Linki.util;
 
+import com.Gritty.Linki.user.common.DummyOAuth2BeansConfig;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
@@ -14,7 +16,8 @@ import java.io.InputStream;
 import java.io.InputStream;
 
 @Log4j2
-@SpringBootTest
+@SpringBootTest(properties = "uCanSignKey=dummy-test-key")
+@Import(DummyOAuth2BeansConfig.class)
 public class ObjectStorageTest {
 
     @Autowired
