@@ -22,7 +22,7 @@ const sortedChatList = computed(() => chatStore.sortedChatList)
 const hasNewMessages = computed(() => chatStore.hasNewMessages)
 const loading = computed(() => chatStore.loading)
 
-const loadUserChatList = async (forceRefresh = false) => {
+const loadUserChatList = async () => {
   try {
     error.value = null
     
@@ -33,7 +33,7 @@ const loadUserChatList = async (forceRefresh = false) => {
     }
     
     console.log('Loading chat list for user:', currentUserId.value)
-    await chatStore.loadChatList(forceRefresh)
+    await chatStore.loadChatList()
   } catch (err) {
     console.error('Failed to load user chat list:', err)
     error.value = '채팅 목록을 불러오는데 실패했습니다.'
@@ -43,7 +43,7 @@ const loadUserChatList = async (forceRefresh = false) => {
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
   if (showDropdown.value) {
-    loadUserChatList(true) // 드롭다운 열 때는 강제 새로고침
+    loadUserChatList() // 드롭다운 열 때는 새로고침
   }
 }
 
@@ -113,12 +113,12 @@ const handleClickOutside = (event) => {
 watch(currentUserId, (newUserId, oldUserId) => {
   if (newUserId && newUserId !== oldUserId) {
     console.log('User logged in, loading chat list:', newUserId)
-    loadUserChatList(true) // 로그인 시 강제 새로고침
+    loadUserChatList() // 로그인 시 새로고침
   }
 }, { immediate: false })
 
 onMounted(() => {
-  loadUserChatList(true) // 최초 로드시 강제 새로고침
+  loadUserChatList() // 최초 로드시 새로고침
   document.addEventListener('click', handleClickOutside)
 })
 

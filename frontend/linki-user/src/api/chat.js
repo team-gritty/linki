@@ -134,5 +134,38 @@ export const chatApi = {
       console.error('Error getting proposal details:', error)
       throw error
     }
+  },
+
+  // SSE 연결
+  connectSSE: (chatId, onMessage, onError, onOpen) => {
+    try {
+      const sseUrl = `/v1/chat-service/api/sse/subscribe?chatId=${chatId}`
+      const eventSource = new EventSource(sseUrl)
+      
+      if (onOpen) {
+        eventSource.onopen = onOpen
+      }
+      
+      if (onMessage) {
+        eventSource.onmessage = onMessage
+      }
+      
+      if (onError) {
+        eventSource.onerror = onError
+      }
+      
+      return eventSource
+    } catch (error) {
+      console.error('Error connecting SSE:', error)
+      throw error
+    }
+  },
+
+  // SSE 연결 해제
+  disconnectSSE: (eventSource) => {
+    if (eventSource) {
+      eventSource.close()
+      console.log('SSE connection disconnected')
+    }
   }
 }

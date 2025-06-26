@@ -92,6 +92,8 @@ const error = ref(null)
 const chatMessages = ref([])
 const stompClient = ref(null)
 const isConnected = ref(false)
+const eventSource = ref(null)
+const isSseConnected = ref(false)
 
 // 메시지 시간 포맷 함수
 const formatMessageTime = (dateString) => {
@@ -317,6 +319,11 @@ const markChatAsRead = async (chatId) => {
   try {
     await chatApi.markMessagesAsRead(chatId)
     console.log('Messages marked as read for chatId:', chatId)
+    
+    // 드롭다운 채팅 목록에도 읽음 상태 반영
+    if (window.markChatAsRead) {
+      window.markChatAsRead(chatId)
+    }
   } catch (err) {
     console.error('Error marking messages as read:', err)
   }
@@ -397,6 +404,7 @@ const loadChatInfo = async () => {
       // WebSocket 연결은 백그라운드에서 시도하고, 실패해도 메시지 조회는 계속 가능
       setTimeout(() => {
         connectSocket(props.chatRoom.chatId)
+        connectSSE(props.chatRoom.chatId) // SSE 연결도 추가
       }, 1000) // 1초 후 연결 시도
     }
   } catch (e) {
@@ -427,12 +435,93 @@ watch(chatMessages, () => {
 })
 
 onUnmounted(() => {
-  // Cleanup WebSocket connection when component unmounts
-  if (stompClient.value) {
-    stompClient.value.disconnect()
-    console.log('WebSocket connection disconnected')
-  }
+  disconnectSocket()
+  disconnectSSE()
 })
+
+// 소켓 연결 해제
+const disconnectSocket = () => {
+  if (stompClient.value && isConnected.value) {
+    stompClient.value.disconnect()
+    stompClient.value = null
+    isConnected.value = false
+    console.log('Stomp connection disconnected')
+  }
+}
+
+// SSE 연결
+const connectSSE = (chatId) => {
+  try {
+    console.log('Connecting SSE for chatId:', chatId)
+    
+    // 기존 SSE 연결이 있으면 해제
+    disconnectSSE()
+    
+    const onOpen = () => {
+      console.log('SSE connection opened for chatId:', chatId)
+      isSseConnected.value = true
+    }
+    
+    const onMessage = (event) => {
+      try {
+        console.log('SSE message received:', event.data)
+        
+        // SSE로 받은 메시지 처리 (JSON 파싱)
+        const message = JSON.parse(event.data)
+        
+        // 내가 보낸 메시지는 무시
+        if (message.senderId === currentUserId.value) {
+          return
+        }
+
+        // 시스템 알림 메시지를 채팅 메시지 목록에 추가
+        chatMessages.value.push({
+          messageId: message.messageId || Date.now(),
+          chatId: message.chatId,
+          senderId: message.senderId,
+          content: message.content,
+          messageDate: message.messageDate || new Date().toISOString(),
+          messageRead: false,
+          messageType: message.messageType || 'notification'
+        })
+
+        // 드롭다운 채팅 목록도 업데이트
+        if (window.updateChatList) {
+          window.updateChatList()
+        }
+        
+      } catch (error) {
+        console.error('Error parsing SSE message:', error)
+      }
+    }
+    
+    const onError = (error) => {
+      console.error('SSE connection error:', error)
+      isSseConnected.value = false
+      
+      // 연결 재시도 (5초 후)
+      setTimeout(() => {
+        if (props.chatRoom?.chatId === chatId) {
+          connectSSE(chatId)
+        }
+      }, 5000)
+    }
+    
+    eventSource.value = chatApi.connectSSE(chatId, onMessage, onError, onOpen)
+    
+  } catch (error) {
+    console.error('Failed to connect SSE:', error)
+  }
+}
+
+// SSE 연결 해제
+const disconnectSSE = () => {
+  if (eventSource.value) {
+    chatApi.disconnectSSE(eventSource.value)
+    eventSource.value = null
+    isSseConnected.value = false
+  }
+}
 
 </script>
 

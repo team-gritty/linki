@@ -37,6 +37,8 @@ const showProposalModal = ref(false)
 const selectedProposal = ref(null)
 const stompClient = ref(null)
 const isConnected = ref(false)
+const eventSource = ref(null)
+const isSseConnected = ref(false)
 
 
 // 채팅 목록 필터링
@@ -248,6 +250,11 @@ const selectChat = async (chatId) => {
     try {
       await chatApi.markMessagesAsRead(chatId)
       console.log('Messages marked as read for chatId:', chatId)
+      
+      // 드롭다운 채팅 목록에도 읽음 상태 반영
+      if (window.markChatAsRead) {
+        window.markChatAsRead(chatId)
+      }
     } catch (readError) {
       console.error('Failed to mark messages as read:', readError)
     }
@@ -255,6 +262,7 @@ const selectChat = async (chatId) => {
     // 소켓 연결 (채팅방 상태가 PENDING이 아닌 경우에만)
     if (chatDetail?.chatStatus !== 'PENDING') {
       await connectSocket(chatId)
+      connectSSE(chatId)
     }
   } catch (err) {
     error.value = '채팅방 정보를 불러오는데 실패했습니다.'
@@ -373,6 +381,11 @@ const connectSocket = (chatId) => {
               
               // 채팅 목록 재정렬
               sortChats()
+              
+              // 드롭다운 채팅 목록도 업데이트
+              if (window.updateChatList) {
+                window.updateChatList()
+              }
             }
 
             // 현재 선택된 채팅방이면 스크롤을 최하단으로 이동
@@ -418,15 +431,100 @@ const connectSocket = (chatId) => {
 // 소켓 연결 해제
 const disconnectSocket = () => {
   if (stompClient.value && isConnected.value) {
-    try {
-      stompClient.value.disconnect(() => {
-        console.log('Stomp connection disconnected')
-        isConnected.value = false
-        stompClient.value = null
-      })
-    } catch (err) {
-      console.error('Error disconnecting socket:', err)
+    stompClient.value.disconnect()
+    stompClient.value = null
+    isConnected.value = false
+    console.log('Stomp connection disconnected')
+  }
+}
+
+// SSE 연결
+const connectSSE = (chatId) => {
+  try {
+    console.log('Connecting SSE for chatId:', chatId)
+    
+    // 기존 SSE 연결이 있으면 해제
+    disconnectSSE()
+    
+    const onOpen = () => {
+      console.log('SSE connection opened for chatId:', chatId)
+      isSseConnected.value = true
     }
+    
+    const onMessage = (event) => {
+      try {
+        console.log('SSE message received:', event.data)
+        
+        // SSE로 받은 메시지 처리 (JSON 파싱)
+        const message = JSON.parse(event.data)
+        
+        // 내가 보낸 메시지는 무시
+        if (message.senderId === currentUserId.value) {
+          return
+        }
+
+        // 새 메시지를 채팅 메시지 목록에 추가
+        chatMessages.value.push({
+          messageId: message.messageId || Date.now(),
+          chatId: message.chatId,
+          senderId: message.senderId,
+          content: message.content,
+          messageDate: message.messageDate || new Date().toISOString(),
+          messageRead: false,
+          messageType: message.messageType || 'notification'
+        })
+
+        // 채팅 목록의 마지막 메시지 업데이트
+        const chatIndex = chatList.value.findIndex(chat => chat.chatId === message.chatId)
+        if (chatIndex !== -1) {
+          const updatedChat = {
+            ...chatList.value[chatIndex],
+            lastMessage: message.content,
+            lastMessageTime: message.messageDate || new Date().toISOString(),
+            new: true
+          }
+          chatList.value.splice(chatIndex, 1)
+          chatList.value.unshift(updatedChat)
+          
+          // 채팅 목록 재정렬
+          sortChats()
+          
+          // 드롭다운 채팅 목록도 업데이트
+          if (window.updateChatList) {
+            window.updateChatList()
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error parsing SSE message:', error)
+      }
+    }
+    
+    const onError = (error) => {
+      console.error('SSE connection error:', error)
+      isSseConnected.value = false
+      
+      // 연결 재시도 (5초 후)
+      setTimeout(() => {
+        if (selectedChatId.value === chatId) {
+          connectSSE(chatId)
+        }
+      }, 5000)
+    }
+    
+    eventSource.value = chatApi.connectSSE(chatId, onMessage, onError, onOpen)
+    
+  } catch (error) {
+    console.error('Failed to connect SSE:', error)
+  }
+}
+
+// SSE 연결 해제
+const disconnectSSE = () => {
+  if (eventSource.value) {
+    chatApi.disconnectSSE(eventSource.value)
+    eventSource.value = null
+    isSseConnected.value = false
   }
 }
 
@@ -495,6 +593,7 @@ onMounted(() => {
 // 컴포넌트 언마운트 시 소켓 연결 정리
 onUnmounted(() => {
   disconnectSocket()
+  disconnectSSE()
 })
 
 // 메시지 자동 스크롤
