@@ -63,6 +63,14 @@ export default {
         currentMenu.value = newVal.toString()
       }
     })
+
+    // code 파라미터 변경 감지 추가
+    watch(() => route.query.code, (newVal) => {
+      if (newVal) {
+        // 코드가 있으면 채널 변경 탭으로 이동
+        currentMenu.value = 'profile.channel'
+      }
+    })
     
     return {
       currentMenu

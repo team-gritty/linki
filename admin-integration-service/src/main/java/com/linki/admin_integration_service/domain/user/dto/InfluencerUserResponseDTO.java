@@ -11,4 +11,5 @@ public class InfluencerUserResponseDTO {
     private String phone;
     private String snsChannelName;
     private String snsLink;
+    private String userCursor;
 }

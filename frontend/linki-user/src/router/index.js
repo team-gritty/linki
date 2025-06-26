@@ -149,6 +149,11 @@ const router = createRouter({
       path: '/success',
       name: 'payment-success',
       component: () => import('../views/common/PaymentSuccess.vue')
+    },
+    {
+      path: '/google-callback',
+      name: 'GoogleCallback',
+      component: () => import('@/views/common/GoogleCallback.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

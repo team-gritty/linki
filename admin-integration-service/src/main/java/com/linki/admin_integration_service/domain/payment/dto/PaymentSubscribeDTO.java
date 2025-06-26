@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ExcelAnnotation.ExcelSheet(name = "SubscribePaymentList")
 public class PaymentSubscribeDTO {
+
+    @ExcelAnnotation.ExcelColumn(headerName = "user ID")
+    private String userId;
+
     @ExcelAnnotation.ExcelColumn(headerName = "회원 구분")
     private String memberType;
 

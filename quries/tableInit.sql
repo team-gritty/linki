@@ -253,6 +253,7 @@ CREATE TABLE `channel` (
 	`influencer_id` varchar(25) NOT NULL COMMENT '인플루언서 식별 아이디'
 );
 
+
 DROP TABLE IF EXISTS redirect_click;
 
 CREATE TABLE `redirect_click` (
