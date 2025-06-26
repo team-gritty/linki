@@ -21,25 +21,25 @@
     </thead>
     <tbody>
       <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
-      <tr v-if="users.length === 0">
+      <tr v-if="adminSignUps.length === 0">
         <td colspan="7" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
-      <tr v-else v-for="user in pagedUsers" :key="user.userId">
-        <td>{{ user.adminName }}</td>
-        <td>{{ user.adminEmail }}</td>
-        <td>{{ user.adminPhone }}</td>
-        <td>{{ user.adminSignUpId }}</td>
+      <tr v-else v-for="admin in adminSignUps" :key="admin.adminSignUpId">
+        <td>{{ admin.adminName }}</td>
+        <td>{{ admin.adminEmail }}</td>
+        <td>{{ admin.adminPhone }}</td>
+        <td>{{ admin.adminSignUpId }}</td>
         <td>
           <button 
-            v-if="user.adminStatus === 'PENDING'" 
+            v-if="admin.adminStatus === 'PENDING'" 
             class="approve-btn"
-            @click="handleApprove(user.adminSignUpId)"
+            @click="handleApprove(admin.adminSignUpId)"
           >승인</button>
           <button 
-            v-if="user.adminStatus === 'PENDING'" 
+            v-if="admin.adminStatus === 'PENDING'" 
             class="reject-btn"
-            @click="handleReject(user.adminSignUpId)"
+            @click="handleReject(admin.adminSignUpId)"
           >거절</button>
           <span v-else class="status completed">가입 승인</span>
         </td>
@@ -50,39 +50,39 @@
   <!-- 모바일 카드 뷰: 모바일 환경에서 회원 정보를 카드 형태로 보여줌 -->
   <div class="mobile-view">
     <!-- 회원 데이터가 없을 때 안내 메시지 출력 -->
-    <div v-if="users.length === 0" class="no-result-card">
+    <div v-if="adminSignUps.length === 0" class="no-result-card">
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
-    <div v-else v-for="user in pagedUsers" :key="user.adminSignUpId" class="member-card">
+    <div v-else v-for="admin in adminSignUps" :key="admin.adminSignUpId" class="member-card">
       <div class="card-header">
-        <span class="user-id">{{ user.adminName }}</span>
-        <span class="user-status" :class="user.adminStatus">{{ user.adminStatus }}</span>
+        <span class="user-id">{{ admin.adminName }}</span>
+        <span class="user-status" :class="admin.adminStatus">{{ admin.adminStatus }}</span>
       </div>
       <div class="card-body">
         <div class="info-row">
           <span class="label">관리자 이메일</span>
-          <span class="value">{{ user.adminEmail }}</span>
+          <span class="value">{{ admin.adminEmail }}</span>
         </div>
         <div class="info-row">
           <span class="label">관리자 연락처</span>
-          <span class="value">{{ user.adminPhone }}</span>
+          <span class="value">{{ admin.adminPhone }}</span>
         </div>
         <div class="info-row">
           <span class="label">로그인 ID</span>
-          <span class="value">{{ user.adminSignUpId }}</span>
+          <span class="value">{{ admin.adminSignUpId }}</span>
         </div>
         <div class="info-row">
           <span class="value">
             <button 
-              v-if="user.adminStatus === 'PENDING'" 
+              v-if="admin.adminStatus === 'PENDING'" 
               class="approve-btn mobile" 
-              @click="handleApprove(user.adminSignUpId)"
+              @click="handleApprove(admin.adminSignUpId)"
             >승인</button>
             <button 
-              v-if="user.adminStatus === 'PENDING'" 
+              v-if="admin.adminStatus === 'PENDING'" 
               class="reject-btn mobile" 
-              @click="handleReject(user.adminSignUpId)"
+              @click="handleReject(admin.adminSignUpId)"
             >거절</button>
             <span v-else class="status completed">가입 승인</span>
           </span>
@@ -91,12 +91,16 @@
     </div>
   </div>
 
-  <!-- 페이지네이션 컴포넌트: 회원 목록 페이지 이동 -->
-  <Pagination 
-    v-if="users.length > 0"
-    :totalPages="totalPages" 
-    :currentPage="currentPage" 
-    @update:currentPage="val => currentPage = val" 
+  <!-- Keyset 페이지네이션 컴포넌트 -->
+  <KeysetPagination 
+    v-if="adminSignUps.length > 0"
+    :hasNext="hasNext"
+    :hasPrevious="hasPrevious" 
+    :isLoading="isLoading"
+    :currentSize="adminSignUps.length"
+    :totalLoaded="adminSignUps.length"
+    @next="goToNextPage"
+    @previous="goToPreviousPage"
   />
 </template>
 
@@ -104,18 +108,26 @@
 // ----------------------
 // import 및 변수 선언
 // ----------------------
-import { ref, computed, onMounted } from 'vue'
-import { getAdminSignUpList, searchAdminSignUp, exportExcel, approveAdmin, rejectAdmin } from '@/js/operations/AdminSignUp.js'
-import Pagination from '@/components/common/Pagination.vue'
+import { ref, onMounted } from 'vue'
+import { getAdminSignUpListWithKeyset, searchAdminSignUpWithKeyset, exportExcel, approveAdmin, rejectAdmin } from '@/js/operations/AdminSignUp.js'
+import KeysetPagination from '@/components/common/KeysetPagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
-
-// 회원 데이터 배열
-const users = ref([])
-// 현재 페이지 번호
-const currentPage = ref(1)
-// 한 페이지에 보여줄 회원 수
+// 관리자 가입 신청 데이터 배열
+const adminSignUps = ref([])
+// 페이지네이션 상태
+const hasNext = ref(false)
+const hasPrevious = ref(false)
+const isLoading = ref(false)
 const pageSize = 10
+
+// 커서 스택 관리 (전역 상태)
+const cursorStack = ref([])
+let currentCursor = null
+
+// 검색 관련 상태
+const isSearchMode = ref(false)
+const searchState = ref({ searchType: '', keyword: '' })
 
 // ----------------------
 // 검색바 설정
@@ -127,23 +139,140 @@ const searchConfig = {
     { value: 'adminPhone', label: '관리자 연락처', endpoint: '/v1/admin/api/adminSignUp/search' }
   ],
   placeholder: '검색어를 입력하세요',
-  endpoint: '/v1/admin/api/adminSignUp/search'
+  endpoint: '/v1/admin/api/adminSignUp'
+}
+
+// ----------------------
+// 데이터 로드 함수
+// ----------------------
+const loadAdminSignUps = async (cursor = null) => {
+  try {
+    isLoading.value = true
+    console.log('🔍 관리자 가입 신청 목록 로드 - cursor:', cursor, 'size:', pageSize)
+    
+    let response
+    if (isSearchMode.value) {
+      // 검색 모드
+      response = await searchAdminSignUpWithKeyset(
+        searchState.value.searchType,
+        searchState.value.keyword,
+        cursor,
+        pageSize
+      )
+    } else {
+      // 일반 모드
+      response = await getAdminSignUpListWithKeyset(cursor, pageSize)
+    }
+    
+    if (response.data) {
+      // Keyset 응답 구조 처리
+      if (response.data.list) {
+        adminSignUps.value = response.data.list
+        hasNext.value = response.data.hasNext || false
+        currentCursor = response.data.nextCursor || null
+        
+        console.log('📊 관리자 가입 신청 데이터 로드 완료:', {
+          count: adminSignUps.value.length,
+          hasNext: hasNext.value,
+          nextCursor: currentCursor
+        })
+      } else {
+        // 기존 방식 응답
+        adminSignUps.value = Array.isArray(response.data) ? response.data : []
+        hasNext.value = false
+        currentCursor = null
+      }
+    }
+  } catch (error) {
+    console.error('관리자 가입 신청 목록 로드 중 오류:', error)
+    window.alert('관리자 가입 신청 목록을 불러오지 못했습니다.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ----------------------
+// 다음 페이지로 이동
+// ----------------------
+const goToNextPage = async () => {
+  if (!hasNext.value || isLoading.value) return
+  
+  // 현재 커서를 스택에 저장 (이전 페이지로 돌아갈 때 사용)
+  if (currentCursor !== null) {
+    const stackEntry = {
+      cursor: currentCursor,
+      searchMode: isSearchMode.value,
+      searchType: searchState.value.searchType,
+      keyword: searchState.value.keyword
+    }
+    cursorStack.value.push(stackEntry)
+    console.log('📚 커서 스택에 추가:', stackEntry)
+  }
+  
+  // 다음 페이지 로드
+  await loadAdminSignUps(currentCursor)
+  
+  // 이전 페이지 버튼 활성화
+  hasPrevious.value = cursorStack.value.length > 0
+}
+
+// ----------------------
+// 이전 페이지로 이동
+// ----------------------
+const goToPreviousPage = async () => {
+  if (!hasPrevious.value || cursorStack.value.length === 0 || isLoading.value) return
+  
+  // 스택에서 이전 상태 복원
+  const prevState = cursorStack.value.pop()
+  console.log('📚 커서 스택에서 복원:', prevState)
+  
+  // 검색 상태 복원
+  isSearchMode.value = prevState.searchMode
+  if (prevState.searchMode) {
+    searchState.value.searchType = prevState.searchType
+    searchState.value.keyword = prevState.keyword
+  }
+  
+  // 이전 페이지 로드
+  await loadAdminSignUps(prevState.cursor)
+  
+  // 이전 페이지 버튼 상태 업데이트
+  hasPrevious.value = cursorStack.value.length > 0
 }
 
 // ----------------------
 // 검색 이벤트 처리 함수
 // ----------------------
-const handleSearch = async (searchState) => {
+const handleSearch = async (searchEventState) => {
   try {
-    const response = await searchAdminSignUp(
-      searchState.selectedOption,
-      searchState.keyword
-    )
-    
-    if (response.data) {
-      users.value = Array.isArray(response.data) ? response.data : []
-      currentPage.value = 1 // 검색 시 첫 페이지로 이동
+    if (!searchEventState.keyword.trim()) {
+      // 빈 검색어면 일반 모드로 전환
+      isSearchMode.value = false
+      searchState.value = { searchType: '', keyword: '' }
+      // 커서 스택 초기화
+      cursorStack.value = []
+      currentCursor = null
+      hasPrevious.value = false
+      
+      await loadAdminSignUps(null)
+      return
     }
+
+    // 검색 모드로 전환
+    isSearchMode.value = true
+    searchState.value = {
+      searchType: searchEventState.selectedOption,
+      keyword: searchEventState.keyword
+    }
+    
+    // 커서 스택 초기화 (새로운 검색)
+    cursorStack.value = []
+    currentCursor = null
+    hasPrevious.value = false
+    
+    console.log('🔍 검색 모드 활성화:', searchState.value)
+    await loadAdminSignUps(null)
+    
   } catch (error) {
     console.error('검색 중 오류 발생:', error)
     window.alert('검색 중 오류가 발생했습니다.')
@@ -163,30 +292,12 @@ const handleExportExcel = async () => {
 }
 
 // ----------------------
-// 컴포넌트 마운트 시 회원 목록 불러오기
+// 컴포넌트 마운트 시 관리자 가입 신청 목록 불러오기
 // ----------------------
 onMounted(async () => {
-  try {
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('가입 신청 관리자 목록을 불러오지 못했습니다.')
-  }
+  console.log('🚀 AdminSignUpTable 마운트 시작')
+  await loadAdminSignUps(null)
 })
-
-// ----------------------
-// 현재 페이지에 보여줄 회원 데이터 계산
-// ----------------------
-const pagedUsers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return users.value.slice(start, start + pageSize)
-})
-
-// ----------------------
-// 전체 페이지 수 계산
-// ----------------------
-const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
-
 
 // ----------------------
 // approve/reject 핸들러 추가
@@ -195,8 +306,8 @@ const handleApprove = async (adminSignUpId) => {
   try {
     await approveAdmin(adminSignUpId)
     window.alert('승인되었습니다.')
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
+    // 현재 페이지 다시 로드
+    await loadAdminSignUps(cursorStack.value.length > 0 ? cursorStack.value[cursorStack.value.length - 1].cursor : null)
   } catch (e) {
     window.alert('승인 처리에 실패했습니다.')
   }
@@ -206,13 +317,12 @@ const handleReject = async (adminSignUpId) => {
   try {
     await rejectAdmin(adminSignUpId)
     window.alert('거절되었습니다.')
-    const res = await getAdminSignUpList()
-    users.value = Array.isArray(res.data) ? res.data : []
+    // 현재 페이지 다시 로드
+    await loadAdminSignUps(cursorStack.value.length > 0 ? cursorStack.value[cursorStack.value.length - 1].cursor : null)
   } catch (e) {
     window.alert('거절 처리에 실패했습니다.')
   }
 }
-
 </script>
 
 <style scoped>
@@ -396,9 +506,6 @@ tr:last-child td {
   background: #256025;
 }
 
-
-
-
 .status {
   padding: 4px 8px;
   border-radius: 4px;
@@ -410,8 +517,6 @@ tr:last-child td {
   background: #d4edda;
   color: #155724;
 }
-
-
 
 /* 버튼 스타일 */
 .approve-btn {

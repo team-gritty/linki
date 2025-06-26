@@ -26,7 +26,7 @@
         <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
-      <tr v-else v-for="user in pagedUsers" :key="user.userId">
+      <tr v-else v-for="user in users" :key="user.userId">
         <td>{{ user.userId }}</td>
         <td>{{ user.businessNumber }}</td>
         <td>{{ user.businessName }}</td>
@@ -44,7 +44,7 @@
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
-    <div v-else v-for="user in pagedUsers" :key="user.userId" class="member-card">
+    <div v-else v-for="user in users" :key="user.userId" class="member-card">
       <div class="card-header">
         <span class="user-id">No. {{ user.userId }}</span>
         <span class="user-status" :class="user.user_status">{{ user.user_status }}</span>
@@ -74,12 +74,16 @@
     </div>
   </div>
 
-  <!-- 페이지네이션 컴포넌트: 회원 목록 페이지 이동 -->
-  <Pagination 
+  <!-- Keyset 페이지네이션 컴포넌트 -->
+  <KeysetPagination 
     v-if="users.length > 0"
-    :totalPages="totalPages" 
-    :currentPage="currentPage" 
-    @update:currentPage="val => currentPage = val" 
+    :hasNext="hasNext"
+    :hasPrevious="hasPrevious" 
+    :isLoading="isLoading"
+    :currentSize="users.length"
+    :totalLoaded="users.length"
+    @next="goToNextPage"
+    @previous="goToPreviousPage"
   />
 </template>
 
@@ -87,17 +91,21 @@
 // ----------------------
 // import 및 변수 선언
 // ----------------------
-import { ref, computed, onMounted } from 'vue'
-import { getAdvertiserUserList, searchAdvertiserUser, exportExcel } from '@/js/user/AdvertiserUser.js'
-import Pagination from '@/components/common/Pagination.vue'
+import { ref, onMounted } from 'vue'
+import { getAdvertiserUserListWithKeyset, searchAdvertiserUserWithKeyset, exportExcel } from '@/js/user/AdvertiserUser.js'
+import KeysetPagination from '@/components/common/KeysetPagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
 // 회원 데이터 배열
 const users = ref([])
-// 현재 페이지 번호
-const currentPage = ref(1)
-// 한 페이지에 보여줄 회원 수
+const hasNext = ref(false)
+const hasPrevious = ref(false)
+const isLoading = ref(false)
 const pageSize = 10
+const cursorStack = ref([])
+let currentCursor = null
+const isSearchMode = ref(false)
+const searchState = ref({ searchType: '', keyword: '' })
 
 // ----------------------
 // 검색바 설정
@@ -118,19 +126,90 @@ const searchConfig = {
 // ----------------------
 // 검색 이벤트 처리 함수
 // ----------------------
-const handleSearch = async (searchState) => {
+const loadUsers = async (cursor = null) => {
   try {
-    const response = await searchAdvertiserUser(
-      searchState.selectedOption,
-      searchState.keyword
-    )
-    
+    isLoading.value = true
+    let response
+    if (isSearchMode.value) {
+      response = await searchAdvertiserUserWithKeyset(
+        searchState.value.searchType,
+        searchState.value.keyword,
+        cursor,
+        pageSize
+      )
+    } else {
+      response = await getAdvertiserUserListWithKeyset(cursor, pageSize)
+    }
     if (response.data) {
-      users.value = Array.isArray(response.data) ? response.data : []
-      currentPage.value = 1 // 검색 시 첫 페이지로 이동
+      if (response.data.list) {
+        users.value = response.data.list
+        hasNext.value = response.data.hasNext || false
+        if (users.value.length > 0) {
+          currentCursor = users.value[users.value.length - 1].userCursor || null
+        } else {
+          currentCursor = null
+        }
+      } else {
+        users.value = Array.isArray(response.data) ? response.data : []
+        hasNext.value = false
+        currentCursor = null
+      }
     }
   } catch (error) {
-    console.error('검색 중 오류 발생:', error)
+    window.alert('회원 목록을 불러오지 못했습니다.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const goToNextPage = async () => {
+  if (!hasNext.value || isLoading.value) return
+  if (currentCursor !== null) {
+    const stackEntry = {
+      cursor: currentCursor,
+      searchMode: isSearchMode.value,
+      searchType: searchState.value.searchType,
+      keyword: searchState.value.keyword
+    }
+    cursorStack.value.push(stackEntry)
+  }
+  await loadUsers(currentCursor)
+  hasPrevious.value = cursorStack.value.length > 0
+}
+
+const goToPreviousPage = async () => {
+  if (!hasPrevious.value || cursorStack.value.length === 0 || isLoading.value) return
+  const prevState = cursorStack.value.pop()
+  isSearchMode.value = prevState.searchMode
+  if (prevState.searchMode) {
+    searchState.value.searchType = prevState.searchType
+    searchState.value.keyword = prevState.keyword
+  }
+  await loadUsers(prevState.cursor)
+  hasPrevious.value = cursorStack.value.length > 0
+}
+
+const handleSearch = async (searchEventState) => {
+  try {
+    if (!searchEventState.keyword.trim()) {
+      isSearchMode.value = false
+      searchState.value = { searchType: '', keyword: '' }
+      cursorStack.value = []
+      currentCursor = null
+      hasPrevious.value = false
+      await loadUsers(null)
+      return
+    }
+    isSearchMode.value = true
+    searchState.value = {
+      searchType: searchEventState.selectedOption,
+      keyword: searchEventState.keyword
+    }
+    cursorStack.value = []
+    currentCursor = null
+    hasPrevious.value = false
+    await loadUsers(null)
+  } catch (error) {
     window.alert('검색 중 오류가 발생했습니다.')
   }
 }
@@ -151,26 +230,8 @@ const handleExportExcel = async () => {
 // 컴포넌트 마운트 시 회원 목록 불러오기
 // ----------------------
 onMounted(async () => {
-  try {
-    const res = await getAdvertiserUserList(1, 10)
-    users.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('회원 목록을 불러오지 못했습니다.')
-  }
+  await loadUsers(null)
 })
-
-// ----------------------
-// 현재 페이지에 보여줄 회원 데이터 계산
-// ----------------------
-const pagedUsers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return users.value.slice(start, start + pageSize)
-})
-
-// ----------------------
-// 전체 페이지 수 계산
-// ----------------------
-const totalPages = computed(() => Math.ceil(users.value.length / pageSize))
 </script>
 
 <style scoped>

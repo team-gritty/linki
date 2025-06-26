@@ -10,4 +10,8 @@ import java.util.List;
 public interface SubscriberUserMapper {
     List<SubscriberUserDTO> getAllSubscriberUsers();
     List<SubscriberUserDTO> searchSubscriberUser(SubscriberSearchRequestDTO subscriberSearchRequestDTO);
+    
+    // Keyset 페이지네이션 메서드들
+    List<SubscriberUserDTO> getAllSubscriberUsersWithKeyset(String cursor, int size);
+    List<SubscriberUserDTO> searchSubscriberUserWithKeyset(SubscriberSearchRequestDTO searchDTO, String cursor, int size);
 }
