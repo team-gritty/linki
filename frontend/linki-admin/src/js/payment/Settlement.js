@@ -15,6 +15,27 @@ export const searchSettlement = async (searchType, keyword) => {
   return await httpRequester.get(`/v1/admin/api/settlements/search/${searchType}?q=${keyword}`)
 }
 
+// Keyset 페이지네이션 기본 조회
+export const getSettlementListWithKeyset = async (cursor = null, size = 10) => {
+  const params = { size }
+  if (cursor) {
+    params.cursor = cursor
+  }
+  
+  return await httpRequester.get('/v1/admin/api/settlements', { params })
+}
+
+// Keyset 페이지네이션 검색
+export const searchSettlementWithKeyset = async (searchType, keyword, cursor = null, size = 10) => {
+  const requestBody = {
+    searchType,
+    keyword,
+    cursor,
+    size
+  }
+  
+  return await httpRequester.post('/v1/admin/api/settlements/search', requestBody)
+}
 
 export async function exportExcel() {
   const res = await httpRequester.post('/v1/admin/api/settlements/exportExcel');

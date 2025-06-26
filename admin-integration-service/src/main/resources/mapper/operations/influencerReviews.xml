@@ -50,4 +50,107 @@
 
     </select>
 
+
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllInfluencerReviewsWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewDTO">
+        SELECT
+            influencer_review_id AS influencerReviewId,
+            '' AS influencer,
+            '' AS writer,
+            influencer_review_comment AS review,
+            influencer_review_score AS rating,
+            influencer_review_created_at AS reviewDate,
+            visibility AS visibility,
+            contract_id AS contractId
+        FROM influencer_review
+        <where>
+            <if test="cursor != null and cursor != ''">
+                influencer_review_id > #{cursor}
+            </if>
+        </where>
+        ORDER BY influencer_review_id ASC
+        LIMIT #{size}
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchInfluencerReviewsWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.InfluencerReviewDTO">
+        SELECT
+            influencer_review_id AS influencerReviewId,
+            '' AS influencer,
+            '' AS writer,
+            influencer_review_comment AS review,
+            influencer_review_score AS rating,
+            influencer_review_created_at AS reviewDate,
+            visibility AS visibility,
+            contract_id AS contractId
+        FROM influencer_review
+        <where>
+            <choose>
+                <when test="searchDTO.searchType == 'influencer'">
+                    AND contract_id IN (
+                        SELECT c.contract_id FROM contract c 
+                        JOIN proposal p ON c.proposal_id = p.proposal_id 
+                        JOIN influencer i ON p.influencer_id = i.influencer_id 
+                        JOIN user u ON i.user_id = u.user_id 
+                        WHERE u.user_name LIKE CONCAT('%', #{searchDTO.keyword}, '%')
+                    )
+                </when>
+                <when test="searchDTO.searchType == 'writer'">
+                    AND contract_id IN (
+                        SELECT c.contract_id FROM contract c 
+                        JOIN proposal p ON c.proposal_id = p.proposal_id 
+                        JOIN campaign cam ON p.campaign_id = cam.campaign_id 
+                        JOIN advertiser a ON cam.advertiser_id = a.advertiser_id 
+                        WHERE a.company_name LIKE CONCAT('%', #{searchDTO.keyword}, '%')
+                    )
+                </when>
+                <when test="searchDTO.searchType == 'contractId'">
+                    AND contract_id LIKE CONCAT('%', #{searchDTO.keyword}, '%')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND influencer_review_id > #{cursor}
+            </if>
+        </where>
+        ORDER BY influencer_review_id ASC
+        LIMIT #{size}
+    </select>
+
+    <!-- 인플루언서 리뷰 상세 정보 별도 조회 (빠른 조회) -->
+    <select id="getInfluencerReviewDetailsByContractIds" resultMap="influencerReviewDetailResultMap">
+        SELECT 
+            ct.contract_id,
+            CONCAT(c.channel_name, '(', iu.user_name, ')') AS influencer,
+            CONCAT(a.company_name, '(', au.user_name, ')') AS writer
+        FROM contract ct
+        INNER JOIN proposal p ON ct.proposal_id = p.proposal_id
+        INNER JOIN influencer i ON p.influencer_id = i.influencer_id
+        INNER JOIN user iu ON i.user_id = iu.user_id
+        LEFT JOIN channel c ON i.influencer_id = c.influencer_id
+        INNER JOIN campaign cam ON p.campaign_id = cam.campaign_id
+        INNER JOIN advertiser a ON cam.advertiser_id = a.advertiser_id
+        INNER JOIN user au ON a.user_id = au.user_id
+        WHERE ct.contract_id IN
+        <foreach collection="contractIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- ResultMap 정의 -->
+    <resultMap id="influencerReviewDetailResultMap" type="map">
+        <result property="contractId" column="contract_id"/>
+        <result property="influencer" column="influencer"/>
+        <result property="writer" column="writer"/>
+    </resultMap>
+
 </mapper>

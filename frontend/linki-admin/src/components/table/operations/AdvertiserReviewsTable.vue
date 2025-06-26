@@ -27,7 +27,7 @@
         <td colspan="6" class="no-result">해당 정보가 없습니다.</td>
       </tr>
       <!-- 회원 데이터가 있을 때 각 회원 정보를 행으로 출력 -->
-      <tr v-else v-for="review in pagedReviews" :key="review.influencerReviewId">
+      <tr v-else v-for="review in reviews" :key="review.influencerReviewId">
         <td>{{ review.advertiserReviewId }}</td>
         <td>{{ review.advertiser }}</td>
         <td>{{ review.writer }}</td>
@@ -55,7 +55,7 @@
       해당 정보가 없습니다.
     </div>
     <!-- 회원 데이터가 있을 때 각 회원 정보를 카드로 출력 -->
-    <div v-else v-for="review in pagedReviews" :key="review.influencerReviewId" class="member-card">
+    <div v-else v-for="review in reviews" :key="review.influencerReviewId" class="member-card">
       <div class="card-header-row">
         <span class="user-id">{{ review.advertiserReviewId }}</span>
         <span class="influencer-name">{{ review.advertiser }}</span>
@@ -76,12 +76,16 @@
     </div>
   </div>
 
-  <!-- 페이지네이션 컴포넌트: 회원 목록 페이지 이동 -->
-  <Pagination 
+  <!-- Keyset 페이지네이션 컴포넌트 -->
+  <KeysetPagination 
     v-if="reviews.length > 0"
-    :totalPages="totalPages" 
-    :currentPage="currentPage" 
-    @update:currentPage="val => currentPage = val" 
+    :hasNext="hasNext"
+    :hasPrevious="hasPrevious" 
+    :isLoading="isLoading"
+    :currentSize="reviews.length"
+    :totalLoaded="reviews.length"
+    @next="goToNextPage"
+    @previous="goToPreviousPage"
   />
 
   <!-- 모달 -->
@@ -105,17 +109,26 @@
 // ----------------------
 // import 및 변수 선언
 // ----------------------
-import { ref, computed, onMounted } from 'vue'
-import { getAdvertisersReviewsList, searchAdvertisersReviews, exportExcel, toggleReviewVisibility } from '@/js/operations/AdvertisersReviews.js'
-import Pagination from '@/components/common/Pagination.vue'
+import { ref, onMounted } from 'vue'
+import { getAdvertisersReviewsListWithKeyset, searchAdvertisersReviewsWithKeyset, exportExcel, toggleReviewVisibility } from '@/js/operations/AdvertisersReviews.js'
+import KeysetPagination from '@/components/common/KeysetPagination.vue'
 import SearchBar from '@/components/common/SearchBar.vue'
 
-// 회원 데이터 배열
+// 리뷰 데이터 배열
 const reviews = ref([])
-// 현재 페이지 번호
-const currentPage = ref(1)
-// 한 페이지에 보여줄 회원 수
+// 페이지네이션 상태
+const hasNext = ref(false)
+const hasPrevious = ref(false)
+const isLoading = ref(false)
 const pageSize = 10
+
+// 커서 스택 관리 (전역 상태)
+const cursorStack = ref([])
+let currentCursor = null
+
+// 검색 관련 상태
+const isSearchMode = ref(false)
+const searchState = ref({ searchType: '', keyword: '' })
 
 // ----------------------
 // 검색바 설정
@@ -131,18 +144,136 @@ const searchConfig = {
 }
 
 // ----------------------
+// 데이터 로드 함수
+// ----------------------
+const loadReviews = async (cursor = null) => {
+  try {
+    isLoading.value = true
+    console.log('🔍 광고주 리뷰 목록 로드 - cursor:', cursor, 'size:', pageSize)
+    
+    let response
+    if (isSearchMode.value) {
+      // 검색 모드
+      response = await searchAdvertisersReviewsWithKeyset(
+        searchState.value.searchType,
+        searchState.value.keyword,
+        cursor,
+        pageSize
+      )
+    } else {
+      // 일반 모드
+      response = await getAdvertisersReviewsListWithKeyset(cursor, pageSize)
+    }
+    
+    if (response.data) {
+      // Keyset 응답 구조 처리
+      if (response.data.list) {
+        reviews.value = response.data.list
+        hasNext.value = response.data.hasNext || false
+        currentCursor = response.data.nextCursor || null
+        
+        console.log('📊 광고주 리뷰 데이터 로드 완료:', {
+          count: reviews.value.length,
+          hasNext: hasNext.value,
+          nextCursor: currentCursor
+        })
+      } else {
+        // 기존 방식 응답
+        reviews.value = Array.isArray(response.data) ? response.data : []
+        hasNext.value = false
+        currentCursor = null
+      }
+    }
+  } catch (error) {
+    console.error('광고주 리뷰 목록 로드 중 오류:', error)
+    window.alert('광고주 리뷰 목록을 불러오지 못했습니다.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ----------------------
+// 다음 페이지로 이동
+// ----------------------
+const goToNextPage = async () => {
+  if (!hasNext.value || isLoading.value) return
+  
+  // 현재 커서를 스택에 저장 (이전 페이지로 돌아갈 때 사용)
+  if (currentCursor !== null) {
+    const stackEntry = {
+      cursor: currentCursor,
+      searchMode: isSearchMode.value,
+      searchType: searchState.value.searchType,
+      keyword: searchState.value.keyword
+    }
+    cursorStack.value.push(stackEntry)
+    console.log('📚 커서 스택에 추가:', stackEntry)
+  }
+  
+  // 다음 페이지 로드
+  await loadReviews(currentCursor)
+  
+  // 이전 페이지 버튼 활성화
+  hasPrevious.value = cursorStack.value.length > 0
+}
+
+// ----------------------
+// 이전 페이지로 이동
+// ----------------------
+const goToPreviousPage = async () => {
+  if (!hasPrevious.value || cursorStack.value.length === 0 || isLoading.value) return
+  
+  // 스택에서 이전 상태 복원
+  const prevState = cursorStack.value.pop()
+  console.log('📚 커서 스택에서 복원:', prevState)
+  
+  // 검색 상태 복원
+  isSearchMode.value = prevState.searchMode
+  if (prevState.searchMode) {
+    searchState.value.searchType = prevState.searchType
+    searchState.value.keyword = prevState.keyword
+  }
+  
+  // 이전 페이지 로드
+  await loadReviews(prevState.cursor)
+  
+  // 이전 페이지 버튼 상태 업데이트
+  hasPrevious.value = cursorStack.value.length > 0
+}
+
+// ----------------------
 // 검색 이벤트 처리 함수
 // ----------------------
-const handleSearch = async (searchState) => {
+const handleSearch = async (searchEventState) => {
   try {
-    const response = await searchAdvertisersReviews(
-      searchState.selectedOption,
-      searchState.keyword
-    )
-    if (response.data) {
-      reviews.value = Array.isArray(response.data) ? response.data : []
-      currentPage.value = 1 // 검색 시 첫 페이지로 이동
+    if (!searchEventState.keyword.trim()) {
+      // 빈 검색어면 일반 모드로 전환
+      isSearchMode.value = false
+      searchState.value = { searchType: '', keyword: '' }
+      // 커서 스택 초기화
+      cursorStack.value = []
+      currentCursor = null
+      hasPrevious.value = false
+      
+      await loadReviews(null)
+      return
     }
+
+    // 검색 모드로 전환
+    isSearchMode.value = true
+    searchState.value = {
+      searchType: searchEventState.selectedOption,
+      keyword: searchEventState.keyword
+    }
+    
+    // 커서 스택 초기화 (새로운 검색)
+    cursorStack.value = []
+    currentCursor = null
+    hasPrevious.value = false
+    
+    console.log('🔍 검색 모드 활성화:', searchState.value)
+    await loadReviews(null)
+    
   } catch (error) {
     console.error('검색 중 오류 발생:', error)
     window.alert('검색 중 오류가 발생했습니다.')
@@ -162,30 +293,14 @@ const handleExportExcel = async () => {
 }
 
 // ----------------------
-// 컴포넌트 마운트 시 회원 목록 불러오기
+// 컴포넌트 마운트 시 리뷰 목록 불러오기
 // ----------------------
 onMounted(async () => {
-  try {
-    const res = await getAdvertisersReviewsList()
-    reviews.value = Array.isArray(res.data) ? res.data : []
-  } catch (e) {
-    window.alert('리뷰 목록을 불러오지 못했습니다.')
-  }
+  console.log('🚀 AdvertiserReviewsTable 마운트 시작')
+  await loadReviews(null)
 })
 
-// ----------------------
-// 현재 페이지에 보여줄 회원 데이터 계산
-// ----------------------
-const pagedReviews = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return reviews.value.slice(start, start + pageSize)
-})
-
-// ----------------------
-// 전체 페이지 수 계산
-// ----------------------
-const totalPages = computed(() => Math.ceil(reviews.value.length / pageSize))
-
+// 모달 관련
 const modalOpen = ref(false)
 const selectedReview = ref({})
 

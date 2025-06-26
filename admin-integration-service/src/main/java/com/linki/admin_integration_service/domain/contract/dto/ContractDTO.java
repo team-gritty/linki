@@ -1,12 +1,18 @@
 package com.linki.admin_integration_service.domain.contract.dto;
 
 import com.linki.admin_integration_service.util.excel.ExcelAnnotation;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@Builder(toBuilder=true)
+@NoArgsConstructor
+@AllArgsConstructor
 @ExcelAnnotation.ExcelSheet(name = "contractList")
 public class ContractDTO {
 
