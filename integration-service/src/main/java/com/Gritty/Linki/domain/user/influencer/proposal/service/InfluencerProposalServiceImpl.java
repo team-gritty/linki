@@ -1,6 +1,8 @@
 package com.Gritty.Linki.domain.user.influencer.proposal.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.domain.kafka.chat.enums.EventType;
+import com.Gritty.Linki.domain.kafka.chat.producer.ChatProducer;
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerUtilRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa.InfluencerProposalRepository;
@@ -35,6 +37,7 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
     private final InfluencerUtilRepository influencerUtilRepository;
     private final ContractRepository contractRepository;
     private final IdGenerator idGenerator;
+    private final ChatProducer chatProducer;
 
     @Override
     public ProposalResponseDTO submitProposal(CustomUserDetails customUserDetails, ProposalRequestDTO proposalRequestDTO) {
@@ -62,6 +65,9 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
                 .build();
 
         proposalRepository.save(proposal);
+
+        //채팅방 생성 이벤트 발행
+        chatProducer.sendEvent(customUserDetails, EventType.PROPOSAL_CREATE,proposal.getProposalId());
 
         // 4. ResponseDTO로 변환해서 반환
         return ProposalResponseDTO.builder()
