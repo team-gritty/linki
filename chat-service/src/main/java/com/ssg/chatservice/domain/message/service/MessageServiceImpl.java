@@ -27,6 +27,19 @@ public class MessageServiceImpl implements MessageService{
     public Message saveMessage(ChatMessageDTO messageDTO){
         Message message = modelMapper.map(messageDTO, Message.class);
         message.initializeIdIfNull();  // ID 자동 생성
+        // 기본적으로 모든 메시지는 읽지 않음 상태로 저장
+        // 읽음 처리는 메시지 조회 시나 별도 API를 통해 처리
+        message.setMessageRead(false);
+        return messageRepository.save(message);
+    }
+
+    @Override
+    //메세지를 DB에 저장하고 발신자에 대해 읽음 처리
+    public Message saveMessageAndMarkAsReadForSender(ChatMessageDTO messageDTO){
+        Message message = modelMapper.map(messageDTO, Message.class);
+        message.initializeIdIfNull();  // ID 자동 생성
+        // 발신자가 보낸 메시지는 처음부터 읽음 상태로 저장
+        message.setMessageRead(true);
         return messageRepository.save(message);
     }
 
