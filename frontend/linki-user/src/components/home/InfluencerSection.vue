@@ -50,17 +50,19 @@ const fetchInfluencers = async () => {
     loading.value = true
     const data = await homeAPI.getmonthInfluencers()
     console.log('Influencers response:', data)
-    influencers.value = data.map(influencer => ({
-      id: influencer.influencersId,
-      name: influencer.influencerName,
-      profileImage: influencer.influencerProfileImage,
-      category: influencer.influencerCategory,
-      subscribers: typeof influencer.influencerSubscribers === 'string' ?
-        influencer.influencerSubscribers :
-        influencer.influencerSubscribers.toLocaleString(),
-      reviews: influencer.influencerReviewsCount || 0,
-      rating: influencer.influencerRating,
-      averageViews: influencer.influencerAvgViewCount
+    
+    // 새로운 API 응답 구조에 맞게 데이터 매핑
+    const cards = data.influencerCards || []
+    influencers.value = cards.map(card => ({
+      id: card.influencerId,
+      channelId: card.channelId,
+      name: card.influencerName,
+      profileImage: card.thumbnailUrl || '/placeholder.png', // 썸네일 URL 사용
+      category: card.category,
+      subscribers: card.subscriberDisplay, // 이미 포맷된 문자열
+      reviews: card.reviewCount || 0,
+      rating: parseFloat(card.rating) || 0.0,
+      channelUrl: card.channelUrl
     }))
   } catch (err) {
     console.error('인플루언서 로딩 실패:', err)
@@ -75,8 +77,14 @@ const handleImageError = (e) => {
   e.target.classList.add('error')
 }
 
-const handleInfluencerClick = (influencerId) => {
-  router.push(`/channels/${influencerId}`)
+/**
+ * 추천 인플루언서 클릭할 시 상세 페지 이동함
+ * @param influencer
+ */
+const handleInfluencerClick = (influencer) => {
+  // 채널 ID가 있으면 채널 ID 사용, 없으면 인플루언서 ID 사용
+  const targetId = influencer.channelId || influencer.id
+  router.push(`/channels/${targetId}`)
 }
 
 onMounted(async () => {
@@ -117,7 +125,7 @@ onUnmounted(() => {
           :key="influencer.id"
           class="influencer-card"
           :style="{ backgroundImage: `url(${influencer.profileImage})` }"
-          @click="handleInfluencerClick(influencer.id)"
+          @click="handleInfluencerClick(influencer)"
           style="cursor: pointer;"
         >
           <span class="category">{{ influencer.category }}</span>
@@ -135,7 +143,7 @@ onUnmounted(() => {
               <span class="review-count">({{ influencer.reviews }})</span>
             </div>
             <div class="influencer-stats">
-              <span class="subscribers">구독자 {{ influencer.subscribers }}명</span>
+              <span class="subscribers">구독자 {{ influencer.subscribers }}</span>
             </div>
           </div>
         </div>

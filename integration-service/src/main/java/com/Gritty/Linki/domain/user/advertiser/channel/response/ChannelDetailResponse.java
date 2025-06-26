@@ -88,4 +88,9 @@ public class ChannelDetailResponse {
      * 채널 배너 URL
      */
     private String bannerUrl;
+
+    /**
+     * 데이터 수집 날짜
+     */
+    private LocalDateTime collectedAt;
 }
