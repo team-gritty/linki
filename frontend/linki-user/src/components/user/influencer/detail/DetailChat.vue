@@ -74,6 +74,7 @@ if (typeof global === 'undefined') {
 import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
 import {chatApi} from '@/api/chat'
 import {useAccountStore} from '@/stores/user'
+import {useChatStore} from '@/stores/chat'
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
@@ -82,6 +83,7 @@ const props = defineProps({
 })
 
 const accountStore = useAccountStore()
+const chatStore = useChatStore()
 const currentUserId = computed(() => {
   return accountStore.getUser?.userId || accountStore.getUser?.id || null
 })
@@ -92,8 +94,6 @@ const error = ref(null)
 const chatMessages = ref([])
 const stompClient = ref(null)
 const isConnected = ref(false)
-const eventSource = ref(null)
-const isSseConnected = ref(false)
 
 // 메시지 시간 포맷 함수
 const formatMessageTime = (dateString) => {
@@ -164,7 +164,7 @@ const connectSocket = (chatId) => {
       isConnected.value = true
       error.value = null
 
-      stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+      stompClient.value.subscribe(`/topic/chat/${chatId}`, async (msg) => {
         const message = JSON.parse(msg.body)
 
         // 현재 사용자가 보낸 메시지는 수신하지 않음
@@ -181,6 +181,55 @@ const connectSocket = (chatId) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
+          
+          console.log('🔔 [WEBSOCKET-INFLUENCER] ===== 새 메시지 수신 =====')
+          console.log('🔔 [WEBSOCKET-INFLUENCER] 받은 메시지:', message)
+          console.log('🔔 [WEBSOCKET-INFLUENCER] 메시지 chatId:', message.chatId)
+          console.log('🔔 [WEBSOCKET-INFLUENCER] 메시지 senderId:', message.senderId)
+          console.log('🔔 [WEBSOCKET-INFLUENCER] 현재 사용자 ID:', currentUserId.value)
+          console.log('🔔 [WEBSOCKET-INFLUENCER] 현재 채팅방(props.chatRoom.chatId):', props.chatRoom?.chatId)
+          console.log('🔔 [WEBSOCKET-INFLUENCER] 현재 채팅방인가?', props.chatRoom?.chatId === message.chatId)
+          console.log('🔔 [WEBSOCKET-INFLUENCER] new 값으로 설정될 값:', false) // 현재 채팅방이므로 항상 false
+          
+          // 전역 chat store 직접 업데이트 (드롭다운용)
+          console.log('🔄 [WEBSOCKET-INFLUENCER] 전역 chat store 업데이트 시작')
+          
+          try {
+            // chatStore 직접 사용
+            chatStore.updateChatMessage(
+              message.chatId, 
+              message.content, 
+              message.messageDate || new Date().toISOString(), 
+              false // 현재 채팅방이므로 읽음 상태
+            )
+            chatStore.moveChatsToTop(message.chatId)
+            
+            console.log('✅ [WEBSOCKET-INFLUENCER] chatStore 직접 업데이트 완료')
+          } catch (storeError) {
+            console.error('❌ [WEBSOCKET-INFLUENCER] chatStore 업데이트 실패:', storeError)
+            
+            // fallback: window 함수 사용
+            if (window.updateChatMessage) {
+              window.updateChatMessage(
+                message.chatId, 
+                message.content, 
+                message.messageDate || new Date().toISOString(), 
+                false
+              )
+              window.moveChatsToTop(message.chatId)
+              console.log('✅ [WEBSOCKET-INFLUENCER] window 함수로 fallback 성공')
+            }
+          }
+          
+          // 즉시 읽음 처리
+          try {
+            await chatApi.markMessagesAsRead(message.chatId)
+            if (window.markChatAsRead) {
+              window.markChatAsRead(message.chatId)
+            }
+          } catch (readError) {
+            console.error('Failed to mark message as read:', readError)
+          }
         }
       })
     }, (connectionError) => {
@@ -212,7 +261,7 @@ const connectWithNativeWebSocket = (chatId, token) => {
       isConnected.value = true
       error.value = null
 
-      stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+      stompClient.value.subscribe(`/topic/chat/${chatId}`, async (msg) => {
         const message = JSON.parse(msg.body)
 
         // 현재 사용자가 보낸 메시지는 수신하지 않음
@@ -275,12 +324,17 @@ const sendMessage = async () => {
   const messageContent = newMessage.value.trim()
 
   try {
+  // 한국 시간으로 LocalDateTime 형태로 전송
+  const now = new Date()
+  const koreanTime = new Date(now.getTime() + (9 * 60 * 60 * 1000))
+  const messageDate = koreanTime.toISOString().slice(0, 19) // YYYY-MM-DDTHH:mm:ss
+  
   const msgObj = {
     chatId: props.chatRoom.chatId,
     senderId: currentUserId.value,
     content: messageContent,
     messageType: 'message',
-    messageDate: new Date().toISOString()
+    messageDate: messageDate
   }
 
   // 웹소켓으로 메시지 전송
@@ -297,7 +351,7 @@ const sendMessage = async () => {
     senderId: currentUserId.value,
     content: messageContent,
     messageType: 'message',
-    messageDate: new Date().toISOString()
+    messageDate: messageDate
   }
 
   // 반응형 배열 업데이트를 위해 새 배열 생성
@@ -307,6 +361,32 @@ const sendMessage = async () => {
 
     // 에러 메시지 초기화
     error.value = null
+
+    // 전역 chat store 직접 업데이트 (자신의 메시지는 읽음 상태)
+    try {
+      chatStore.updateChatMessage(
+        props.chatRoom.chatId, 
+        messageContent, 
+        messageDate, 
+        false // 자신이 보낸 메시지는 읽음 상태
+      )
+      chatStore.moveChatsToTop(props.chatRoom.chatId)
+      console.log('✅ [SEND-INFLUENCER] chatStore 직접 업데이트 완료')
+    } catch (storeError) {
+      console.error('❌ [SEND-INFLUENCER] chatStore 업데이트 실패:', storeError)
+      
+      // fallback: window 함수 사용
+      if (window.updateChatMessage) {
+        window.updateChatMessage(
+          props.chatRoom.chatId, 
+          messageContent, 
+          messageDate, 
+          false
+        )
+        window.moveChatsToTop(props.chatRoom.chatId)
+        console.log('✅ [SEND-INFLUENCER] window 함수로 fallback 성공')
+      }
+    }
 
   } catch (error) {
     console.error('Error sending message:', error)
@@ -404,7 +484,6 @@ const loadChatInfo = async () => {
       // WebSocket 연결은 백그라운드에서 시도하고, 실패해도 메시지 조회는 계속 가능
       setTimeout(() => {
         connectSocket(props.chatRoom.chatId)
-        connectSSE(props.chatRoom.chatId) // SSE 연결도 추가
       }, 1000) // 1초 후 연결 시도
     }
   } catch (e) {
@@ -436,7 +515,6 @@ watch(chatMessages, () => {
 
 onUnmounted(() => {
   disconnectSocket()
-  disconnectSSE()
 })
 
 // 소켓 연결 해제
@@ -446,80 +524,6 @@ const disconnectSocket = () => {
     stompClient.value = null
     isConnected.value = false
     console.log('Stomp connection disconnected')
-  }
-}
-
-// SSE 연결
-const connectSSE = (chatId) => {
-  try {
-    console.log('Connecting SSE for chatId:', chatId)
-    
-    // 기존 SSE 연결이 있으면 해제
-    disconnectSSE()
-    
-    const onOpen = () => {
-      console.log('SSE connection opened for chatId:', chatId)
-      isSseConnected.value = true
-    }
-    
-    const onMessage = (event) => {
-      try {
-        console.log('SSE message received:', event.data)
-        
-        // SSE로 받은 메시지 처리 (JSON 파싱)
-        const message = JSON.parse(event.data)
-        
-        // 내가 보낸 메시지는 무시
-        if (message.senderId === currentUserId.value) {
-          return
-        }
-
-        // 시스템 알림 메시지를 채팅 메시지 목록에 추가
-        chatMessages.value.push({
-          messageId: message.messageId || Date.now(),
-          chatId: message.chatId,
-          senderId: message.senderId,
-          content: message.content,
-          messageDate: message.messageDate || new Date().toISOString(),
-          messageRead: false,
-          messageType: message.messageType || 'NOTIFICATION'
-        })
-
-        // 드롭다운 채팅 목록도 업데이트
-        if (window.updateChatList) {
-          window.updateChatList()
-        }
-        
-      } catch (error) {
-        console.error('Error parsing SSE message:', error)
-      }
-    }
-    
-    const onError = (error) => {
-      console.error('SSE connection error:', error)
-      isSseConnected.value = false
-      
-      // 연결 재시도 (5초 후)
-      setTimeout(() => {
-        if (props.chatRoom?.chatId === chatId) {
-          connectSSE(chatId)
-        }
-      }, 5000)
-    }
-    
-    eventSource.value = chatApi.connectSSE(chatId, onMessage, onError, onOpen)
-    
-  } catch (error) {
-    console.error('Failed to connect SSE:', error)
-  }
-}
-
-// SSE 연결 해제
-const disconnectSSE = () => {
-  if (eventSource.value) {
-    chatApi.disconnectSSE(eventSource.value)
-    eventSource.value = null
-    isSseConnected.value = false
   }
 }
 

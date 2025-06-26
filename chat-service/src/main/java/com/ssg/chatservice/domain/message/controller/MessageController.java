@@ -4,6 +4,7 @@ import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.dto.request.ChatMessageRequestDTO;
 import com.ssg.chatservice.domain.message.dto.respone.ChatMessageResponeDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
+import com.ssg.chatservice.domain.notification.service.NotificationService;
 import com.ssg.chatservice.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class MessageController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageService messageService;
+    private final NotificationService notificationService;
     private final ModelMapper modelMapper;
 
     //사용자가 보낸 메세지를 해당 채팅방에 전송
@@ -40,7 +42,17 @@ public class MessageController {
         //사용자가 보낸 메세지를 해당 채팅방에 전송
         messagingTemplate.convertAndSend("/topic/chat/" + chatMessageDTO.getChatId(),chatMessageDTO);
         //사용자가 보낸 메세지를 DB에 저장
-        messageService.saveMessage(chatMessageDTO);
+        Message savedMessage = messageService.saveMessage(chatMessageDTO);
+        // 전역 SSE를 통해 채팅방에 없는 사용자들에게도 새 메시지 알림 전송
+        String messageDate = savedMessage.getMessageDate() != null ? 
+            savedMessage.getMessageDate().toString() : 
+            java.time.LocalDateTime.now().toString();
+        notificationService.sendNewMessageNotificationToAllExcept(
+            senderId, // 메시지 보낸 사람은 제외
+            chatMessageDTO.getChatId(), 
+            chatMessageDTO.getContent(), 
+            messageDate
+        );
     }
 
     //해당 채팅창의 모든 메세지 조회 (읽음 처리 포함)

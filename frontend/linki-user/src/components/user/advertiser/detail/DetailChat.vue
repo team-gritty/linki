@@ -2,13 +2,16 @@
 import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { chatApi } from '@/api/chat'
 import DetailProposalModal from './DetailProposalModal.vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAccountStore } from '@/stores/account'
+import { useChatStore } from '@/stores/chat'
 import Stomp from "stompjs";
 import SockJs from "sockjs-client";
 
 const router = useRouter()
+const route = useRoute()
 const accountStore = useAccountStore()
+const chatStore = useChatStore()
 
 const props = defineProps({
   campaignId: {
@@ -37,8 +40,6 @@ const showProposalModal = ref(false)
 const selectedProposal = ref(null)
 const stompClient = ref(null)
 const isConnected = ref(false)
-const eventSource = ref(null)
-const isSseConnected = ref(false)
 
 
 // 채팅 목록 필터링
@@ -79,7 +80,7 @@ const selectedChatMessages = computed(() => {
 const formatTime = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
-  
+
   if (date.getFullYear() !== now.getFullYear()) {
     const formatted = date.toLocaleDateString('ko-KR', { 
       year: 'numeric',
@@ -186,9 +187,15 @@ const loadInitialData = async () => {
     // 초기 정렬 수행
     sortChats()
 
-    // chatId prop이 있으면 해당 채팅방을 선택합니다.
-    if (props.chatId) {
-      selectChat(props.chatId);
+    // URL 쿼리에 chatId가 있으면 해당 채팅방 자동 선택 (메신저에서 온 경우)
+    const chatIdFromQuery = route.query.chatId || props.chatId
+    if (chatIdFromQuery) {
+      // 채팅 목록에 해당 chatId가 있는지 확인
+      const targetChat = chatList.value.find(chat => chat.chatId === chatIdFromQuery)
+      if (targetChat) {
+        console.log('Auto-selecting chat from URL query:', chatIdFromQuery)
+        selectChat(chatIdFromQuery)
+      }
     }
   } catch (err) {
     error.value = '데이터를 불러오는데 실패했습니다.'
@@ -262,7 +269,6 @@ const selectChat = async (chatId) => {
     // 소켓 연결 (채팅방 상태가 PENDING이 아닌 경우에만)
     if (chatDetail?.chatStatus !== 'PENDING') {
       await connectSocket(chatId)
-      connectSSE(chatId)
     }
   } catch (err) {
     error.value = '채팅방 정보를 불러오는데 실패했습니다.'
@@ -346,7 +352,7 @@ const connectSocket = (chatId) => {
         error.value = null
 
         // 채팅방 구독
-        stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+        stompClient.value.subscribe(`/topic/chat/${chatId}`, async (msg) => {
           try {
             const message = JSON.parse(msg.body)
             console.log('Received message:', message)
@@ -374,7 +380,7 @@ const connectSocket = (chatId) => {
                 ...chatList.value[chatIndex],
                 lastMessage: message.content,
                 lastMessageTime: message.messageDate || new Date().toISOString(),
-                new: true
+                new: !isCurrentChat // 현재 채팅방이 아닌 경우에만 new = true
               }
               chatList.value.splice(chatIndex, 1)
               chatList.value.unshift(updatedChat)
@@ -382,14 +388,58 @@ const connectSocket = (chatId) => {
               // 채팅 목록 재정렬
               sortChats()
               
-              // 드롭다운 채팅 목록도 업데이트
-              if (window.updateChatList) {
-                window.updateChatList()
+              // 전역 chat store 직접 업데이트 (드롭다운용)
+              console.log('🔄 [WEBSOCKET] 전역 chat store 업데이트 시작')
+              console.log('🔄 [WEBSOCKET] 업데이트 정보:', {
+                chatId: message.chatId,
+                content: message.content,
+                messageDate: message.messageDate,
+                isNew: !isCurrentChat
+              })
+              
+              try {
+                // chatStore 직접 사용
+                chatStore.updateChatMessage(
+                  message.chatId, 
+                  message.content, 
+                  message.messageDate || new Date().toISOString(), 
+                  !isCurrentChat // 현재 채팅방이 아닌 경우에만 new = true
+                )
+                chatStore.moveChatsToTop(message.chatId)
+                
+                console.log('[WEBSOCKET] chatStore 직접 업데이트 완료')
+              } catch (storeError) {
+                console.error('[WEBSOCKET] chatStore 업데이트 실패:', storeError)
+                
+                // fallback: window 함수 사용
+                if (window.updateChatMessage) {
+                  window.updateChatMessage(
+                    message.chatId, 
+                    message.content, 
+                    message.messageDate || new Date().toISOString(), 
+                    !isCurrentChat
+                  )
+                  window.moveChatsToTop(message.chatId)
+                  console.log('[WEBSOCKET] window 함수로 fallback 성공')
+                } else {
+                  console.warn('[WEBSOCKET] window.updateChatMessage 함수도 없음')
+                }
               }
             }
 
-            // 현재 선택된 채팅방이면 스크롤을 최하단으로 이동
-            if (selectedChatId.value === message.chatId) {
+            // 현재 선택된 채팅방이면 즉시 읽음 처리 및 스크롤 이동
+            if (isCurrentChat) {
+              // 즉시 읽음 처리
+              try {
+                await chatApi.markMessagesAsRead(message.chatId)
+                if (window.markChatAsRead) {
+                  window.markChatAsRead(message.chatId)
+                }
+              } catch (readError) {
+                console.error('Failed to mark message as read:', readError)
+              }
+              
+              // 스크롤을 최하단으로 이동
               setTimeout(() => {
                 if (messagesContainer.value) {
                   messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
@@ -438,95 +488,6 @@ const disconnectSocket = () => {
   }
 }
 
-// SSE 연결
-const connectSSE = (chatId) => {
-  try {
-    console.log('Connecting SSE for chatId:', chatId)
-    
-    // 기존 SSE 연결이 있으면 해제
-    disconnectSSE()
-    
-    const onOpen = () => {
-      console.log('SSE connection opened for chatId:', chatId)
-      isSseConnected.value = true
-    }
-    
-    const onMessage = (event) => {
-      try {
-        console.log('SSE message received:', event.data)
-        
-        // SSE로 받은 메시지 처리 (JSON 파싱)
-        const message = JSON.parse(event.data)
-        
-        // 내가 보낸 메시지는 무시
-        if (message.senderId === currentUserId.value) {
-          return
-        }
-
-        // 새 메시지를 채팅 메시지 목록에 추가
-        chatMessages.value.push({
-          messageId: message.messageId || Date.now(),
-          chatId: message.chatId,
-          senderId: message.senderId,
-          content: message.content,
-          messageDate: message.messageDate || new Date().toISOString(),
-          messageRead: false,
-          messageType: message.messageType || 'NOTIFICATION'
-        })
-
-        // 채팅 목록의 마지막 메시지 업데이트
-        const chatIndex = chatList.value.findIndex(chat => chat.chatId === message.chatId)
-        if (chatIndex !== -1) {
-          const updatedChat = {
-            ...chatList.value[chatIndex],
-            lastMessage: message.content,
-            lastMessageTime: message.messageDate || new Date().toISOString(),
-            new: true
-          }
-          chatList.value.splice(chatIndex, 1)
-          chatList.value.unshift(updatedChat)
-          
-          // 채팅 목록 재정렬
-          sortChats()
-          
-          // 드롭다운 채팅 목록도 업데이트
-          if (window.updateChatList) {
-            window.updateChatList()
-          }
-        }
-        
-      } catch (error) {
-        console.error('Error parsing SSE message:', error)
-      }
-    }
-    
-    const onError = (error) => {
-      console.error('SSE connection error:', error)
-      isSseConnected.value = false
-      
-      // 연결 재시도 (5초 후)
-      setTimeout(() => {
-        if (selectedChatId.value === chatId) {
-          connectSSE(chatId)
-        }
-      }, 5000)
-    }
-    
-    eventSource.value = chatApi.connectSSE(chatId, onMessage, onError, onOpen)
-    
-  } catch (error) {
-    console.error('Failed to connect SSE:', error)
-  }
-}
-
-// SSE 연결 해제
-const disconnectSSE = () => {
-  if (eventSource.value) {
-    chatApi.disconnectSSE(eventSource.value)
-    eventSource.value = null
-    isSseConnected.value = false
-  }
-}
 
 // 메시지 전송
 const sendMessage = async () => {
@@ -537,11 +498,16 @@ const sendMessage = async () => {
     return;
   }
 
+  // 한국 시간으로 LocalDateTime 형태로 전송
+  const now = new Date()
+  const koreanTime = new Date(now.getTime() + (9 * 60 * 60 * 1000))
+  const messageDate = koreanTime.toISOString().slice(0, 19) // YYYY-MM-DDTHH:mm:ss
+  
   const messageObj = {
     chatId: selectedChatId.value,
     senderId: currentUserId.value,
     content: newMessage.value.trim(),
-    messageDate: new Date().toISOString(),
+    messageDate: messageDate,
     messageType: 'message',
   }
 
@@ -557,6 +523,7 @@ const sendMessage = async () => {
     chatMessages.value.push({
       ...messageObj,
       messageId: Date.now().toString(), // 임시 ID
+      messageDate: messageDate,
     });
     
     // 채팅 목록의 마지막 메시지 업데이트
@@ -571,6 +538,17 @@ const sendMessage = async () => {
       chatList.value.unshift(updatedChat)
       sortChats()
     }
+
+          // 드롭다운 채팅 목록도 실시간 업데이트 (자신의 메시지는 읽음 상태)
+      if (window.updateChatMessage) {
+        window.updateChatMessage(
+          selectedChatId.value, 
+          messageObj.content, 
+          messageDate, 
+          false // 자신이 보낸 메시지는 읽음 상태
+        )
+        window.moveChatsToTop(selectedChatId.value)
+      }
 
     newMessage.value = ''
     
@@ -593,7 +571,6 @@ onMounted(() => {
 // 컴포넌트 언마운트 시 소켓 연결 정리
 onUnmounted(() => {
   disconnectSocket()
-  disconnectSSE()
 })
 
 // 메시지 자동 스크롤
@@ -781,7 +758,13 @@ const goToContractCreate = (proposal) => {
 
     <!-- 채팅방 미선택 시 -->
     <div v-else class="no-chat-selected">
-      채팅방을 선택해주세요
+      <div class="no-chat-icon">
+        <i class="fas fa-comments"></i>
+      </div>
+      <div class="no-chat-message">
+        <h3>채팅방을 선택해주세요</h3>
+        <p>왼쪽 목록에서 대화하고 싶은 인플루언서를 선택하세요</p>
+      </div>
     </div>
   </div>
 

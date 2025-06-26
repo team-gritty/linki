@@ -18,15 +18,14 @@ public class NotificationSseController {
     private final NotificationService notificationService;
 
     /**
-     * 클라이언트가 채팅방에 접속할 때 호출
-     * - 서버는 해당 채팅방 ID를 기준으로 실시간 메시지를 전달
-     * - 인증은 JwtFilter에서 처리됨 (헤더 또는 쿼리 파라미터)
+     * 사용자별 전역 SSE 연결 (모든 채팅방의 새 메시지 알림 수신)
+     * - 로그인한 사용자가 어떤 페이지에 있든 새 메시지 알림을 받을 수 있음
      */
-    @GetMapping(value = "/sse/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@RequestParam String chatId, Principal principal) {
+    @GetMapping(value = "/sse/subscribe/user", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeUser(Principal principal) {
         String userId = principal.getName();
-        log.info("SSE 연결 성공 - chatId: {}, userId: {}", chatId, userId);
+        log.info("사용자 전역 SSE 연결 성공 - userId: {}", userId);
         
-        return notificationService.subscribe(chatId);
+        return notificationService.subscribeUser(userId);
     }
 }

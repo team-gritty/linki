@@ -73,9 +73,16 @@ public class ChatListener {
 
             //메일 발송
             mailService.sendPostNotification(event.getUserEmail(), notificationDto.getMessage());
+            //메일 발송 (상대방에게)
             mailService.sendPostNotification(event.getPartnerEmail(), notificationDto.getMessage());
-
-            notificationService.sendNotificationToChat(event.getProposalId(), notificationDto.getMessage());
+            
+            //양쪽 사용자 모두에게 채팅 알림 전송
+            notificationService.sendNotificationToBothUsers(
+                event.getProposalId(), 
+                notificationDto.getMessage(),
+                event.getUserId(),        // 현재 사용자 ID
+                event.getPartnerUserId()  // 상대방 사용자 ID
+            );
 
         } catch (JsonProcessingException e) {
             log.error("Kafka 메시지 역직렬화 실패", e);

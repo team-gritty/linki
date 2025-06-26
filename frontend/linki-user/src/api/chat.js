@@ -144,25 +144,49 @@ export const chatApi = {
       const accountStore = useAccountStore()
       const token = accountStore.getAccessToken
 
-      // EventSource로 SSE 연결 (쿼리 파라미터로 토큰 전달)
-      const sseUrl = `/v1/chat-service/api/sse/subscribe?chatId=${chatId}&token=${encodeURIComponent(token)}`
+      if (!token) {
+        console.error('[SSE] 토큰이 없습니다!')
+        throw new Error('Access token not found')
+      }
+
+      // 전역 SSE
+      if (chatId !== 'global') {
+        throw new Error('Only global SSE connections are supported. Use global SSE for all notifications.')
+      }
+      
+      const sseUrl = `/v1/chat-service/api/sse/subscribe/user?token=${encodeURIComponent(token)}`
       const eventSource = new EventSource(sseUrl)
       
-      if (onOpen) {
-        eventSource.onopen = onOpen
+      eventSource.onopen = (event) => {
+        console.log('[SSE] 연결 성공')
+        if (onOpen) onOpen(event)
       }
       
-      if (onMessage) {
-        eventSource.onmessage = onMessage
+      // 커스텀 이벤트 'NEW_MESSAGE' 리스너 추가
+      eventSource.addEventListener('NEW_MESSAGE', (event) => {
+        console.log('📨 [SSE] NEW_MESSAGE 수신:', event.data)
+        if (onMessage) onMessage(event)
+      })
+      
+      // 연결 확인 이벤트 'CONNECTED' 리스너 추가
+      eventSource.addEventListener('CONNECTED', (event) => {
+        console.log(' [SSE] CONNECTED 수신:', event.data)
+      })
+      
+      // 기본 message 이벤트도 처리 (혹시 모를 다른 메시지)
+      eventSource.onmessage = (event) => {
+        console.log('[SSE] 기본 메시지 수신:', event.data)
+        if (onMessage) onMessage(event)
       }
       
-      if (onError) {
-        eventSource.onerror = onError
+      eventSource.onerror = (error) => {
+        console.error('❌ [SSE] 연결 에러:', error)
+        if (onError) onError(error)
       }
       
       return eventSource
     } catch (error) {
-      console.error('Error connecting SSE:', error)
+      console.error('💥 [SSE] 연결 생성 실패:', error)
       throw error
     }
   },

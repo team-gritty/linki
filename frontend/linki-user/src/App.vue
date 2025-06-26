@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import Header from './components/Header.vue'
 import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAccountStore } from './stores/account'
 import { useChatStore } from './stores/chat'
@@ -84,7 +84,35 @@ const checkAccount = async () => {
 
 onMounted(() => {
   initializeAuth()
+})
 
+// 로그인 상태에 따른 전역 SSE 관리
+watch(
+  () => accountStore.isLoggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      const userId = accountStore.getUser?.userId || accountStore.getUser?.id
+      
+      if (userId) {
+        console.log('[APP] SSE 시작:', userId)
+        
+        if (chatStore.isSSEConnected) {
+          chatStore.stopGlobalSSE()
+          setTimeout(() => chatStore.startGlobalSSE(userId), 1000)
+        } else {
+          chatStore.startGlobalSSE(userId)
+        }
+      }
+    } else {
+      chatStore.stopGlobalSSE()
+    }
+  },
+  { immediate: true }
+)
+
+// 컴포넌트 언마운트 시 SSE 정리
+onUnmounted(() => {
+  chatStore.stopGlobalSSE()
 })
 
 // 라우터 변경 감지

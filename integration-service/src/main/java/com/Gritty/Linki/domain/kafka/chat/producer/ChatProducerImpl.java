@@ -59,6 +59,7 @@ public class ChatProducerImpl implements ChatProducer{
         return Event.builder()
                 .eventType(eventType)
                 .userName(user.getUserName())
+                .userId(user.getUserId())           // 현재 사용자 ID 추가
                 .userEmail(user.getUserEmail())
                 .proposalId(proposalId)
                 .partnerUserId(partner.getUserId())
