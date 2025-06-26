@@ -18,9 +18,13 @@
                 <span class="label">계약 금액</span>
                 <span class="value">{{ formatAmount(contract.contractAmount) }}원</span>
               </div>
+              <div class="detail-item" v-if="contract.campaignTitle">
+                <span class="label">캠페인명</span>
+                <span class="value">{{ contract.campaignTitle }}</span>
+              </div>
               <div class="detail-item">
-                <span class="label">정산 상태</span>
-                <span class="value completed">정산 완료</span>
+                <span class="label">계약 상태</span>
+                <span class="value completed">{{ contract.contractStatus }}</span>
               </div>
             </div>
             <button @click="openReviewModal(contract)" class="write-review-btn">
@@ -72,7 +76,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { reviewApi } from '@/api/advertiser/advertiser-review';
 import { contractApi } from '@/api/advertiser/advertiser-contract';
 
@@ -81,35 +84,47 @@ const showModal = ref(false);
 const selectedContract = ref(null);
 const review = ref({
   score: 0,
-  comment: '',
-  visibility: true
+  comment: ''
 });
-const router = useRouter();
 
+// 리뷰 작성 가능한 완료된 계약 조회
 const fetchCompletedContracts = async () => {
   try {
-    // 1. 모든 완료된 계약 불러오기
-    const contractsResponse = await contractApi.getMyContracts();
-    let contractList = Array.isArray(contractsResponse.data) ? contractsResponse.data : [];
-    const completedList = contractList.filter(contract => contract.contractStatus === 'COMPLETED');
-
-    // 2. 작성한 리뷰 DB에서 이미 리뷰 작성된 contractId 목록 불러오기
-    const reviewsResponse = await reviewApi.getGivenReviews();
-    const reviewedContractIds = (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : []).map(r => r.contractId);
-
-    // 3. 리뷰가 작성되지 않은 계약만 필터링
-    completedContracts.value = completedList
-      .filter(contract => !reviewedContractIds.includes(contract.contractId))
-      .map(contract => ({
-        contractId: contract.contractId,
-        contractTitle: contract.contractTitle,
-        contractStatus: contract.contractStatus,
-        contractStartDate: contract.contractStartDate,
-        contractEndDate: contract.contractEndDate,
-        contractAmount: contract.contractAmount,
-        ...contract
-      }));
+    console.log('=== 리뷰 작성용 완료된 계약 조회 시작 ===');
+    
+    // 완료된 계약 직접 조회
+    const contractsResponse = await contractApi.getMyContracts(['COMPLETED']);
+    console.log('=== 완료된 계약 조회 응답 ===', contractsResponse);
+    
+    // 이미 작성한 리뷰 목록 조회
+    const givenReviewsResponse = await reviewApi.getGivenReviews();
+    console.log('=== 작성한 리뷰 목록 응답 ===', givenReviewsResponse);
+    
+    // API 응답에서 data 필드 추출
+    const contractsList = Array.isArray(contractsResponse) ? contractsResponse : [];
+    const givenReviewsData = givenReviewsResponse?.data || givenReviewsResponse;
+    const givenReviews = Array.isArray(givenReviewsData) ? givenReviewsData : [];
+    
+    // 이미 리뷰를 작성한 계약 ID 목록 (reviewId 대신 contractId 사용)
+    const reviewedContractIds = givenReviews.map(review => {
+      console.log('=== 리뷰 항목 ===', review);
+      // 백엔드 응답에서 contractId 찾기 (다양한 필드명 대응)
+      return review.contractId || review.contract_id || review.contractTitle;
+    }).filter(id => id); // undefined 값 제거
+    
+    console.log('=== 이미 리뷰 작성된 계약 ID 목록 ===', reviewedContractIds);
+    
+    // 완료된 계약 중 리뷰를 아직 작성하지 않은 계약만 필터링
+    completedContracts.value = contractsList.filter(contract => {
+      const contractId = contract.contractId;
+      const isReviewed = reviewedContractIds.includes(contractId);
+      console.log(`=== 계약 ${contractId} 리뷰 작성 여부: ${isReviewed} ===`);
+      return !isReviewed;
+    });
+    
+    console.log('=== 리뷰 작성 가능한 계약 목록 ===', completedContracts.value);
   } catch (error) {
+    console.error('리뷰 작성용 완료된 계약 조회 실패:', error);
     completedContracts.value = [];
   }
 };
@@ -118,8 +133,7 @@ const openReviewModal = (contract) => {
   selectedContract.value = contract;
   review.value = {
     score: 0,
-    comment: '',
-    visibility: true
+    comment: ''
   };
   showModal.value = true;
 };
@@ -131,40 +145,57 @@ const closeModal = () => {
 
 const submitReview = async () => {
   if (!selectedContract.value) return;
+
+  // 유효성 검사
+  if (!review.value.score || parseFloat(review.value.score) <= 0) {
+    alert('별점을 입력해주세요.');
+    return;
+  }
+
+  if (!review.value.comment || review.value.comment.trim() === '') {
+    alert('리뷰 내용을 입력해주세요.');
+    return;
+  }
+
   try {
-    // API 엔드포인트 및 필드명에 맞게 POST, id 필드 추가
+    console.log('=== 리뷰 작성 시작 ===');
+    console.log('Contract ID:', selectedContract.value.contractId);
+    
     const reviewData = {
-      id: `AR${Date.now()}`,
-      contractId: selectedContract.value.contractId,
-      score: parseFloat(review.value.score) || 0,
-      comment: review.value.comment,
-      createdAt: new Date().toISOString(),
-      visibility: review.value.visibility
+      reviewScore: parseFloat(review.value.score),
+      reviewComment: review.value.comment.trim()
     };
-    await reviewApi.writeInfluencerReview(reviewData);
-    alert('리뷰가 저장되었습니다.');
+
+    console.log('Review Data:', reviewData);
+    
+    await reviewApi.writeInfluencerReview(selectedContract.value.contractId, reviewData);
+    alert('리뷰가 성공적으로 저장되었습니다.');
     closeModal();
-    await fetchCompletedContracts(); // 리뷰 작성 후 최신화
+    // 리뷰 작성 후 목록 새로고침
+    await fetchCompletedContracts();
   } catch (error) {
-    if (error.response) {
-      console.error('리뷰 저장 실패:', error.response.data, error.response.status);
+    console.error('리뷰 저장 실패:', error);
+    if (error.response?.status === 400 || error.response?.status === 409 || error.response?.status === 500) {
+      alert('이미 작성된 리뷰입니다. 한 계약에 대해서는 한 번만 리뷰를 작성할 수 있습니다.');
     } else {
-      console.error('리뷰 저장 실패:', error);
+      alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
     }
-    alert('리뷰 저장에 실패했습니다. 다시 시도해주세요.');
   }
 };
 
 const formatDate = (dateString) => {
+  if (!dateString) return '';
   const date = new Date(dateString);
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 };
 
 const formatAmount = (amount) => {
+  if (!amount) return '0';
   return new Intl.NumberFormat('ko-KR').format(amount);
 };
 
 onMounted(() => {
+  console.log('=== MyPageWriteReview 컴포넌트 마운트됨 ===');
   fetchCompletedContracts();
 });
 </script>

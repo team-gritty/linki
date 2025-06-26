@@ -44,11 +44,25 @@
   
   const fetchContracts = async () => {
     try {
-      const response = await contractApi.getMyContracts();
-      let contractList = Array.isArray(response.data) ? response.data : [];
-      contracts.value = contractList
-        .filter(contract => contract.contractStatus === 'COMPLETED')
-        .map(contract => ({
+      // COMPLETED 상태만 조회
+      const response = await contractApi.getMyContracts(['COMPLETED']);
+      console.log('Completed contracts API response:', response);
+      
+      let contractList;
+      if (Array.isArray(response)) {
+        contractList = response;
+      } else if (Array.isArray(response.data)) {
+        contractList = response.data;
+      } else {
+        console.warn('Unexpected response structure for completed contracts:', response);
+        contractList = [];
+      }
+      
+      console.log('Completed contracts list:', contractList);
+      
+      contracts.value = contractList.map(contract => {
+        console.log('Processing completed contract:', contract.contractId, 'status:', contract.contractStatus);
+        return {
           contractId: contract.contractId,
           contractTitle: contract.contractTitle,
           contractStatus: contract.contractStatus,
@@ -56,8 +70,12 @@
           contractEndDate: contract.contractEndDate,
           contractAmount: contract.contractAmount,
           ...contract
-        }));
+        };
+      });
+      
+      console.log('Final completed contracts:', contracts.value);
     } catch (error) {
+      console.error('Error fetching completed contracts:', error);
       contracts.value = [];
     }
   };

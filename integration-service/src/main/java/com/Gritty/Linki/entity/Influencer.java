@@ -1,13 +1,9 @@
 package com.Gritty.Linki.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "influencer")
@@ -28,6 +24,9 @@ public class Influencer {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
+
+    @OneToMany(mappedBy = "influencer")
+    private List<Channel> channels; // ✅ 여러 개의 채널이라면
 
     /**
      * 인플루언서의 이름을 반환 (User 엔티티의 userName 사용)

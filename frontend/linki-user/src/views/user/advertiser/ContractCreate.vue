@@ -3,55 +3,51 @@
     <h1>계약서 작성</h1>
     <form @submit.prevent="submitContract">
       <section class="contract-section">
-        <h2>광고주(갑) 정보</h2>
+        <h2>광고주 정보</h2>
         <div class="form-group">
-          <label>회사명</label>
-          <input v-model="form.advertiser.companyName" required maxlength="100" placeholder="회사명을 입력하세요" />
+          <label>광고주 주소</label>
+          <div class="address-input-group">
+            <input 
+              v-model="form.advertiserAddress" 
+              required 
+              maxlength="200" 
+              placeholder="주소 검색을 클릭하세요"
+              readonly
+              class="address-display"
+            />
+            <button type="button" @click="openAddressSearch('advertiser')" class="address-search-btn">
+              주소 검색
+            </button>
+          </div>
         </div>
+      </section>
+
+      <section class="contract-section">
+        <h2>인플루언서 정보</h2>
         <div class="form-group">
-          <label>주소</label>
-          <input v-model="form.advertiser.address" required maxlength="200" placeholder="사업장 주소를 입력하세요" />
+          <label>인플루언서 주소</label>
+          <div class="address-input-group">
+            <input 
+              v-model="form.influencerAddress" 
+              required 
+              maxlength="200" 
+              placeholder="주소 검색을 클릭하세요"
+              readonly
+              class="address-display"
+            />
+            <button type="button" @click="openAddressSearch('influencer')" class="address-search-btn">
+              주소 검색
+            </button>
+          </div>
         </div>
+      </section>
+
+      <section class="contract-section">
+        <h2>계약 조건</h2>
         <div class="form-group">
-          <label>사업자등록번호 <span class="format-hint">(000-00-00000)</span></label>
+          <label>계약 금액 <span class="format-hint">(원)</span></label>
           <input 
-            v-model="form.advertiser.businessNumber" 
-            required 
-            pattern="[0-9]{3}-[0-9]{2}-[0-9]{5}"
-            placeholder="000-00-00000"
-            @input="formatBusinessNumber"
-            maxlength="12"
-            :class="{ 
-              'error': errors.businessNumber, 
-              'success': form.advertiser.businessNumber && !errors.businessNumber 
-            }"
-          />
-          <span v-if="errors.businessNumber" class="error-text">{{ errors.businessNumber }}</span>
-        </div>
-        <div class="form-group">
-          <label>전화번호 <span class="format-hint">(010-0000-0000)</span></label>
-          <input 
-            v-model="form.advertiser.phone" 
-            required 
-            pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
-            placeholder="010-0000-0000"
-            @input="formatPhoneNumber('advertiser')"
-            maxlength="13"
-            :class="{ 
-              'error': errors.advertiserPhone, 
-              'success': form.advertiser.phone && !errors.advertiserPhone 
-            }"
-          />
-          <span v-if="errors.advertiserPhone" class="error-text">{{ errors.advertiserPhone }}</span>
-        </div>
-        <div class="form-group">
-          <label>대표자명</label>
-          <input v-model="form.advertiser.ceo" required maxlength="50" placeholder="대표자 성명을 입력하세요" />
-        </div>
-        <div class="form-group">
-          <label>광고 계약 금액 <span class="format-hint">(원)</span></label>
-          <input 
-            v-model="form.advertiser.amount" 
+            v-model="form.contractAmount" 
             required 
             type="number" 
             min="10000" 
@@ -61,135 +57,81 @@
             @input="validateAmount"
             :class="{ 
               'error': errors.amount, 
-              'success': form.advertiser.amount && !errors.amount 
+              'success': form.contractAmount && !errors.amount 
             }"
           />
           <span v-if="errors.amount" class="error-text">{{ errors.amount }}</span>
         </div>
+
+        <div class="date-group">
+          <div class="form-group">
+            <label>계약 시작일</label>
+            <input 
+              v-model="form.contractStartDate" 
+              required 
+              type="date" 
+              :min="minStartDate"
+              :max="maxStartDate"
+              @change="validateDateRange"
+              :class="{ 
+                'error': errors.startDate,
+                'success': form.contractStartDate && !errors.startDate 
+              }"
+            />
+            <span v-if="errors.startDate" class="error-text">{{ errors.startDate }}</span>
+          </div>
+
+          <div class="form-group">
+            <label>계약 종료일</label>
+            <input 
+              v-model="form.contractEndDate" 
+              required 
+              type="date" 
+              :min="form.contractStartDate || minStartDate"
+              :max="maxEndDate"
+              @change="validateDateRange"
+              :class="{ 
+                'error': errors.endDate,
+                'success': form.contractEndDate && !errors.endDate 
+              }"
+            />
+            <span v-if="errors.endDate" class="error-text">{{ errors.endDate }}</span>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label>캠페인 URL</label>
+          <label>광고 이행 URL</label>
           <input 
-            v-model="form.advertiser.campaignUrl" 
+            v-model="form.adDeliveryUrl" 
             required 
             type="url"
             pattern="https?://.+"
-            placeholder="https://example.com/campaign"
-            @blur="validateCampaignUrl"
+            placeholder="https://example.com/video"
+            @blur="validateAdDeliveryUrl"
             :class="{ 
-              'error': errors.campaignUrl, 
-              'success': form.advertiser.campaignUrl && !errors.campaignUrl 
+              'error': errors.adDeliveryUrl, 
+              'success': form.adDeliveryUrl && !errors.adDeliveryUrl 
             }"
           />
-          <span v-if="errors.campaignUrl" class="error-text">{{ errors.campaignUrl }}</span>
+          <span v-if="errors.adDeliveryUrl" class="error-text">{{ errors.adDeliveryUrl }}</span>
+          <small class="field-description">광고 영상이 업로드될 URL을 입력하세요</small>
         </div>
-      </section>
-      <section class="contract-section">
-        <h2>인플루언서(을) 정보</h2>
+
         <div class="form-group">
-          <label>이름</label>
-          <input v-model="form.influencer.name" required maxlength="50" placeholder="실명을 입력하세요" />
-        </div>
-        <div class="form-group">
-          <label>채널명</label>
-          <input v-model="form.influencer.channel" required maxlength="100" placeholder="유튜브 채널명을 입력하세요" />
-        </div>
-        <div class="form-group">
-          <label>주소</label>
-          <input v-model="form.influencer.address" required maxlength="200" placeholder="주민등록상 주소를 입력하세요" />
-        </div>
-        <div class="form-group">
-          <label>전화번호 <span class="format-hint">(010-0000-0000)</span></label>
-          <input 
-            v-model="form.influencer.phone" 
-            required 
-            pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
-            placeholder="010-0000-0000"
-            @input="formatPhoneNumber('influencer')"
-            maxlength="13"
-            :class="{ 
-              'error': errors.influencerPhone, 
-              'success': form.influencer.phone && !errors.influencerPhone 
-            }"
-          />
-          <span v-if="errors.influencerPhone" class="error-text">{{ errors.influencerPhone }}</span>
-        </div>
-        <div class="form-group">
-          <label>은행명</label>
-          <select 
-            v-model="form.influencer.bankName" 
-            required
-            :class="{ 
-              'success': form.influencer.bankName 
-            }"
-          >
-            <option value="">은행을 선택하세요</option>
-            <option value="국민은행">국민은행</option>
-            <option value="신한은행">신한은행</option>
-            <option value="우리은행">우리은행</option>
-            <option value="하나은행">하나은행</option>
-            <option value="농협은행">농협은행</option>
-            <option value="기업은행">기업은행</option>
-            <option value="새마을금고">새마을금고</option>
-            <option value="카카오뱅크">카카오뱅크</option>
-            <option value="토스뱅크">토스뱅크</option>
-            <option value="케이뱅크">케이뱅크</option>
-            <option value="SC제일은행">SC제일은행</option>
-            <option value="씨티은행">씨티은행</option>
-            <option value="경남은행">경남은행</option>
-            <option value="광주은행">광주은행</option>
-            <option value="대구은행">대구은행</option>
-            <option value="부산은행">부산은행</option>
-            <option value="전북은행">전북은행</option>
-            <option value="제주은행">제주은행</option>
-            <option value="수협은행">수협은행</option>
-            <option value="산업은행">산업은행</option>
-            <option value="우체국">우체국</option>
-            <option value="기타">기타</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>계좌번호 <span class="format-hint">(숫자와 하이픈만)</span></label>
-          <input 
-            v-model="form.influencer.accountNumber" 
-            required 
-            maxlength="30"
-            placeholder="예: 123456-12-123456"
-            @input="formatAccountNumber"
-            @blur="validateAccountNumber"
-            :class="{ 
-              'error': errors.accountNumber, 
-              'success': form.influencer.accountNumber && !errors.accountNumber 
-            }"
-          />
-          <span v-if="errors.accountNumber" class="error-text">{{ errors.accountNumber }}</span>
-        </div>
-        <div class="form-group">
-          <label>광고 업로드 예정일</label>
-          <input 
-            v-model="form.influencer.uploadDate" 
-            required 
-            type="date" 
-            :min="minUploadDate"
-            :max="maxUploadDate"
-            :class="{ 
-              'success': form.influencer.uploadDate 
-            }"
-          />
-          <span v-if="errors.uploadDate" class="error-text">{{ errors.uploadDate }}</span>
-        </div>
-        <div class="form-group">
-          <label>계약 이행 조건</label>
+          <label>특약사항 (광고 조건)</label>
           <textarea 
-            v-model="form.influencer.condition" 
+            v-model="form.contractSpecialTerms" 
             required 
             maxlength="1000"
-            rows="5"
-            placeholder="광고 내용, 업로드 조건, 유지 기간 등을 구체적으로 작성하세요"
+            rows="6"
+            placeholder="광고 내용, 업로드 조건, 유지 기간, 특별 요구사항 등을 구체적으로 작성하세요"
           />
-          <div class="char-count">{{ form.influencer.condition.length }}/1000</div>
+          <div class="char-count">{{ form.contractSpecialTerms.length }}/1000</div>
         </div>
       </section>
+
       <div class="button-group">
+        <button type="button" @click="goBack" class="cancel-btn">취소</button>
         <button type="submit" class="submit-btn" :disabled="!isFormValid">계약서 저장</button>
       </div>
     </form>
@@ -197,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { contractApi } from '@/api/advertiser/advertiser-contract'
 
@@ -205,129 +147,108 @@ const router = useRouter()
 const route = useRoute()
 
 const form = ref({
-  advertiser: {
-    companyName: '',
-    address: '',
-    businessNumber: '',
-    phone: '',
-    ceo: '',
-    amount: '',
-    campaignUrl: ''
-  },
-  influencer: {
-    name: '',
-    channel: '',
-    address: '',
-    phone: '',
-    bankName: '',
-    accountNumber: '',
-    uploadDate: '',
-    condition: ''
-  }
+  advertiserAddress: '',
+  influencerAddress: '',
+  contractAmount: '',
+  contractStartDate: '',
+  contractEndDate: '',
+  adDeliveryUrl: '',
+  contractSpecialTerms: ''
 })
 
 const errors = ref({
-  businessNumber: '',
-  advertiserPhone: '',
-  influencerPhone: '',
   amount: '',
-  campaignUrl: '',
-  accountNumber: '',
-  uploadDate: ''
+  startDate: '',
+  endDate: '',
+  adDeliveryUrl: ''
 })
 
-// 날짜 제한 (내일부터 3개월 후까지)
-const minUploadDate = computed(() => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  return tomorrow.toISOString().split('T')[0]
+// 날짜 제한 (오늘부터 1년 후까지)
+const minStartDate = computed(() => {
+  const today = new Date()
+  return today.toISOString().split('T')[0]
 })
 
-const maxUploadDate = computed(() => {
-  const threeMonthsLater = new Date()
-  threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3)
-  return threeMonthsLater.toISOString().split('T')[0]
+const maxStartDate = computed(() => {
+  const oneYearLater = new Date()
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1)
+  return oneYearLater.toISOString().split('T')[0]
+})
+
+const maxEndDate = computed(() => {
+  const oneYearLater = new Date()
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1)
+  return oneYearLater.toISOString().split('T')[0]
 })
 
 // 폼 유효성 검사
 const isFormValid = computed(() => {
   const hasNoErrors = Object.values(errors.value).every(error => error === '')
-  const hasAllRequiredFields = form.value.advertiser.companyName && 
-    form.value.advertiser.address && 
-    form.value.advertiser.businessNumber && 
-    form.value.advertiser.phone && 
-    form.value.advertiser.ceo && 
-    form.value.advertiser.amount && 
-    form.value.advertiser.campaignUrl &&
-    form.value.influencer.name && 
-    form.value.influencer.channel && 
-    form.value.influencer.address && 
-    form.value.influencer.phone && 
-    form.value.influencer.bankName && 
-    form.value.influencer.accountNumber && 
-    form.value.influencer.uploadDate && 
-    form.value.influencer.condition
+  const hasAllRequiredFields = form.value.advertiserAddress && 
+    form.value.influencerAddress && 
+    form.value.contractAmount && 
+    form.value.contractStartDate && 
+    form.value.contractEndDate && 
+    form.value.adDeliveryUrl &&
+    form.value.contractSpecialTerms
   
   return hasNoErrors && hasAllRequiredFields
 })
 
-// 사업자등록번호 포맷팅
-function formatBusinessNumber() {
-  let value = form.value.advertiser.businessNumber.replace(/\D/g, '')
-  if (value.length <= 3) {
-    form.value.advertiser.businessNumber = value
-  } else if (value.length <= 5) {
-    form.value.advertiser.businessNumber = `${value.slice(0, 3)}-${value.slice(3)}`
-  } else {
-    form.value.advertiser.businessNumber = `${value.slice(0, 3)}-${value.slice(3, 5)}-${value.slice(5, 10)}`
-  }
-  
-  // 유효성 검사
-  if (value.length === 10 && !isValidBusinessNumber(value)) {
-    errors.value.businessNumber = '올바르지 않은 사업자등록번호입니다.'
-  } else {
-    errors.value.businessNumber = ''
-  }
+// 카카오 주소 API 스크립트 로드
+const loadKakaoScript = () => {
+  return new Promise((resolve, reject) => {
+    if (window.daum && window.daum.Postcode) {
+      resolve()
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('카카오 주소 API 로드 실패'))
+    document.head.appendChild(script)
+  })
 }
 
-// 사업자등록번호 검증 알고리즘
-function isValidBusinessNumber(number) {
-  const weights = [1, 3, 7, 1, 3, 7, 1, 3, 5, 1]
-  let sum = 0
-  for (let i = 0; i < 9; i++) {
-    sum += parseInt(number[i]) * weights[i]
-  }
-  sum += Math.floor((parseInt(number[8]) * 5) / 10)
-  const checkDigit = (10 - (sum % 10)) % 10
-  return checkDigit === parseInt(number[9])
-}
-
-// 전화번호 포맷팅
-function formatPhoneNumber(type) {
-  const phoneField = type === 'advertiser' ? 'advertiser' : 'influencer'
-  let value = form.value[phoneField].phone.replace(/\D/g, '')
-  
-  if (value.length <= 3) {
-    form.value[phoneField].phone = value
-  } else if (value.length <= 7) {
-    form.value[phoneField].phone = `${value.slice(0, 3)}-${value.slice(3)}`
-  } else {
-    form.value[phoneField].phone = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7, 11)}`
-  }
-  
-  // 유효성 검사
-  if (value.length === 11 && !value.startsWith('010')) {
-    errors.value[`${phoneField}Phone`] = '010으로 시작하는 번호만 입력 가능합니다.'
-  } else if (value.length > 0 && value.length < 11) {
-    errors.value[`${phoneField}Phone`] = '11자리 전화번호를 입력하세요.'
-  } else {
-    errors.value[`${phoneField}Phone`] = ''
+// 주소 검색 팝업 열기
+const openAddressSearch = async (type) => {
+  try {
+    await loadKakaoScript()
+    
+    new window.daum.Postcode({
+      oncomplete: function(data) {
+        let addr = '' // 주소 변수
+        
+        // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+        if (data.userSelectedType === 'R') { // 도로명 주소 선택
+          addr = data.roadAddress
+        } else { // 지번 주소 선택
+          addr = data.jibunAddress
+        }
+        
+        // 상세주소 입력을 위한 프롬프트
+        const detailAddr = prompt('상세주소를 입력하세요 (선택사항):')
+        const fullAddr = detailAddr ? `${addr} ${detailAddr}` : addr
+        
+        if (type === 'advertiser') {
+          form.value.advertiserAddress = fullAddr
+        } else {
+          form.value.influencerAddress = fullAddr
+        }
+      },
+      width: '100%',
+      height: '100%'
+    }).open()
+  } catch (error) {
+    console.error('주소 검색 오류:', error)
+    alert('주소 검색 서비스를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.')
   }
 }
 
 // 금액 유효성 검사
-function validateAmount() {
-  const amount = parseInt(form.value.advertiser.amount)
+const validateAmount = () => {
+  const amount = parseInt(form.value.contractAmount)
   if (amount < 10000) {
     errors.value.amount = '최소 10,000원 이상 입력하세요.'
   } else if (amount > 1000000000) {
@@ -337,39 +258,37 @@ function validateAmount() {
   }
 }
 
-// 계좌번호 포맷팅
-function formatAccountNumber() {
-  // 숫자와 하이픈만 허용
-  let value = form.value.influencer.accountNumber.replace(/[^0-9-]/g, '')
-  form.value.influencer.accountNumber = value
-}
-
-// 계좌 유효성 검사
-function validateAccountNumber() {
-  const account = form.value.influencer.accountNumber
-  const accountPattern = /^[0-9-]{10,30}$/
-  
-  if (account.length < 10) {
-    errors.value.accountNumber = '계좌번호는 최소 10자리 이상이어야 합니다.'
-  } else if (!accountPattern.test(account)) {
-    errors.value.accountNumber = '숫자와 하이픈(-)만 입력 가능합니다.'
-  } else {
-    errors.value.accountNumber = ''
+// 날짜 범위 유효성 검사
+const validateDateRange = () => {
+  if (form.value.contractStartDate && form.value.contractEndDate) {
+    const startDate = new Date(form.value.contractStartDate)
+    const endDate = new Date(form.value.contractEndDate)
+    
+    if (startDate >= endDate) {
+      errors.value.endDate = '종료일은 시작일보다 늦어야 합니다.'
+    } else {
+      errors.value.startDate = ''
+      errors.value.endDate = ''
+    }
   }
 }
 
-// 캠페인 URL 유효성 검사
-function validateCampaignUrl() {
-  const url = form.value.advertiser.campaignUrl
+// 광고 이행 URL 유효성 검사
+const validateAdDeliveryUrl = () => {
+  const url = form.value.adDeliveryUrl
   const urlPattern = /^https?:\/\/.+\..+/
   if (!urlPattern.test(url)) {
-    errors.value.campaignUrl = '올바른 URL 형식을 입력하세요. (예: https://example.com)'
+    errors.value.adDeliveryUrl = '올바른 URL 형식을 입력하세요. (예: https://youtube.com/watch?v=...)'
   } else {
-    errors.value.campaignUrl = ''
+    errors.value.adDeliveryUrl = ''
   }
 }
 
-async function submitContract() {
+const goBack = () => {
+  router.go(-1)
+}
+
+const submitContract = async () => {
   try {
     const proposalId = route.query.proposalId
     if (!proposalId) {
@@ -383,15 +302,43 @@ async function submitContract() {
       return
     }
     
-    // 계약서 생성 API 호출
-    const response = await contractApi.startContract(proposalId)
-    alert('계약서가 저장되었습니다!')
-    router.push('/mypage/advertiser/contracts')
+    // 백엔드 DTO 구조에 맞게 데이터 구성
+    const contractData = {
+      proposalId: proposalId,
+      advertiserAddress: form.value.advertiserAddress,
+      influencerAddress: form.value.influencerAddress,
+      contractAmount: form.value.contractAmount,
+      contractStartDate: form.value.contractStartDate,
+      contractEndDate: form.value.contractEndDate,
+      adDeliveryUrl: form.value.adDeliveryUrl,
+      contractSpecialTerms: form.value.contractSpecialTerms,
+      // DTO에 있는 다른 필드들 (필요시 기본값 설정)
+      redirectUrl: '',
+      advertiserName: '',
+      influencerName: '',
+      businessNumber: ''
+    }
+    
+    console.log('Sending contract data:', contractData)
+    const response = await contractApi.startContract(contractData)
+    
+    if (response && response.data) {
+      alert('계약서가 성공적으로 저장되었습니다!')
+      router.push('/mypage/advertiser/contracts')
+    } else {
+      alert('계약서가 저장되었습니다!')
+      router.push('/mypage/advertiser/contracts')
+    }
   } catch (error) {
     console.error('계약서 저장 중 오류가 발생했습니다:', error)
     alert('계약서 저장에 실패했습니다. 다시 시도해주세요.')
   }
 }
+
+onMounted(() => {
+  // 컴포넌트 마운트 시 카카오 API 미리 로드
+  loadKakaoScript().catch(console.error)
+})
 </script>
 
 <style scoped>
@@ -440,8 +387,7 @@ async function submitContract() {
 }
 
 .form-group input, 
-.form-group textarea,
-.form-group select {
+.form-group textarea {
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   padding: 14px 16px;
@@ -452,8 +398,7 @@ async function submitContract() {
 }
 
 .form-group input:focus, 
-.form-group textarea:focus,
-.form-group select:focus {
+.form-group textarea:focus {
   outline: none;
   border-color: #7c3aed;
   background: #fff;
@@ -461,37 +406,56 @@ async function submitContract() {
   transform: translateY(-1px);
 }
 
-.form-group input:hover:not(:focus), 
-.form-group textarea:hover:not(:focus),
-.form-group select:hover:not(:focus) {
-  border-color: #d1d5db;
-  background: #fff;
-}
-
 .form-group input.error, 
-.form-group textarea.error,
-.form-group select.error {
+.form-group textarea.error {
   border-color: #fca5a5;
   background: #fef2f2;
 }
 
 .form-group input.success, 
-.form-group textarea.success,
-.form-group select.success {
+.form-group textarea.success {
   border-color: #86efac;
   background: #f0fdf4;
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: #9ca3af;
-  font-style: italic;
+.address-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
 }
 
-.form-group select option {
-  background: #fff;
-  color: #1f2937;
-  padding: 8px;
+.address-display {
+  flex: 1;
+}
+
+.address-search-btn {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.address-search-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+
+.date-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.field-description {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-top: 6px;
 }
 
 .format-hint {
@@ -527,9 +491,27 @@ async function submitContract() {
 .button-group {
   display: flex;
   justify-content: center;
+  gap: 16px;
   margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid rgba(124,58,237,0.1);
+}
+
+.cancel-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
 }
 
 .submit-btn {
@@ -538,7 +520,7 @@ async function submitContract() {
   border: none;
   border-radius: 16px;
   padding: 16px 48px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -552,23 +534,12 @@ async function submitContract() {
   box-shadow: 0 8px 25px rgba(124,58,237,0.4);
 }
 
-.submit-btn:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 4px 20px rgba(124,58,237,0.3);
-}
-
 .submit-btn:disabled {
   background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 100%);
   color: #9ca3af;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
-}
-
-.submit-btn:disabled:hover {
-  background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 100%);
-  transform: none;
-  box-shadow: none;
 }
 
 /* 반응형 디자인 */
@@ -579,47 +550,20 @@ async function submitContract() {
     border-radius: 16px;
   }
   
-  .contract-create-page h1 {
-    font-size: 1.6rem;
+  .date-group {
+    grid-template-columns: 1fr;
   }
   
-  .contract-section h2 {
-    font-size: 1.1rem;
+  .address-input-group {
+    flex-direction: column;
   }
   
-  .submit-btn {
-    padding: 14px 32px;
-    font-size: 1rem;
-  }
-}
-
-/* 다크모드 호환 */
-@media (prefers-color-scheme: dark) {
-  .contract-create-page {
-    background: #1f2937;
-    border-color: rgba(124,58,237,0.2);
+  .address-search-btn {
+    align-self: flex-start;
   }
   
-  .contract-create-page h1 {
-    color: #f9fafb;
-  }
-  
-  .form-group label {
-    color: #e5e7eb;
-  }
-  
-  .form-group input, 
-  .form-group textarea,
-  .form-group select {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  
-  .form-group input:focus, 
-  .form-group textarea:focus,
-  .form-group select:focus {
-    background: #4b5563;
+  .button-group {
+    flex-direction: column;
   }
 }
 
@@ -637,14 +581,5 @@ async function submitContract() {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* 성공/오류 상태 개선 */
-.form-group input.success:focus {
-  box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
-}
-
-.form-group input.error:focus {
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
 }
 </style> 
