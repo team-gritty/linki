@@ -1,13 +1,16 @@
 package com.Gritty.Linki.domain.user.influencer.contract.controller;
 
+import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.contract.service.AdvertiserContractService;
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
 import com.Gritty.Linki.vo.enums.ContractStatus;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,13 +22,6 @@ public class AdvertiserContractController {
 
     private final AdvertiserContractService advertiserContractService;
 
-    @PostMapping("v1/api/advertiser/mypage/contract/{proposalId}/create")
-    public ResponseEntity<Void> createAdvertiserContract(@PathVariable int proposalId, ContractCreateRequestDTO dto) {
-        log.info("proposal id " + proposalId);
-        log.info("dto dto " + dto);
-
-     return ResponseEntity.ok().build();
-    }
 
     /**
      * 로그인한 인플루언서의 계약 목록을 상태에 따라 조회
@@ -49,6 +45,38 @@ public class AdvertiserContractController {
                 advertiserContractService.getContractDetail(contractId);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/v1/api/advertiser/mypage/contracts/{proposalId}/create")
+    public ResponseEntity<ContractCreateRequestDTO> createContract(@PathVariable String proposalId, @RequestBody ContractCreateRequestDTO dto,
+                                                                   @AuthenticationPrincipal CustomUserDetails user) {
+        advertiserContractService.CreateContract(dto,user);
+
+        log.info(dto.toString());
+        log.info("amount : " + dto.getContractAmount());
+        log.info("시작일 :  " +dto.getContractStartDate());
+        log.info("proposal id " + proposalId);
+
+        return ResponseEntity.ok(dto);
+
+    }
+
+    @PostMapping("/v1/api/advertiser/mypage/contracts/{contractId}/complete-delivery")
+    public ResponseEntity<String>completeAdDelivery(@PathVariable String contractId){
+        advertiserContractService.completeAdDelivery(contractId);
+        log.info("amount : " + contractId);
+        return ResponseEntity.ok("success");
+
+    }
+
+    @GetMapping("/v1/api/advertiser/mypage/contracts/{contractId}/document")
+    public ResponseEntity<String>viewDocument(@PathVariable String contractId){
+
+        String documentURl = advertiserContractService.viewDocument(contractId);
+        return ResponseEntity.ok(documentURl);
+
+
+
     }
 
 }

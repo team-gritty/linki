@@ -45,8 +45,6 @@ public class Contract {
     @Column(name = "contract_completed_at")
     private LocalDateTime contractCompletedAt; // 계약서 완료 시간
 
-    @Column(name = "contract_payment_date")
-    private LocalDate contractPaymentDate; // 지급 날짜
 
     @Column(name = "contract_special_terms", columnDefinition = "TEXT")
     private String contractSpecialTerms; // 특약 사항

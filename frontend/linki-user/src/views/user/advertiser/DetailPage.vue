@@ -19,8 +19,13 @@
       
       <!-- 계약서 목록 -->
       <DetailContractList 
-        v-if="currentTab === 'contract.list'"
+        v-if="(currentTab === 'contract.list' || mapTabFromQuery(route.query.tab) === 'contract.list') && !route.query.contractId"
         :campaign-id="campaignId"
+      />
+      
+      <!-- 계약서 상세 -->
+      <DetailContract 
+        v-if="(currentTab === 'contract.list' || mapTabFromQuery(route.query.tab) === 'contract.list') && route.query.contractId"
       />
       
       <!-- 채팅 -->
@@ -40,6 +45,7 @@ import DetailHeader from '@/components/user/advertiser/detail/DetailHeader.vue'
 import DetailCampaign from '@/components/user/advertiser/detail/DetailCampaign.vue'
 import DetailProposalList from '@/components/user/advertiser/detail/DetailProposalList.vue'
 import DetailContractList from '@/components/user/advertiser/detail/DetailContractList.vue'
+import DetailContract from '@/components/user/advertiser/detail/DetailContract.vue'
 import DetailChat from '@/components/user/advertiser/detail/DetailChat.vue'
 
 const route = useRoute()
