@@ -75,4 +75,13 @@ public interface ChannelJpaRepository extends JpaRepository<Channel, String> {
          */
         @Query("SELECT c.channelId FROM Channel c ORDER BY c.channelId")
         List<String> findAllChannelIds();
+
+        /**
+         * 인플루언서 ID로 첫 번째 채널 조회
+         * 동일한 인플루언서가 여러 채널을 가질 수 있으므로 첫 번째 결과만 반환
+         * 
+         * @param influencerId 인플루언서 ID
+         * @return 첫 번째 채널 (없으면 null)
+         */
+        Channel findFirstByInfluencerInfluencerId(String influencerId);
 }

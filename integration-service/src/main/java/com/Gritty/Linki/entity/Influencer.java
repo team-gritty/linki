@@ -20,6 +20,9 @@ public class Influencer {
     @Column(name = "user_id", length = 25, nullable = false)
     private String userId; // 일반 유저 테이블과 연동되는 회원 ID (UUID or 소셜 PK)
 
+    @Column(name = "influencer_img")
+    private String influencerImg;
+
     // User와의 연관관계 추가
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
