@@ -39,8 +39,8 @@ public class MessageController {
         chatMessageDTO.setSenderId(senderId);
         //사용자가 보낸 메세지를 해당 채팅방에 전송
         messagingTemplate.convertAndSend("/topic/chat/" + chatMessageDTO.getChatId(),chatMessageDTO);
-        //사용자가 보낸 메세지를 DB에 저장 (발신자에게는 읽음 처리)
-        messageService.saveMessageAndMarkAsReadForSender(chatMessageDTO);
+        //사용자가 보낸 메세지를 DB에 저장
+        messageService.saveMessage(chatMessageDTO);
     }
 
     //해당 채팅창의 모든 메세지 조회 (읽음 처리 포함)

@@ -12,8 +12,6 @@ public interface MessageService{
     //메세지를 DB에 저장
      Message saveMessage(ChatMessageDTO messageDTO);
      
-    //메세지를 DB에 저장하고 발신자에 대해 읽음 처리
-     Message saveMessageAndMarkAsReadForSender(ChatMessageDTO messageDTO);
 
     //해당 채팅창의 모든 메세지 조회 (읽음 처리 포함)
     public List<ChatMessageDTO> findByChatId(String chatId,String userId);
