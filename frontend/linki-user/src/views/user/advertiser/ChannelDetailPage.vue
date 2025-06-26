@@ -133,7 +133,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useAccountStore } from '@/stores/account'
+import { useChannelAccessStore } from '@/stores/channelAccess'
 import SubscriberHistoryChart from '@/components/user/advertiser/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from '@/components/user/advertiser/LikeRatioBarChart.vue'
 import CommentRatioBarChart from '@/components/user/advertiser/CommentRatioBarChart.vue'
@@ -142,6 +144,9 @@ import { reviewApi } from '@/api/advertiser/advertiser-review'
 import channelApi from '@/api/advertiser/advertiser-channel'
 
 const route = useRoute()
+const router = useRouter()
+const accountStore = useAccountStore()
+const channelAccessStore = useChannelAccessStore()
 const channel = ref(null)
 const loading = ref(true)
 const error = ref(null)
@@ -220,6 +225,36 @@ async function fetchSubscriberHistory() {
 }
 
 onMounted(async () => {
+  // Pinia store를 사용한 접근 제한 체크
+  if (accountStore.isRegularUser) {
+    // 쿼리 파라미터로 리스트에서 온 것인지 확인
+    const fromList = route.query.from === 'list'
+    
+    if (!fromList) {
+      // 직접 URL 접근 시에만 카운트 증가
+      const accessResult = channelAccessStore.attemptChannelAccess()
+      
+      if (!accessResult.success) {
+        alert(accessResult.message)
+        router.push('/channels') // 채널 목록 페이지로 리다이렉트
+        return
+      }
+      
+      console.log('직접 URL 접근 - 카운트 증가:', accessResult)
+    } else {
+      // ChannelListPage에서 온 경우 체크만 (카운트 증가하지 않음)
+      const accessCheck = channelAccessStore.canAccessChannelDetail
+      
+      if (!accessCheck.canAccess) {
+        alert(accessCheck.message)
+        router.push('/channels')
+        return
+      }
+      
+      console.log('ChannelListPage에서 접근 - 카운트 증가하지 않음')
+    }
+  }
+  
   loading.value = true
   try {
     console.log('onMounted 시작 - id:', id.value)
