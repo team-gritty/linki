@@ -25,7 +25,6 @@
            </div>
           <div class="profile-meta-row">
             <div class="channel-category">{{ channel.category }}</div>
-            <button class="ad-btn">광고 제안</button>
             <span class="star-rating">
               <template v-if="reviewCount > 0">
                 <span v-for="n in 5" :key="n">
@@ -41,9 +40,9 @@
           </div>
           <div class="profile-info-row">
             <span>구독자 수 <b>{{ channel.subscribers }}</b></span>
-            <span>가입일 <b>{{ channel.createdAt }}</b></span>
+            <span>가입일 <b>{{ formatJoinDate(channel.createdAt) }}</b></span>
             <span>총영상수 <b>{{ channel.videoCount }}개</b></span>
-            <span>국가 <b>{{ channel.country || '한국' }}</b></span>
+            <span>국가 <b>{{ formatCountry(channel.country) }}</b></span>
           </div>
         </div>
       </div>
@@ -435,6 +434,77 @@ function handleClickOutside(event) {
   }
 }
 
+// 국가 코드를 한국어로 변환하는 함수
+function formatCountry(countryCode) {
+  if (!countryCode) {
+    return '한국'
+  }
+  
+  const country = countryCode.toUpperCase()
+  
+  switch (country) {
+    case 'KR':
+      return '한국'
+    case 'US':
+      return '미국'
+    case 'JP':
+      return '일본'
+    case 'CN':
+      return '중국'
+    case 'GB':
+      return '영국'
+    case 'DE':
+      return '독일'
+    case 'FR':
+      return '프랑스'
+    case 'UNKNOWN':
+      return '한국'
+    default:
+      return '한국'
+  }
+}
+
+// 가입일을 YYYY년 MM월 DD일 형태로 포맷하는 함수
+function formatJoinDate(dateStr) {
+  if (!dateStr) {
+    return '가입일 정보 없음'
+  }
+  
+  try {
+    let date
+    
+    // 이미 Date 객체인 경우
+    if (dateStr instanceof Date) {
+      date = dateStr
+    }
+    // 문자열인 경우 Date 객체로 변환
+    else if (typeof dateStr === 'string') {
+      date = new Date(dateStr)
+    }
+    // 숫자(timestamp)인 경우
+    else if (typeof dateStr === 'number') {
+      date = new Date(dateStr)
+    }
+    else {
+      return '가입일 정보 없음'
+    }
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      return '가입일 정보 없음'
+    }
+    
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    
+    return `${year}년 ${month}월 ${day}일`
+  } catch (error) {
+    console.error('가입일 포맷팅 오류:', error)
+    return '가입일 정보 없음'
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
@@ -565,20 +635,6 @@ onUnmounted(() => {
   gap: 12px;
   margin-bottom: 4px;
   font-size: 1.25rem;
-}
-.ad-btn {
-  background: #8C30F5;
-  color: #fff;
-  font-weight: 500;
-  border: 1px solid #FFC107;
-  border-radius: 8px;
-  padding: 7px 28px;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-.ad-btn:hover{
-  background: #FFC107;
-  color: #8C30F5;
 }
 .channel-category{
   background-color: #fffeff ;
