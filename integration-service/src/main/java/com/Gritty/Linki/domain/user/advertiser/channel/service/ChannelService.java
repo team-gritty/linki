@@ -85,6 +85,144 @@ public class ChannelService {
         }
 
         /**
+         * LinkiScore 기반으로 정렬된 채널 검색
+         * HomeRecommendationController와 동일한 로직으로 LinkiScore를 기준으로 정렬하여 반환
+         * 
+         * @param request 검색 조건
+         * @return LinkiScore 기준으로 정렬된 채널 목록과 페이지네이션 정보
+         */
+        public ChannelPageResponse searchChannelsByLinkiScore(ChannelSearchRequest request) {
+                log.info("LinkiScore 기반 채널 검색 서비스 호출: keyword={}, category={}, sortBy={}, sortDirection={}, page={}, limit={}, minAvgViewCount={}, maxAvgViewCount={}",
+                                request.getKeyword(), request.getCategory(), request.getSortBy(),
+                                request.getSortDirection(), request.getPage(), request.getLimit(),
+                                request.getMinAvgViewCount(), request.getMaxAvgViewCount());
+
+                // 정렬 파라미터가 있는 경우 정렬 전용 메서드 호출
+                if (request.getSortBy() != null && !request.getSortBy().isEmpty()) {
+                        return searchChannelsWithSort(request);
+                }
+
+                // JPA를 사용하여 데이터베이스에서 LinkiScore 기반으로 채널 검색
+                Page<Channel> channelPage = channelRepository.searchChannelsByLinkiScore(
+                                request.getCategory(),
+                                request.getKeyword(),
+                                request.getMinSubscribers(),
+                                request.getMaxSubscribers(),
+                                // minAvgViewCount, maxAvgViewCount는 viewCount로 매핑
+                                request.getMinAvgViewCount(),
+                                request.getMaxAvgViewCount(),
+                                PageRequest.of(request.getPage(), request.getLimit()));
+
+                log.info("데이터베이스 쿼리 완료: 총 {}개 채널 조회됨", channelPage.getTotalElements());
+
+                // 엔티티를 DTO로 변환
+                List<ChannelListResponse> channels = channelPage.getContent().stream()
+                                .map(this::convertToDto)
+                                .collect(Collectors.toList());
+
+                // 조회수 필터 적용 여부 검증 로깅
+                if (request.getMinAvgViewCount() > 0 || request.getMaxAvgViewCount() < Long.MAX_VALUE) {
+                        log.info("=== 조회수 필터 검증 ===");
+                        log.info("필터 조건: min={}, max={}", request.getMinAvgViewCount(), request.getMaxAvgViewCount());
+                        channels.forEach(channel -> {
+                                boolean inRange = true;
+                                if (request.getMinAvgViewCount() > 0
+                                                && channel.getAvgViewCount() < request.getMinAvgViewCount()) {
+                                        inRange = false;
+                                }
+                                if (request.getMaxAvgViewCount() < Long.MAX_VALUE
+                                                && channel.getAvgViewCount() > request.getMaxAvgViewCount()) {
+                                        inRange = false;
+                                }
+                                if (!inRange) {
+                                        log.warn("범위 벗어난 채널 발견: channelId={}, avgViewCount={}",
+                                                        channel.getChannelId(), channel.getAvgViewCount());
+                                }
+                        });
+                        log.info("=== 조회수 필터 검증 완료 ===");
+                }
+
+                // 페이지네이션 정보 생성
+                ChannelPageResponse.PageInfo pageInfo = ChannelPageResponse.PageInfo.builder()
+                                .currentPage(channelPage.getNumber())
+                                .pageSize(channelPage.getSize())
+                                .totalElements(channelPage.getTotalElements())
+                                .totalPages(channelPage.getTotalPages())
+                                .first(channelPage.isFirst())
+                                .last(channelPage.isLast())
+                                .hasNext(channelPage.hasNext())
+                                .hasPrevious(channelPage.hasPrevious())
+                                .build();
+
+                log.info("LinkiScore 기반 채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
+                                channelPage.getTotalElements(),
+                                channelPage.getNumber() + 1,
+                                channelPage.getNumber() * channelPage.getSize() + 1,
+                                Math.min((channelPage.getNumber() + 1) * channelPage.getSize(),
+                                                channelPage.getTotalElements()));
+
+                return ChannelPageResponse.builder()
+                                .channels(channels)
+                                .pageInfo(pageInfo)
+                                .build();
+        }
+
+        /**
+         * 정렬 기능이 있는 채널 검색
+         * 구독자 수, 평균 조회수 등으로 정렬하여 반환
+         * 
+         * @param request 검색 조건 (정렬 파라미터 포함)
+         * @return 정렬된 채널 목록과 페이지네이션 정보
+         */
+        public ChannelPageResponse searchChannelsWithSort(ChannelSearchRequest request) {
+                log.info("정렬 기능이 있는 채널 검색 서비스 호출: keyword={}, category={}, sortBy={}, sortDirection={}, page={}, limit={}",
+                                request.getKeyword(), request.getCategory(), request.getSortBy(),
+                                request.getSortDirection(), request.getPage(), request.getLimit());
+
+                // JPA를 사용하여 데이터베이스에서 정렬 기능을 통한 채널 검색
+                Page<Channel> channelPage = channelRepository.searchChannelsWithSort(
+                                request.getCategory(),
+                                request.getKeyword(),
+                                request.getMinSubscribers(),
+                                request.getMaxSubscribers(),
+                                // minAvgViewCount, maxAvgViewCount는 viewCount로 매핑
+                                request.getMinAvgViewCount(),
+                                request.getMaxAvgViewCount(),
+                                request.getSortBy(),
+                                request.getSortDirection(),
+                                PageRequest.of(request.getPage(), request.getLimit()));
+
+                // 엔티티를 DTO로 변환
+                List<ChannelListResponse> channels = channelPage.getContent().stream()
+                                .map(this::convertToDto)
+                                .collect(Collectors.toList());
+
+                // 페이지네이션 정보 생성
+                ChannelPageResponse.PageInfo pageInfo = ChannelPageResponse.PageInfo.builder()
+                                .currentPage(channelPage.getNumber())
+                                .pageSize(channelPage.getSize())
+                                .totalElements(channelPage.getTotalElements())
+                                .totalPages(channelPage.getTotalPages())
+                                .first(channelPage.isFirst())
+                                .last(channelPage.isLast())
+                                .hasNext(channelPage.hasNext())
+                                .hasPrevious(channelPage.hasPrevious())
+                                .build();
+
+                log.info("정렬 기능이 있는 채널 검색 완료: 총 {}개 중 {}페이지 ({}-{}) 반환",
+                                channelPage.getTotalElements(),
+                                channelPage.getNumber() + 1,
+                                channelPage.getNumber() * channelPage.getSize() + 1,
+                                Math.min((channelPage.getNumber() + 1) * channelPage.getSize(),
+                                                channelPage.getTotalElements()));
+
+                return ChannelPageResponse.builder()
+                                .channels(channels)
+                                .pageInfo(pageInfo)
+                                .build();
+        }
+
+        /**
          * Channel 엔티티를 ChannelListResponse DTO로 변환
          */
         private ChannelListResponse convertToDto(Channel channel) {
@@ -106,6 +244,9 @@ public class ChannelService {
                                                 ? channel.getCommentCount() / channel.getVideoCount()
                                                 : 0;
 
+                log.debug("채널 변환: channelId={}, videoCount={}, viewCount={}, avgViewCount={}",
+                                channel.getChannelId(), channel.getVideoCount(), channel.getViewCount(), avgViewCount);
+
                 // 데이터가 없는 경우 경고 로그만 남기고 계속 진행
                 if (avgLikeCount == 0 && avgViewCount > 0) {
                         log.warn("좋아요 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channel.getChannelId());
@@ -114,9 +255,6 @@ public class ChannelService {
                 if (avgCommentCount == 0 && avgViewCount > 0) {
                         log.warn("댓글 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channel.getChannelId());
                 }
-
-                log.debug("실제 데이터 계산 완료: channelId={}, avgViewCount={}, avgLikeCount={}, avgCommentCount={}",
-                                channel.getChannelId(), avgViewCount, avgLikeCount, avgCommentCount);
 
                 return ChannelListResponse.builder()
                                 .channelId(channel.getChannelId())
@@ -293,6 +431,7 @@ public class ChannelService {
                                 .thumbnailUrl(channel.getChannelThumbnailUrl())
                                 .youtubeUrl(channel.getChannelUrl())
                                 .bannerUrl(bannerUrl)
+                                .collectedAt(channel.getCollectedAt())
                                 .build();
 
                 log.info("채널 상세 정보 조회 완료 - channelId: {}", channelId);

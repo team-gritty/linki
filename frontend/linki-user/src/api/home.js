@@ -13,13 +13,13 @@ export const homeAPI = {
     }
   },
 
-  // 인플루언서 목록 조회
+  // 이번 달 추천 인플루언서 목록 조회
   getmonthInfluencers: async () => {
     try {
-      const response = await httpClient.get('/v1/api/home/monthInfluencers')
+      const response = await httpClient.get('/v1/api/home/recommended-influencers')
       return response.data
     } catch (error) {
-      console.error('Error fetching monthInfluencers:', error)
+      console.error('Error fetching recommended influencers:', error)
       throw error
     }
   },
