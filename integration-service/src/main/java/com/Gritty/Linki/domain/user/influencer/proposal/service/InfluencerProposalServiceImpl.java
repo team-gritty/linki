@@ -116,6 +116,9 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
         // 수정
         proposal.setContents(proposalRequestDTO.getContents());
 
+        //제안서 수정 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_MODIFY,propsalId);
+
     }
 
     @Override
@@ -140,6 +143,8 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
 
         proposalRepository.delete(proposal);
 
+        //제안서 삭제 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_DELETE,propsalId);
 
 
     }
