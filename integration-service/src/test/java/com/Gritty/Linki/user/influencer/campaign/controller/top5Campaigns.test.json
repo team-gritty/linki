@@ -1,0 +1,52 @@
+[
+  {
+    "campaignId": "CAMP004",
+    "campaignName": "오늘마감 캠페인 4",
+    "campaignCondition": "조건4",
+    "campaignImg": "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%B0%BD%EB%AC%B8-%EA%B7%BC%EC%B2%98%EC%9D%98-%EA%B2%80%EC%9D%80-mitzie-%EC%8A%A4%ED%94%84%EB%A0%88%EC%9D%B4-%EB%B3%91-dnstpPqCBbw",
+    "createdAt": "2025-06-26T10:49:54",
+    "campaignDeadline": "2025-06-26T00:00:00",
+    "campaignPublishStatus": "ACTIVE",
+    "campaignCategory": "음악"
+  },
+  {
+    "campaignId": "CAMP005",
+    "campaignName": "오늘마감 캠페인 5",
+    "campaignCondition": "조건5",
+    "campaignImg": "https://www.istockphoto.com/photo/3d-glass-jar-with-cream-cosmetic-transparent-container-mock-up-isolated-render-icon-gm2162969481-583339351?utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fko%2Fs%2F%25EC%2582%25AC%25EC%25A7%2584%2Fproduct&utm_medium=affiliate&utm_source=unsplash&utm_term=product%3A%3A%3A",
+    "createdAt": "2025-06-26T10:49:54",
+    "campaignDeadline": "2025-06-26T00:00:00",
+    "campaignPublishStatus": "ACTIVE",
+    "campaignCategory": "여행"
+  },
+  {
+    "campaignId": "CAMP002",
+    "campaignName": "오늘마감 캠페인 2",
+    "campaignCondition": "조건2",
+    "campaignImg": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1699&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "createdAt": "2025-06-26T10:49:54",
+    "campaignDeadline": "2025-06-26T01:04:00",
+    "campaignPublishStatus": "ACTIVE",
+    "campaignCategory": "뷰티"
+  },
+  {
+    "campaignId": "CAMP006",
+    "campaignName": "오늘마감 캠페인 6",
+    "campaignCondition": "조건6",
+    "campaignImg": "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%ED%9D%B0%EC%83%89-%EC%83%81%EC%9E%90-%EC%9C%84%EC%97%90-%EC%A7%9D%EC%9D%84-%EC%9D%B4%EB%A3%A8%EC%A7%80-%EC%95%8A%EC%9D%80-%EB%85%B9%EC%83%89-%EA%B0%80%EC%A3%BD-%EC%8B%A0%EB%B0%9C-KStSiM1UvPw",
+    "createdAt": "2025-06-26T10:49:54",
+    "campaignDeadline": "2025-06-26T08:00:00",
+    "campaignPublishStatus": "ACTIVE",
+    "campaignCategory": "전자제품"
+  },
+  {
+    "campaignId": "CAMP001",
+    "campaignName": "오늘마감 캠페인 1",
+    "campaignCondition": "조건1",
+    "campaignImg": "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?auto=format&fit=crop&q=80",
+    "createdAt": "2025-06-26T10:49:54",
+    "campaignDeadline": "2025-06-26T08:10:00",
+    "campaignPublishStatus": "ACTIVE",
+    "campaignCategory": "패션"
+  }
+]
