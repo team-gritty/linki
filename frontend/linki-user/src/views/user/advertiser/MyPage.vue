@@ -64,6 +64,8 @@ function getMenuFromRoute(routeName) {
       return 'campaign.list'
     case 'campaign-register':
       return 'campaign.register'
+    case 'advertiser-subscription':
+      return 'subscription.apply'
     case 'ContractList':
       return 'contract.list'
     // Add more mappings as needed

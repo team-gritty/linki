@@ -71,14 +71,14 @@ const handleStartLinki = () => {
   const userType = accountStore.getUserType
   
   if (userType === 'influencer') {
-    // 인플루언서인 경우 인플루언서 마이페이지의 구독신청 탭으로 이동
-    router.push('/mypage/influencer?tab=subscription')
+    // 인플루언서인 경우 인플루언서 마이페이지의 구독신청 탭으로 이동 (기존 방식 사용)
+    router.push('/mypage/influencer?currentMenu=subscription.apply')
   } else if (userType === 'advertiser') {
-    // 광고주인 경우 광고주 마이페이지의 구독신청 탭으로 이동
-    router.push('/mypage/advertiser?tab=subscription')
+    // 광고주인 경우 광고주 마이페이지의 구독신청 탭으로 이동 (DetailHeader.vue와 동일한 방식)
+    router.push('/mypage/advertiser/subscription')
   } else {
-    // 일반 회원인 경우 기본 마이페이지로 이동
-    router.push('/mypage')
+    // 일반 회원인 경우 인플루언서/광고주 등록신청 탭으로 이동
+    router.push('/mypage/register')
   }
 }
 
