@@ -6,6 +6,7 @@ import Footer from './components/Footer.vue'
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAccountStore } from './stores/account'
+import { useChatStore } from './stores/chat'
 import Chatbot from '@/components/chatbot/Chatbot.vue'
 import Alert from '@/components/common/Alert.vue'
 import {check} from "@/services/accountService.js";
@@ -13,6 +14,7 @@ import {check} from "@/services/accountService.js";
 const router = useRouter()
 const route = useRoute()
 const accountStore = useAccountStore()
+const chatStore = useChatStore()
 const openSidebar = ref(false)
 const toggleSidebar = () => {
   openSidebar.value = !openSidebar.value

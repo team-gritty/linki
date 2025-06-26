@@ -1,15 +1,14 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAccountStore } from '@/stores/account'
-import { chatApi } from '@/api/chat'
+import { useChatStore } from '@/stores/chat'
 
 const router = useRouter()
 const accountStore = useAccountStore()
+const chatStore = useChatStore()
 const showDropdown = ref(false)
-const userChatList = ref([])
 const dropdownRef = ref(null)
-const loading = ref(false)
 const error = ref(null)
 
 const currentUserId = computed(() => {
@@ -18,49 +17,33 @@ const currentUserId = computed(() => {
 
 const userType = computed(() => accountStore.getUserType)
 
-const sortedChatList = computed(() => {
-  return [...userChatList.value].sort((a, b) => {
-    // 먼저 읽지 않은 메시지 우선
-    if (a.isNew !== b.isNew) {
-      return b.isNew - a.isNew
-    }
-    // 그 다음 최신 메시지 순
-    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
-  })
-})
+// chat store의 computed 값들 사용
+const sortedChatList = computed(() => chatStore.sortedChatList)
+const hasNewMessages = computed(() => chatStore.hasNewMessages)
+const loading = computed(() => chatStore.loading)
 
-const hasNewMessages = computed(() => {
-  return userChatList.value.some(chat => chat.isNew)
-})
-
-const loadUserChatList = async () => {
+const loadUserChatList = async (forceRefresh = false) => {
   try {
-    loading.value = true
     error.value = null
     
     if (!currentUserId.value) {
       console.warn('User ID not available')
       error.value = '사용자 정보를 찾을 수 없습니다.'
-      userChatList.value = []
       return
     }
     
     console.log('Loading chat list for user:', currentUserId.value)
-    const data = await chatApi.getUserChatList()
-    userChatList.value = data || []
-  } catch (error) {
-    console.error('Failed to load user chat list:', error)
+    await chatStore.loadChatList(forceRefresh)
+  } catch (err) {
+    console.error('Failed to load user chat list:', err)
     error.value = '채팅 목록을 불러오는데 실패했습니다.'
-    userChatList.value = []
-  } finally {
-    loading.value = false
   }
 }
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
   if (showDropdown.value) {
-    loadUserChatList()
+    loadUserChatList(true) // 드롭다운 열 때는 강제 새로고침
   }
 }
 
@@ -126,8 +109,16 @@ const handleClickOutside = (event) => {
   }
 }
 
+// 사용자 ID가 변경될 때 (로그인할 때) 채팅 목록 로드
+watch(currentUserId, (newUserId, oldUserId) => {
+  if (newUserId && newUserId !== oldUserId) {
+    console.log('User logged in, loading chat list:', newUserId)
+    loadUserChatList(true) // 로그인 시 강제 새로고침
+  }
+}, { immediate: false })
+
 onMounted(() => {
-  loadUserChatList()
+  loadUserChatList(true) // 최초 로드시 강제 새로고침
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -166,7 +157,7 @@ onUnmounted(() => {
           </div>
           <div class="chat-meta">
             <div class="chat-time">{{ formatTime(chat.lastMessageTime || new Date()) }}</div>
-            <div v-if="chat.isNew" class="new-badge">NEW</div>
+            <div v-if="chat.new" class="new-badge">NEW</div>
           </div>
         </div>
       </div>
