@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,8 +64,8 @@ public class ChatController {
 
     //인증유저의 참여 채팅방 조회
     @GetMapping("/authuser/user-chat-list")
-    public List<ChatResponeDTO> userChatList(@RequestHeader("Authorization")String token){
-        List<ChatDTO> chats = chatService.userToChatList(token);
+    public List<ChatResponeDTO> userChatList(@RequestHeader("Authorization")String token, Principal principal){
+        List<ChatDTO> chats = chatService.userToChatList(token, principal.getName());
         return  chats.stream().map(chatDTO -> { return modelMapper.map(chatDTO,ChatResponeDTO.class);
         }).collect(Collectors.toList());
     }
