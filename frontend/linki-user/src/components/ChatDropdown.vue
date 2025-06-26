@@ -28,7 +28,7 @@ const loadUserChatList = async () => {
     
     if (!currentUserId.value) {
       console.warn('User ID not available')
-      error.value = '사용자 정보를 찾을 수 없습니다.'
+      error.value = '로그인 후 이용해주세요.'
       return
     }
     
