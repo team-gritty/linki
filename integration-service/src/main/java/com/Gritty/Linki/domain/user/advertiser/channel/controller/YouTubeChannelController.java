@@ -5,6 +5,7 @@ import com.Gritty.Linki.domain.user.advertiser.channel.service.YouTubeChannelCol
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -50,7 +51,8 @@ public class YouTubeChannelController {
     }
 
     /**
-     * 모든 채널의 YouTube API 통계를 업데이트 (스케줄러로 하루에 한번씩 혹은 특정 시간에만 업데이트)
+     * 모든 채널의 YouTube API 통계를 업데이트 (구독자 수, 영상 수, 조회수, 좋아요, 댓글 등 모든 동적 데이터)
+     * 수동 호출 또는 스케줄러를 통해 정기적으로 업데이트
      *
      * @param maxResults 조회할 최근 영상 수 (기본값: 30개)
      * @return 업데이트 결과
@@ -59,7 +61,7 @@ public class YouTubeChannelController {
     public ResponseEntity<Map<String, Object>> updateAllChannelStatistics(
             @RequestParam(defaultValue = "30") int maxResults) {
 
-        log.info("모든 채널 통계 업데이트 요청 - maxResults: {}", maxResults);
+        log.info("모든 채널 전체 통계 업데이트 요청 - maxResults: {}", maxResults);
 
         try {
             // 모든 채널 ID 조회
@@ -70,18 +72,41 @@ public class YouTubeChannelController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "모든 채널의 통계 업데이트가 완료되었습니다.");
+            response.put("message", "모든 채널의 전체 통계 업데이트가 완료되었습니다.");
             response.put("totalChannels", allChannelIds.size());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("모든 채널 통계 업데이트 실패 - error: {}", e.getMessage());
+            log.error("모든 채널 전체 통계 업데이트 실패 - error: {}", e.getMessage());
 
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
-            errorResponse.put("message", "모든 채널 통계 업데이트에 실패했습니다: " + e.getMessage());
+            errorResponse.put("message", "모든 채널 전체 통계 업데이트에 실패했습니다: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
+     * 스케줄러를 통한 자동 채널 통계 업데이트
+     * 매주 일요일 오전 2시에 실행
+     * cron 표현식: 초(0) 분(0) 시(2) 일(*) 월(*) 요일(0=일요일)
+     */
+    @Scheduled(cron = "0 0 2 * * 0")
+    public void scheduledChannelStatisticsUpdate() {
+        log.info("=== 스케줄러를 통한 주간 채널 통계 업데이트 시작 ===");
+
+        try {
+            // 모든 채널 ID 조회
+            List<String> allChannelIds = channelService.getAllChannelIds();
+
+            // 일괄 업데이트 실행 (최근 30개 영상 기준)
+            channelService.updateChannelStatisticsBatch(allChannelIds);
+
+            log.info("=== 스케줄러를 통한 주간 채널 통계 업데이트 완료 - 총 {}개 채널 ===", allChannelIds.size());
+
+        } catch (Exception e) {
+            log.error("=== 스케줄러를 통한 채널 통계 업데이트 실패 - error: {} ===", e.getMessage(), e);
         }
     }
 }
