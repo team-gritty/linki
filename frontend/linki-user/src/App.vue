@@ -59,9 +59,9 @@ const initializeAuth = () => {
       
       // 백엔드 role을 프론트엔드 userType으로 매핑
       let userType = 'general'
-      if (userRole === 'ROLE_INFLUENCER') {
+      if (userRole.toUpperCase() === 'ROLE_INFLUENCER') {
         userType = 'influencer'
-      } else if (userRole === 'ROLE_ADVERTISER') {
+      } else if (userRole.toUpperCase() === 'ROLE_ADVERTISER') {
         userType = 'advertiser'
       }
       

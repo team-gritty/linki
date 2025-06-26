@@ -1,21 +1,74 @@
-package com.linki.admin_integration_service.config;
-
-/**
- * JwtUtil 클래스는 JWT 토큰에서 필요한 정보를 추출하는 유틸리티 클래스입니다.
- */
-public class JwtUtil {
-
-    /**
-     * JWT 토큰에서 사용자 권한(role)을 추출합니다.
-     * 현재는 하드코딩으로 "ADMIN"을 반환하고 있으며,
-     * 추후 실제 JWT 파싱 로직으로 교체되어야 합니다.
-     *
-     * @param token JWT 토큰 문자열
-     * @return 사용자 역할 (예: "ADMIN", "USER" 등)
-     */
-    public static String extractRole(String token) {
-        // TODO: 아래 부분은 JWT에서 role 추출하는 실제 로직으로 교체 필요
-        // 현재는 ADMIN만 하드코딩으로 체크함
-        return "ADMIN";
-    }
-}
+//package com.linki.admin_integration_service.config;
+//
+//
+//import io.jsonwebtoken.ExpiredJwtException;
+//import io.jsonwebtoken.Jwts;
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.stereotype.Component;
+//
+//import javax.crypto.SecretKey;
+//import javax.crypto.spec.SecretKeySpec;
+//import java.util.Date;
+//import java.util.Map;
+//
+//
+//
+//@Component
+//public class JwtUtil {
+//    private SecretKey secretKey;
+//
+//    public JwtUtil(@Value("${spring.jwt.secret}")String secret) {
+//        this.secretKey = new SecretKeySpec(secret.getBytes(), Jwts.SIG.HS256.key().build().getAlgorithm());
+//    }
+//
+//    //유저 아이디 겟
+//    public String getUserId(String token) {
+//        try {
+//            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userId", String.class);
+//        } catch (ExpiredJwtException e) {
+//            throw e; // ExpiredJwtException을 다시 던져서 JwtFilter에서 처리하도록 함
+//        }
+//    }
+//
+//    //권한 겟
+//    public String getRole(String token) {
+//        try {
+//            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("userRole", String.class);
+//        } catch (ExpiredJwtException e) {
+//            throw e; // ExpiredJwtException을 다시 던져서 JwtFilter에서 처리하도록 함
+//        }
+//    }
+//
+//    //토큰 만료됬는지
+//    public Boolean isTokenExpired(String token) {
+//        try {
+//            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+//        } catch (ExpiredJwtException e) {
+//            return true; // 만료된 토큰이면 true 반환
+//        }
+//    }
+//
+//    public String createJwtToken(String userId, String userRole, Long expiredMs) {
+//        return Jwts.builder()
+//                .claim("userId",userId)
+//                .claim("userRole",userRole)
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis()+expiredMs * 1000))
+//                .signWith(secretKey)
+//                .compact();
+//    }
+//
+//    public Map<String, Object> getBody(String token) {
+//        try {
+//            return Jwts.parser()
+//                    .verifyWith(secretKey)
+//                    .build()
+//                    .parseSignedClaims(token)
+//                    .getPayload();
+//        } catch (ExpiredJwtException e) {
+//            throw e; // ExpiredJwtException을 다시 던져서 호출자에서 처리하도록 함
+//        }
+//    }
+//
+//
+//}

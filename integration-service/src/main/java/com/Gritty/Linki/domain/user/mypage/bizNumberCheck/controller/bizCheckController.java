@@ -22,7 +22,7 @@ public class bizCheckController {
 
     private final BizCheckService bizCheckService;
 
-    @PostMapping("v1/api/user/bizCheck")
+    @PostMapping("/v1/api/user/bizCheck")
     public ResponseEntity<ResponseDTO> bizCheck(RequestDTO requestDTO) throws IOException {
         log.info(requestDTO);
 
