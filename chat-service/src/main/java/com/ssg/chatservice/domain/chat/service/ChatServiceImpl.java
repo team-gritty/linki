@@ -36,7 +36,8 @@ public class ChatServiceImpl implements ChatService{
 
     //제안서아이디로  채팅방 조회
     public Chat findByProposalId(String proposalId){
-        return chatRepository.findByProposalId(proposalId).orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
+        return chatRepository.findByProposalId(proposalId)
+                .orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
     }
 
     //제안서 아이디로 ChatDetailDTO 반환
@@ -70,13 +71,13 @@ public class ChatServiceImpl implements ChatService{
     @Transactional
     public ChatDTO createRoom(String proposalId) {
         //DB에서 제안서 아이디를 기준으로 채팅방 조회
-        Chat chat = findByProposalId(proposalId);
+        Optional<Chat> existingChat = chatRepository.findByProposalId(proposalId);
         //이미 존재하는 채팅방이면 예외처리
-        if(chat != null){
+        if(existingChat.isPresent()){
             throw new ChatException(ErrorCode.CHATROOM_ALREADY_EXIST);
         }
         // 비활성 상태의 채팅방 생성하여 DB에 저장
-        chat = Chat.builder()
+        Chat chat = Chat.builder()
                 .chatDate(Instant.now())
                 .chatStatus(ChatStatus.PENDING)
                 .proposalId(proposalId)
@@ -102,12 +103,12 @@ public class ChatServiceImpl implements ChatService{
 
     //로그인 유저의 채팅 목록 조회 (유저 아이디로 채팅방 조회)
     @Override
-    public List<ChatDTO> userToChatList (String token){
+    public List<ChatDTO> userToChatList (String token, String userId){
         List<ChatInfoResponse> chatInfos = userChatinfo(token);
         List<Chat> chats = chatInfoGetChat(chatInfos).stream()
                 .filter(chat->chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
-        //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
-        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
+        //마지막 메세지 및 읽지 않은 메시지 여부 조회 (사용자별)
+        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessageWithUnreadStatus(chats, userId);
         
         List<ChatDTO> finalChatDtos = chatDTOs(chats,chatInfos,lastMessages);
         log.info("Final ChatDTOs to be sent to frontend: {}", finalChatDtos);
@@ -156,7 +157,7 @@ public class ChatServiceImpl implements ChatService{
                     .opponentName(chatInfo.getOpponentName())
                     .lastMessage(lastMessage.getContent())
                     .lastMessageTime(lastMessage.getMessageDate())
-                    .isNew(lastMessage.isMessageRead())
+                    .isNew(!lastMessage.isMessageRead())  // 읽지 않은 메시지가 있으면 새 메시지
                     .proposalId(chat.getProposalId())
                     .campaignId(chatInfo.getCampaignId()) // Map에서 가져온 chatInfo 객체 사용
                     .build();
