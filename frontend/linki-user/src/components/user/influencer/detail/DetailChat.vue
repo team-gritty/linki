@@ -78,7 +78,7 @@ if (typeof global === 'undefined') {
   window.global = window;
 }
 
-import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
+import {ref, onMounted, watch, computed, onUnmounted, nextTick} from 'vue'
 import {chatApi} from '@/api/chat'
 import {useAccountStore} from '@/stores/user'
 import {useChatStore} from '@/stores/chat'
@@ -229,6 +229,14 @@ const connectSocket = (chatId) => {
           } catch (readError) {
             console.error('Failed to mark message as read:', readError)
           }
+          
+          // 스크롤을 최하단으로 이동 (새 메시지 수신 시)
+          setTimeout(() => {
+            if (messagesContainer.value) {
+              messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+              console.log('✅ [WEBSOCKET-INFLUENCER] 메시지 수신 후 스크롤 완료')
+            }
+          }, 200)
         }
       })
     }, (connectionError) => {
@@ -276,6 +284,14 @@ const connectWithNativeWebSocket = (chatId, token) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
+          
+          // 스크롤을 최하단으로 이동 (fallback WebSocket 메시지 수신 시)
+          setTimeout(() => {
+            if (messagesContainer.value) {
+              messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+              console.log('✅ [WEBSOCKET-FALLBACK-INFLUENCER] 메시지 수신 후 스크롤 완료')
+            }
+          }, 200)
         }
       })
     }, (error) => {
@@ -360,6 +376,14 @@ const sendMessage = async () => {
 
     // 에러 메시지 초기화
     error.value = null
+    
+    // 스크롤 최하단으로 이동 (메시지 전송 시)
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        console.log('✅ [SEND-INFLUENCER] 메시지 전송 후 스크롤 완료')
+      }
+    }, 200)
 
     // 전역 chat store 직접 업데이트 (자신의 메시지는 읽음 상태)
     try {
@@ -409,8 +433,15 @@ const markChatAsRead = async (chatId) => {
 }
 
 // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
-const scrollToUnreadOrBottom = () => {
-  if (!messagesContainer.value) return
+const scrollToUnreadOrBottom = async () => {
+  
+  // Vue의 DOM 업데이트가 완료될 때까지 기다림
+  await nextTick()
+  
+  if (!messagesContainer.value) {
+    return
+  }
+
 
   // 현재 사용자가 받은 안읽은 메시지 중 첫 번째 찾기
   const firstUnreadMessage = chatMessages.value.find(message => 
@@ -419,23 +450,27 @@ const scrollToUnreadOrBottom = () => {
     message.messageType !== 'NOTIFICATION'
   )
 
-  if (firstUnreadMessage) {
-    // 안읽은 메시지가 있으면 해당 위치로 스크롤
-    const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
-    if (messageElement) {
-      messageElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      })
+
+  // 추가적인 DOM 렌더링 대기
+  setTimeout(() => {
+    if (firstUnreadMessage) {
+      const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
+      
+      if (messageElement) {
+        messageElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        })
+      } else {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
     } else {
-      // DOM 요소를 찾지 못했으면 맨 밑으로
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      // 안읽은 메시지가 없으면 맨 밑으로 스크롤
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
     }
-  } else {
-    // 안읽은 메시지가 없으면 맨 밑으로 스크롤
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    
-  }
+  }, 300) // 더 충분한 시간을 줌
 }
 
 const loadChatInfo = async () => {
@@ -477,9 +512,9 @@ const loadChatInfo = async () => {
     chatMessages.value = messages.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
 
     // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
-    setTimeout(() => {
-      scrollToUnreadOrBottom()
-    }, 100)
+    setTimeout(async () => {
+      await scrollToUnreadOrBottom()
+    }, 200)
 
     // 읽음 처리 (채팅방 입장 시)
     await markChatAsRead(props.chatRoom.chatId)
@@ -542,11 +577,13 @@ const messagesContainer = ref(null)
 watch(chatMessages, (newMessages, oldMessages) => {
   // 새 메시지가 추가된 경우에만 맨 밑으로 스크롤
   if (newMessages.length > oldMessages.length) {
+    console.log('📊 [INFLUENCER] 새 메시지 감지, 스크롤 이동')
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        console.log('✅ [INFLUENCER] 새 메시지로 인한 스크롤 완료')
       }
-    }, 100)
+    }, 200)
   }
 })
 

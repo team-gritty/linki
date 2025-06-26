@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue'
 import { chatApi } from '@/api/chat'
 import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
 import { contractApi } from '@/api/advertiser/advertiser-contract'
@@ -309,8 +309,9 @@ const loadMessages = async (chatId) => {
     })
     
     // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
-    setTimeout(() => {
-      scrollToUnreadOrBottom()
+    // Vue의 nextTick을 사용하여 DOM 업데이트 완료 후 스크롤
+    setTimeout(async () => {
+      await scrollToUnreadOrBottom()
     }, 100)
   } catch (err) {
     error.value = '메시지를 불러오는데 실패했습니다.'
@@ -321,8 +322,15 @@ const loadMessages = async (chatId) => {
 }
 
 // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
-const scrollToUnreadOrBottom = () => {
-  if (!messagesContainer.value) return
+const scrollToUnreadOrBottom = async () => {
+
+  // Vue의 DOM 업데이트가 완료될 때까지 기다림
+  await nextTick()
+  
+  if (!messagesContainer.value) {
+    return
+  }
+
 
   // 현재 사용자가 받은 안읽은 메시지 중 첫 번째 찾기
   const firstUnreadMessage = chatMessages.value.find(message => 
@@ -331,22 +339,27 @@ const scrollToUnreadOrBottom = () => {
     message.messageType !== 'NOTIFICATION'
   )
 
-  if (firstUnreadMessage) {
-    // 안읽은 메시지가 있으면 해당 위치로 스크롤
-    const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
-    if (messageElement) {
-      messageElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      })
+
+  // 추가적인 DOM 렌더링 대기
+  setTimeout(() => {
+    if (firstUnreadMessage) {
+      const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
+
+      if (messageElement) {
+        messageElement.scrollIntoView({
+          behavior: 'smooth', 
+          block: 'center' 
+        })
+      } else {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
     } else {
-      // DOM 요소를 찾지 못했으면 맨 밑으로
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      // 안읽은 메시지가 없으면 맨 밑으로 스크롤
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
     }
-  } else {
-    // 안읽은 메시지가 없으면 맨 밑으로 스크롤
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-  }
+  }, 300) // 더 충분한 시간을 줌
 }
 
 //소켓 연결
@@ -473,8 +486,9 @@ const connectSocket = (chatId) => {
               setTimeout(() => {
                 if (messagesContainer.value) {
                   messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+                  console.log('웹소켓 메시지 수신 후 스크롤 완료')
                 }
-              }, 100)
+              }, 200)
             }
           } catch (parseError) {
             console.error('Error parsing received message:', parseError)
@@ -586,8 +600,9 @@ const sendMessage = async () => {
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        console.log('메시지 전송 후 스크롤 완료')
       }
-    }, 0)
+    }, 200)
   } catch (err) {
     error.value = '메시지 전송에 실패했습니다.'
     console.error('Error sending message:', err)
@@ -616,11 +631,13 @@ const messagesContainer = ref(null)
 watch(selectedChatMessages, (newMessages, oldMessages) => {
   // 새 메시지가 추가된 경우에만 맨 밑으로 스크롤
   if (newMessages.length > oldMessages.length) {
+    console.log('새 메시지 감지, 스크롤 이동')
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        console.log('새 메시지로 인한 스크롤 완료')
       }
-    }, 100)
+    }, 200)
   }
 })
 
