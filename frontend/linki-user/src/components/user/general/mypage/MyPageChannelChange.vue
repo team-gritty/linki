@@ -21,11 +21,8 @@
 
     <div v-show="selectedTab === 'influencer'" class="form-container">
       <div class="auth-section">
-        <button class="auth-button" @click="initiateYoutubeAuth()" :disabled="isLoading">
-          유튜브 인증 (현재 계정)
-        </button>
-        <button class="auth-button secondary" @click="initiateYoutubeAuth(true)" :disabled="isLoading" style="margin-left: 10px;">
-          다른 계정으로 인증
+        <button class="auth-button" @click="initiateYoutubeAuth" :disabled="isLoading">
+          유튜브 인증
         </button>
       </div>
       <div v-if="influencerData.thumbnail" class="info-group">
@@ -212,19 +209,6 @@ const fetchData = async () => {
     const urlCode = new URLSearchParams(window.location.search).get('code')
     const routeCode = route.query.code
     const code = urlCode || routeCode
-    
-    // 구글 OAuth 에러 확인
-    const error = new URLSearchParams(window.location.search).get('error')
-    if (error) {
-      console.warn('OAuth 에러:', error)
-      if (error === 'interaction_required' || error === 'login_required') {
-        // prompt=none으로 인한 에러인 경우, 일반 로그인 플로우로 재시도
-        showAlert('구글 로그인이 필요합니다. 다시 시도해주세요.', 'warning')
-        return
-      }
-      showAlert('유튜브 인증 중 오류가 발생했습니다.', 'error')
-      return
-    }
 
     if (!code) {
       console.warn('code 파라미터가 없습니다.')
@@ -270,19 +254,12 @@ const fetchData = async () => {
   }
 }
 
-const initiateYoutubeAuth = (allowLogin = false) => {
+const initiateYoutubeAuth = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const redirectUri = 'http://localhost:3002/google-callback';
   const scope = 'https://www.googleapis.com/auth/youtube.readonly';
-  
-  let authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&access_type=offline&include_granted_scopes=true`
-  
-  if (!allowLogin) {
-    // 계정 선택 화면을 방지하고 현재 로그인된 계정만 사용
-    authUrl += '&prompt=none'
-  }
-  
-  console.log('유튜브 인증 URL:', authUrl)
+  // 유튜브 채널 정보 접근 권한 요청 (필요시 구글 로그인 포함)
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&access_type=offline&prompt=consent`;
   window.location.href = authUrl;
 }
 
@@ -508,14 +485,6 @@ const registerBusiness = async () => {
 
 .auth-button:hover {
   background-color: #6618c4;
-}
-
-.auth-button.secondary {
-  background-color: #6c757d;
-}
-
-.auth-button.secondary:hover {
-  background-color: #5a6268;
 }
 
 .button-group {
