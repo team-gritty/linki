@@ -100,27 +100,17 @@ const fetchCompletedContracts = async () => {
     const givenReviewsResponse = await reviewApi.getGivenReviews();
     console.log('=== 작성한 리뷰 목록 응답 ===', givenReviewsResponse);
     
-    // API 응답에서 data 필드 추출
     const contractsList = Array.isArray(contractsResponse) ? contractsResponse : [];
-    const givenReviewsData = givenReviewsResponse?.data || givenReviewsResponse;
-    const givenReviews = Array.isArray(givenReviewsData) ? givenReviewsData : [];
+    const givenReviews = Array.isArray(givenReviewsResponse) ? givenReviewsResponse : [];
     
-    // 이미 리뷰를 작성한 계약 ID 목록 (reviewId 대신 contractId 사용)
-    const reviewedContractIds = givenReviews.map(review => {
-      console.log('=== 리뷰 항목 ===', review);
-      // 백엔드 응답에서 contractId 찾기 (다양한 필드명 대응)
-      return review.contractId || review.contract_id || review.contractTitle;
-    }).filter(id => id); // undefined 값 제거
-    
+    // 이미 리뷰를 작성한 계약 ID 목록
+    const reviewedContractIds = givenReviews.map(review => review.contractId);
     console.log('=== 이미 리뷰 작성된 계약 ID 목록 ===', reviewedContractIds);
     
     // 완료된 계약 중 리뷰를 아직 작성하지 않은 계약만 필터링
-    completedContracts.value = contractsList.filter(contract => {
-      const contractId = contract.contractId;
-      const isReviewed = reviewedContractIds.includes(contractId);
-      console.log(`=== 계약 ${contractId} 리뷰 작성 여부: ${isReviewed} ===`);
-      return !isReviewed;
-    });
+    completedContracts.value = contractsList.filter(contract => 
+      !reviewedContractIds.includes(contract.contractId)
+    );
     
     console.log('=== 리뷰 작성 가능한 계약 목록 ===', completedContracts.value);
   } catch (error) {
