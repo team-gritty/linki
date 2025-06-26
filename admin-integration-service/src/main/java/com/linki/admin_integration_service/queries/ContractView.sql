@@ -26,8 +26,11 @@ FROM contract
               ON proposal.influencer_id = influencer.influencer_id
          JOIN user AS influencer_user
               ON influencer.user_id = influencer_user.user_id
-         LEFT JOIN channel
-                   ON influencer.influencer_id = channel.influencer_id
+         LEFT JOIN (
+    SELECT influencer_id, MIN(channel_name) AS channel_name
+    FROM channel
+    GROUP BY influencer_id
+) AS channel ON influencer.influencer_id = channel.influencer_id
 
 select *
 from contract_view;

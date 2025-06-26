@@ -1,19 +1,12 @@
 package com.linki.admin_integration_service.domain.payment.controller;
 
-import com.linki.admin_integration_service.domain.payment.dto.SettlementDTO;
-import com.linki.admin_integration_service.domain.payment.dto.SettlementRequestDTO;
-import com.linki.admin_integration_service.domain.payment.dto.SettlementResponseDTO;
-import com.linki.admin_integration_service.domain.payment.dto.SettlementSearchDTO;
+import com.linki.admin_integration_service.domain.payment.dto.*;
 import com.linki.admin_integration_service.domain.payment.service.SettlementService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,27 +15,46 @@ public class SettlementController {
     private final SettlementService settlementService;
     private final ModelMapper modelMapper;
 
-    @GetMapping("/v1/admin/api/settlements")
-    public ResponseEntity<List<SettlementResponseDTO>> getSettlements(){
-        List<SettlementDTO> settlementDTOS = settlementService.getAllSettlements();
-        List<SettlementResponseDTO> settlementResponseDTOS =
-                settlementDTOS.stream()
-                        .map(dto -> modelMapper.map(dto, SettlementResponseDTO.class))
-                        .toList();
+    /**
+     * cursor 정규화: "null" 문자열을 실제 null로 변환
+     */
+    private String normalizeCursor(String cursor) {
+        if (cursor == null || cursor.trim().isEmpty() || "null".equalsIgnoreCase(cursor.trim())) {
+            return null;
+        }
+        return cursor.trim();
+    }
 
-        return ResponseEntity.ok(settlementResponseDTOS);
+    @GetMapping("/v1/admin/api/settlements")
+    public ResponseEntity<?> getSettlements(@RequestParam(value = "cursor", required = false) String cursor,
+                                            @RequestParam(value = "size", defaultValue = "10") int size){
+        // cursor 정규화: "null" 문자열을 실제 null로 변환
+        String normalizedCursor = normalizeCursor(cursor);
+
+        SettlementKeysetResponseDTO keysetResponseDTO = settlementService.getAllSettlementsWithKeyset(normalizedCursor, size);
+
+        return ResponseEntity.ok(keysetResponseDTO);
     }
 
     @PostMapping("/v1/admin/api/settlements/search")
-    public ResponseEntity<List<SettlementResponseDTO>> searchAdvertiserUser(@RequestBody SettlementSearchDTO settlementSearchDTO){
-        List<SettlementDTO> settlementDTOS = settlementService.searchSettlement(settlementSearchDTO);
-        List<SettlementResponseDTO> settlementResponseDTOS =
-                settlementDTOS.stream()
-                        .map(dto -> modelMapper.map(dto, SettlementResponseDTO.class))
-                        .toList();
-        return ResponseEntity.ok(settlementResponseDTOS);
+    public ResponseEntity<?> searchAdvertiserUser(@RequestBody SettlementSearchDTO settlementSearchDTO,@RequestParam(value = "cursor", required = false) String queryParamCursor,
+                                                                            @RequestParam(value = "size", defaultValue = "10") int queryParamSize) {
+        // 요청 바디의 cursor, size가 우선. 없으면 쿼리 파라미터 사용
+        String cursor = settlementSearchDTO.getCursor() != null ?
+                settlementSearchDTO.getCursor() : queryParamCursor;
+        int size = settlementSearchDTO.getSize() != null ?
+                settlementSearchDTO.getSize() : queryParamSize;
 
+        // cursor 정규화
+        String normalizedCursor = normalizeCursor(cursor);
+
+        // 새로운 프론트엔드에서는 항상 Keyset 페이지네이션 사용
+        SettlementKeysetResponseDTO keysetResponse =
+                settlementService.searchSettlementWithKeyset(settlementSearchDTO, normalizedCursor, size);
+
+        return ResponseEntity.ok(keysetResponse);
     }
+
 
 
     @PostMapping("/v1/admin/api/settlements/process")

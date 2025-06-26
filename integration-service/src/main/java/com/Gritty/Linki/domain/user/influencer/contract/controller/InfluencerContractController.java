@@ -45,4 +45,11 @@ public class InfluencerContractController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/v1/api/influencer/mypage/contracts/{contractId}/document")
+    public ResponseEntity<String> viewDocument(@PathVariable String contractId) {
+
+        String documentUrl = influencerContractService.viewDocument(contractId);
+        return ResponseEntity.ok(documentUrl);
+    }
+
 }

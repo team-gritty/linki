@@ -10,4 +10,7 @@ public interface AdminSignUpAgreementService {
     Boolean rejectAdminSignUp(AdminSignUpAgreementRequestDTO adminSignUpAgreementRequestDTO);
     List<AdminSignUpAgreementDTO> searchAdminSignUp(AdminSignUpAgreementSearchRequestDTO adminSignUpAgreementSearchRequestDTO);
     String exportExcel();
+
+    AdminSignUpKeysetResponseDTO getAdminSignUpListWithKeyset(String cursor, int size);
+    AdminSignUpKeysetResponseDTO searchAdminSignUpWithKeyset(AdminSignUpAgreementSearchRequestDTO adminSignUpAgreementSearchRequestDTO, String cursor, int size);
 }

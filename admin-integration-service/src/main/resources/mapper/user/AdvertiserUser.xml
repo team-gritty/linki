@@ -58,4 +58,73 @@
 
     </select>
 
+
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllAdvertiserUsersWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">
+        SELECT
+            advertiser.advertiser_id AS userId,
+            advertiser.business_number AS businessNumber,
+            advertiser.company_name AS businessName,
+            user.user_name AS name,
+            user.user_phone AS phone,
+            user.user_email AS email,
+            user.user_id AS userCursor
+        FROM (
+            SELECT user_id
+            FROM user
+            WHERE user_role = 'ROLE_ADVERTISER'
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+            ORDER BY user_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN advertiser ON advertiser.user_id = temp.user_id
+        JOIN user ON user.user_id = advertiser.user_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchAdvertiserUserWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">
+        SELECT
+            advertiser.advertiser_id AS userId,
+            advertiser.business_number AS businessNumber,
+            advertiser.company_name AS businessName,
+            user.user_name AS name,
+            user.user_phone AS phone,
+            user.user_email AS email,
+            user.user_id AS userCursor
+        FROM (
+            SELECT user_id
+            FROM user
+            WHERE user_role = 'ROLE_ADVERTISER'
+            <choose>
+                <when test="searchDTO.searchType.toLowerCase() eq 'name'">
+                    AND TRIM(LOWER(user_name)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'email'">
+                    AND TRIM(LOWER(user_email)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'phone'">
+                    AND REPLACE(TRIM(user_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+            ORDER BY user_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN advertiser ON advertiser.user_id = temp.user_id
+        JOIN user ON user.user_id = advertiser.user_id
+    </select>
+
+
 </mapper>

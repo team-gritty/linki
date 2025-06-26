@@ -12,4 +12,5 @@ public class SubscriberUserResponseDTO {
     private String phone;
     private LocalDateTime subscriptionStartDate;
     private LocalDateTime subscriptionEndDate;
+    private String userCursor;
 }

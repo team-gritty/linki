@@ -1,7 +1,30 @@
 import httpRequester from '@/libs/httpRequester.js'
 
+// 기존 API (호환성 유지)
 export const getCampaignList = async (page, size) => {
   return await httpRequester.get('/v1/admin/api/campaigns')
+}
+
+// Keyset 페이지네이션 기본 조회
+export const getCampaignListWithKeyset = async (cursor = null, size = 10) => {
+  const params = { size }
+  if (cursor) {
+    params.cursor = cursor
+  }
+  
+  return await httpRequester.get('/v1/admin/api/campaigns', { params })
+}
+
+// Keyset 페이지네이션 검색
+export const searchCampaignWithKeyset = async (searchType, keyword, cursor = null, size = 10) => {
+  const requestBody = {
+    searchType,
+    keyword,
+    cursor,
+    size
+  }
+  
+  return await httpRequester.post('/v1/admin/api/campaigns/search', requestBody)
 }
 
 export const searchCampaign = async (searchType, keyword) => {
