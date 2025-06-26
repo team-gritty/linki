@@ -2,28 +2,42 @@ package com.Gritty.Linki.user.influencer.campaign.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
 import com.Gritty.Linki.domain.user.influencer.campaign.service.InfluencerCampaignService;
+import com.Gritty.Linki.domain.user.influencer.home.service.HomeCampaignService;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignCategoryResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.campaign.CampaignListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.home.EndingTodayCampaignResponseDTO;
 import com.Gritty.Linki.vo.enums.Category;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        "uCanSignKey=dummy-key",
+        "uCanSignSecret=dummy-secret"
+})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Log4j2
 public class CampaignServiceTest {
     @Autowired
     private InfluencerCampaignService campaignService;
+
+    @Autowired
+    private HomeCampaignService homeCampaignService;
+
+
 
     @BeforeEach
     void setUpAuthentication() {
@@ -34,6 +48,21 @@ public class CampaignServiceTest {
                 new UsernamePasswordAuthenticationToken(
                         user, null, user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @Test
+    void testGetEndingTodayCampaigns() {
+        // when
+        List<EndingTodayCampaignResponseDTO> result = homeCampaignService.getEndingTodayCampaigns();
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isLessThanOrEqualTo(5);
+
+        for (EndingTodayCampaignResponseDTO dto : result) {
+            log.info("⏰ 오늘 마감 캠페인: " + dto.getCampaignName() + " / 마감일: " + dto.getCampaignDeadline());
+            assertThat(dto.getCampaignDeadline().toLocalDate()).isEqualTo(LocalDate.now());
+        }
     }
 
 
