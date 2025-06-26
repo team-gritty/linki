@@ -210,9 +210,6 @@ public class ChatServiceImpl implements ChatService{
     public void updateNegoStatus(String proposalId, EventType eventType) {
         ChatDetailDTO chat = modelMapper.map(findByProposalId(proposalId), ChatDetailDTO.class);
         NegoStatus newStatus = eventType.getNegoStatus();
-        if (newStatus == null) {
-            throw new ChatException(ErrorCode.KAFKA_NEGO_STATUS_NULL);
-        }
         chat.setNegoStatus(newStatus);
     }
 

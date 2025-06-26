@@ -55,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
                 throw new ChatException(ErrorCode.SSE_SEND_FAILED);
             }
         } else {
-            log.info("SSE 연결 없음: chatId={}, 알림은 저장되었지만 미전송", chatId);
+            log.info("SSE 연결 없음: chatId={}, 알림 저장완료 (실시간 전송 x) ", chatId);
         }
     }
 
