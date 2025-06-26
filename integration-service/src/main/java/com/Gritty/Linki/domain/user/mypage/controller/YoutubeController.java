@@ -62,10 +62,12 @@ public class YoutubeController {
         try {
             youtubeService.registerChannel(userDetails, channelInfo);
             return ResponseEntity.ok("채널 등록 성공");
+
         } catch (Exception e) {
             log.error("채널 등록 실패", e);
             return ResponseEntity.internalServerError().body("채널 등록 중 오류 발생");
         }
+
     }
 
 

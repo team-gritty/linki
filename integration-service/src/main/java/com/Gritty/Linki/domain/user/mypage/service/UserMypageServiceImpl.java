@@ -75,4 +75,19 @@ public class UserMypageServiceImpl implements UserMypageService {
         user.setUserLoginPw(passwordEncoder.encode(request.getNewPassword()));
         userMypageRepository.save(user);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User findUserById(String userId) {
+        log.info("사용자 조회 시작 - userId: {}", userId);
+        
+        User user = userMypageRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    log.error("사용자를 찾을 수 없습니다. - userId: {}", userId);
+                    return new RuntimeException("사용자를 찾을 수 없습니다.");
+                });
+        
+        log.info("사용자 조회 성공 - userId: {}, userRole: {}", user.getUserId(), user.getUserRole());
+        return user;
+    }
 } 

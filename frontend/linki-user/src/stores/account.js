@@ -157,6 +157,27 @@ export const useAccountStore = defineStore('account', {
             this.userType = userType
         },
 
+        /**
+         * 사용자 역할만 업데이트
+         * 권한 변경 시 전체 user 객체를 다시 설정하지 않고 userRole만 변경
+         */
+        setUserRole(newRole) {
+            if (this.user) {
+                this.user = { ...this.user, userRole: newRole }
+                
+                // userType도 함께 업데이트
+                if (newRole.toUpperCase() === 'ROLE_INFLUENCER') {
+                    this.userType = 'influencer'
+                } else if (newRole.toUpperCase() === 'ROLE_ADVERTISER') {
+                    this.userType = 'advertiser'
+                } else if (newRole.toUpperCase() === 'ROLE_USER') {
+                    this.userType = 'general'
+                }
+                
+                console.log('사용자 역할 업데이트:', newRole, '→ userType:', this.userType)
+            }
+        },
+
         setLoginInfo(token, user, userType) {
             console.log('=== setLoginInfo 디버깅 ===')
             console.log('Token:', token)

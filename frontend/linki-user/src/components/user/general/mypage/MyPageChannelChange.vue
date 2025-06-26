@@ -170,13 +170,17 @@
 import { ref, onMounted } from 'vue'
 import httpClient from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
-import { useRoute } from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
+import { useAccountStore} from '@/stores/account'
 
 const { showAlert } = useAlert()
 const selectedTab = ref('influencer')
 const isLoading = ref(false)
 const selectedFileName = ref('')
 const route = useRoute()
+
+const router = useRouter()
+const store = useAccountStore()
 
 const influencerData = ref({
   channelId: '',
@@ -323,7 +327,12 @@ const handleRegistration = async () => {
 
     try {
       await httpClient.post('v1/api/user/youtube/register', payload)
+      // 🔄 등록 후 권한 새로 불러오기
+      const res = await httpClient.get('/v1/api/user/me')
+      store.setUserRole(res.data.userRole)
+
       showAlert('등록이 완료되었습니다.', 'success')
+      router.push('/')
     } catch (error) {
       console.error('채널 등록 실패:', error)
       showAlert('채널 등록 중 오류가 발생했습니다.', 'error')
