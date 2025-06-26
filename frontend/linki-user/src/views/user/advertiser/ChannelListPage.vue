@@ -1,5 +1,8 @@
 <template>
   <div class="channel-list-page">
+    <!-- 개발용 테스터 컴포넌트 운영 시 주석처리하기 -->
+<!--    <ChannelAccessTester />-->
+    
     <div class="channel-list-header">
       <button class="search-option-btn" @click="modalOpen = true">
         <svg class="search-option-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -13,6 +16,20 @@
         :selected-category-prop="getCurrentDisplayCategory()"
       />
     </div>
+
+    <!-- 일반회원 접근 제한 안내 -->
+    <div v-if="showAccessInfo" class="access-info-banner" :class="accessInfoClass">
+      <div class="access-info-content">
+        <span class="access-info-icon">{{ accessInfoIcon }}</span>
+        <span class="access-info-text">
+          {{ accessInfo.message }}
+        </span>
+        <span v-if="accessInfo.remainingCount === 0" class="access-info-upgrade">
+          더 많은 기능을 이용하시려면 회원 등급을 업그레이드해주세요.
+        </span>
+      </div>
+    </div>
+
     <SearchOptionModal 
       v-if="modalOpen" 
       @close="modalOpen = false" 
@@ -78,7 +95,14 @@
         <div class="td td-subscribers">{{ formatNumber(item.subscriberCount) }}</div>
         <div class="td td-views">{{ formatNumber(item.avgViewCount) }}</div>
         <div class="td td-analysis">
-          <button class="analysis-btn" @click="goToDetail(item.channelId)">상세 분석</button>
+          <button 
+            class="analysis-btn" 
+            :class="{ 'disabled': !accessInfo.canAccess }"
+            :disabled="!accessInfo.canAccess" 
+            @click="goToDetail(item.channelId)"
+          >
+            {{ !accessInfo.canAccess ? '제한됨' : '상세 분석' }}
+          </button>
         </div>
       </div>
     </div>
@@ -141,13 +165,18 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAccountStore } from '@/stores/account'
+import { useChannelAccessStore } from '@/stores/channelAccess'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
+import ChannelAccessTester from '@/components/dev/ChannelAccessTester.vue'
 import channelApi from '@/api/advertiser/advertiser-channel'
 import { reviewApi } from '@/api/advertiser/advertiser-review'
 
 const router = useRouter()
 const route = useRoute()
+const accountStore = useAccountStore()
+const channelAccessStore = useChannelAccessStore()
 const modalOpen = ref(false)
 const page = ref(1) // 현재 페이지 번호
 const itemsPerPage = 10 // 페이지당 보여지는 채널 개수
@@ -404,9 +433,42 @@ const searchBtnHover = ref(false)
 function handleSearchBtnMouseEnter() { searchBtnHover.value = true } // 검색 버튼 호버 효과
 function handleSearchBtnMouseLeave() { searchBtnHover.value = false }
 
-// 채널 상세 페이지로 이동
+// 접근 제한 관련 computed
+const accessInfo = computed(() => {
+  return channelAccessStore.canAccessChannelDetail
+})
+
+const showAccessInfo = computed(() => {
+  return accountStore.isRegularUser && accountStore.isLoggedIn
+})
+
+const accessInfoClass = computed(() => {
+  return {
+    'warning': accessInfo.value.remainingCount > 0 && accessInfo.value.remainingCount <= 2,
+    'danger': accessInfo.value.remainingCount === 0
+  }
+})
+
+const accessInfoIcon = computed(() => {
+  if (accessInfo.value.remainingCount === 0) return '🚫'
+  if (accessInfo.value.remainingCount <= 2) return '⚠️'
+  return 'ℹ️'
+})
+
+// 채널 상세 페이지로 이동 (Pinia store 기반 접근 제한)
 const goToDetail = (channelId) => {
-  router.push(`/channels/${channelId}`)
+  console.log('상세분석 버튼 클릭:', channelId)
+  
+  const accessResult = channelAccessStore.attemptChannelAccess()
+  
+  if (accessResult.success) {
+    console.log('채널 상세 페이지 접근 허용')
+    // 쿼리 파라미터로 리스트에서 온 것을 표시
+    router.push(`/channels/${channelId}?from=list`)
+  } else {
+    console.log('채널 상세 페이지 접근 차단')
+    alert(accessResult.message)
+  }
 }
 
 // 페이지 번호 배열 생성
@@ -749,6 +811,17 @@ function formatNumber(number) {
 .analysis-btn:hover {
   background: #8C30F5;
 }
+.analysis-btn.disabled,
+.analysis-btn:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.analysis-btn.disabled:hover,
+.analysis-btn:disabled:hover {
+  background: #ccc;
+}
 
 /***** 페이징 *****/
 .pagination {
@@ -817,5 +890,58 @@ function formatNumber(number) {
   font-weight: 600;
   margin-right: 6px;
   line-height: 1.6;
+}
+
+/* 일반회원 접근 제한 안내 */
+.access-info-banner {
+  background: #E3F2FD;
+  border: 1px solid #90CAF9;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.access-info-banner.warning {
+  background: #FFF3E0;
+  border-color: #FFB74D;
+}
+
+.access-info-banner.danger {
+  background: #FFEBEE;
+  border-color: #E57373;
+}
+
+.access-info-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.access-info-icon {
+  font-size: 20px;
+  color: #1976D2;
+}
+
+.access-info-banner.warning .access-info-icon {
+  color: #F57C00;
+}
+
+.access-info-banner.danger .access-info-icon {
+  color: #D32F2F;
+}
+
+.access-info-text {
+  font-size: 16px;
+  color: #23262F;
+  font-weight: 500;
+}
+
+.access-info-upgrade {
+  font-size: 14px;
+  color: #D32F2F;
+  font-weight: 600;
+  margin-left: auto;
 }
 </style> 

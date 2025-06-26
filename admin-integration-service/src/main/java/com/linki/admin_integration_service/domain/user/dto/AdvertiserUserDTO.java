@@ -23,4 +23,7 @@ public class AdvertiserUserDTO {
 
     @ExcelAnnotation.ExcelColumn(headerName = "이메일")
     private String email;
+
+    @ExcelAnnotation.ExcelColumn(headerName = "userCursor")
+    private String userCursor;
 }

@@ -46,4 +46,73 @@
 
     </select>
 
+
+
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllGeneralUsersWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.GeneralUSerDTO">
+        SELECT
+        usr.user_id AS userId,
+        usr.user_name AS name,
+        usr.user_email AS email,
+        usr.user_phone AS phone,
+        usr.user_enter_day AS enterDate,
+        usr.user_status AS userStatus
+        FROM (
+        SELECT user_id
+        FROM user
+        WHERE user_role = 'ROLE_USER'
+        <if test="cursor != null and cursor != ''">
+            AND user_id &gt; #{cursor}
+        </if>
+        ORDER BY user_id ASC
+        LIMIT #{size}
+        ) AS temp
+        JOIN user usr ON usr.user_id = temp.user_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchGeneralUserWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.GeneralUSerDTO">
+        SELECT
+        usr.user_id AS userId,
+        usr.user_name AS name,
+        usr.user_email AS email,
+        usr.user_phone AS phone,
+        usr.user_enter_day AS enterDate,
+        usr.user_status AS userStatus
+        FROM user usr
+        <where>
+            1 = 1 AND
+            usr.user_role = 'ROLE_USER'
+
+            <choose>
+                <when test="searchDTO.searchType.toLowerCase() eq 'name'">
+                    AND TRIM(LOWER(user_name)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'email'">
+                    AND TRIM(LOWER(user_email)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'phone'">
+                    AND REPLACE(TRIM(user_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+
+            </choose>
+
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+        </where>
+        ORDER BY user_id ASC
+        LIMIT #{size}
+    </select>
+
+
 </mapper>
