@@ -67,7 +67,7 @@ export const chatApi = {
     }
   },
 
-  // 메시지 목록 조회
+  // 메시지 목록 조회 (읽음 처리 포함)
   getMessages: async (chatId) => {
     try {
       const response = await httpClient.get(
@@ -75,6 +75,30 @@ export const chatApi = {
       return response.data;
     } catch (error) {
       console.error('Error getting messages:', error)
+      throw error
+    }
+  },
+
+  // 메시지 목록 조회 (읽음 처리 없음)
+  getMessagesWithoutRead: async (chatId) => {
+    try {
+      const response = await httpClient.get(
+          `/v1/chat-service/api/authuser/messages/${chatId}/without-read`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting messages without read:', error)
+      throw error
+    }
+  },
+
+  // 메시지 읽음 처리
+  markMessagesAsRead: async (chatId) => {
+    try {
+      const response = await httpClient.post(
+          `/v1/chat-service/api/authuser/messages/${chatId}/mark-read`);
+      return response.data;
+    } catch (error) {
+      console.error('Error marking messages as read:', error)
       throw error
     }
   },

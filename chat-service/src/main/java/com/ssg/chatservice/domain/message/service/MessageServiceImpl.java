@@ -31,11 +31,22 @@ public class MessageServiceImpl implements MessageService{
     }
 
     @Override
-    //해당 채팅창의 모든 메세지 조회
+    //해당 채팅창의 모든 메세지 조회 (읽음 처리 포함)
     public List<ChatMessageDTO> findByChatId(String chatId,String userId){
         List<Message> messages = messageRepository.findByChatId(chatId);
         //조회한 메세지 읽음 처리
         markMessagesAsRead(messages,userId);
+        List<ChatMessageDTO> chatMessages = messages.stream()
+                .map(message -> modelMapper.map(message,ChatMessageDTO.class)).collect(Collectors.toList());
+
+        return chatMessages;
+    }
+
+    @Override
+    //해당 채팅창의 모든 메세지 조회 (읽음 처리 없음)
+    public List<ChatMessageDTO> findByChatIdWithoutMarkingRead(String chatId){
+        List<Message> messages = messageRepository.findByChatId(chatId);
+        // 읽음 처리 없이 조회만
         List<ChatMessageDTO> chatMessages = messages.stream()
                 .map(message -> modelMapper.map(message,ChatMessageDTO.class)).collect(Collectors.toList());
 
@@ -54,6 +65,35 @@ public class MessageServiceImpl implements MessageService{
                lastMessageMap.put(chat.getChatId(), chatLastMessageDTO);
         });
         }catch (Exception  e){
+            throw new ChatException(ErrorCode.MESSAGE_NOT_FOUND);
+        }
+        return lastMessageMap;
+    }
+
+    @Override
+    //채팅방 리스트의 마지막 메세지 및 읽지 않은 메시지 여부 조회 (사용자별)
+    public Map<String,ChatMessageDTO> lastMessageWithUnreadStatus(List<Chat> chats, String userId){
+        Map<String,ChatMessageDTO> lastMessageMap = new HashMap<>();
+        try {
+            chats.stream().forEach(chat -> {
+                // 마지막 메시지 조회
+                Message lastMessage = messageRepository.findTop1ByChatIdOrderByMessageDateDesc(chat.getChatId());
+                
+                if (lastMessage != null) {
+                    ChatMessageDTO chatLastMessageDTO = modelMapper.map(lastMessage, ChatMessageDTO.class);
+                    
+                    // 해당 채팅방에서 현재 사용자가 받은 읽지 않은 메시지가 있는지 확인
+                    boolean hasUnreadMessages = messageRepository.existsByChatIdAndMessageReadFalseAndMessageSenderIdNot(
+                        chat.getChatId(), userId
+                    );
+                    
+                    // isNew 상태를 올바르게 설정
+                    chatLastMessageDTO.setMessageRead(!hasUnreadMessages);
+                    
+                    lastMessageMap.put(chat.getChatId(), chatLastMessageDTO);
+                }
+            });
+        } catch (Exception e) {
             throw new ChatException(ErrorCode.MESSAGE_NOT_FOUND);
         }
         return lastMessageMap;

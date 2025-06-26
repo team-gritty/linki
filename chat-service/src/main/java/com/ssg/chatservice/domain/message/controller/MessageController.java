@@ -4,6 +4,7 @@ import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.dto.request.ChatMessageRequestDTO;
 import com.ssg.chatservice.domain.message.dto.respone.ChatMessageResponeDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
+import com.ssg.chatservice.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -41,13 +43,32 @@ public class MessageController {
         messageService.saveMessage(chatMessageDTO);
     }
 
-    //해당 채팅창의 모든 메세지 조회
+    //해당 채팅창의 모든 메세지 조회 (읽음 처리 포함)
     @GetMapping("/v1/chat-service/api/authuser/messages/{chatId}")
     public List<ChatMessageResponeDTO> loadMessages(@PathVariable String chatId,Principal principal) {
         List<ChatMessageDTO> messageDTOs = messageService.findByChatId(chatId,principal.getName());
         return messageDTOs.stream()
                 .map(dto -> modelMapper.map(dto, ChatMessageResponeDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    //해당 채팅창의 모든 메세지 조회 (읽음 처리 없음)
+    @GetMapping("/v1/chat-service/api/authuser/messages/{chatId}/without-read")
+    public List<ChatMessageResponeDTO> loadMessagesWithoutMarkingRead(@PathVariable String chatId) {
+        List<ChatMessageDTO> messageDTOs = messageService.findByChatIdWithoutMarkingRead(chatId);
+        return messageDTOs.stream()
+                .map(dto -> modelMapper.map(dto, ChatMessageResponeDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    //채팅방 메시지 읽음 처리
+    @PostMapping("/v1/chat-service/api/authuser/messages/{chatId}/mark-read")
+    public void markMessagesAsRead(@PathVariable String chatId, Principal principal) {
+        List<ChatMessageDTO> messageDTOs = messageService.findByChatIdWithoutMarkingRead(chatId);
+        List<Message> messages = messageDTOs.stream()
+                .map(dto -> modelMapper.map(dto, Message.class))
+                .collect(Collectors.toList());
+        messageService.markMessagesAsRead(messages, principal.getName());
     }
 
 }
