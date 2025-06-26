@@ -155,8 +155,8 @@ const shouldShowDateSeparator = (currentMessage, index, messages) => {
 const sortChats = () => {
   sortedChatList.value = [...chatList.value].sort((a, b) => {
     // 1순위: 안 읽은 메시지가 있는 채팅방을 위로
-    if (a.isNew && !b.isNew) return -1
-    if (!a.isNew && b.isNew) return 1
+    if (a.new && !b.new) return -1
+    if (!a.new && b.new) return 1
     
     // 2순위: 같은 읽음 상태 내에서는 최신 메시지 순으로
     return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
@@ -226,23 +226,31 @@ const selectChat = async (chatId) => {
     
     // 선택한 채팅방의 안 읽은 메시지 상태 업데이트
     const chatIndex = chatList.value.findIndex(chat => chat.chatId === chatId)
-    if (chatIndex !== -1 && chatList.value[chatIndex].isNew) {
+    if (chatIndex !== -1 && chatList.value[chatIndex].new) {
       chatList.value[chatIndex] = {
         ...chatList.value[chatIndex],
-        isNew: false
+        new: false
       }
       // sortedChatList에도 동일한 업데이트 적용
       const sortedIndex = sortedChatList.value.findIndex(chat => chat.chatId === chatId)
       if (sortedIndex !== -1) {
         sortedChatList.value[sortedIndex] = {
           ...sortedChatList.value[sortedIndex],
-          isNew: false
+          new: false
         }
       }
     }
     
     // 메시지 로드
     await loadMessages(chatId)
+    
+    // 메시지 읽힘 처리
+    try {
+      await chatApi.markMessagesAsRead(chatId)
+      console.log('Messages marked as read for chatId:', chatId)
+    } catch (readError) {
+      console.error('Failed to mark messages as read:', readError)
+    }
     
     // 소켓 연결 (채팅방 상태가 PENDING이 아닌 경우에만)
     if (chatDetail?.chatStatus !== 'PENDING') {
@@ -256,14 +264,33 @@ const selectChat = async (chatId) => {
 
 // 메시지 로드
 const loadMessages = async (chatId) => {
+  console.log('Debug loadMessages called with chatId:', chatId, typeof chatId)
   loading.value = true
   error.value = null
   chatMessages.value = [] // 메시지 초기화
 
   try {
+    console.log('Debug: About to call chatApi.getMessages with chatId:', chatId)
     const response = await chatApi.getMessages(chatId)
-    console.log('Loaded messages for chatId:', chatId, response)
-    chatMessages.value = response || []
+    console.log('Debug loadMessages RAW response:', response)
+    console.log('Debug loadMessages response details:', {
+      chatId,
+      response,
+      responseType: typeof response,
+      isArray: Array.isArray(response),
+      length: response?.length,
+      firstMessage: response?.[0],
+      responseKeys: response ? Object.keys(response) : 'null response'
+    })
+    
+    const messages = response || []
+    chatMessages.value = messages
+    
+    console.log('Debug messages after setting:', {
+      chatMessagesValue: chatMessages.value,
+      length: chatMessages.value.length,
+      firstMessage: chatMessages.value[0]
+    })
     
     // 스크롤을 최하단으로 이동
     setTimeout(() => {
@@ -339,7 +366,7 @@ const connectSocket = (chatId) => {
                 ...chatList.value[chatIndex],
                 lastMessage: message.content,
                 lastMessageTime: message.messageDate || new Date().toISOString(),
-                isNew: true
+                new: true
               }
               chatList.value.splice(chatIndex, 1)
               chatList.value.unshift(updatedChat)
@@ -573,7 +600,7 @@ const goToContractCreate = (proposal) => {
             </div>
             <div class="chat-preview-wrapper">
               <div class="chat-preview">{{ chat.lastMessage }}</div>
-              <div v-if="chat.isNew" class="new-message-badge"></div>
+              <div v-if="chat.new" class="new-message-badge"></div>
             </div>
           </div>
         </div>
@@ -612,6 +639,12 @@ const goToContractCreate = (proposal) => {
         <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
         <template v-else>
+          <!-- 디버깅 정보 표시 -->
+          <div style="background: #f0f0f0; padding: 8px; margin: 4px; font-size: 12px; border-radius: 4px;">
+            DEBUG: selectedChatId = {{ selectedChatId }}, 
+            총 메시지 수 = {{ chatMessages.length }}, 
+            필터된 메시지 수 = {{ selectedChatMessages.length }}
+          </div>
           <template v-for="(message, index) in selectedChatMessages" :key="message.messageId">
             <!-- 날짜 구분선 -->
             <div v-if="shouldShowDateSeparator(message, index, selectedChatMessages)" class="date-separator">

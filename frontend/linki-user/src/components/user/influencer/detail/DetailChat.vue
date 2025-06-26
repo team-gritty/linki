@@ -27,16 +27,19 @@
               <span>{{ formatDate(message?.messageDate) }}</span>
             </div>
             <!-- 알람 메시지 -->
-            <div v-if="message.messageType === 'alarm'" class="alarm-wrapper">
+            <div v-if="message.messageType ===  'NOTIFICATION'" class="alarm-wrapper">
               <div class="alarm-datetime">{{ formatDate(message.messageDate) }} {{ formatMessageTime(message.messageDate) }}</div>
               <div class="alarm-message">
                 {{ message.content }}
               </div>
             </div>
             <!-- 일반 메시지 -->
-            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId }]">
+            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId, 'unread-message': !message.messageRead && message.senderId !== currentUserId }]">
               <div class="message-content">{{ message.content }}</div>
-              <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
+              <div class="message-time">
+                {{ formatMessageTime(message.messageDate) }}
+                <span v-if="!message.messageRead && message.senderId !== currentUserId" class="unread-indicator">●</span>
+              </div>
             </div>
           </template>
         </template>
@@ -309,6 +312,16 @@ const sendMessage = async () => {
   }
 }
 
+// 메시지 읽음 처리
+const markChatAsRead = async (chatId) => {
+  try {
+    await chatApi.markMessagesAsRead(chatId)
+    console.log('Messages marked as read for chatId:', chatId)
+  } catch (err) {
+    console.error('Error marking messages as read:', err)
+  }
+}
+
 const loadChatInfo = async () => {
   loading.value = true
   error.value = null
@@ -328,7 +341,7 @@ const loadChatInfo = async () => {
     console.log('Loading chat messages for chatId:', props.chatRoom.chatId)
 
     // 메시지 로드
-    const messagesResponse = await chatApi.getMessages(props.chatRoom.chatId)
+    const messagesResponse = await chatApi.getMessagesWithoutRead(props.chatRoom.chatId)
 
     // API 응답이 배열인지 확인하고 안전하게 처리
     let messages = []
@@ -346,6 +359,9 @@ const loadChatInfo = async () => {
 
     // 메시지를 날짜순으로 정렬
     chatMessages.value = messages.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+
+    // 읽음 처리 (채팅방 입장 시)
+    await markChatAsRead(props.chatRoom.chatId)
 
     error.value = null
   } catch (err) {
