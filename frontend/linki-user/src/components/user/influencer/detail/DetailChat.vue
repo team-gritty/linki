@@ -482,7 +482,7 @@ const connectSSE = (chatId) => {
           content: message.content,
           messageDate: message.messageDate || new Date().toISOString(),
           messageRead: false,
-          messageType: message.messageType || 'notification'
+          messageType: message.messageType || 'NOTIFICATION'
         })
 
         // 드롭다운 채팅 목록도 업데이트

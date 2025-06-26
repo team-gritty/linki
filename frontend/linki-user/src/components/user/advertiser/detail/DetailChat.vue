@@ -471,7 +471,7 @@ const connectSSE = (chatId) => {
           content: message.content,
           messageDate: message.messageDate || new Date().toISOString(),
           messageRead: false,
-          messageType: message.messageType || 'notification'
+          messageType: message.messageType || 'NOTIFICATION'
         })
 
         // 채팅 목록의 마지막 메시지 업데이트
@@ -738,19 +738,13 @@ const goToContractCreate = (proposal) => {
         <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
         <template v-else>
-          <!-- 디버깅 정보 표시 -->
-          <div style="background: #f0f0f0; padding: 8px; margin: 4px; font-size: 12px; border-radius: 4px;">
-            DEBUG: selectedChatId = {{ selectedChatId }}, 
-            총 메시지 수 = {{ chatMessages.length }}, 
-            필터된 메시지 수 = {{ selectedChatMessages.length }}
-          </div>
           <template v-for="(message, index) in selectedChatMessages" :key="message.messageId">
             <!-- 날짜 구분선 -->
             <div v-if="shouldShowDateSeparator(message, index, selectedChatMessages)" class="date-separator">
               <span>{{ formatDate(message.messageDate) }}</span>
             </div>
             <!-- 알람 메시지 -->
-            <div v-if="message.messageType === 'alarm'" class="alarm-wrapper">
+            <div v-if="message.messageType === 'NOTIFICATION'" class="alarm-wrapper">
               <div class="alarm-datetime">{{ formatDate(message.messageDate) }} {{ formatMessageTime(message.messageDate) }}</div>
               <div class="alarm-message">
                 {{ message.content }}
