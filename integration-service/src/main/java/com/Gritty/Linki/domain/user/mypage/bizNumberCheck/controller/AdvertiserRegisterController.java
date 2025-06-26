@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("v1/api/user/bizCheck")
+@RequestMapping("/v1/api/user/bizCheck")
 @Slf4j
 @RequiredArgsConstructor
 public class AdvertiserRegisterController {

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class AdvertiserRegisterServiceImpl implements AdvertiserRegisterService{
     private final AccountRepository accountRepository;
 
     @Override
+    @Transactional
     public void saveBizInfo(CustomUserDetails customUserDetails,
             String bizNum, String bizName, String userId) {
         Advertiser advertiser = Advertiser.builder()
@@ -37,7 +39,8 @@ public class AdvertiserRegisterServiceImpl implements AdvertiserRegisterService{
 
         advertiserRegisterRepository.save(advertiser);
         User user = accountRepository.findById(customUserDetails.getUserId()).orElseThrow();
-        user.setUserRole("ROLE_INFLUENCER");
+        user.setUserRole("ROLE_ADVERTISER");
+
 
 
 
