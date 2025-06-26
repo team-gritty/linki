@@ -1,4 +1,5 @@
 import httpClient from '@/utils/httpRequest';
+import { useAccountStore } from '@/stores/account';
 
 export const chatApi = {
   // 채팅방 생성(비활성)
@@ -57,9 +58,9 @@ export const chatApi = {
   },
 
   // 사용자별 채팅방 목록 조회
-  getUserChatList: async (userId = 'user1') => {
+  getUserChatList: async () => {
     try {
-      const response = await httpClient.get(`/v1/chat-service/api/authuser/user-chat-list`)
+      const response = await httpClient.get('/v1/chat-service/api/authuser/user-chat-list')
       return response.data
     } catch (error) {
       console.error('Error getting user chat list:', error)
@@ -139,7 +140,12 @@ export const chatApi = {
   // SSE 연결
   connectSSE: (chatId, onMessage, onError, onOpen) => {
     try {
-      const sseUrl = `/v1/chat-service/api/sse/subscribe?chatId=${chatId}`
+      // accountStore에서 JWT 토큰 가져오기
+      const accountStore = useAccountStore()
+      const token = accountStore.getAccessToken
+
+      // EventSource로 SSE 연결 (쿼리 파라미터로 토큰 전달)
+      const sseUrl = `/v1/chat-service/api/sse/subscribe?chatId=${chatId}&token=${encodeURIComponent(token)}`
       const eventSource = new EventSource(sseUrl)
       
       if (onOpen) {
