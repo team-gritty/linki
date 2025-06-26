@@ -32,10 +32,14 @@ public class NotificationServiceImpl implements NotificationService {
      */
     @Override
     public void sendNotificationToChat(String proposalId, String messageContent) {
-        String chatId = chatRepository.findByProposalId(proposalId).getChatId();
+        String chatId = chatRepository.findByProposalId(proposalId)
+                .orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND))
+                .getChatId();
 
         // 1. 메세지 먼저 저장 (기본은 안읽음)
         Message savedMessage = saveMessage(chatId, messageContent);
+
+        sseEmitters.keySet().forEach(key -> log.info("등록된 emitter chatId: {}", key));
 
         SseEmitter emitter = sseEmitters.get(chatId);
 
@@ -44,9 +48,6 @@ public class NotificationServiceImpl implements NotificationService {
                 emitter.send(SseEmitter.event()
                         .name("NOTIFICATION")
                         .data(messageContent));
-
-                // 2. 전송 성공 시 읽음 처리
-                messageService.notificationMarkAsRead(savedMessage.getMessageId());
 
                 log.info("SSE 알림 전송 완료: chatId={}, message={}", chatId, messageContent);
             } catch (IOException e) {
@@ -69,11 +70,20 @@ public class NotificationServiceImpl implements NotificationService {
         sseEmitters.put(chatId, emitter);
 
         // 연결 종료 또는 오류 시 자동 제거
-        emitter.onCompletion(() -> sseEmitters.remove(chatId));
-        emitter.onTimeout(() -> sseEmitters.remove(chatId));
-        emitter.onError((e) -> sseEmitters.remove(chatId));
+        emitter.onCompletion(() -> {
+            log.info("SSE 연결 완료로 인한 제거: chatId={}", chatId);
+            sseEmitters.remove(chatId);
+        });
+        emitter.onTimeout(() -> {
+            log.info("SSE 연결 타임아웃으로 인한 제거: chatId={}", chatId);
+            sseEmitters.remove(chatId);
+        });
+        emitter.onError((e) -> {
+            log.error("SSE 연결 에러로 인한 제거: chatId={}, error={}", chatId, e.getMessage());
+            sseEmitters.remove(chatId);
+        });
 
-        log.info("SSE 구독 완료: chatId={}", chatId);
+        log.info("SSE 구독 완료: chatId={}, 총 연결 수: {}", chatId, sseEmitters.size());
         return emitter;
     }
 

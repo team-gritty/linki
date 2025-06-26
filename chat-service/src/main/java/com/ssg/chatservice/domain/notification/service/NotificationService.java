@@ -5,6 +5,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public interface NotificationService {
 
-    void sendNotificationToChat(String chatId, String message);
-    SseEmitter subscribe(String proposalId);
+    void sendNotificationToChat(String proposalId, String message);
+    SseEmitter subscribe(String chatId);
 }
