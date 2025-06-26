@@ -6,8 +6,8 @@
       <div class="chat-header">
         <div class="chat-header-info">
           <span class="header-date">{{ new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
-          <span :class="['nego-status-badge', `nego-status-${chatRoom?.negoStatus?.replace(/ /g, '-')}`]">
-            {{ chatRoom?.negoStatus }}
+          <span :class="['nego-status-badge', `nego-status-${getNegoStatusClass(chatRoom?.negoStatus)}`]">
+            {{ getNegoStatusText(chatRoom?.negoStatus) }}
           </span>
         </div>
         <div class="chat-header-actions">
@@ -34,7 +34,14 @@
               </div>
             </div>
             <!-- 일반 메시지 -->
-            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId, 'unread-message': !message.messageRead && message.senderId !== currentUserId }]">
+            <div 
+              v-else 
+              :id="`message-${message.messageId}`"
+              :class="['message', { 
+                'my-message': message.senderId === currentUserId, 
+                'unread-message': !message.messageRead && message.senderId !== currentUserId 
+              }]"
+            >
               <div class="message-content">{{ message.content }}</div>
               <div class="message-time">
                 {{ formatMessageTime(message.messageDate) }}
@@ -409,6 +416,36 @@ const markChatAsRead = async (chatId) => {
   }
 }
 
+// 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
+const scrollToUnreadOrBottom = () => {
+  if (!messagesContainer.value) return
+
+  // 현재 사용자가 받은 안읽은 메시지 중 첫 번째 찾기
+  const firstUnreadMessage = chatMessages.value.find(message => 
+    !message.messageRead && 
+    message.senderId !== currentUserId.value &&
+    message.messageType !== 'NOTIFICATION'
+  )
+
+  if (firstUnreadMessage) {
+    // 안읽은 메시지가 있으면 해당 위치로 스크롤
+    const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
+    if (messageElement) {
+      messageElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      })
+    } else {
+      // DOM 요소를 찾지 못했으면 맨 밑으로
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  } else {
+    // 안읽은 메시지가 없으면 맨 밑으로 스크롤
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    
+  }
+}
+
 const loadChatInfo = async () => {
   loading.value = true
   error.value = null
@@ -446,6 +483,11 @@ const loadChatInfo = async () => {
 
     // 메시지를 날짜순으로 정렬
     chatMessages.value = messages.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+
+    // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
+    setTimeout(() => {
+      scrollToUnreadOrBottom()
+    }, 100)
 
     // 읽음 처리 (채팅방 입장 시)
     await markChatAsRead(props.chatRoom.chatId)
@@ -503,18 +545,29 @@ watch(
     {immediate: true}
 )
 
-// 메시지 자동 스크롤
+// 메시지 자동 스크롤 (새 메시지 수신 시에만)
 const messagesContainer = ref(null)
-watch(chatMessages, () => {
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
-  }, 0)
+watch(chatMessages, (newMessages, oldMessages) => {
+  // 새 메시지가 추가된 경우에만 맨 밑으로 스크롤
+  if (newMessages.length > oldMessages.length) {
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 100)
+  }
 })
 
 onUnmounted(() => {
   disconnectSocket()
+  
+  // 채팅 상태 초기화 (다른 탭으로 갔다가 다시 올 때 초기 상태로)
+  chatMessages.value = []
+  newMessage.value = ''
+  error.value = null
+  loading.value = false
+  
+  console.log('💫 인플루언서 채팅 컴포넌트 언마운트: 모든 상태 초기화 완료')
 })
 
 // 소켓 연결 해제
@@ -525,6 +578,32 @@ const disconnectSocket = () => {
     isConnected.value = false
     console.log('Stomp connection disconnected')
   }
+}
+
+// 영어 상태를 한글로 변환하는 함수
+const getNegoStatusText = (status) => {
+  const statusMap = {
+    'PENDING': '제안서 대기',
+    'ACCEPTED': '제안서 승인', 
+    'REJECTED': '제안서 거절',
+    'PENDING_SIGN': '계약 서명대기',
+    'ONGOING': '계약 진행중',
+    'COMPLETED': '계약 완료'
+  }
+  return statusMap[status] || status
+}
+
+// 영어 상태를 CSS 클래스로 변환하는 함수
+const getNegoStatusClass = (status) => {
+  const statusMap = {
+    'PENDING': 'pending',
+    'ACCEPTED': 'accepted', 
+    'REJECTED': 'rejected',
+    'PENDING_SIGN': 'pending-sign',
+    'ONGOING': 'ongoing',
+    'COMPLETED': 'completed'
+  }
+  return statusMap[status] || 'pending'
 }
 
 </script>

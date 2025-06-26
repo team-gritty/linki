@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { chatApi } from '@/api/chat'
+import { proposalAPI } from '@/api/advertiser/advertiser-proposal'
+import { contractApi } from '@/api/advertiser/advertiser-contract'
 import DetailProposalModal from './DetailProposalModal.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAccountStore } from '@/stores/account'
@@ -306,12 +308,10 @@ const loadMessages = async (chatId) => {
       firstMessage: chatMessages.value[0]
     })
     
-    // 스크롤을 최하단으로 이동
+    // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
     setTimeout(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    }, 0)
+      scrollToUnreadOrBottom()
+    }, 100)
   } catch (err) {
     error.value = '메시지를 불러오는데 실패했습니다.'
     console.error('Error loading messages:', err)
@@ -319,6 +319,36 @@ const loadMessages = async (chatId) => {
     loading.value = false
   }
 }
+
+// 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
+const scrollToUnreadOrBottom = () => {
+  if (!messagesContainer.value) return
+
+  // 현재 사용자가 받은 안읽은 메시지 중 첫 번째 찾기
+  const firstUnreadMessage = chatMessages.value.find(message => 
+    !message.messageRead && 
+    message.senderId !== currentUserId.value &&
+    message.messageType !== 'NOTIFICATION'
+  )
+
+  if (firstUnreadMessage) {
+    // 안읽은 메시지가 있으면 해당 위치로 스크롤
+    const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
+    if (messageElement) {
+      messageElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      })
+    } else {
+      // DOM 요소를 찾지 못했으면 맨 밑으로
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  } else {
+    // 안읽은 메시지가 없으면 맨 밑으로 스크롤
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  }
+}
+
 //소켓 연결
 const connectSocket = (chatId) => {
   // 이미 연결된 상태라면 기존 연결 해제
@@ -568,19 +598,30 @@ onMounted(() => {
   loadInitialData()
 })
 
-// 컴포넌트 언마운트 시 소켓 연결 정리
+// 컴포넌트 언마운트 시 소켓 연결 정리 및 상태 초기화
 onUnmounted(() => {
   disconnectSocket()
+  
+  // 채팅방 선택 상태 초기화 (다른 탭으로 갔다가 다시 올 때 선택 화면 표시)
+  selectedChatId.value = null
+  chatMessages.value = []
+  newMessage.value = ''
+  error.value = null
+  
+  console.log('💫 채팅 컴포넌트 언마운트: 모든 상태 초기화 완료')
 })
 
-// 메시지 자동 스크롤
+// 메시지 자동 스크롤 (새 메시지 수신 시에만)
 const messagesContainer = ref(null)
-watch(selectedChatMessages, () => {
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
-  }, 0)
+watch(selectedChatMessages, (newMessages, oldMessages) => {
+  // 새 메시지가 추가된 경우에만 맨 밑으로 스크롤
+  if (newMessages.length > oldMessages.length) {
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }, 100)
+  }
 })
 
 // 채팅방에서 나갈 때 정렬 초기화
@@ -598,8 +639,8 @@ const openProposalModal = async () => {
   }
   
   try {
-    const response = await chatApi.getProposal(selectedChat.value.proposalId)
-    selectedProposal.value = response.data
+    const response = await proposalAPI.getProposalDetail(selectedChat.value.proposalId, props.campaignId)
+    selectedProposal.value = response
     showProposalModal.value = true
   } catch (error) {
     console.error('제안서 로딩 실패:', error)
@@ -614,12 +655,45 @@ const closeProposalModal = () => {
 }
 
 // 계약서 보기
-const openContractModal = () => {
-  if (!selectedChat.value?.proposalId) {
-    alert('계약서 정보가 없습니다.')
+const openContractModal = async () => {
+  const chatDetail = getChatDetail(selectedChat.value?.chatId)
+  
+  // 계약서가 아직 생성되지 않은 상태 체크
+  const negoStatus = chatDetail?.negoStatus
+  if (negoStatus === 'PENDING' || negoStatus === 'REJECTED') {
+    alert('계약서가 아직 생성되지 않았습니다.')
     return
   }
-  // 계약서 관련 로직 추가
+  
+  if (!selectedChat.value?.proposalId) {
+    alert('제안서 정보가 없습니다.')
+    return
+  }
+  
+  try {
+    // proposalId를 통해 계약서 목록에서 해당 계약서 찾기
+    const contracts = await contractApi.getMyContracts(['ONGOING', 'COMPLETED', 'PENDING_SIGN'])
+    const matchingContract = contracts.find(contract => 
+      contract.proposalId === selectedChat.value.proposalId
+    )
+    
+    if (!matchingContract) {
+      alert('해당 제안서의 계약서를 찾을 수 없습니다.')
+      return
+    }
+    
+    // 계약서 상세 페이지로 이동
+    router.push({
+      path: `/mypage/campaign-detail/${props.campaignId}`,
+      query: { 
+        tab: 'contract',
+        contractId: matchingContract.contractId 
+      }
+    })
+  } catch (error) {
+    console.error('계약서 조회 실패:', error)
+    alert('계약서 정보를 불러오는데 실패했습니다.')
+  }
 }
 
 // 인플루언서 상세 페이지로 이동
@@ -630,6 +704,79 @@ const goToInfluencerDetail = (influencerId) => {
 // 계약 작성 페이지로 이동
 const goToContractCreate = (proposal) => {
   router.push(`/contract/create?proposalId=${proposal.id}`)
+}
+
+// 영어 상태를 한글로 변환하는 함수
+const getNegoStatusText = (status) => {
+  const statusMap = {
+    'PENDING': '제안서 대기',
+    'ACCEPTED': '제안서 승인', 
+    'REJECTED': '제안서 거절',
+    'PENDING_SIGN': '계약 서명대기',
+    'ONGOING': '계약 진행중',
+    'COMPLETED': '계약 완료'
+  }
+  return statusMap[status] || status
+}
+
+// 영어 상태를 CSS 클래스로 변환하는 함수
+const getNegoStatusClass = (status) => {
+  const statusMap = {
+    'PENDING': 'pending',
+    'ACCEPTED': 'accepted', 
+    'REJECTED': 'rejected',
+    'PENDING_SIGN': 'pending-sign',
+    'ONGOING': 'ongoing',
+    'COMPLETED': 'completed'
+  }
+  return statusMap[status] || 'pending'
+}
+
+// 제안서 거절 핸들러
+const handleRejectProposal = (proposalId) => {
+  // 채팅 목록에서 해당 채팅방의 상태 업데이트
+  const chatIndex = chatList.value.findIndex(chat => chat.proposalId === proposalId)
+  if (chatIndex !== -1) {
+    chatList.value[chatIndex] = {
+      ...chatList.value[chatIndex],
+      negoStatus: 'REJECTED'
+    }
+  }
+  
+  // 채팅 상세 정보도 업데이트
+  const chatDetailIndex = chatDetails.value.findIndex(detail => detail.proposalId === proposalId)
+  if (chatDetailIndex !== -1) {
+    chatDetails.value[chatDetailIndex] = {
+      ...chatDetails.value[chatDetailIndex],
+      negoStatus: 'REJECTED'
+    }
+  }
+  
+  closeProposalModal()
+}
+
+// 제안서 승낙 핸들러
+const handleAcceptProposal = (proposalId) => {
+  // 채팅 목록에서 해당 채팅방의 상태 업데이트
+  const chatIndex = chatList.value.findIndex(chat => chat.proposalId === proposalId)
+  if (chatIndex !== -1) {
+    chatList.value[chatIndex] = {
+      ...chatList.value[chatIndex],
+      negoStatus: 'ACCEPTED'
+    }
+  }
+  
+  // 채팅 상세 정보도 업데이트
+  const chatDetailIndex = chatDetails.value.findIndex(detail => detail.proposalId === proposalId)
+  if (chatDetailIndex !== -1) {
+    chatDetails.value[chatDetailIndex] = {
+      ...chatDetails.value[chatDetailIndex],
+      negoStatus: 'ACCEPTED',
+      chatStatus: 'ACTIVE' // 채팅방 활성화
+    }
+  }
+  
+  closeProposalModal()
 }
 </script>
 
@@ -702,8 +849,8 @@ const goToContractCreate = (proposal) => {
           </div>
         </div>
         <div class="chat-header-actions">
-          <span :class="['nego-status-badge', `nego-status-${getChatDetail(selectedChat?.chatId)?.negoStatus?.replace(/ /g, '-')}`]">
-            {{ getChatDetail(selectedChat?.chatId)?.negoStatus }}
+          <span :class="['nego-status-badge', `nego-status-${getNegoStatusClass(getChatDetail(selectedChat?.chatId)?.negoStatus)}`]">
+            {{ getNegoStatusText(getChatDetail(selectedChat?.chatId)?.negoStatus) }}
           </span>
           <button class="primary-button" @click="openProposalModal">제안서 보기</button>
           <button class="primary-button" @click="openContractModal">계약서 보기</button>
@@ -728,9 +875,19 @@ const goToContractCreate = (proposal) => {
               </div>
             </div>
             <!-- 일반 메시지 -->
-            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId }]">
+            <div 
+              v-else 
+              :id="`message-${message.messageId}`"
+              :class="['message', { 
+                'my-message': message.senderId === currentUserId,
+                'unread-message': !message.messageRead && message.senderId !== currentUserId
+              }]"
+            >
               <div class="message-content">{{ message.content }}</div>
-              <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
+              <div class="message-time">
+                {{ formatMessageTime(message.messageDate) }}
+                <span v-if="!message.messageRead && message.senderId !== currentUserId" class="unread-dot">●</span>
+              </div>
             </div>
           </template>
         </template>
@@ -773,8 +930,11 @@ const goToContractCreate = (proposal) => {
     <div @click.stop>
       <DetailProposalModal
         :proposal="selectedProposal"
+        :campaignId="props.campaignId"
         @close="closeProposalModal"
         @contract="goToContractCreate"
+        @reject="handleRejectProposal"
+        @accept="handleAcceptProposal"
       />
     </div>
   </div>
