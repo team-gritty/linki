@@ -23,6 +23,7 @@ public class GivenReviewResponse {
     private Boolean visibility; // 공개 여부
 
     // Contract 관련 정보, 계약 이름이랑 시작 끝 날짜 띄워주기
+    private String contractId; // 계약 ID (필터링을 위해 추가)
     private String contractTitle; // 계약 제목
     private LocalDate contractStartDate; // 계약 시작
     private LocalDate contractEndDate; // 계약 끝 날짜

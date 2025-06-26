@@ -263,6 +263,7 @@ public class ReviewServiceImpl implements ReviewService {
                         // Contract 정보 안전하게 처리
                         Contract contract = review.getContract();
                         if (contract != null) {
+                            dto.setContractId(contract.getContractId());
                             dto.setContractTitle(contract.getContractTitle());
                             dto.setContractStartDate(contract.getContractStartDate());
                             dto.setContractEndDate(contract.getContractEndDate());

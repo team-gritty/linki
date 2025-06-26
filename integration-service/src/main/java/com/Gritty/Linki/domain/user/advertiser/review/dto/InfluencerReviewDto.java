@@ -21,6 +21,7 @@ public class InfluencerReviewDto {
     private String reviewComment; // 리뷰 내용
     private LocalDateTime reviewCreatedAt; // 리뷰 작성 날짜
     private Boolean visibility; // 공개 여부
+    private String contractId; // 계약 ID (필터링을 위해 추가)
     private String contractTitle; // 계약 제목
     private LocalDate contractStartDate; // 계약 시작 날짜
     private LocalDate contractEndDate; // 계약 끝 날짜
