@@ -368,7 +368,7 @@
       box-sizing: border-box;
     }
 
-    .product-grid {
+    .campaign-grid {
       display: flex;
       flex-wrap: nowrap;
       gap: var(--card-gap);
@@ -376,7 +376,7 @@
       margin: 0;
     }
     
-    .product-card {
+    .campaign-card {
       width: var(--card-width);
       height: 320px;
       min-height: unset;
@@ -395,11 +395,11 @@
       padding: 0;
     }
     
-    .product-image {
+    .campaign-image {
       display: none;
     }
     
-    .product-info {
+    .campaign-info {
       position: relative;
       z-index: 2;
       width: 100%;
@@ -410,7 +410,7 @@
       padding : 17px;
     }
     
-    .product-name {
+    .campaign-name {
       margin: 0;
       font-size: 1rem;
       font-weight: 600;
@@ -419,7 +419,7 @@
       margin-bottom: 12px;
     }
     
-    .product-card:hover {
+    .campaign-card:hover {
       transform: translateY(-5px) scale(1.04);
       border-color: #7B21E8;
       box-shadow: 0 12px 24px rgba(123, 33, 232, 0.18);
@@ -427,41 +427,19 @@
       z-index: 20;
     }
     
-    .rating {
+    .campaign-condition {
       display: flex;
       align-items: center;
       gap: 10px;
     }
     
-    .stars-container {
-      position: relative;
-      display: inline-block;
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-    
-    .stars-bg {
-      color: #E0E0E0;
-    }
-    
-    .stars-filled {
-      position: absolute;
-      top: 0;
-      left: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      color: #FFD700;
-    }
-    
-    .rating-score {
-      font-weight: 600;
-      color: #333;
-      font-size: 1.2rem;
-    }
-    
-    .review-count {
-      color: #666;
-      font-size: 1.1rem;
+    .condition-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #7B21E8;
+      background: rgba(123, 33, 232, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
     }
     
     .time-remaining {
