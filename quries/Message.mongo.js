@@ -9,7 +9,7 @@
 //      - 메시지 5000건 더미 데이터 생성 및 삽입
 // ======================================================
 
-use admin;
+use.admin;
 
 db.createUser({
     user: "linki",
@@ -19,7 +19,7 @@ db.createUser({
     ]
 });
 
-use linkidb;
+use.linkidb;
 
 
 let messages = [];
