@@ -12,7 +12,80 @@ export const campaignAPI = {
     }
   },
 
-  // 캠페인 목록 조회
+  // 캠페인 목록 조회 (페이지네이션)
+  getCampaignsWithPagination: async (params = {}) => {
+    try {
+      // 프론트엔드에서는 1-based, Spring에서는 0-based
+      const page = params._page ? params._page - 1 : 0; 
+      const size = params._limit || 15;
+      const sortBy = params._sort || 'createdAt';
+      const sortDir = params._order || 'desc';
+
+      console.log('Original params._page:', params._page, 'Converted page:', page);
+
+      // 카테고리별 조회인지 전체 조회인지 구분
+      const isCategory = params.campaignCategory && params.campaignCategory !== '전체';
+      const url = isCategory 
+        ? `/v1/api/nonuser/campaigns/categories/${params.campaignCategory}/page`
+        : '/v1/api/nonuser/campaigns/page';
+
+      const queryParams = {
+        page: page,
+        size: size,
+        sortBy: sortBy,
+        sortDir: sortDir
+      };
+
+      console.log('=== API 요청 디버깅 ===');
+      console.log('1. 원본 params:', params);
+      console.log('2. 변환된 값들:', { 
+        'params._page': params._page, 
+        'converted page': page, 
+        'size': size, 
+        'sortBy': sortBy, 
+        'sortDir': sortDir 
+      });
+      console.log('3. 최종 queryParams:', queryParams);
+      console.log('4. 요청 URL:', url);
+      
+      // URL에 직접 쿼리 파라미터 포함
+      const queryString = new URLSearchParams(queryParams).toString();
+      const fullUrl = `${url}?${queryString}`;
+      console.log('5. Full URL:', fullUrl);
+
+      const response = await httpClient.get(fullUrl);
+      const pageData = response.data;
+
+      console.log('Page data from backend:', {
+        number: pageData.number,
+        totalPages: pageData.totalPages,
+        totalElements: pageData.totalElements,
+        first: pageData.first,
+        last: pageData.last
+      });
+
+      return {
+        campaigns: pageData.content,
+        totalItems: pageData.totalElements,
+        totalPages: pageData.totalPages,
+        currentPage: pageData.number + 1, // 프론트엔드에서는 1부터 시작
+        hasNext: !pageData.last,
+        hasPrevious: !pageData.first
+      };
+    } catch (error) {
+      console.error('Error fetching campaigns with pagination:', error);
+      return {
+        campaigns: [],
+        totalItems: 0,
+        totalPages: 0,
+        currentPage: 1,
+        hasNext: false,
+        hasPrevious: false
+      };
+    }
+  },
+
+  // 캠페인 목록 조회 (기존 방식 - 호환성 유지)
   getCampaigns: async (params = {}) => {
     try {
       // 카테고리가 선택된 경우 카테고리별 전용 API 사용

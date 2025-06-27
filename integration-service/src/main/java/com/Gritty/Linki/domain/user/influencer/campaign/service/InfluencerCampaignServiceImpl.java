@@ -11,7 +11,10 @@ import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.vo.enums.Category;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Log4j2
 public class InfluencerCampaignServiceImpl implements InfluencerCampaignService {
 
     private final InfluencerCampaignRepository campaignRepository;
@@ -34,6 +38,13 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
         return campaignRepository.findAll().stream()
                 .map(campaign -> modelMapper.map(campaign, CampaignListResponseDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<CampaignListResponseDTO> getAllCampaignsWithPagination(Pageable pageable) {
+        Page<Campaign> campaignPage = campaignRepository.findAll(pageable);
+        log.info(pageable);
+        return campaignPage.map(this::toListDto);
     }
 
     @Override
@@ -68,6 +79,15 @@ public class InfluencerCampaignServiceImpl implements InfluencerCampaignService 
                 .map(this::toListDto)
                 .collect(Collectors.toList());
 
+    }
+
+    @Override
+    public Page<CampaignListResponseDTO> getCampaignsByCategoryWithPagination(Category category, Pageable pageable) {
+        Page<Campaign> campaignPage = (category == null)
+                ? campaignRepository.findAll(pageable)
+                : campaignRepository.findAllByCampaignCategory(category, pageable);
+        
+        return campaignPage.map(this::toListDto);
     }
 
 

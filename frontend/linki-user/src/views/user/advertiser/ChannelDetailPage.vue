@@ -25,7 +25,6 @@
            </div>
           <div class="profile-meta-row">
             <div class="channel-category">{{ channel.category }}</div>
-            <button class="ad-btn">광고 제안</button>
             <span class="star-rating">
               <template v-if="reviewCount > 0">
                 <span v-for="n in 5" :key="n">
@@ -41,9 +40,9 @@
           </div>
           <div class="profile-info-row">
             <span>구독자 수 <b>{{ channel.subscribers }}</b></span>
-            <span>가입일 <b>{{ channel.createdAt }}</b></span>
+            <span>가입일 <b>{{ formatJoinDate(channel.createdAt) }}</b></span>
             <span>총영상수 <b>{{ channel.videoCount }}개</b></span>
-            <span>국가 <b>{{ channel.country || '한국' }}</b></span>
+            <span>국가 <b>{{ formatCountry(channel.country) }}</b></span>
           </div>
         </div>
       </div>
@@ -133,15 +132,8 @@
         <div class="intro-section">
           <h2>소개</h2>
           <p class="intro-text">
-            안녕하세요, 저는 2030대 여성을 타겟으로 뷰티와 라이프스타일 콘텐츠를 제작하고 있는 유튜버입니다. 솔직한 사용 후기와 자연스러운 생활 속 뷰티 꿀팁으로 유용한 제품을 추천하며, 광고보다는 일상 속 진정성 있는 리뷰를 선호합니다. 평균 조회수는 약 3만5천이며, 뷰티 제품의 경우 시청자 참여율이 높고, 브랜드의 핵심 메시지가 시청자의 언어로 잘 전달되는 데 집중하고 있으며, 구독자와의 신뢰를 바탕으로 한 광고를 진행합니다.
+            {{ channel.influencerIntro || '인플루언서 소개글이 등록되지 않았습니다.' }}
           </p>
-          <ul class="intro-list">
-            <li>Type Of Packing: Bottle</li>
-            <li>Color: Green, Pink, Powder Blue, Purple</li>
-            <li>Quantity Per Case: 100ml</li>
-            <li>Ethyl Alcohol: 70%</li>
-            <li>Piece In One: Carton</li>
-          </ul>
         </div>
       </div>
       <div v-else>
@@ -442,6 +434,77 @@ function handleClickOutside(event) {
   }
 }
 
+// 국가 코드를 한국어로 변환하는 함수
+function formatCountry(countryCode) {
+  if (!countryCode) {
+    return '한국'
+  }
+  
+  const country = countryCode.toUpperCase()
+  
+  switch (country) {
+    case 'KR':
+      return '한국'
+    case 'US':
+      return '미국'
+    case 'JP':
+      return '일본'
+    case 'CN':
+      return '중국'
+    case 'GB':
+      return '영국'
+    case 'DE':
+      return '독일'
+    case 'FR':
+      return '프랑스'
+    case 'UNKNOWN':
+      return '한국'
+    default:
+      return '한국'
+  }
+}
+
+// 가입일을 YYYY년 MM월 DD일 형태로 포맷하는 함수
+function formatJoinDate(dateStr) {
+  if (!dateStr) {
+    return '가입일 정보 없음'
+  }
+  
+  try {
+    let date
+    
+    // 이미 Date 객체인 경우
+    if (dateStr instanceof Date) {
+      date = dateStr
+    }
+    // 문자열인 경우 Date 객체로 변환
+    else if (typeof dateStr === 'string') {
+      date = new Date(dateStr)
+    }
+    // 숫자(timestamp)인 경우
+    else if (typeof dateStr === 'number') {
+      date = new Date(dateStr)
+    }
+    else {
+      return '가입일 정보 없음'
+    }
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      return '가입일 정보 없음'
+    }
+    
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    
+    return `${year}년 ${month}월 ${day}일`
+  } catch (error) {
+    console.error('가입일 포맷팅 오류:', error)
+    return '가입일 정보 없음'
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
@@ -572,20 +635,6 @@ onUnmounted(() => {
   gap: 12px;
   margin-bottom: 4px;
   font-size: 1.25rem;
-}
-.ad-btn {
-  background: #8C30F5;
-  color: #fff;
-  font-weight: 500;
-  border: 1px solid #FFC107;
-  border-radius: 8px;
-  padding: 7px 28px;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-.ad-btn:hover{
-  background: #FFC107;
-  color: #8C30F5;
 }
 .channel-category{
   background-color: #fffeff ;

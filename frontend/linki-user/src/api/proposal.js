@@ -81,16 +81,28 @@ export const proposalAPI = {
    // 제안서 제출
    submitProposal: async (campaignId, contents) => {
     try {
-      const response = await httpClient.post(`/v1/api/influencer/mypage/campaigns/${campaignId}/proposals`, {
+      const url = `/v1/api/influencer/mypage/campaigns/${campaignId}/proposals`
+      const payload = {
         contents: contents,
         campaignId: String(campaignId)
-        // submittedAt: 백엔드에서 현재 시간으로 자동 설정
-        // status: 백엔드에서 기본값 PENDING으로 자동 설정
-        // influencerId: 백엔드에서 JWT 토큰을 파싱해서 자동으로 설정
-      })
+      }
+      
+      console.log('=== 제안서 제출 API 호출 ===')
+      console.log('URL:', url)
+      console.log('Payload:', payload)
+      console.log('CampaignId type:', typeof campaignId, campaignId)
+      console.log('Contents length:', contents.length)
+      
+      const response = await httpClient.post(url, payload)
+      
+      console.log('제안서 제출 성공:', response.data)
       return response.data
     } catch (error) {
-      console.error('Error submitting proposal:', error)
+      console.error('=== 제안서 제출 에러 ===')
+      console.error('Error:', error)
+      console.error('Response status:', error.response?.status)
+      console.error('Response data:', error.response?.data)
+      console.error('Response headers:', error.response?.headers)
       throw error
     }
   },

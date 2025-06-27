@@ -93,4 +93,9 @@ public class ChannelDetailResponse {
      * 데이터 수집 날짜
      */
     private LocalDateTime collectedAt;
+
+    /**
+     * 인플루언서 소개글
+     */
+    private String influencerIntro;
 }

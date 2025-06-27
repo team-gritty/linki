@@ -150,13 +150,21 @@
       </div>
 
       <div class="button-group">
+        <!-- 🔍 디버깅 정보 -->
+        <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
+          <p>result: {{ result }}</p>
+          <p>result.valid: {{ result?.valid }}</p>
+          <p>isLoading: {{ isLoading }}</p>
+          <p>버튼 활성화: {{ !(!result || !result.valid || isLoading) }}</p>
+        </div>
+        
         <button class="submit-button" @click="handleBusinessValidation" :disabled="isLoading">
           {{ isLoading ? '검증 중...' : '검증하기' }}
         </button>
         <button
           class="submit-button"
           style="margin-left: 8px;"
-          @click="registerBusiness"
+          @click="() => { console.log('등록 버튼 클릭됨'); registerBusiness(); }"
           :disabled="!result || !result.valid || isLoading"
         >
           등록
@@ -170,13 +178,17 @@
 import { ref, onMounted } from 'vue'
 import httpClient from '@/utils/httpRequest'
 import { useAlert } from '@/composables/alert'
-import { useRoute } from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
+import { useAccountStore} from '@/stores/account'
 
 const { showAlert } = useAlert()
 const selectedTab = ref('influencer')
 const isLoading = ref(false)
 const selectedFileName = ref('')
 const route = useRoute()
+
+const router = useRouter()
+const store = useAccountStore()
 
 const influencerData = ref({
   channelId: '',
@@ -323,7 +335,15 @@ const handleRegistration = async () => {
 
     try {
       await httpClient.post('v1/api/user/youtube/register', payload)
-      showAlert('등록이 완료되었습니다.', 'success')
+      
+      showAlert('인플루언서 등록이 완료되었습니다. 새로운 역할로 다시 로그인해주세요.', 'success')
+      
+      // 자동 로그아웃 후 로그인 페이지로 리다이렉트
+      store.clearAuth()
+      setTimeout(() => {
+        router.push('/login')
+      }, 1000) // 2초 후 리다이렉트
+      
     } catch (error) {
       console.error('채널 등록 실패:', error)
       showAlert('채널 등록 중 오류가 발생했습니다.', 'error')
@@ -368,18 +388,38 @@ onMounted(() => {
 
 // 광고주 사업자 정보 등록 함수
 const registerBusiness = async () => {
+  console.log('=== registerBusiness 시작 ===')
+  
   // 검증 결과가 없거나 유효하지 않으면 등록 불가
-  if (!result.value || !result.value.valid) return;
+  if (!result.value || !result.value.valid) {
+    console.log('검증 결과가 없거나 유효하지 않음:', result.value)
+    return;
+  }
+  
+  console.log('검증 통과, 등록 시작')
+  
   try {
     // 사업자명은 OCR 결과에서 추출 (예시: result.value.ocrName 등, 실제 필드명에 맞게 수정)
     const payload = {
       businessNumber: advertiserData.value.businessNumber,
       companyName: result.value.companyName || '', // 실제 OCR 결과 필드에 맞게 수정
     };
+    
+    console.log('등록 요청 데이터:', payload)
+    
     await httpClient.post('/v1/api/user/bizCheck/register', payload);
-    showAlert('사업자 정보가 등록되었습니다.', 'success');
+    console.log('등록 API 호출 성공')
+    
+    showAlert('광고주 등록이 완료되었습니다. 새로운 역할로 다시 로그인해주세요.', 'success');
+    
+    // 자동 로그아웃 후 로그인 페이지로 리다이렉트
+    store.clearAuth()
+    setTimeout(() => {
+      router.push('/login')
+    }, 1000) // 2초 후 리다이렉트
+    
   } catch (error) {
-    console.error(error);
+    console.error('registerBusiness 오류:', error);
     showAlert('등록 중 오류가 발생했습니다.', 'error');
   }
 }

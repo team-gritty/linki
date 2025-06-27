@@ -15,8 +15,8 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
     @Query("""
     SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO(
         p.proposalId,
-        p.campaign.campaignId,
         p.campaign.campaignName,
+        p.campaign.campaignId,
         p.submittedAt,
         p.status,
         p.influencer.influencerId
@@ -43,4 +43,5 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
     WHERE p.proposalId = :proposalId
 """)
     Optional<ProposalDetailResponseDTO> findDetailByProposalId(@Param("proposalId") String proposalId);
+    boolean existsByCampaign_CampaignIdAndInfluencer_InfluencerId(String campaignId, String influencerId);
 }

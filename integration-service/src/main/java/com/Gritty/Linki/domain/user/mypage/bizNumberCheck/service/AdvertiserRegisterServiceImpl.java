@@ -36,13 +36,12 @@ public class AdvertiserRegisterServiceImpl implements AdvertiserRegisterService{
         log.info(advertiser.getBusinessNumber());
         log.info(advertiser.getCompanyName());
 
-
         advertiserRegisterRepository.save(advertiser);
         User user = accountRepository.findById(customUserDetails.getUserId()).orElseThrow();
         user.setUserRole("ROLE_ADVERTISER");
-
-
-
+        accountRepository.save(user);
+        
+        log.info("광고주 등록 완료: userId={}, role={}", user.getUserId(), user.getUserRole());
 
     }
 }
