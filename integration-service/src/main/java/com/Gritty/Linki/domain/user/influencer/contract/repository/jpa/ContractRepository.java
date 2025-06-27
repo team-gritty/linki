@@ -117,6 +117,9 @@ AND s.settlementStatus = 'COMPLETED'
     Contract findByDocumentId(String documentId);
 
 
+    boolean existsByProposal_ProposalId(String proposalId);
+
+
 
 
 }
