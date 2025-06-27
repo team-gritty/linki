@@ -4,7 +4,7 @@
       <div class="no-data-icon">📊</div>
       <div class="no-data-title">댓글 데이터 부족</div>
       <div class="no-data-description">
-        현재 채널과 전체 채널 모두 <br>
+        현재 채널과 상위 50개 채널 모두 <br>
         평균 댓글 수 데이터가 부족하여 비율 분석이 불가능합니다.
       </div>
       <div class="no-data-note">
@@ -130,13 +130,13 @@ const myChannelCommentRatio = computed(() => {
 
 // 전체 채널 - 평균 댓글 비율 계산
 const overallCommentRatio = computed(() => {
-  console.log('=== 전체 채널 댓글 비율 계산 ===')
+  console.log('=== 상위 50개 채널 댓글 비율 계산 ===')
   // props.channels가 undefined이거나 null 일때 []빈배열 사용 - 데이터가 로딩중일때 에러 방지 
   const allChannels = props.channels || []
-  console.log('전체 채널 수:', allChannels.length)
+  console.log('상위 50개 채널 수:', allChannels.length)
   
   if (allChannels.length === 0) {
-    console.log('전체 채널 데이터 없음')
+    console.log('상위 50개 채널 데이터 없음')
     return 0
   }
 
@@ -181,7 +181,7 @@ const overallCommentRatio = computed(() => {
   
   const ratio = totalViews > 0 ? totalComments / totalViews : 0
   console.log('전체 평균 댓글 비율:', ratio)
-  console.log('=== 전체 채널 댓글 비율 계산 끝 ===')
+  console.log('=== 상위 50개 채널 댓글 비율 계산 끝 ===')
   
   return ratio
 })
@@ -196,39 +196,59 @@ const series = computed(() => [
 
 // 차트 옵션 계산
 const chartOptions = computed(() => {
-  // 데이터의 최대값에 따라 Y축 범위 동적 조정
+  // 데이터의 최대값 계산
   const maxValue = Math.max(myChannelCommentRatio.value, overallCommentRatio.value)
-  const yAxisMax = maxValue > 0 ? Math.max(maxValue * 1.5, 0.01) : 0.1 // 최소 0.01, 여유공간 50%
+  
+  // y축 최대값을 더 작게 설정하여 그래프가 높게 보이도록
+  let yAxisMax
+  if (maxValue === 0) {
+    yAxisMax = 0.001 // 데이터가 없을 때 최소값
+  } else if (maxValue < 0.001) {
+    yAxisMax = maxValue * 2 // 매우 작은 값일 때는 2배
+  } else {
+    yAxisMax = maxValue * 1.2 // 일반적인 경우 20% 여유만 둠
+  }
   
   return {
-    // 차트에 대한 전반적 설정 
-    chart: { id: 'comment-ratio-bar', toolbar: { show: false } },
-    //  x축  설정
-    xaxis: { categories: ['내 채널', '전체'] },
-    // y축 설정
-    yaxis: {
-      min: 0, // y축 최소값 0 설정 - 막대가 아래로 내려가지 않게 
-      max: yAxisMax, // y축 최대값을 동적으로 설정
-      tickAmount: 5, // y축 간격을 5개로 유지
-      // y축 - 소수점 3자리까지 표시 (더 정밀하게)
-      labels: { formatter: val => val.toFixed(3) }
+    chart: {
+      type: 'bar',
+      height: 320,
+      toolbar: { show: false }
     },
-    // 첫번째 막대 색상, 두번째 막대 색상 
+    xaxis: {
+      categories: ['내 채널', '상위 50개 채널 평균'],
+      labels: {
+        style: {
+          fontSize: '12px',
+          fontWeight: 500
+        }
+      }
+    },
+    yaxis: {
+      min: 0,
+      max: yAxisMax,
+      tickAmount: 8, // 틱 개수를 늘려서 y축을 더 촘촘하게
+      labels: { 
+        formatter: val => {
+          // 값이 매우 작을 때는 더 많은 소수점 표시
+          if (val < 0.001) {
+            return val.toFixed(5)
+          } else {
+            return val.toFixed(3)
+          }
+        }
+      }
+    },
     colors: ['#6B46C1', '#9F7AEA'],
-    // 막대 위에 값 표시 여부 
     dataLabels: { enabled: false },
     grid: { borderColor: '#eee' },
-    // 마우스를 올렸을때 나오는 툴팁 설정 - 퍼센트로, 소수점 셋째자리까지 표시 
     tooltip: {
       y: { formatter: val => (val * 100).toFixed(3) + '%' }
     },
-    // 막대 그래프의 스타일 설정 
     plotOptions: {
       bar: {
         borderRadius: 5,
-        // 막대 너비 설정
         columnWidth: '40%',
-        // 각 막대가 다른 색깔 가지는지 여부 
         distributed: true
       }
     }
