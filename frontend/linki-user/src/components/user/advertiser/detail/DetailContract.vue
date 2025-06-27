@@ -184,12 +184,12 @@ async function viewContractDocument() {
 
 function goBackToList() {
   // contractId 파라미터를 제거하여 목록으로 돌아가기
+  const newQuery = { ...route.query }
+  delete newQuery.contractId
+  
   router.push({
     path: route.path,
-    query: { 
-      ...route.query,
-      contractId: undefined  // contractId 제거
-    }
+    query: newQuery
   })
 }
 
