@@ -15,7 +15,7 @@ SELECT
     FLOOR(RAND() * 2),
     1,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    CASE 
+    CASE
         WHEN seq < 500 THEN 'ROLE_INFLUENCER'
         WHEN seq < 1000 THEN 'ROLE_ADVERTISER'
         ELSE 'ROLE_USER'
@@ -24,12 +24,12 @@ SELECT
     NULL, -- user_oauth_id
     FALSE -- user_oauth_user
 FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 + d.N * 1000 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
-    (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
-    ) numbers
+         SELECT a.N + b.N * 10 + c.N * 100 + d.N * 1000 AS seq
+         FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
+              (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
+     ) numbers
 WHERE seq < 1500;
 
 -- 인플루언서 데이터 생성 (user_id가 일치하도록)
@@ -153,7 +153,7 @@ SELECT CONCAT('CHN-', LPAD(seq, 16, '0')),
             RAND() * TIMESTAMPDIFF(DAY, '2024-01-01', CURRENT_DATE())
         ) DAY
     ),
-    CONCAT('INF-', LPAD(FLOOR(seq / 2), 16, '0')) -- 각 인플루언서당 2개의 채널
+    CONCAT('INF-', LPAD(seq % 500, 16, '0')) -- 인플루언서 500명에 맞춰 수정
 FROM (
         SELECT a.N + b.N * 10 + c.N * 100 AS seq
         FROM (
@@ -284,7 +284,7 @@ SELECT
         WHEN 9 THEN 'ELECTRONICS'
         ELSE 'ENTERTAINMENT'
     END,
-    CONCAT('ADV-', LPAD(FLOOR(seq/2), 16, '0'))  -- 각 광고주당 2개의 캠페인
+    CONCAT('ADV-', LPAD(seq % 500, 16, '0'))  -- 광고주 500명에 맞춰 수정
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 AS seq
     FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
@@ -294,7 +294,7 @@ FROM (
 WHERE seq < 1000;
 
 -- 제안서 데이터 생성
--- 인플루언서 0~499, 캠페인 0~499 → 정확히 1:1 대응
+-- 인플루언서 0~499, 캠페인 0~999 → 적절한 매칭
 INSERT INTO `proposal` (`proposal_id`, `contents`, `status`, `submitted_at`, `responded_at`, `influencer_id`, `campaign_id`)
 SELECT 
     CONCAT('PRP-', LPAD(seq, 16, '0')),
@@ -305,13 +305,12 @@ SELECT
         ELSE 'REJECTED'
         END,
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-
     CASE FLOOR(RAND() * 2)
         WHEN 0 THEN NULL
         ELSE DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY)
         END,
-    CONCAT('INF-', LPAD(seq % 200, 6, '0')),    -- 200명 인플루언서 (0~199)
-    CONCAT('CMP-', LPAD(FLOOR(seq / 1), 6, '0'))  -- 캠페인 1000개 전부 생성
+    CONCAT('INF-', LPAD(seq % 500, 16, '0')),    -- 500명 인플루언서 (0~499)
+    CONCAT('CMP-', LPAD(seq, 16, '0'))  -- 캠페인 1000개와 매칭
 FROM (
          SELECT a.N + b.N * 10 + c.N * 100 AS seq
          FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
@@ -319,7 +318,6 @@ FROM (
               (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
      ) numbers
 WHERE seq < 1000;
-
 
 -- 계약 데이터 생성
 INSERT INTO `contract` (
@@ -374,8 +372,8 @@ INSERT INTO `redirect_links` (`redirect_id`, `origin_url`, `redirect_url`, `adve
 SELECT
     CONCAT('RED-', LPAD(seq, 16, '0')),
     CONCAT('https://original.com/', seq),
-    CONCAT('ADV-', LPAD(FLOOR(seq/2), 16, '0')),  -- 각 광고주당 2개의 리다이렉트 링크
-    CONCAT('ADV-', LPAD(FLOOR(seq/2), 16, '0')),  -- contract_id와 1:1 매칭
+    CONCAT('https://redirect.linki.com/', seq),  -- 리다이렉트 URL 수정
+    CONCAT('ADV-', LPAD(seq % 500, 16, '0')),  -- 광고주 500명에 맞춰 수정
     CONCAT('CTR-', LPAD(seq, 16, '0'))  -- contract_id와 1:1 매칭
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 AS seq
@@ -399,18 +397,24 @@ FROM (
 ) numbers
 WHERE seq < 5000;  -- 1000개의 리다이렉트 링크 * 5개의 클릭
 
--- 채팅방 데이터 생성 (수정된 제안서 기반)
-INSERT INTO `chat` (`chat_id`, `chat_date`, `chat_status`, `proposal_id`)
+-- 채팅방 데이터 생성
+INSERT INTO `chat` (
+    `chat_id`, `chat_date`, `chat_status`, `proposal_id`, `nego_status`
+)
 SELECT
-    CONCAT('CHT-', LPAD(SUBSTRING_INDEX(proposal_id, '-', -1), 16, '0')),
-    NOW(),
-    CASE status
+    CONCAT('CHT-', LPAD(CAST(SUBSTRING_INDEX(p.proposal_id, '-', -1) AS UNSIGNED), 16, '0')) AS chat_id,
+    NOW() AS chat_date,
+    CASE p.status
         WHEN 'ACCEPTED' THEN 'ACTIVE'
         ELSE 'PENDING'
-        END,
-    proposal_id
-FROM proposal
-WHERE SUBSTRING_INDEX(proposal_id, '-', -1) < 500;
+        END AS chat_status,
+    p.proposal_id,
+    -- 계약 있으면 contract_status, 없으면 proposal.status
+    COALESCE(c.contract_status, p.status) AS nego_status
+FROM proposal p
+         LEFT JOIN contract c ON p.proposal_id = c.proposal_id
+WHERE CAST(SUBSTRING_INDEX(p.proposal_id, '-', -1) AS UNSIGNED) < 1000;
+
 -- 서명 데이터 생성
 INSERT INTO `signature` (`signature_id`, `signature_signer_name`, `signature_signed_at`, `signature_status`, `contract_id`)
 SELECT 
@@ -450,7 +454,7 @@ SELECT
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
     DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) + 7 DAY),
     CONCAT('CTR-', LPAD(seq, 16, '0')),  -- contract_id와 1:1 매칭
-    CONCAT('INF-', LPAD(FLOOR(seq/2), 16, '0'))  -- 각 인플루언서당 2개의 정산
+    CONCAT('INF-', LPAD(seq % 500, 16, '0'))  -- 인플루언서 500명에 맞춰 수정
 FROM (
     SELECT a.N + b.N * 10 + c.N * 100 AS seq
     FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,

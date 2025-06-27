@@ -6,9 +6,11 @@ import httpClient from '@/utils/httpRequest'
  * @param {number} limit 페이지 크기 (기본값: 10)
  * @param {string} keyword 검색 키워드 (선택)
  * @param {object} filters 추가 필터 옵션
+ * @param {string} sortBy 정렬 기준 (subscriberCount, avgViewCount 등, 선택)
+ * @param {string} sortDirection 정렬 방향 (desc, asc, 기본값: desc)
  */
 const channelApi = {
-  getAllChannels: async (page = 0, limit = 10, keyword = null, filters = {}) => {
+  getAllChannels: async (page = 0, limit = 10, keyword = null, filters = {}, sortBy = null, sortDirection = 'desc') => {
     let params = {} // params를 함수 스코프로 이동
     
     try {
@@ -20,6 +22,14 @@ const channelApi = {
       // 키워드가 있으면 추가
       if (keyword && keyword.trim()) {
         params.keyword = keyword.trim()
+      }
+      
+      // 정렬 파라미터 추가
+      if (sortBy && sortBy.trim()) {
+        params.sortBy = sortBy.trim()
+      }
+      if (sortDirection && sortDirection.trim()) {
+        params.sortDirection = sortDirection.trim()
       }
       
       // 필터 적용 - null/undefined 체크를 더 엄격하게
@@ -41,6 +51,7 @@ const channelApi = {
       
       console.log('=== API 호출 상세 정보 ===')
       console.log('원본 filters:', filters)
+      console.log('정렬 정보:', { sortBy, sortDirection })
       console.log('최종 params:', params)
       console.log('========================')
       
@@ -80,9 +91,11 @@ const channelApi = {
    * @param {number} limit 페이지 크기 (기본값: 10)
    * @param {string} keyword 검색 키워드 (선택)
    * @param {object} filters 추가 필터 옵션
+   * @param {string} sortBy 정렬 기준 (subscriberCount, avgViewCount 등, 선택)
+   * @param {string} sortDirection 정렬 방향 (desc, asc, 기본값: desc)
    * @returns {Promise<any[]>} 카테고리별 채널 목록
    */
-  getChannelsByCategories: async (categories, page = 0, limit = 10, keyword = null, filters = {}) => {
+  getChannelsByCategories: async (categories, page = 0, limit = 10, keyword = null, filters = {}, sortBy = null, sortDirection = 'desc') => {
     try {
       const params = {
         page: page,
@@ -97,6 +110,14 @@ const channelApi = {
       // 키워드가 있으면 추가
       if (keyword && keyword.trim()) {
         params.keyword = keyword.trim()
+      }
+      
+      // 정렬 파라미터 추가
+      if (sortBy && sortBy.trim()) {
+        params.sortBy = sortBy.trim()
+      }
+      if (sortDirection && sortDirection.trim()) {
+        params.sortDirection = sortDirection.trim()
       }
       
       // 필터 적용

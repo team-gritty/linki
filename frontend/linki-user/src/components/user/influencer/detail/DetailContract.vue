@@ -46,16 +46,8 @@
 
       <div class="contract-actions">
         <button class="action-button view-contract" @click="viewContractDocument">
-          <i class="fas fa-file-contract"></i>
-          계약서 조회
-        </button>
-        <button 
-          v-if="contract.contractStatus === 'PENDING_SIGN'"
-          class="action-button sign-contract" 
-          @click="signContract"
-        >
-          <i class="fas fa-signature"></i>
-          전자 서명
+          <i class="fas fa-download"></i>
+          계약서 다운로드
         </button>
       </div>
     </div>
@@ -148,35 +140,33 @@ export default {
 
     const viewContractDocument = async () => {
       try {
+        console.log('계약서 조회 시작, contractId:', contract.value.contractId)
+        
         if (!contract.value.contractId) {
           throw new Error('계약 ID가 없습니다.');
         }
-        const documentData = await contractApi.getContractDocument(contract.value.contractId);
-        if (documentData && documentData.documentUrl) {
-          window.location.href = documentData.documentUrl;
-        } else {
-          throw new Error('계약서 URL을 찾을 수 없습니다.');
+        
+        const response = await contractApi.getContractDocument(contract.value.contractId);
+        console.log('API 응답:', response);
+        
+        // contract.js API 응답 구조: response.result.file
+        const url = response?.result?.file;
+        console.log('추출된 URL:', url);
+        
+        if (!url) {
+          console.error('URL을 찾을 수 없습니다. 응답 구조:', response);
+          alert('계약서 URL을 찾을 수 없습니다.');
+          return;
         }
+        
+        // 새 탭에서 계약서 열기
+        console.log('새 탭에서 열 URL:', url);
+        window.open(url, '_blank');
+        console.log('계약서 조회 성공: 새 탭에서 열림');
+        
       } catch (error) {
         console.error('계약서 조회 실패:', error);
         alert('계약서 조회에 실패했습니다.');
-      }
-    };
-
-    const signContract = async () => {
-      try {
-        if (!contract.value.contractId) {
-          throw new Error('계약 ID가 없습니다.');
-        }
-        const signData = await contractApi.signContract(contract.value.contractId);
-        if (signData && signData.signUrl) {
-          window.location.href = signData.signUrl;
-        } else {
-          throw new Error('서명 URL을 찾을 수 없습니다.');
-        }
-      } catch (error) {
-        console.error('전자서명 실패:', error);
-        alert('전자서명 처리에 실패했습니다.');
       }
     };
 
@@ -223,7 +213,6 @@ export default {
       loading,
       error,
       viewContractDocument,
-      signContract,
       goToContractList,
       formatDate,
       formatAmount,
@@ -360,21 +349,6 @@ export default {
 
 .view-contract:hover {
   background-color: #e2e8f0;
-}
-
-.sign-contract {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.sign-contract:hover {
-  background-color: #2563eb;
-}
-
-.sign-contract:disabled {
-  background-color: #e2e8f0;
-  color: #94a3b8;
-  cursor: not-allowed;
 }
 
 .status-badge {

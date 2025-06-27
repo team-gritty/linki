@@ -25,7 +25,6 @@
            </div>
           <div class="profile-meta-row">
             <div class="channel-category">{{ channel.category }}</div>
-            <button class="ad-btn">광고 제안</button>
             <span class="star-rating">
               <template v-if="reviewCount > 0">
                 <span v-for="n in 5" :key="n">
@@ -41,14 +40,36 @@
           </div>
           <div class="profile-info-row">
             <span>구독자 수 <b>{{ channel.subscribers }}</b></span>
-            <span>가입일 <b>{{ channel.createdAt }}</b></span>
+            <span>가입일 <b>{{ formatJoinDate(channel.createdAt) }}</b></span>
             <span>총영상수 <b>{{ channel.videoCount }}개</b></span>
-            <span>국가 <b>{{ channel.country || '한국' }}</b></span>
+            <span>국가 <b>{{ formatCountry(channel.country) }}</b></span>
           </div>
         </div>
       </div>
       <div class="video-stats-box">
-        <div class="video-stats-title">✔️ 최근 90일 영상 통계 데이터</div>
+        <div class="video-stats-title">
+          ✔️ 최근 30개 영상 통계 데이터
+          <div class="info-icon-container">
+            <div class="info-icon" @click="showDataInfoTooltip = !showDataInfoTooltip">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="10" r="9" stroke="#8C30F5" stroke-width="2" fill="white"/>
+                <path d="M10 7V13M10 4.5V5.5" stroke="#8C30F5" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div v-if="showDataInfoTooltip" class="data-info-tooltip">
+              <div class="tooltip-content">
+                <div class="tooltip-title">데이터 수집 정보</div>
+                <div class="tooltip-text">
+                  {{ formatDataCollectionDate(channel?.collectedAt) }} 기준으로 수집된 데이터입니다.
+                </div>
+                <div class="tooltip-note">
+                  * 30개 영상의 평균 통계를 기반으로 계산됩니다.
+                </div>
+              </div>
+              <div class="tooltip-arrow"></div>
+            </div>
+          </div>
+        </div>
         <div class="video-stats-list">
           <div class="video-stat-item">
             <div class="stat-label">영상 수</div>
@@ -111,15 +132,8 @@
         <div class="intro-section">
           <h2>소개</h2>
           <p class="intro-text">
-            안녕하세요, 저는 2030대 여성을 타겟으로 뷰티와 라이프스타일 콘텐츠를 제작하고 있는 유튜버입니다. 솔직한 사용 후기와 자연스러운 생활 속 뷰티 꿀팁으로 유용한 제품을 추천하며, 광고보다는 일상 속 진정성 있는 리뷰를 선호합니다. 평균 조회수는 약 3만5천이며, 뷰티 제품의 경우 시청자 참여율이 높고, 브랜드의 핵심 메시지가 시청자의 언어로 잘 전달되는 데 집중하고 있으며, 구독자와의 신뢰를 바탕으로 한 광고를 진행합니다.
+            {{ channel.influencerIntro || '인플루언서 소개글이 등록되지 않았습니다.' }}
           </p>
-          <ul class="intro-list">
-            <li>Type Of Packing: Bottle</li>
-            <li>Color: Green, Pink, Powder Blue, Purple</li>
-            <li>Quantity Per Case: 100ml</li>
-            <li>Ethyl Alcohol: 70%</li>
-            <li>Piece In One: Carton</li>
-          </ul>
         </div>
       </div>
       <div v-else>
@@ -132,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SubscriberHistoryChart from '@/components/user/advertiser/SubscriberHistoryChart.vue'
 import LikeRatioBarChart from '@/components/user/advertiser/LikeRatioBarChart.vue'
@@ -222,7 +236,8 @@ async function fetchSubscriberHistory() {
 onMounted(async () => {
   loading.value = true
   try {
-    console.log('onMounted 시작 - id:', id.value)
+    console.log('=== ChannelDetailPage onMounted 시작 ===')
+    console.log('채널 ID:', id.value)
     
     // 먼저 id가 존재하는지 확인
     if (!id.value) {
@@ -230,28 +245,85 @@ onMounted(async () => {
     }
     
     // 1. 모든 채널 데이터 가져오기 - LikeRatioBarChart전달용(전체 채널 평균) 
-    const channelsData = await channelApi.getAllChannels()
+    console.log('전체 채널 목록 조회 시작...')
+    const channelsData = await channelApi.getAllChannels(0, 50) // limit을 50으로 증가
     console.log('Raw API response:', channelsData)
     
     // API 응답이 페이지네이션 구조인지 확인
     if (channelsData && channelsData.channels) {
       channels.value = channelsData.channels
-      console.log('Using channels from pagination response:', channels.value)
-    } else {
+      console.log('페이지네이션 응답에서 채널 목록 추출:', channels.value.length, '개')
+    } else if (Array.isArray(channelsData)) {
       channels.value = channelsData
-      console.log('Using direct channels response:', channels.value)
+      console.log('직접 배열 응답 사용:', channels.value.length, '개')
+    } else {
+      channels.value = []
+      console.warn('예상하지 못한 응답 구조:', channelsData)
     }
     
     // 2. 채널 Id로 해당 채널 데이터 가져오기
     console.log('채널 상세 데이터 조회 시작 - channelId:', id.value)
     channel.value = await channelApi.getChannelById(id.value)
     console.log('Channel detail data:', channel.value)
+    console.log('Channel collectedAt:', channel.value?.collectedAt)
+    console.log('Channel collectedAt type:', typeof channel.value?.collectedAt)
     
-    // 3. 리뷰 통계도 진입시 바로 fetch
+    // 3. 현재 채널이 전체 목록에 있는지 확인하고 없으면 추가
+    const currentChannelExists = channels.value.some(c => 
+      String(c.channelId) === String(id.value) || String(c.id) === String(id.value)
+    )
+    
+    if (!currentChannelExists && channel.value) {
+      console.log('현재 채널이 전체 목록에 없어서 추가합니다.')
+      // 현재 채널을 차트용 데이터 형식으로 변환하여 추가
+      const currentChannelForChart = {
+        channelId: channel.value.channelId || id.value,
+        id: channel.value.channelId || id.value,
+        channelName: channel.value.name,
+        avgViewCount: channel.value.avgViewCount || 0,
+        avgLikeCount: channel.value.avgLikeCount || 0,
+        avgCommentCount: channel.value.avgCommentCount || 0,
+        subscriberCount: channel.value.subscribers || 0,
+        category: channel.value.category,
+        description: channel.value.description
+      }
+      
+      channels.value = [currentChannelForChart, ...channels.value]
+      console.log('현재 채널 추가 완료. 총 채널 수:', channels.value.length)
+    } else {
+      console.log('현재 채널이 전체 목록에 이미 존재합니다.')
+    }
+    
+    // 첫 번째 채널의 구조 확인
+    if (channels.value.length > 0) {
+      console.log('첫 번째 채널 데이터 구조:', channels.value[0])
+      console.log('사용 가능한 필드들:', Object.keys(channels.value[0]))
+    }
+    
+    // 현재 채널이 목록에 있는지 최종 확인
+    const foundChannel = channels.value.find(c => 
+      String(c.channelId) === String(id.value) || String(c.id) === String(id.value)
+    )
+    console.log('현재 채널 검색 결과:', foundChannel ? '찾음' : '못찾음')
+    if (foundChannel) {
+      console.log('찾은 채널 데이터:', foundChannel)
+    }
+    
+    // 4. 리뷰 통계도 진입시 바로 fetch
+    console.log('리뷰 통계 조회 시작...')
     await fetchReviewStatsOnEnter()
     
-    // 4. 구독자 히스토리 데이터 가져오기
+    // 5. 구독자 히스토리 데이터 가져오기
+    console.log('구독자 히스토리 조회 시작...')
     await fetchSubscriberHistory()
+    
+    // 6. 차트 렌더링 확인
+    console.log('=== 차트 렌더링 조건 확인 ===')
+    console.log('id 존재:', !!id.value)
+    console.log('channels 길이:', channels.value.length)
+    console.log('차트 렌더링 조건:', id.value && channels.value.length > 0)
+    console.log('=== ChannelDetailPage onMounted 완료 ===')
+    
   } catch (err) {
     console.error('Error in onMounted:', err)
     error.value = err.message
@@ -303,6 +375,143 @@ function selectPeriod(p) {
 chartOptions.value.xaxis.categories = chartData.value[period.value].categories
 
 const tab = ref('intro')
+
+const showDataInfoTooltip = ref(false)
+
+function formatDataCollectionDate(dateStr) {
+  console.log('formatDataCollectionDate 호출됨:', dateStr, typeof dateStr)
+  
+  if (!dateStr) {
+    console.log('dateStr이 없음')
+    return '데이터 수집일 정보 없음'
+  }
+  
+  try {
+    let date
+    
+    // 이미 Date 객체인 경우
+    if (dateStr instanceof Date) {
+      date = dateStr
+    }
+    // 문자열인 경우 Date 객체로 변환
+    else if (typeof dateStr === 'string') {
+      date = new Date(dateStr)
+    }
+    // 숫자(timestamp)인 경우
+    else if (typeof dateStr === 'number') {
+      date = new Date(dateStr)
+    }
+    else {
+      console.log('알 수 없는 날짜 형식:', dateStr)
+      return '데이터 수집일 정보 없음'
+    }
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      console.log('유효하지 않은 날짜:', dateStr)
+      return '데이터 수집일 정보 없음'
+    }
+    
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    
+    const formattedDate = `${year}년 ${month}월 ${day}일`
+    console.log('포맷된 날짜:', formattedDate)
+    
+    return formattedDate
+  } catch (error) {
+    console.error('날짜 포맷팅 오류:', error)
+    return '데이터 수집일 정보 없음'
+  }
+}
+
+// 툴팁 외부 클릭 시 닫기
+function handleClickOutside(event) {
+  const tooltipContainer = event.target.closest('.info-icon-container')
+  if (!tooltipContainer) {
+    showDataInfoTooltip.value = false
+  }
+}
+
+// 국가 코드를 한국어로 변환하는 함수
+function formatCountry(countryCode) {
+  if (!countryCode) {
+    return '한국'
+  }
+  
+  const country = countryCode.toUpperCase()
+  
+  switch (country) {
+    case 'KR':
+      return '한국'
+    case 'US':
+      return '미국'
+    case 'JP':
+      return '일본'
+    case 'CN':
+      return '중국'
+    case 'GB':
+      return '영국'
+    case 'DE':
+      return '독일'
+    case 'FR':
+      return '프랑스'
+    case 'UNKNOWN':
+      return '한국'
+    default:
+      return '한국'
+  }
+}
+
+// 가입일을 YYYY년 MM월 DD일 형태로 포맷하는 함수
+function formatJoinDate(dateStr) {
+  if (!dateStr) {
+    return '가입일 정보 없음'
+  }
+  
+  try {
+    let date
+    
+    // 이미 Date 객체인 경우
+    if (dateStr instanceof Date) {
+      date = dateStr
+    }
+    // 문자열인 경우 Date 객체로 변환
+    else if (typeof dateStr === 'string') {
+      date = new Date(dateStr)
+    }
+    // 숫자(timestamp)인 경우
+    else if (typeof dateStr === 'number') {
+      date = new Date(dateStr)
+    }
+    else {
+      return '가입일 정보 없음'
+    }
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      return '가입일 정보 없음'
+    }
+    
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    
+    return `${year}년 ${month}월 ${day}일`
+  } catch (error) {
+    console.error('가입일 포맷팅 오류:', error)
+    return '가입일 정보 없음'
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 </script>
 
@@ -426,20 +635,6 @@ const tab = ref('intro')
   gap: 12px;
   margin-bottom: 4px;
   font-size: 1.25rem;
-}
-.ad-btn {
-  background: #8C30F5;
-  color: #fff;
-  font-weight: 500;
-  border: 1px solid #FFC107;
-  border-radius: 8px;
-  padding: 7px 28px;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-.ad-btn:hover{
-  background: #FFC107;
-  color: #8C30F5;
 }
 .channel-category{
   background-color: #fffeff ;
@@ -675,6 +870,9 @@ const tab = ref('intro')
   color: #0d0d0d;
   margin-bottom: 18px;
   padding-left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .video-stats-list {
   display: flex;
@@ -855,5 +1053,75 @@ const tab = ref('intro')
 .youtube-link:hover {
   opacity: 0.8;
   transition: opacity 0.2s;
+}
+.info-icon-container {
+  position: relative;
+  display: inline-block;
+}
+.info-icon {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.info-icon:hover {
+  transform: scale(1.1);
+}
+.data-info-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  border: 2px solid #8C30F5;
+  border-radius: 12px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0 8px 24px rgba(140, 48, 245, 0.15);
+  z-index: 1000;
+  margin-top: 8px;
+  animation: fadeInUp 0.3s ease;
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+.tooltip-content {
+  text-align: center;
+}
+.tooltip-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #8C30F5;
+  margin-bottom: 8px;
+}
+.tooltip-text {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.tooltip-note {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+.tooltip-arrow {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #8C30F5;
 }
 </style> 

@@ -33,8 +33,9 @@ public class ChannelController {
         private final SubscriberHistoryService subscriberHistoryService;
 
         /**
-         * 채널 조회 (검색 필터 포함)
+         * 채널 조회 (검색 필터 포함) - LinkiScore 기준 정렬
          * 키워드, 카테고리, 구독자 수, 평균 조회수 등의 필터를 적용하여 채널을 검색
+         * HomeRecommendationController와 동일한 LinkiScore 로직을 사용하여 정렬
          * 
          * @param keyword         검색 키워드 (선택)
          * @param category        카테고리 (선택)
@@ -42,9 +43,11 @@ public class ChannelController {
          * @param maxSubscribers  최대 구독자 수 (기본값: Long.MAX_VALUE)
          * @param minAvgViewCount 최소 평균 조회수 (기본값: 0)
          * @param maxAvgViewCount 최대 평균 조회수 (기본값: Long.MAX_VALUE)
+         * @param sortBy          정렬 기준 (subscriberCount, avgViewCount 등, 선택)
+         * @param sortDirection   정렬 방향 (desc, asc, 기본값: desc)
          * @param page            페이지 번호 (기본값: 0)
          * @param limit           페이지 크기 (기본값: 10)
-         * @return 필터링된 채널 목록과 페이지네이션 정보
+         * @return LinkiScore 기준으로 정렬된 채널 목록과 페이지네이션 정보
          */
         @GetMapping("/nonuser/channels")
         public ResponseEntity<ChannelPageResponse> getChannels(
@@ -54,10 +57,62 @@ public class ChannelController {
                         @RequestParam(defaultValue = "9223372036854775807") long maxSubscribers,
                         @RequestParam(defaultValue = "0") long minAvgViewCount,
                         @RequestParam(defaultValue = "9223372036854775807") long maxAvgViewCount,
+                        @RequestParam(required = false) String sortBy,
+                        @RequestParam(defaultValue = "desc") String sortDirection,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "10") int limit) {
 
-                log.info("채널 검색 요청: keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
+                log.info("채널 검색 요청 (LinkiScore 기준): keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
+                                "minAvgViewCount={}, maxAvgViewCount={}, sortBy={}, sortDirection={}, page={}, limit={}",
+                                keyword, category, minSubscribers, maxSubscribers,
+                                minAvgViewCount, maxAvgViewCount, sortBy, sortDirection, page, limit);
+
+                // Request DTO 생성
+                ChannelSearchRequest request = ChannelSearchRequest.builder()
+                                .keyword(keyword)
+                                .category(category)
+                                .minSubscribers(minSubscribers)
+                                .maxSubscribers(maxSubscribers)
+                                .minAvgViewCount(minAvgViewCount)
+                                .maxAvgViewCount(maxAvgViewCount)
+                                .sortBy(sortBy)
+                                .sortDirection(sortDirection)
+                                .page(page)
+                                .limit(limit)
+                                .build();
+
+                // Service 호출하여 LinkiScore 기반 채널 검색 (기본 정렬 방식 변경)
+                ChannelPageResponse channelPageResponse = channelService.searchChannelsByLinkiScore(request);
+
+                return ResponseEntity.ok(channelPageResponse);
+        }
+
+        /**
+         * 원본 테이블 순서로 채널 조회 (검색 필터 포함)
+         * LinkiScore 정렬이 아닌 원본 데이터베이스 테이블 순서로 조회
+         * 
+         * @param keyword         검색 키워드 (선택)
+         * @param category        카테고리 (선택)
+         * @param minSubscribers  최소 구독자 수 (기본값: 0)
+         * @param maxSubscribers  최대 구독자 수 (기본값: Long.MAX_VALUE)
+         * @param minAvgViewCount 최소 평균 조회수 (기본값: 0)
+         * @param maxAvgViewCount 최대 평균 조회수 (기본값: Long.MAX_VALUE)
+         * @param page            페이지 번호 (기본값: 0)
+         * @param limit           페이지 크기 (기본값: 10)
+         * @return 원본 테이블 순서의 채널 목록과 페이지네이션 정보
+         */
+        @GetMapping("/nonuser/channels/original")
+        public ResponseEntity<ChannelPageResponse> getChannelsOriginal(
+                        @RequestParam(required = false) String keyword,
+                        @RequestParam(required = false) String category,
+                        @RequestParam(defaultValue = "0") long minSubscribers,
+                        @RequestParam(defaultValue = "9223372036854775807") long maxSubscribers,
+                        @RequestParam(defaultValue = "0") long minAvgViewCount,
+                        @RequestParam(defaultValue = "9223372036854775807") long maxAvgViewCount,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+
+                log.info("채널 검색 요청 (원본 순서): keyword={}, category={}, minSubscribers={}, maxSubscribers={}, " +
                                 "minAvgViewCount={}, maxAvgViewCount={}, page={}, limit={}",
                                 keyword, category, minSubscribers, maxSubscribers,
                                 minAvgViewCount, maxAvgViewCount, page, limit);
@@ -74,7 +129,7 @@ public class ChannelController {
                                 .limit(limit)
                                 .build();
 
-                // Service 호출하여 채널 검색
+                // Service 호출하여 원본 순서 채널 검색
                 ChannelPageResponse channelPageResponse = channelService.searchChannels(request);
 
                 return ResponseEntity.ok(channelPageResponse);
@@ -89,17 +144,10 @@ public class ChannelController {
          */
         @GetMapping("/user/channels/{channelId}")
         public ResponseEntity<ChannelDetailResponse> getChannelDetail(@PathVariable String channelId) {
+                log.info("채널 상세 정보 조회 요청 - channelId: {}", channelId);
 
-                try {
-                        ChannelDetailResponse channelDetail = channelService.getChannelDetail(channelId);
-                        return ResponseEntity.ok(channelDetail);
-                } catch (RuntimeException e) {
-                        log.error("채널 상세 정보 조회 실패 - channelId: {}, error: {}", channelId, e.getMessage());
-                        return ResponseEntity.notFound().build();
-                } catch (Exception e) {
-                        log.error("채널 상세 정보 조회 중 예상치 못한 오류 발생 - channelId: {}", channelId, e);
-                        return ResponseEntity.status(500).build();
-                }
+                ChannelDetailResponse channelDetail = channelService.getChannelDetail(channelId);
+                return ResponseEntity.ok(channelDetail);
         }
 
         /**
@@ -110,17 +158,18 @@ public class ChannelController {
          * @return 구독자 히스토리 목록
          */
         @GetMapping("/user/channels/{channelId}/subscriber-history")
-        public ResponseEntity<List<SubscriberHistoryResponse>> getChannelSubscriberHistory(
+        public ResponseEntity<List<SubscriberHistoryResponse>> getSubscriberHistory(
                         @PathVariable String channelId,
-                        @RequestParam(defaultValue = "30") Integer days) {
+                        @RequestParam(defaultValue = "30") int days) {
 
                 log.info("구독자 히스토리 조회 요청 - channelId: {}, days: {}", channelId, days);
 
-                // Service 호출하여 구독자 히스토리 조회
-                List<SubscriberHistoryDto> historyDtos = subscriberHistoryService.getSubscriberHistory(channelId, days);
+                // 서비스에 요청!
+                List<SubscriberHistoryDto> historyDtoList = subscriberHistoryService
+                                .getSubscriberHistory(channelId, days);
 
                 // DTO를 Response로 변환
-                List<SubscriberHistoryResponse> responses = historyDtos.stream()
+                List<SubscriberHistoryResponse> historyResponseList = historyDtoList.stream()
                                 .map(dto -> SubscriberHistoryResponse.builder()
                                                 .id(dto.getId())
                                                 .channelId(dto.getChannelId())
@@ -129,9 +178,7 @@ public class ChannelController {
                                                 .build())
                                 .collect(Collectors.toList());
 
-                log.info("구독자 히스토리 조회 완료 - channelId: {}, 반환된 데이터 수: {}", channelId, responses.size());
-
-                return ResponseEntity.ok(responses);
+                return ResponseEntity.ok(historyResponseList);
         }
 
         /**

@@ -153,9 +153,9 @@ const handleLogin = async () => {
 
         // 백엔드 role을 프론트엔드 userType으로 매핑
         let userType = 'general'
-        if (userRole === 'ROLE_INFLUENCER') {
+        if (userRole.toUpperCase() === 'ROLE_INFLUENCER') {
           userType = 'influencer'
-        } else if (userRole === 'ROLE_ADVERTISER') {
+        } else if (userRole.toUpperCase() === 'ROLE_ADVERTISER') {
           userType = 'advertiser'
         }
 
@@ -166,11 +166,14 @@ const handleLogin = async () => {
         localStorage.setItem('token', accessToken)
 
         // 콘솔에 사용자 정보 출력
-        console.log('로그인 성공!')
-        // console.log('User ID:', userId)
-        // console.log('User Role:', userRole)
-        // console.log('User Type:', userType)
-        // console.log('Account Store User Role:', accountStore.getUser?.userRole)
+        console.log('=== 로그인 성공 디버깅 ===')
+        console.log('User ID:', userId)
+        console.log('User Role:', userRole)
+        console.log('User Type:', userType)
+        console.log('Account Store User Role:', accountStore.getUser?.userRole)
+        console.log('Account Store User Type:', accountStore.getUserType)
+        console.log('Is Influencer:', accountStore.isInfluencer)
+        console.log('Is Advertiser:', accountStore.isAdvertiser)
 
         // 홈 페이지로 리다이렉트
         router.push('/home')

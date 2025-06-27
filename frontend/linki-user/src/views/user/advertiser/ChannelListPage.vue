@@ -1,5 +1,8 @@
 <template>
   <div class="channel-list-page">
+    <!-- 개발용 테스터 컴포넌트 운영 시 주석처리하기 -->
+<!--    <ChannelAccessTester />-->
+    
     <div class="channel-list-header">
       <button class="search-option-btn" @click="modalOpen = true">
         <svg class="search-option-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -13,6 +16,20 @@
         :selected-category-prop="getCurrentDisplayCategory()"
       />
     </div>
+
+    <!-- 일반회원 접근 제한 안내 -->
+    <div v-if="showAccessInfo" class="access-info-banner" :class="accessInfoClass">
+      <div class="access-info-content">
+        <span class="access-info-icon">{{ accessInfoIcon }}</span>
+        <span class="access-info-text">
+          {{ accessInfo.message }}
+        </span>
+        <span v-if="accessInfo.remainingCount === 0" class="access-info-upgrade">
+          더 많은 기능을 이용하시려면 회원 등급을 업그레이드해주세요.
+        </span>
+      </div>
+    </div>
+
     <SearchOptionModal 
       v-if="modalOpen" 
       @close="modalOpen = false" 
@@ -21,7 +38,8 @@
       :init-subscriber-min="getSubscriberMinForModal()"
       :init-subscriber-max="getSubscriberMaxForModal()"
       :init-subscriber-checks="getSubscriberChecksForModal()"
-      :init-view-direct="getViewDirectForModal()"
+      :init-view-min="getViewMinForModal()"
+      :init-view-max="getViewMaxForModal()"
       :init-view-checks="getViewChecksForModal()"
     />
 
@@ -30,8 +48,18 @@
         <div class="th th-profile">프로필</div>
         <div class="th th-detail">채널 상세</div>
         <div class="th th-category">카테고리</div>
-        <div class="th th-subscribers">구독자 수</div>
-        <div class="th th-views">평균 조회수</div>
+        <div class="th th-subscribers clickable" @click="sortByColumn('subscriberCount')">
+          구독자 수
+          <span v-if="sortBy === 'subscriberCount'" class="sort-arrow">
+            {{ sortDirection === 'desc' ? '↓' : '↑' }}
+          </span>
+        </div>
+        <div class="th th-views clickable" @click="sortByColumn('avgViewCount')">
+          평균 조회수
+          <span v-if="sortBy === 'avgViewCount'" class="sort-arrow">
+            {{ sortDirection === 'desc' ? '↓' : '↑' }}
+          </span>
+        </div>
         <div class="th th-analysis">분석</div>
       </div>
       <div v-for="(item, idx) in pagedListData" :key="idx" class="table-row">
@@ -64,10 +92,17 @@
         <div class="td td-category">
           <span class="badge-category">{{ getCategoryDisplayName(item.category) }}</span>
         </div>
-        <div class="td td-subscribers">{{ item.subscriberCount }}</div>
-        <div class="td td-views">{{ item.avgViewCount }}</div>
+        <div class="td td-subscribers">{{ formatNumber(item.subscriberCount) }}</div>
+        <div class="td td-views">{{ formatNumber(item.avgViewCount) }}</div>
         <div class="td td-analysis">
-          <button class="analysis-btn" @click="goToDetail(item.channelId)">상세 분석</button>
+          <button 
+            class="analysis-btn" 
+            :class="{ 'disabled': !accessInfo.canAccess }"
+            :disabled="!accessInfo.canAccess" 
+            @click="goToDetail(item.channelId)"
+          >
+            {{ !accessInfo.canAccess ? '제한됨' : '상세 분석' }}
+          </button>
         </div>
       </div>
     </div>
@@ -130,6 +165,8 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAccountStore } from '@/stores/account'
+import { useChannelAccessStore } from '@/stores/channelAccess'
 import SearchBar from '@/components/search/SearchBar.vue'
 import SearchOptionModal from '@/components/search/SearchOptionModal.vue'
 import channelApi from '@/api/advertiser/advertiser-channel'
@@ -137,6 +174,8 @@ import { reviewApi } from '@/api/advertiser/advertiser-review'
 
 const router = useRouter()
 const route = useRoute()
+const accountStore = useAccountStore()
+const channelAccessStore = useChannelAccessStore()
 const modalOpen = ref(false)
 const page = ref(1) // 현재 페이지 번호
 const itemsPerPage = 10 // 페이지당 보여지는 채널 개수
@@ -147,6 +186,10 @@ const selectedCategories = ref([]) // 선택된 카테고리 저장할 배열
 const searchKeyword = ref('') // 검색 키워드 저장
 const currentFilters = ref({}) // 현재 적용된 필터 저장
 const currentDisplayCategory = ref('전체') // SearchBar에 표시할 현재 카테고리
+
+// 정렬 관련 상태
+const sortBy = ref('')
+const sortDirection = ref('desc')
 
 // 영어 -> 한국어 카테고리 매핑 (백엔드 응답 표시용)
 const categoryDisplayMapping = {
@@ -309,9 +352,16 @@ function changePage(newPage) {
 
 // 전체 채널 데이터 추출
 async function fetchChannels(pageNumber = 1, keyword = null, filters = {}) {
-  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1, keyword, filters })
+  console.log('fetchChannels 호출:', { pageNumber, backendPage: pageNumber - 1, keyword, filters, sortBy: sortBy.value, sortDirection: sortDirection.value })
   try {
-    const result = await channelApi.getAllChannels(pageNumber - 1, 10, keyword, filters) // 백엔드는 0부터 시작
+    const result = await channelApi.getAllChannels(
+      pageNumber - 1, 
+      10, 
+      keyword, 
+      filters, 
+      sortBy.value || null, 
+      sortDirection.value
+    ) // 백엔드는 0부터 시작
     console.log('전체 채널 API 응답:', result)
     listData.value = result
     
@@ -382,9 +432,42 @@ const searchBtnHover = ref(false)
 function handleSearchBtnMouseEnter() { searchBtnHover.value = true } // 검색 버튼 호버 효과
 function handleSearchBtnMouseLeave() { searchBtnHover.value = false }
 
-// 채널 상세 페이지로 이동
+// 접근 제한 관련 computed
+const accessInfo = computed(() => {
+  return channelAccessStore.canAccessChannelDetail
+})
+
+const showAccessInfo = computed(() => {
+  return accountStore.isRegularUser && accountStore.isLoggedIn
+})
+
+const accessInfoClass = computed(() => {
+  return {
+    'warning': accessInfo.value.remainingCount > 0 && accessInfo.value.remainingCount <= 2,
+    'danger': accessInfo.value.remainingCount === 0
+  }
+})
+
+const accessInfoIcon = computed(() => {
+  if (accessInfo.value.remainingCount === 0) return '🚫'
+  if (accessInfo.value.remainingCount <= 2) return '⚠️'
+  return 'ℹ️'
+})
+
+// 채널 상세 페이지로 이동 (Pinia store 기반 접근 제한)
 const goToDetail = (channelId) => {
-  router.push(`/channels/${channelId}`)
+  console.log('상세분석 버튼 클릭:', channelId)
+  
+  const accessResult = channelAccessStore.attemptChannelAccess()
+  
+  if (accessResult.success) {
+    console.log('채널 상세 페이지 접근 허용')
+    // 쿼리 파라미터로 리스트에서 온 것을 표시
+    router.push(`/channels/${channelId}?from=list`)
+  } else {
+    console.log('채널 상세 페이지 접근 차단')
+    alert(accessResult.message)
+  }
 }
 
 // 페이지 번호 배열 생성
@@ -499,9 +582,14 @@ function getSubscriberChecksForModal() {
   return currentFilters.value.originalModalData?.subscriberChecks || [true, false, false, false, false, false, false, false, false]
 }
 
-// 현재 모달에 초기화할 뷰 직접 반환
-function getViewDirectForModal() {
-  return currentFilters.value.originalModalData?.viewDirect || ''
+// 현재 모달에 초기화할 뷰 최소값 반환
+function getViewMinForModal() {
+  return currentFilters.value.originalModalData?.viewMin || ''
+}
+
+// 현재 모달에 초기화할 뷰 최대값 반환
+function getViewMaxForModal() {
+  return currentFilters.value.originalModalData?.viewMax || ''
 }
 
 // 현재 모달에 초기화할 뷰 체크 배열 반환
@@ -513,9 +601,44 @@ function getViewChecksForModal() {
 function getCurrentDisplayCategory() {
   return currentDisplayCategory.value
 }
+
+// 정렬 기능
+function sortByColumn(column) {
+  console.log('정렬 요청:', column)
+  
+  // 같은 컬럼을 다시 클릭하면 방향 변경, 다른 컬럼을 클릭하면 내림차순으로 초기화
+  if (sortBy.value === column) {
+    sortDirection.value = sortDirection.value === 'desc' ? 'asc' : 'desc'
+  } else {
+    sortBy.value = column
+    sortDirection.value = 'desc' // 새로운 컬럼은 항상 내림차순부터 시작
+  }
+  
+  page.value = 1 // 정렬 시 첫 페이지로 이동
+  
+  console.log('정렬 상태 업데이트:', { sortBy: sortBy.value, sortDirection: sortDirection.value })
+  
+  // 채널 데이터 다시 가져오기
+  fetchChannels(1, searchKeyword.value, currentFilters.value)
+}
+
+// 숫자 포맷팅 함수
+function formatNumber(number) {
+  if (number == null || number === undefined) {
+    return '-'
+  }
+  if (number === 0) {
+    return '0'
+  }
+  return number.toLocaleString()
+}
 </script>
 
 <style scoped>
+.channel-list-page {
+  padding: 20px;
+}
+
 .channel-list-header {
   display: flex;
   align-items: center;
@@ -524,6 +647,7 @@ function getCurrentDisplayCategory() {
   padding: 20px;
   justify-content: center;
 }
+
 .search-option-btn {
   display: inline-flex;
   align-items: center;
@@ -541,15 +665,36 @@ function getCurrentDisplayCategory() {
   box-shadow: 0 2px 8px rgba(140,48,245,0.06);
   min-width: 0;
 }
+
 .search-option-btn:hover, .search-option-btn:focus {
   background: #fff;
   color: #8C30F5;
   border: 1.5px solid #8C30F5;
   box-shadow: 0 4px 16px rgba(140,48,245,0.10);
 }
+
 .search-option-icon {
   margin-right: 8px;
   transition: fill 0.2s;
+}
+
+/* 정렬 가능한 헤더 스타일 */
+.clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.clickable:hover {
+  background-color: rgba(140, 48, 245, 0.1);
+  color: #8C30F5;
+}
+
+.sort-arrow {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #8C30F5;
+  font-weight: bold;
 }
 
 /***** 테이블 헤더 *****/
@@ -665,6 +810,17 @@ function getCurrentDisplayCategory() {
 .analysis-btn:hover {
   background: #8C30F5;
 }
+.analysis-btn.disabled,
+.analysis-btn:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.analysis-btn.disabled:hover,
+.analysis-btn:disabled:hover {
+  background: #ccc;
+}
 
 /***** 페이징 *****/
 .pagination {
@@ -733,5 +889,58 @@ function getCurrentDisplayCategory() {
   font-weight: 600;
   margin-right: 6px;
   line-height: 1.6;
+}
+
+/* 일반회원 접근 제한 안내 */
+.access-info-banner {
+  background: #E3F2FD;
+  border: 1px solid #90CAF9;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.access-info-banner.warning {
+  background: #FFF3E0;
+  border-color: #FFB74D;
+}
+
+.access-info-banner.danger {
+  background: #FFEBEE;
+  border-color: #E57373;
+}
+
+.access-info-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.access-info-icon {
+  font-size: 20px;
+  color: #1976D2;
+}
+
+.access-info-banner.warning .access-info-icon {
+  color: #F57C00;
+}
+
+.access-info-banner.danger .access-info-icon {
+  color: #D32F2F;
+}
+
+.access-info-text {
+  font-size: 16px;
+  color: #23262F;
+  font-weight: 500;
+}
+
+.access-info-upgrade {
+  font-size: 14px;
+  color: #D32F2F;
+  font-weight: 600;
+  margin-left: auto;
 }
 </style> 

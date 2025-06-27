@@ -12,4 +12,7 @@ public interface AdvertiserReviewsService {
     List<AdvertiserReviewDTO> searchAllAdvertiserReviews(AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO);
     String exportExcel();
 
+
+    AdvertiserReviewKeysetResponseDTO getAllAdvertiserReviewsWithKeyset(String cursor, int size);
+    AdvertiserReviewKeysetResponseDTO searchAllAdvertiserReviewsWithKeyset(AdvertiserReviewSearchRequestDTO advertiserReviewSearchRequestDTO, String cursor, int size);
 }

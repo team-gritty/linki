@@ -11,18 +11,30 @@ spring:
   jwt:
     secret: ${secret-HS256}
 
-    spring:
-      jackson:
-        property-naming-strategy: SNAKE_CASE
+  # object storage 파일 업로드 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB # 단일 파일 최대 크기
+      max-request-size: 10MB # 전체 요청 최대 크기
+      enabled: true
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
+  kafka:
+    bootstrap-servers: localhost:9092
 
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+        retries: 3
 
+custom:
+  kafka-setting:
+    topic:
+     chat : chat
 
-
-
-
-
-
-
-
+    group:
+      chat: chat-service

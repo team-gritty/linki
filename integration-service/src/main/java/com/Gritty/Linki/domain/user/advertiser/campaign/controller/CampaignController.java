@@ -6,6 +6,8 @@ import com.Gritty.Linki.domain.user.advertiser.campaign.request.CampaignRequest;
 import com.Gritty.Linki.domain.user.advertiser.campaign.response.CampaignResponse;
 import com.Gritty.Linki.domain.user.advertiser.campaign.service.CampaignService;
 import com.Gritty.Linki.util.AuthenticationUtil;
+import com.Gritty.Linki.util.ObjectStorage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,8 @@ public class CampaignController {
 
     private final CampaignService campaignService;
     private final AuthenticationUtil authenticationUtil;
+    private final ObjectStorage objectStorage;
+    private final ObjectMapper objectMapper;
 
     /**
      * 광고주 마이페이지 모든 캠페인 조회
@@ -76,13 +80,75 @@ public class CampaignController {
     }
 
     /**
-     * 광고주 새로운 캠페인 등록
+     * 광고주 새로운 캠페인 등록 (이미지 파일 포함)
      *
-     * @param user    JWT 토큰에서 추출된 사용자 정보
-     * @param request 캠페인 등록 요청 데이터
+     * @param user          JWT 토큰에서 추출된 사용자 정보
+     * @param campaignImage 캠페인 이미지 파일
+     * @param campaignData  캠페인 등록 요청 데이터 (JSON 문자열)
      * @return
      */
-    @PostMapping
+    @PostMapping(consumes = { "multipart/form-data" })
+    public ResponseEntity<CampaignResponse> createCampaignWithImage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "campaignImage", required = false) MultipartFile campaignImage,
+            @RequestParam("campaignData") String campaignData) {
+
+        try {
+            log.info("캠페인 등록 요청 - 사용자: {}, 이미지 파일: {}", user.getUserId(),
+                    campaignImage != null ? campaignImage.getOriginalFilename() : "없음");
+
+            // JSON 문자열을 CampaignRequest 객체로 변환
+            CampaignRequest request = objectMapper.readValue(campaignData, CampaignRequest.class);
+
+
+           String imageUrl = "";
+                try {
+                    // ObjectStorage에 이미지 업로드
+                  imageUrl = objectStorage.uploadFile(campaignImage);
+                    log.info("이미지 업로드 성공: {}", imageUrl);
+                } catch (Exception e) {
+                    log.error("이미지 업로드 실패: {}", e.getMessage());
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(null);
+                }
+
+
+            // Request를 DTO로 변환하고 이미지 URL 설정
+            CampaignDto campaignDto = CampaignDto.builder()
+                    .campaignName(request.getCampaignName())
+                    .campaignDesc(request.getCampaignDesc())
+                    .campaignCondition(request.getCampaignCondition())
+                    .campaignImg(imageUrl)
+                    .campaignDeadline(request.getCampaignDeadline())
+                    .campaignPublishStatus(request.getCampaignPublishStatus())
+                    .campaignCategory(request.getCampaignCategory())
+                    .build();
+
+            // 서비스 호출 - advertiserId를 전달
+            String advertiserId = authenticationUtil.getAdvertiserIdFromUserDetails(user);
+            CampaignDto createdCampaign = campaignService.createCampaign(campaignDto, advertiserId);
+
+            // DTO를 Response로 변환
+            CampaignResponse response = dtoToResponse(createdCampaign);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (Exception e) {
+            log.error("캠페인 등록 중 오류 발생", e);
+            log.error("오류 메시지: {}", e.getMessage());
+            log.error("오류 클래스: {}", e.getClass().getSimpleName());
+            if (e.getCause() != null) {
+                log.error("원인: {}", e.getCause().getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * 기존의 JSON 기반 캠페인 등록 (Base64 이미지용)
+     * 기존 코드와의 호환성을 위해 유지
+     */
+    @PostMapping(consumes = { "application/json" })
     public ResponseEntity<CampaignResponse> createCampaign(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CampaignRequest request) {

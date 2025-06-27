@@ -30,7 +30,9 @@ public class YouTubeChannelCollectService {
     private final YouTubeApiService youTubeApiService;
     private final ChannelSearchRepository channelRepository;
     private final InfluencerRepository influencerRepository;
-    private final AtomicInteger counter = new AtomicInteger(0);
+
+    // 인플루언서 ID 카운터를 초기화할 때 현재 채널 개수를 기준으로 인플러언서 ID를 설정하도록
+    private AtomicInteger influencerIdCounter;
 
     /**
      * 키워드와 카테고리 기반으로 YouTube 채널을 검색하고 테이블에 insert수집하기
@@ -40,6 +42,9 @@ public class YouTubeChannelCollectService {
                 keyword, category, maxResults);
 
         try {
+            // 인플루언서 ID 카운터 초기화 (현재 채널 개수를 기준으로)
+            initializeInfluencerIdCounter();
+
             // 1. YouTube API를 통해 채널 검색
             List<String> channelIds = youTubeApiService.searchChannels(keyword, maxResults);
 
@@ -73,6 +78,58 @@ public class YouTubeChannelCollectService {
     }
 
     /**
+     * 인플루언서 ID 카운터 초기화
+     * 현재 채널 테이블의 개수를 조회하여 다음 인플루언서 ID를 설정
+     */
+    private void initializeInfluencerIdCounter() {
+        if (influencerIdCounter == null) {
+            // 현재 채널 테이블의 총 개수 조회
+            long currentChannelCount = channelRepository.count();
+
+            // 인플루언서 ID 범위는 0-499 (500개)
+            // 현재 채널 개수가 500을 넘으면 0부터 다시 시작하되, 이미 사용된 ID는 건너뛰기
+            int startingId = (int) (currentChannelCount % 500);
+
+            influencerIdCounter = new AtomicInteger(startingId);
+
+            log.info("인플루언서 ID 카운터 초기화 완료: currentChannelCount={}, startingId={}",
+                    currentChannelCount, startingId);
+        }
+    }
+
+    /**
+     * 다음 사용 가능한 인플루언서 ID 생성
+     * 이미 채널이 할당된 인플루언서 ID는 건너뛰기
+     */
+    private String getNextAvailableInfluencerId() {
+        int maxAttempts = 500; // 무한루프 방지
+        int attempts = 0;
+
+        while (attempts < maxAttempts) {
+            int currentId = influencerIdCounter.getAndIncrement() % 500;
+            String influencerId = String.format("INF-%016d", currentId);
+
+            // 해당 인플루언서 ID가 이미 채널을 가지고 있는지 확인
+            boolean hasChannel = channelRepository.existsByInfluencerInfluencerId(influencerId);
+
+            if (!hasChannel) {
+                // 인플루언서가 존재하는지 확인
+                if (influencerRepository.existsById(influencerId)) {
+                    log.debug("사용 가능한 인플루언서 ID 찾음: {}", influencerId);
+                    return influencerId;
+                } else {
+                    log.warn("인플루언서가 존재하지 않음: {}", influencerId);
+                }
+            }
+
+            attempts++;
+        }
+
+        throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
+                "사용 가능한 인플루언서 ID를 찾을 수 없습니다. 모든 인플루언서가 이미 채널을 가지고 있습니다.");
+    }
+
+    /**
      * 개별 채널을 안전하게 저장하기 (별도 트랜잭션)
      */
     @Transactional
@@ -100,11 +157,10 @@ public class YouTubeChannelCollectService {
         YouTubeChannelDto.Snippet snippet = channelItem.getSnippet();
         YouTubeChannelDto.Statistics statistics = channelItem.getStatistics();
 
-        // 순차적으로 인플루언서 ID 할당 (INF-0000000000000000 형식으로 변경)
-        // 인플루언서가 이미 플랫폼에 가입했다고 가정하고 유튜브로 부터 데이터 수집하는 것이기 때문에 더미데이터의 influencer id를 채널
-        // 테이블에 넣어주기
-        int currentCount = counter.getAndIncrement() % 500;
-        String influencerId = String.format("INF-%016d", currentCount);
+        // 사용 가능한 인플루언서 ID 할당 (중복 방지)
+        // 각 인플루언서는 하나의 채널만 가질 수 있도록 제한
+        // 인플루언서 ID 범위: INF-0000000000000000 ~ INF-0000000000000499
+        String influencerId = getNextAvailableInfluencerId();
 
         // 인플루언서 조회 시도 (인플루언서 respository 사용)
         // influencer id 찾아 더미데이터로 들어간 인플루언서의 채널을 넣기위해
@@ -114,6 +170,29 @@ public class YouTubeChannelCollectService {
                     return new BusinessException(ErrorCode.ENTITY_NOT_FOUND,
                             "인플루언서를 찾을 수 없습니다: " + influencerId);
                 });
+
+        // 좋아요/댓글 통계 변수 초기화
+        long avgLikeCount = 0L;
+        long avgCommentCount = 0L;
+
+        try {
+            log.info("채널 수집 시점에 좋아요/댓글 통계 계산 시작 - channelId: {}", channelItem.getId());
+
+            // YouTube API를 통해 평균 좋아요/댓글 수 계산 (최근 30개 영상 기준)
+            long[] averages = youTubeApiService.getChannelVideoAverages(channelItem.getId(), 30);
+
+            avgLikeCount = averages[0];
+            avgCommentCount = averages[1];
+
+            log.info("채널 통계 계산 완료 - channelId: {}, avgLikes: {}, avgComments: {}",
+                    channelItem.getId(), avgLikeCount, avgCommentCount);
+
+        } catch (Exception e) {
+            log.warn("채널 수집 시 통계 계산 실패, 기본값 사용 - channelId: {}, error: {}", channelItem.getId(), e.getMessage());
+            // 통계 계산 실패 시 기본값 0 사용
+            avgLikeCount = 0L;
+            avgCommentCount = 0L;
+        }
 
         try {
             return Channel.builder()
@@ -129,8 +208,8 @@ public class YouTubeChannelCollectService {
                     .videoCount(parseInt(statistics.getVideoCount()))
                     .viewCount(parseLong(statistics.getViewCount()))
                     .channelCreatedAt(parseDateTime(snippet.getPublishedAt()))
-                    .likeCount(0L)
-                    .commentCount(0L)
+                    .likeCount(avgLikeCount)
+                    .commentCount(avgCommentCount)
                     .influencer(influencer)
                     .collectedAt(LocalDateTime.now())
                     .build();

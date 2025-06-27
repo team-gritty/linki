@@ -8,6 +8,7 @@ import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpa
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
 import com.Gritty.Linki.entity.*;
+import com.Gritty.Linki.repository.InfluencerRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +28,8 @@ public class ChatClientServiceImpl implements ChatClientService {
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
     private final ChannelJpaRepository channelJpaRepository;
+    private final InfluencerRepository influencerRepository;
+
 
     private final ModelMapper modelMapper;
 
@@ -42,18 +45,19 @@ public class ChatClientServiceImpl implements ChatClientService {
             User partnerUser = userRepository.findById(advertiser.getUserId()).orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다. "));
             return PartnerInfoDto.builder()
                     .partnerId(partnerUser.getUserId())
-                    .partnerName(partnerUser.getUserLoginId())
+                    .partnerName(partnerUser.getUserName())
                     .proposalId(proposalId)
-                    .negoStatus(getNegoStatust(proposalId))
                     .build();
         }
         else {
             User partnerUser = userRepository.findById(((InfluencerDto) partner).getUserId()).orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다. "));
+            Influencer influencer = influencerRepository.findById(((InfluencerDto) partner).getInfluencerId()).orElseThrow(()->new RuntimeException("존재하지 않는 인플루언서 "));
             return PartnerInfoDto.builder()
                     .partnerId(partnerUser.getUserId())
-                    .partnerName(partnerUser.getUserLoginId())
+                    .partnerName(partnerUser.getUserName())
                     .proposalId(proposalId)
-                    .negoStatus(getNegoStatust(proposalId))
+                    .channelName(channelJpaRepository.findFirstByInfluencerInfluencerId(influencer.getInfluencerId()).getChannelName())
+                    .profileImage(influencer.getInfluencerImg())
                     .build();
         }
     }

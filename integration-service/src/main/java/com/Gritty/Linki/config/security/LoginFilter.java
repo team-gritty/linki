@@ -71,15 +71,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 () -> new UsernameNotFoundException("User " + customUserDetails.getUsername() + "가 존재하지 않습니다.")
         );
 
-        //프로그램상 권한 하나만 있음
-        String role = authResult.getAuthorities()
-                .stream()
-                .findFirst()
-                .map(GrantedAuthority::getAuthority)
-                .orElseThrow(RuntimeException::new);
+        // 데이터베이스에서 직접 userRole 가져오기 (JWT 토큰에 정확한 role 포함하기 위해)
+        String userRole = userRepository.findByUserLoginId(customUserDetails.getUsername())
+                .map(user -> user.getUserRole())
+                .orElseThrow(() -> new UsernameNotFoundException("User role not found"));
 
-        String accesstoken = jwtUtil.createJwtToken(userId,role,60*60*10L);
-        String refreshToken = jwtUtil.createJwtToken(userId,role, 7*24*60*60*1000L);
+        log.info("JWT 토큰 생성 - userId: {}, userRole: {}", userId, userRole);
+
+        String accesstoken = jwtUtil.createJwtToken(userId, userRole, 60*60*10L);
+        String refreshToken = jwtUtil.createJwtToken(userId, userRole, 7*24*60*60*1000L);
 
         // Save refresh token to database
         RefreshToken tokenEntity = new RefreshToken();
@@ -100,7 +100,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // ✅ JSON 응답 바디 작성
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        String json = String.format("{\"accessToken\":\"%s\", \"userId\":\"%s\", \"role\":\"%s\"}", accesstoken, userId, role);
+        String json = String.format("{\"accessToken\":\"%s\", \"userId\":\"%s\", \"role\":\"%s\"}", accesstoken, userId, userRole);
         response.getWriter().write(json);
     }
 

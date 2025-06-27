@@ -109,7 +109,7 @@ instance.interceptors.response.use(
 );
 
 // HTTP 요청 설정 생성
-const generateConfig = () => {
+const generateConfig = (data) => {
     const accountStore = useAccountStore();
     
     const config = {
@@ -118,6 +118,12 @@ const generateConfig = () => {
 
     if (accountStore.accessToken) {
         config.headers.authorization = `Bearer ${accountStore.accessToken}`;
+    }
+
+    // FormData인 경우 Content-Type을 삭제하여 브라우저가 자동으로 boundary 설정하도록 함
+    if (data instanceof FormData) {
+        // FormData의 경우 Content-Type을 명시적으로 설정하지 않음 (브라우저가 자동 설정)
+        config.headers['Content-Type'] = undefined;
     }
 
     return config;
@@ -154,7 +160,7 @@ const httpClient = {
      */
     post(url, data, config = {}) {
         return instance.post(url, data, {
-            ...generateConfig(),
+            ...generateConfig(data),
             ...config
         });
     },
@@ -167,7 +173,7 @@ const httpClient = {
      */
     put(url, data, config = {}) {
         return instance.put(url, data, {
-            ...generateConfig(),
+            ...generateConfig(data),
             ...config
         });
     },
@@ -192,7 +198,7 @@ const httpClient = {
      */
     patch(url, data, config = {}) {
         return instance.patch(url, data, {
-            ...generateConfig(),
+            ...generateConfig(data),
             ...config
         });
     }

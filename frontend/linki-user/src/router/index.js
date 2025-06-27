@@ -88,6 +88,11 @@ const router = createRouter({
       component: UserMyPage
     },
     {
+      path: '/mypage/register',
+      name: 'user-register',
+      component: UserMyPage
+    },
+    {
       path: '/mypage/influencer',
       name: 'influencer-mypage',
       component: InfluencerMyPage
@@ -124,7 +129,11 @@ const router = createRouter({
       name: 'advertiser-contracts',
       component: AdvertiserMyPage
     },
-
+    {
+      path: '/mypage/advertiser/subscription',
+      name: 'advertiser-subscription',
+      component: AdvertiserMyPage
+    },
     {
       path: '/contract/:contractId',
       name: 'contract-detail',
@@ -155,6 +164,11 @@ const router = createRouter({
       path: '/fail',
       name: 'payment-fail',
       component: () => import('@/views/common/Fail.vue')
+    },
+    {
+      path: '/google-callback',
+      name: 'GoogleCallback',
+      component: () => import('@/views/common/GoogleCallback.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

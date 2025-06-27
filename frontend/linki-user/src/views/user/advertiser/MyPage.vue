@@ -22,7 +22,6 @@
       />
       <DetailContract
         v-if="selectedContract && (currentMenu === 'contract.ongoing' || currentMenu === 'contract.completed')"
-        :contract="selectedContract"
         @back="handleBackToList"
       />
       
@@ -65,6 +64,8 @@ function getMenuFromRoute(routeName) {
       return 'campaign.list'
     case 'campaign-register':
       return 'campaign.register'
+    case 'advertiser-subscription':
+      return 'subscription.apply'
     case 'ContractList':
       return 'contract.list'
     // Add more mappings as needed
@@ -84,6 +85,8 @@ function onContractsLoaded(data) {
 function handleShowDetail(contract) {
   selectedContract.value = contract
 }
+
+
 
 function handleBackToList() {
   selectedContract.value = null

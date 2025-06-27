@@ -6,22 +6,26 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
 @Log4j2
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@TestPropertySource(properties = {
+    "spring.cache.type=none",
+    "spring.data.redis.host=localhost",
+    "spring.data.redis.port=6379"
+})
 public class DashBoardTests {
 
     @Autowired
     private DashboardService dashboardService;
 
+
     @Test
     public void testDashboard() {
-        DashboardResponseDTO dto
-                = dashboardService.dashboard();
-
-        log.info("Dashboard Test");
-        log.info(dto.toString());
+        DashboardResponseDTO dashboard = dashboardService.dashboard();
+        log.info("dashboard: {}", dashboard);
     }
 }

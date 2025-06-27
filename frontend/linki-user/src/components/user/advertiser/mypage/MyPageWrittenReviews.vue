@@ -6,22 +6,25 @@
         <p>작성한 리뷰가 없습니다.</p>
       </div>
       <div v-else class="reviews-list">
-        <div v-for="review in reviews" :key="review.advertiserReviewId || review.id" class="review-item">
+        <div v-for="review in reviews" :key="review.reviewId" class="review-item">
           <div class="review-header">
             <div class="review-info">
-              <span class="contract-id">계약 ID: {{ review.contractId }}</span>
-              <span class="review-date">{{ formatDate(review.createdAt || review.advertiserReviewCreatedAt) }}</span>
+              <span class="contract-title">{{ review.contractTitle }}</span>
+              <span class="review-date">작성 날짜: {{ formatDate(review.reviewCreatedAt) }}</span>
+              <span class="contract-period">
+                계약 기간: {{ formatDate(review.contractStartDate) }} ~ {{ formatDate(review.contractEndDate) }}
+              </span>
             </div>
             <div class="review-score">
               <span class="score-label">평점</span>
               <div class="score-display">
-                <span class="score-value">{{ review.score ?? review.advertiserReviewScore }}</span>
+                <span class="score-value">{{ review.reviewScore }}</span>
                 <div class="stars">
                   <span
                     v-for="index in 5"
                     :key="index"
                     class="star"
-                    :class="{ 'filled': index <= Math.round(review.score ?? review.advertiserReviewScore) }"
+                    :class="{ 'filled': index <= Math.round(review.reviewScore) }"
                   >
                     ★
                   </span>
@@ -30,7 +33,7 @@
             </div>
           </div>
           <div class="review-content">
-            <p class="review-comment">{{ review.comment ?? review.advertiserReviewComment }}</p>
+            <p class="review-comment">{{ review.reviewComment }}</p>
           </div>
           <div class="review-visibility">
             <span :class="['visibility-badge', review.visibility ? 'visible' : 'hidden']">
@@ -133,10 +136,15 @@ onMounted(() => {
   gap: 8px;
 }
 
-.contract-id {
+.contract-title {
   font-size: 15px;
   color: #1a1a1a;
   font-weight: 500;
+}
+
+.contract-period {
+  font-size: 13px;
+  color: #999;
 }
 
 .review-date {

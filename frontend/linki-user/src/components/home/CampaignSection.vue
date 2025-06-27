@@ -22,13 +22,13 @@ const autoSlideInterval = ref(null)
 const CARD_WIDTH = 240;
 const CARD_GAP = 24;
 
-// 현재 페이지에 표시될 상품들
-const displayedProducts = computed(() => {
+// 현재 페이지에 표시될 캠페인들
+const displayedCampaigns = computed(() => {
   const start = slideOffset.value
-  const products = campaignProducts.value.slice(start, start + itemsPerPage)
-  return products.map((product, index) => ({
-    ...product,
-    displayId: `${product.campaignId}-${index}`
+  const campaigns = campaignProducts.value.slice(start, start + itemsPerPage)
+  return campaigns.map((campaign, index) => ({
+    ...campaign,
+    displayId: `${campaign.campaignId}-${index}`
   }))
 })
 
@@ -98,13 +98,29 @@ const calculateTimeLeft = (deadline) => {
   const deadlineDate = new Date(deadline)
   const diff = deadlineDate - now
   
+  if (diff <= 0) {
+    return '마감'
+  }
+  
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   if (days > 0) {
     return `${days}일 남음`
   }
   
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  return `${hours}시간 남음`
+  if (hours > 0) {
+    return `${hours}시간 남음`
+  }
+  
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  return `${minutes}분 남음`
+}
+
+const handleCampaignClick = (campaign) => {
+  console.log('Campaign clicked:', campaign)
+  console.log('Campaign ID:', campaign.campaignId)
+  console.log('Navigating to:', `/campaign/${campaign.campaignId}`)
+  router.push(`/campaign/${campaign.campaignId}`)
 }
 
 onMounted(async () => {
@@ -178,26 +194,18 @@ onUnmounted(() => {
       </div>
       
       <div class="slider-viewport" @mouseenter="stopAutoSlide" @mouseleave="startAutoSlide" style="min-height: 370px; margin-top: 30px;">
-        <div class="product-grid">
-          <div v-for="product in displayedProducts" 
-               :key="product.displayId" 
-               class="product-card"
-               :style="{ backgroundImage: `url(${product.campaignImg})` }"
-               @click="router.push(`/campaign/${product.campaignId}`)"
+        <div class="campaign-grid">
+          <div v-for="campaign in displayedCampaigns" 
+               :key="campaign.displayId" 
+               class="campaign-card"
+               :style="{ backgroundImage: `url(${campaign.campaignImg})` }"
+               @click="handleCampaignClick(campaign)"
                style="cursor: pointer;">
-            <span class="time-remaining">{{ product.timeLeft }}</span>
-            <div class="product-info">
-              <h4 class="product-name">{{ product.campaignName }}</h4>
-              <div class="rating">
-                <div class="stars-container">
-                  <div class="stars-bg">★★★★★</div>
-                  <div 
-                    class="stars-filled" 
-                    :style="{ width: `${(product.rating / 5) * 100}%` }"
-                  >★★★★★</div>
-                </div>
-                <span class="rating-score">{{ product.rating.toFixed(1) }}</span>
-                <span class="review-count">({{ product.reviews }})</span>
+            <span class="time-remaining">{{ campaign.timeLeft }}</span>
+            <div class="campaign-info">
+              <h4 class="campaign-name">{{ campaign.campaignName }}</h4>
+              <div class="campaign-condition">
+                <span class="condition-text">{{ campaign.campaignCondition }}</span>
               </div>
             </div>
           </div>

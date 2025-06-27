@@ -44,23 +44,54 @@ export default {
 
     const checkUserRoleAndRedirect = () => {
       const userType = accountStore.getUserType
+      const userRole = accountStore.getUser?.userRole
+      
+      console.log('=== 마이페이지 리다이렉트 디버깅 ===')
+      console.log('User Role:', userRole)
+      console.log('User Type:', userType)
+      console.log('Is Influencer:', accountStore.isInfluencer)
+      console.log('Is Advertiser:', accountStore.isAdvertiser)
+      console.log('Account Store User:', accountStore.getUser)
       
       if (userType === 'influencer') {
+        console.log('인플루언서로 리다이렉트')
         router.replace('/mypage/influencer')
       } else if (userType === 'advertiser') {
+        console.log('광고주로 리다이렉트')
         router.replace('/mypage/advertiser')
+      } else {
+        console.log('일반 사용자로 유지')
       }
       // 일반 사용자(ROLE_USER)인 경우에만 현재 페이지에 머무름
     }
 
+    const updateMenuFromRoute = () => {
+      if (route.name === 'user-register') {
+        currentMenu.value = 'profile.channel'
+      }
+    }
+
     onMounted(() => {
       checkUserRoleAndRedirect()
+      updateMenuFromRoute()
       updateMenuFromQuery()
+    })
+
+    watch(() => route.name, () => {
+      updateMenuFromRoute()
     })
 
     watch(() => route.query.currentMenu, (newVal) => {
       if (newVal) {
         currentMenu.value = newVal.toString()
+      }
+    })
+
+    // code 파라미터 변경 감지 추가
+    watch(() => route.query.code, (newVal) => {
+      if (newVal) {
+        // 코드가 있으면 채널 변경 탭으로 이동
+        currentMenu.value = 'profile.channel'
       }
     })
     

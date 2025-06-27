@@ -7,17 +7,15 @@ import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import com.ssg.chatservice.domain.chat.enums.ErrorCode;
 import com.ssg.chatservice.domain.chat.enums.NegoStatus;
 import com.ssg.chatservice.domain.chat.repository.ChatRepository;
+import com.ssg.chatservice.domain.kafka.enums.EventType;
 import com.ssg.chatservice.domain.message.dto.ChatMessageDTO;
 import com.ssg.chatservice.domain.message.service.MessageService;
 import com.ssg.chatservice.entity.Chat;
-import com.ssg.chatservice.entity.Message;
 import com.ssg.chatservice.exception.ChatException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -38,13 +36,15 @@ public class ChatServiceImpl implements ChatService{
 
     //제안서아이디로  채팅방 조회
     public Chat findByProposalId(String proposalId){
-        return chatRepository.findByProposalId(proposalId);
+        return chatRepository.findByProposalId(proposalId)
+                .orElseThrow(()->new ChatException(ErrorCode.CHATROOM_NOT_FOUND));
     }
 
     //제안서 아이디로 ChatDetailDTO 반환
+    //채팅방 입장
     @Override
     public ChatDetailDTO getChatDtoByProposalId(String token,String proposalId){
-        //제안서 아이디로 채팅방 조회 (Optional 예외처리)
+        //제안서 아이디로 채팅방 조회
         Chat chat = findByProposalId(proposalId);
         //feign client : partner Info 조회
         PartnerInfoResponse partner = chatApiClient.getPartnerInfo(token, chat.getProposalId());
@@ -52,15 +52,20 @@ public class ChatServiceImpl implements ChatService{
             throw new ChatException(ErrorCode.PARTNER_API_FAILED);
         }
 
-        return ChatDetailDTO.builder()
+        ChatDetailDTO chatDetailDTO = ChatDetailDTO.builder()
                 .chatId(chat.getChatId())
                 .chatStatus(chat.getChatStatus())
                 .proposalId(chat.getProposalId())
                 .partnerId(partner.getPartnerId())
                 .partnerName(partner.getPartnerName())
-                .negoStatus(NegoStatus.valueOf(partner.getNegoStatus()))
+                .channelName(partner.getChannelName())
+                .profileImage(partner.getProfileImage())
+                .negoStatus(chat.getNegoStatus())
                 .profileImage(partner.getProfileImage())
                 .build();
+
+        if (chatDetailDTO.getChatStatus() != ChatStatus.DELETE) return chatDetailDTO;
+        else return chatDetailDTO;
     }
 
     //채팅방 생성
@@ -68,13 +73,13 @@ public class ChatServiceImpl implements ChatService{
     @Transactional
     public ChatDTO createRoom(String proposalId) {
         //DB에서 제안서 아이디를 기준으로 채팅방 조회
-        Chat chat = findByProposalId(proposalId);
+        Optional<Chat> existingChat = chatRepository.findByProposalId(proposalId);
         //이미 존재하는 채팅방이면 예외처리
-        if(chat != null){
+        if(existingChat.isPresent()){
             throw new ChatException(ErrorCode.CHATROOM_ALREADY_EXIST);
         }
         // 비활성 상태의 채팅방 생성하여 DB에 저장
-        chat = Chat.builder()
+        Chat chat = Chat.builder()
                 .chatDate(Instant.now())
                 .chatStatus(ChatStatus.PENDING)
                 .proposalId(proposalId)
@@ -90,7 +95,9 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public List<ChatDTO> campaignToChatList (String token, String campaignId){
         List<ChatInfoResponse> chatInfos = campaignToChatInfo(token, campaignId);
-        List<Chat> chats = chatInfoGetChat(chatInfos);
+        //삭제된 채팅방 필터링
+        List<Chat> chats = chatInfoGetChat(chatInfos).stream().filter(chat ->
+                chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
         return chatDTOs(chats,chatInfos,lastMessages);
@@ -98,11 +105,12 @@ public class ChatServiceImpl implements ChatService{
 
     //로그인 유저의 채팅 목록 조회 (유저 아이디로 채팅방 조회)
     @Override
-    public List<ChatDTO> userToChatList (String token){
+    public List<ChatDTO> userToChatList (String token, String userId){
         List<ChatInfoResponse> chatInfos = userChatinfo(token);
-        List<Chat> chats = chatInfoGetChat(chatInfos);
-        //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
-        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
+        List<Chat> chats = chatInfoGetChat(chatInfos).stream()
+                .filter(chat->chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
+        //마지막 메세지 및 읽지 않은 메시지 여부 조회 (사용자별)
+        Map<String, ChatMessageDTO> lastMessages = messageService.lastMessageWithUnreadStatus(chats, userId);
         
         List<ChatDTO> finalChatDtos = chatDTOs(chats,chatInfos,lastMessages);
         log.info("Final ChatDTOs to be sent to frontend: {}", finalChatDtos);
@@ -151,7 +159,7 @@ public class ChatServiceImpl implements ChatService{
                     .opponentName(chatInfo.getOpponentName())
                     .lastMessage(lastMessage.getContent())
                     .lastMessageTime(lastMessage.getMessageDate())
-                    .isNew(lastMessage.isMessageRead())
+                    .isNew(!lastMessage.isMessageRead())  // 읽지 않은 메시지가 있으면 새 메시지
                     .proposalId(chat.getProposalId())
                     .campaignId(chatInfo.getCampaignId()) // Map에서 가져온 chatInfo 객체 사용
                     .build();
@@ -184,11 +192,27 @@ public class ChatServiceImpl implements ChatService{
         return chatRepository.save(chat);
     }
 
+    @Override
+    //제안서에 해당하는 채팅방 비활성
+    public Chat inactiveChat(String proposalId){
+        Chat chat = findByProposalId(proposalId);
+        chat.setChatStatus(ChatStatus.INACTIVE);
+        return chatRepository.save(chat);
+    }
+
 
     @Override
     //유저 아이디로 채팅정보 조회
     public List<ChatInfoResponse> userChatinfo(String token){
        return chatApiClient.getUserChatInfo(token);
+    }
+
+    @Override
+    //이벤트 수신 후 계약상태 변경
+    public void updateNegoStatus(String proposalId, EventType eventType) {
+        ChatDetailDTO chat = modelMapper.map(findByProposalId(proposalId), ChatDetailDTO.class);
+        NegoStatus newStatus = eventType.getNegoStatus();
+        chat.setNegoStatus(newStatus);
     }
 
 
