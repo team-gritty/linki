@@ -28,6 +28,19 @@ CREATE TABLE `influencer` (
     `influencer_img` LONGTEXT NULL COMMENT '인플루언서 프로필 사진'
 );
 
+DROP TABLE IF EXISTS linki_score;
+
+CREATE TABLE linki_score
+(
+    score_id VARCHAR(25) primary key ,
+    cost_per_click DECIMAL(10, 2),
+    daily_traffic DECIMAL(10, 2),
+    average_review_score DECIMAL(10, 2),
+    contract_count DECIMAL(10, 2),
+    influencer_id VARCHAR(25)
+);
+
+
 DROP TABLE IF EXISTS settlement;
 
 CREATE TABLE `settlement` (
@@ -246,6 +259,7 @@ CREATE TABLE `channel` (
 	`influencer_id` varchar(25) NOT NULL COMMENT '인플루언서 식별 아이디'
 );
 
+
 drop table if exists subscriber_history;
 
 CREATE TABLE subscriber_history (
@@ -254,6 +268,7 @@ CREATE TABLE subscriber_history (
                                     subscriber_count BIGINT NOT NULL COMMENT '구독자 수',
                                     collected_at DATETIME NOT NULL COMMENT '수집 일시'
 );
+
 
 DROP TABLE IF EXISTS redirect_click;
 
@@ -467,3 +482,7 @@ ALTER TABLE `admin` ADD CONSTRAINT `PK_ADMIN` PRIMARY KEY (
 ALTER TABLE admin MODIFY COLUMN admin_status ENUM('PENDING','AGREEMENT','REJECTED') NOT NULL DEFAULT 'PENDING';
 
 ALTER TABLE redirect_links DROP COLUMN short_url;
+
+ALTER TABLE `linki_score`
+    ADD CONSTRAINT fk_influencer_id
+        FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
