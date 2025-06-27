@@ -97,7 +97,6 @@ const router = createRouter({
       name: 'influencer-mypage',
       component: InfluencerMyPage
     },
-
     {
       path: '/mypage/advertiser',
       name: 'advertiser-mypage',
@@ -160,6 +159,11 @@ const router = createRouter({
       path: '/success',
       name: 'payment-success',
       component: () => import('../views/common/PaymentSuccess.vue')
+    },
+    {
+      path: '/fail',
+      name: 'payment-fail',
+      component: () => import('@/views/common/Fail.vue')
     },
     {
       path: '/google-callback',

@@ -1,7 +1,7 @@
 package com.ssg.paymentservice.feignClient;
 
 import com.ssg.paymentservice.dto.requestdto.AuthCardRequestDto;
-import com.ssg.paymentservice.dto.requestdto.BillingKeyResponseDto;
+import com.ssg.paymentservice.dto.responsedto.BillingKeyResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
