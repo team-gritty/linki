@@ -88,10 +88,16 @@ const router = createRouter({
       component: UserMyPage
     },
     {
+      path: '/mypage/register',
+      name: 'user-register',
+      component: UserMyPage
+    },
+    {
       path: '/mypage/influencer',
       name: 'influencer-mypage',
       component: InfluencerMyPage
     },
+
     {
       path: '/mypage/advertiser',
       name: 'advertiser-mypage',
@@ -122,6 +128,11 @@ const router = createRouter({
     {
       path: '/mypage/advertiser/contracts',
       name: 'advertiser-contracts',
+      component: AdvertiserMyPage
+    },
+    {
+      path: '/mypage/advertiser/subscription',
+      name: 'advertiser-subscription',
       component: AdvertiserMyPage
     },
     {

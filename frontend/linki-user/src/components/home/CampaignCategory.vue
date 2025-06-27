@@ -1,20 +1,20 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { homeAPI } from '@/api/home'
+import { campaignAPI } from '@/api/campaign'
 
 const router = useRouter()
 const categories = ref([])
 const loading = ref(false)
 const error = ref(null)
 
+// 카테고리 데이터 불러오기
 const fetchCategories = async () => {
   try {
     loading.value = true
-    // API 호출로 카테고리 데이터 가져오기
-    const response = await homeAPI.getCategories()
+    const response = await campaignAPI.getCategories()
     categories.value = response.map(category => ({
-      id: category.name.toUpperCase().replace('/', '_'),
+      id: category.id || category.name.toUpperCase().replace('/', '_'),
       name: category.name,
       icon: getCategoryIcon(category.name),
       active: false
@@ -30,17 +30,17 @@ const fetchCategories = async () => {
 // 카테고리별 아이콘 매핑 함수
 const getCategoryIcon = (categoryName) => {
   const iconMap = {
+    '패션': '👗',
     '뷰티': '💄',
-    '스포츠': '⚽',
-    '푸드/먹방': '🍽️',
+    '음식': '🍔',
     '엔터테인먼트': '🎬',
     '여행': '✈️',
     '음악': '🎵',
-    '전자기기': '📱',
-    'Vlog/라이프스타일': '🎥',
+    '전자제품': '💻',
+    '브이로그': '📹',
     '교육': '📚',
-    '동물/펫': '🐾',
-    '패션': '👗'
+    '동물': '🐶',
+    '스포츠': '⚽'
   }
   return iconMap[categoryName] || '📌'
 }
@@ -69,7 +69,9 @@ onMounted(async () => {
   <section class="category-section">
     <div class="section-header">
     </div>
-    <div class="category-slider">
+    <div v-if="loading" class="loading">로딩 중...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else class="category-slider">
       <transition-group name="category-fade" tag="div" class="category-grid">
         <div
           v-for="(category, idx) in categories"

@@ -1,0 +1,14 @@
+<!-- resources/templates/mail/proposal-status.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${post.title}">Linki 알림</title>
+</head>
+<body>
+<h2 th:text="${post.title}">[제목]</h2>
+<p th:text="${post.content}">[내용]</p>
+<p>작성자: <span th:text="${post.author}">Linki</span></p>
+<p>보낸 시각: <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+</body>
+</html>

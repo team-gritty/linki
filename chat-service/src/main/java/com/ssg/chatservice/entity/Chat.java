@@ -1,6 +1,7 @@
 package com.ssg.chatservice.entity;
 
 import com.ssg.chatservice.domain.chat.enums.ChatStatus;
+import com.ssg.chatservice.domain.chat.enums.NegoStatus;
 import com.ssg.chatservice.util.IdGenerator;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,6 +29,10 @@ public class Chat {
 
     @Column(nullable = false)
     private String proposalId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nego_status")
+    private NegoStatus negoStatus;
 
     //영속성 저장 시 지정된 아이디가 없으면 생성하여 저장, 있으면 입력값으로 저장
     @PrePersist

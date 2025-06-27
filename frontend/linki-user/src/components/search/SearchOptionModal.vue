@@ -41,8 +41,10 @@
         <div class="form-row">
           <div class="form-group full-width">
             <label class="section-label">평균 조회수</label>
-            <div class="view-direct-row">
-              <input type="number" placeholder="직접 입력" class="direct-input" v-model="viewDirect" />
+            <div class="subscriber-direct-row">
+              <input type="number" placeholder="최소" class="direct-input" v-model="viewMin" />
+              <span>~</span>
+              <input type="number" placeholder="최대" class="direct-input" v-model="viewMax" />
             </div>
             <div class="subscriber-options view-checkbox-row">
               <label v-for="(opt, i) in viewOptions" :key="i">
@@ -70,7 +72,8 @@ const props = defineProps({
   initSubscriberMin: String,
   initSubscriberMax: String,
   initViewChecks: Array,
-  initViewDirect: String
+  initViewMin: String,
+  initViewMax: String
 })
 
 const emit = defineEmits(['close', 'apply-filters'])
@@ -101,7 +104,8 @@ const subscriberChecks = ref(props.initSubscriberChecks ? [...props.initSubscrib
 const viewChecks = ref(props.initViewChecks ? [...props.initViewChecks] : [true, false, false, false, false, false])
 const subscriberMin = ref(props.initSubscriberMin || '')
 const subscriberMax = ref(props.initSubscriberMax || '')
-const viewDirect = ref(props.initViewDirect || '')
+const viewMin = ref(props.initViewMin || '')
+const viewMax = ref(props.initViewMax || '')
 const categories = [
   '패션', '뷰티', '푸드 / 먹방', '엔터테인먼트', '여행', '스포츠', '음악', '전자기기', 'Vlog/라이프스타일', '교육', '동물/펫'
 ]
@@ -175,9 +179,11 @@ function getSubscriberRange() {
 // 평균 조회수 범위 계산
 function getViewCountRange() {
   // 직접 입력 값이 있으면 우선 사용
-  if (viewDirect.value) {
-    const value = parseInt(viewDirect.value)
-    return { min: value, max: 999999999 } // 10억으로 제한
+  if (viewMin.value || viewMax.value) {
+    return {
+      min: viewMin.value ? parseInt(viewMin.value) : 0,
+      max: viewMax.value ? parseInt(viewMax.value) : 999999999 // 10억으로 제한
+    }
   }
   
   // 체크박스 선택 확인 - "전체"가 아닌 특정 범위가 선택된 경우만
@@ -203,7 +209,8 @@ function handleSearch() {
   console.log('selectedCategory:', selectedCategory.value)
   console.log('subscriberMin:', subscriberMin.value, typeof subscriberMin.value)
   console.log('subscriberMax:', subscriberMax.value, typeof subscriberMax.value)
-  console.log('viewDirect:', viewDirect.value, typeof viewDirect.value)
+  console.log('viewMin:', viewMin.value, typeof viewMin.value)
+  console.log('viewMax:', viewMax.value, typeof viewMax.value)
   console.log('subscriberChecks:', subscriberChecks.value)
   console.log('viewChecks:', viewChecks.value)
   
@@ -221,7 +228,8 @@ function handleSearch() {
       subscriberMin: subscriberMin.value,
       subscriberMax: subscriberMax.value,
       subscriberChecks: [...subscriberChecks.value],
-      viewDirect: viewDirect.value,
+      viewMin: viewMin.value,
+      viewMax: viewMax.value,
       viewChecks: [...viewChecks.value]
     }
   }
@@ -271,7 +279,8 @@ const clearAll = () => {
   viewChecks.value = [true, false, false, false, false, false]
   subscriberMin.value = ''
   subscriberMax.value = ''
-  viewDirect.value = ''
+  viewMin.value = ''
+  viewMax.value = ''
   selectedCategory.value = ''
 }
 </script>
@@ -342,7 +351,7 @@ const clearAll = () => {
   align-items: center;
   gap: 4px;
 }
-.view-direct-row {
+.subscriber-direct-row {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -391,12 +400,6 @@ const clearAll = () => {
 }
 .modal-search-btn:hover {
   background: #B18CFF;
-}
-.subscriber-direct-input {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 18px;
 }
 .direct-input {
   width: 120px;

@@ -42,5 +42,6 @@ public class AdvertiserRegisterServiceImpl implements AdvertiserRegisterService{
         accountRepository.save(user);
         
         log.info("광고주 등록 완료: userId={}, role={}", user.getUserId(), user.getUserRole());
+
     }
 }

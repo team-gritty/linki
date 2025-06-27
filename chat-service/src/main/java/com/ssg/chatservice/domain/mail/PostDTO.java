@@ -1,4 +1,4 @@
-package com.ssg.chatservice.util.mail;
+package com.ssg.chatservice.domain.mail;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

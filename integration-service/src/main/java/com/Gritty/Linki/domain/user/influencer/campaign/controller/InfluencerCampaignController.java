@@ -8,11 +8,13 @@ import com.Gritty.Linki.entity.User;
 import com.Gritty.Linki.vo.enums.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +33,24 @@ public class InfluencerCampaignController {
 
     }
 
+    // 캠페인 전체 조회 (페이지네이션)
+    @GetMapping("/v1/api/nonuser/campaigns/page")
+    public ResponseEntity<Page<CampaignListResponseDTO>> getAllCampaignsWithPagination(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        log.info("Pagination request - page: {}, size: {}, sortBy: {}, sortDir: {}", page, size, sortBy, sortDir);
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
+            Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<CampaignListResponseDTO> result = influencerCampaignService.getAllCampaignsWithPagination(pageable);
+        log.info("Pagination response - currentPage: {}, totalPages: {}, totalElements: {}", 
+                result.getNumber(), result.getTotalPages(), result.getTotalElements());
+        return ResponseEntity.ok(result);
+    }
+
     // 캠페인 상세 조회
     @GetMapping("/v1/api/nonuser/campaigns/{campaignId}")
     public ResponseEntity<CampaignDetailResponseDTO>getcampaignDetails(@PathVariable String campaignId){
@@ -42,6 +62,26 @@ public class InfluencerCampaignController {
     public ResponseEntity<List<CampaignListResponseDTO>> getCampaignsByCategories(@PathVariable("category") Category category){
         return ResponseEntity.ok(influencerCampaignService.getCampaignsByCategory(category));
 
+    }
+
+    // 카테고리별 캠페인 리스트 조회 (페이지네이션)
+    @GetMapping("/v1/api/nonuser/campaigns/categories/{category}/page")
+    public ResponseEntity<Page<CampaignListResponseDTO>> getCampaignsByCategoriesWithPagination(
+            @PathVariable("category") Category category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        log.info("Category pagination request - category: {}, page: {}, size: {}, sortBy: {}, sortDir: {}", 
+                category, page, size, sortBy, sortDir);
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
+            Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<CampaignListResponseDTO> result = influencerCampaignService.getCampaignsByCategoryWithPagination(category, pageable);
+        log.info("Category pagination response - currentPage: {}, totalPages: {}, totalElements: {}", 
+                result.getNumber(), result.getTotalPages(), result.getTotalElements());
+        return ResponseEntity.ok(result);
     }
 
     // 로그인 한 인플루언서의 4개탭 캠페인 상세 조회

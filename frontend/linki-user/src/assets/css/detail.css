@@ -1048,28 +1048,40 @@
     color: #666666;
   }
   
-  .nego-status-제안서-대기 {
+  /* 제안서 대기 상태 */
+  .nego-status-pending {
     background-color: #FFF3E0;
+    color: #e65100;
   }
   
-  .nego-status-제안서-승인 {
+  /* 제안서 승인 상태 */
+  .nego-status-accepted {
     background-color: #E8F5E9;
+    color: #2e7d32;
   }
   
-  .nego-status-협의중 {
-    background-color: #E3F2FD;
+  /* 제안서 거절 상태 */
+  .nego-status-rejected {
+    background-color: #ffebee;
+    color: #c62828;
   }
   
-  .nego-status-계약-서명대기 {
+  /* 계약 서명대기 상태 */
+  .nego-status-pending-sign {
     background-color: #F3E5F5;
+    color: #7b1fa2;
   }
   
-  .nego-status-계약-진행중 {
+  /* 계약 진행중 상태 */
+  .nego-status-ongoing {
     background-color: #E8EAF6;
+    color: #3f51b5;
   }
   
-  .nego-status-계약-완료 {
+  /* 계약 완료 상태 */
+  .nego-status-completed {
     background-color: #ECEFF1;
+    color: #0d7377;
   }
   
   .primary-button {
@@ -1177,9 +1189,32 @@
   .no-chat-selected {
     flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: #666;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .no-chat-icon {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 24px;
+  }
+
+  .no-chat-message h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px 0;
+  }
+
+  .no-chat-message p {
+    font-size: 1rem;
+    color: #888;
+    margin: 0;
+    line-height: 1.5;
   }
   
   .loading, .error {
@@ -1919,38 +1954,26 @@
   display: none;
 }
 
-/* 제안서 대기 상태 */
-.nego-status-제안서-대기 {
-  background-color: #FFF3E0;
-  color: #666666;
+/* 중복 제거됨 - 위쪽에 영어 기반 클래스로 통합 */
+
+/* 안읽은 메시지 스타일 */
+.unread-message {
+  position: relative;
+  border-left: 4px solid #FF0050 !important;
+  background: #fffbf6 !important;
+  box-shadow: 0 2px 8px rgba(255, 0, 80, 0.1) !important;
 }
 
-/* 제안서 승인 상태 */
-.nego-status-제안서-승인 {
-  background-color: #E8F5E9;
-  color: #666666;
+.unread-dot {
+  color: #FF0050;
+  font-size: 0.8rem;
+  margin-left: 6px;
+  font-weight: bold;
 }
 
-/* 협의중 상태 */
-.nego-status-협의중 {
-  background-color: #E3F2FD;
-  color: #666666;
-}
-
-/* 계약 서명대기 상태 */
-.nego-status-계약-서명대기 {
-  background-color: #F3E5F5;
-  color: #666666;
-}
-
-/* 계약 진행중 상태 */
-.nego-status-계약-진행중 {
-  background-color: #E8EAF6;
-  color: #666666;
-}
-
-/* 계약 완료 상태 */
-.nego-status-계약-완료 {
-  background-color: #ECEFF1;
-  color: #666666;
+.unread-indicator {
+  color: #FF0050;
+  font-size: 0.8rem;
+  margin-left: 6px;
+  font-weight: bold;
 }
