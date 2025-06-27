@@ -397,18 +397,24 @@ FROM (
 ) numbers
 WHERE seq < 5000;  -- 1000개의 리다이렉트 링크 * 5개의 클릭
 
--- 채팅방 데이터 생성 (수정된 제안서 기반)
-INSERT INTO `chat` (`chat_id`, `chat_date`, `chat_status`, `proposal_id`)
+-- 채팅방 데이터 생성
+INSERT INTO `chat` (
+    `chat_id`, `chat_date`, `chat_status`, `proposal_id`, `nego_status`
+)
 SELECT
-    CONCAT('CHT-', LPAD(CAST(SUBSTRING_INDEX(proposal_id, '-', -1) AS UNSIGNED), 16, '0')),
-    NOW(),
-    CASE status
+    CONCAT('CHT-', LPAD(CAST(SUBSTRING_INDEX(p.proposal_id, '-', -1) AS UNSIGNED), 16, '0')) AS chat_id,
+    NOW() AS chat_date,
+    CASE p.status
         WHEN 'ACCEPTED' THEN 'ACTIVE'
         ELSE 'PENDING'
-        END,
-    proposal_id
-FROM proposal
-WHERE CAST(SUBSTRING_INDEX(proposal_id, '-', -1) AS UNSIGNED) < 1000;
+        END AS chat_status,
+    p.proposal_id,
+    -- 계약 있으면 contract_status, 없으면 proposal.status
+    COALESCE(c.contract_status, p.status) AS nego_status
+FROM proposal p
+         LEFT JOIN contract c ON p.proposal_id = c.proposal_id
+WHERE CAST(SUBSTRING_INDEX(p.proposal_id, '-', -1) AS UNSIGNED) < 1000;
+
 -- 서명 데이터 생성
 INSERT INTO `signature` (`signature_id`, `signature_signer_name`, `signature_signed_at`, `signature_status`, `contract_id`)
 SELECT 

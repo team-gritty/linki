@@ -28,6 +28,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         //헤더 토큰 확인
         if(authorization == null || !authorization.startsWith("Bearer ")) {
+            // SSE 요청인 경우 쿼리 파라미터에서 토큰 확인
+            if(request.getRequestURI().contains("/sse/")) {
+                String queryToken = request.getParameter("token");
+                if(queryToken != null) {
+                    // 쿼리 파라미터 토큰으로 인증 처리
+                    processToken(queryToken, request, response, filterChain);
+                    return;
+                }
+            }
             log.info("인증헤더 없어");
             filterChain.doFilter(request, response);
             return;
@@ -35,7 +44,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         //베리어 제거
         String token = authorization.split(" ")[1];
-
+        processToken(token, request, response, filterChain);
+    }
+    
+    private void processToken(String token, HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         if (jwtUtil.isTokenExpired(token)) {
             log.info("토큰 만료");
             filterChain.doFilter(request, response);

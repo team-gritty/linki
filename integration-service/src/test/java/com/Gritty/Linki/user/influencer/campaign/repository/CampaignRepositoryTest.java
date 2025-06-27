@@ -1,27 +1,35 @@
 package com.Gritty.Linki.user.influencer.campaign.repository;
 
 import com.Gritty.Linki.domain.user.influencer.campaign.repository.jpa.InfluencerCampaignRepository;
+import com.Gritty.Linki.domain.user.influencer.responseDTO.home.EndingTodayCampaignResponseDTO;
 import com.Gritty.Linki.entity.Campaign;
 import com.Gritty.Linki.vo.enums.Category;
 import jakarta.persistence.EntityManager;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)// 실제 DB 사용시
+@Log4j2
 public class CampaignRepositoryTest {
 
     @Autowired
     private InfluencerCampaignRepository campaignRepository;
     @Autowired
     private EntityManager em;
+    @Autowired
+    private InfluencerCampaignRepository influencerCampaignRepository;
 
     @Test
     void getAllCampaigns() {
@@ -35,7 +43,7 @@ public class CampaignRepositoryTest {
     }
 
     @Test
-    void getCampaignDetails(){
+    void getCampaignDetails() {
         // given
         String campaignId = "CAMP0001";
 
@@ -55,7 +63,7 @@ public class CampaignRepositoryTest {
     }
 
     @Test
-    void testGetCampaignsByCategory(){
+    void testGetCampaignsByCategory() {
         // given
         Category category = Category.BEAUTY;
 
@@ -65,20 +73,21 @@ public class CampaignRepositoryTest {
         // then
         assertThat(beauties).isNotNull()
                 .isNotEmpty()
-                .allMatch(c->c.getCampaignCategory() == category);
+                .allMatch(c -> c.getCampaignCategory() == category);
         beauties.forEach(
-                c-> System.out.println("🎨 [" + c.getCampaignCategory() + "] " + c.getCampaignName()));
+                c -> System.out.println("🎨 [" + c.getCampaignCategory() + "] " + c.getCampaignName()));
 
 
     }
+
     @Test
-    void testFindCampaignByProposalId(){
+    void testFindCampaignByProposalId() {
         // given
         String proposalId = "PROP0002";
         String influencerId = "INF0001";
 
         // when
-        Optional<Campaign> opt = campaignRepository.findCampaignByProposalIdAndInfluencerId(proposalId,influencerId);
+        Optional<Campaign> opt = campaignRepository.findCampaignByProposalIdAndInfluencerId(proposalId, influencerId);
         assertThat(opt).as("proposalId=%s, influencerId=%s 로 조회", proposalId, influencerId)
                 .isPresent();
 
@@ -108,6 +117,24 @@ public class CampaignRepositoryTest {
                         && influencerId.equals(p.getInfluencer().getInfluencerId()));
 
 
+    }
 
+    @Test
+    void testFindTop5Campaigns() {
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = LocalDateTime.now().toLocalDate().atTime(java.time.LocalTime.MAX);
+
+        PageRequest pageRequest = PageRequest.of(0, 5); // 첫 페이지, 5개 조회
+        List<EndingTodayCampaignResponseDTO> result =
+                influencerCampaignRepository.findEndingTodayCampaigns(startOfDay, endOfDay, pageRequest);
+
+        assertNotNull(result);
+        assertTrue(result.size() <= 5);
+
+        for (EndingTodayCampaignResponseDTO dto : result) {
+            log.info(dto.getCampaignName() + " / 마감일: " + dto.getCampaignDeadline());
+            assertEquals(java.time.LocalDate.now(), dto.getCampaignDeadline().toLocalDate());
+        }
     }
 }
+

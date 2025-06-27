@@ -30,7 +30,7 @@ export const useChannelAccessStore = defineStore('channelAccess', {
      */
     isRegularUser: () => {
       const accountStore = useAccountStore()
-      return accountStore.user?.userRole === 'ROLE_USER'
+      return accountStore.user?.userRole?.toUpperCase() === 'ROLE_USER'
     },
 
     /**

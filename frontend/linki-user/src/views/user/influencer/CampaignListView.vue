@@ -216,7 +216,12 @@ const fetchCampaigns = async (additionalParams = {}) => {
     loading.value = true
     error.value = null
     
+    // additionalParams의 _page가 있으면 우선 사용, 없으면 currentPage.value 사용
+    const pageToFetch = additionalParams._page || currentPage.value
+    
     const params = {
+      _page: pageToFetch,
+      _limit: itemsPerPage,
       _sort: sortBy.value,
       _order: 'desc',
       ...additionalParams
@@ -226,34 +231,42 @@ const fetchCampaigns = async (additionalParams = {}) => {
       params.campaignCategory = selectedCategory.value
     }
 
-    console.log('Fetching with params:', params) // 디버깅용
+    console.log('Fetching with pagination params:', params) // 디버깅용
+    console.log('Current page state:', currentPage.value, 'Page to fetch:', pageToFetch) // 디버깅용
 
-    const response = await campaignAPI.getCampaigns(params)
-    console.log('Total campaigns from API:', response.campaigns.length) // 디버깅용
-    
-    // 인기 캠페인에 이미 표시된 캠페인들의 ID 목록
-    const popularCampaignIds = popularCampaigns.value.map(campaign => campaign.campaignId)
-    console.log('Popular campaign IDs:', popularCampaignIds) // 디버깅용
-    
-    // 인기 캠페인에 없는 캠페인들만 필터링
-    const filteredCampaigns = response.campaigns.filter(campaign => 
-      !popularCampaignIds.includes(campaign.campaignId)
-    )
-    console.log('Filtered campaigns (excluding popular):', filteredCampaigns.length) // 디버깅용
-    
-    // 전체 아이템 수 계산 (인기 캠페인 제외)
-    const totalFilteredItems = filteredCampaigns.length
-    totalPages.value = Math.ceil(totalFilteredItems / itemsPerPage)
-    console.log(`Total filtered items: ${totalFilteredItems}, Items per page: ${itemsPerPage}, Total pages: ${totalPages.value}`) // 디버깅용
-    
-    // 현재 페이지에 해당하는 캠페인만 추출
-    const startIndex = (currentPage.value - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    campaigns.value = filteredCampaigns.slice(startIndex, endIndex)
-    
-    console.log(`Showing page ${currentPage.value} of ${totalPages.value}`) // 디버깅용
-    console.log(`Start index: ${startIndex}, End index: ${endIndex}`) // 디버깅용
-    console.log('Fetched campaigns (current page):', campaigns.value.length) // 디버깅용
+    try {
+      // 먼저 페이지네이션 API 시도
+      const response = await campaignAPI.getCampaignsWithPagination(params)
+      console.log('Pagination response:', response) // 디버깅용
+      
+      campaigns.value = response.campaigns
+      totalPages.value = response.totalPages
+      
+      // 응답받은 currentPage로 현재 페이지 상태 업데이트
+      if (response.currentPage) {
+        currentPage.value = response.currentPage
+      }
+      
+      console.log(`Page ${response.currentPage} of ${response.totalPages} (state updated to: ${currentPage.value})`) // 디버깅용
+      console.log('Fetched campaigns:', campaigns.value.length) // 디버깅용
+    } catch (paginationError) {
+      console.warn('페이지네이션 API 실패, 기존 API 사용:', paginationError)
+      
+      // 페이지네이션 API 실패 시 기존 API 사용
+      const response = await campaignAPI.getCampaigns(params)
+      console.log('Fallback response:', response) // 디버깅용
+      
+      const allCampaigns = response.campaigns
+      
+      // 프론트엔드에서 페이지네이션 처리
+      const startIndex = (currentPage.value - 1) * itemsPerPage
+      const endIndex = startIndex + itemsPerPage
+      campaigns.value = allCampaigns.slice(startIndex, endIndex)
+      totalPages.value = Math.ceil(allCampaigns.length / itemsPerPage)
+      
+      console.log(`Fallback pagination: Page ${currentPage.value} of ${totalPages.value}`)
+      console.log('Fetched campaigns (fallback):', campaigns.value.length)
+    }
   } catch (err) {
     console.error('캠페인 목록 로딩 실패:', err)
     error.value = '캠페인 목록을 불러오는데 실패했습니다.'
@@ -290,7 +303,9 @@ const changePage = (page) => {
   console.log(`Changing to page: ${page}`) // 디버깅용
   
   // 현재 선택된 카테고리를 유지하면서 페이지 변경
-  const additionalParams = {}
+  const additionalParams = {
+    _page: page  // 명시적으로 페이지 번호 전달
+  }
   if (selectedCategory.value && selectedCategory.value !== '전체') {
     additionalParams.campaignCategory = selectedCategory.value
   }
@@ -379,11 +394,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ===== 컨테이너 & 레이아웃 ===== */
 .campaign-list {
   padding: 20px;
-  max-width: 1300px;
+  max-width: 1800px;
   margin: 0 auto;
   overflow-x: visible;
+  width: 100%;
 }
 
 .popular-section,
@@ -391,6 +408,21 @@ onMounted(() => {
   margin-bottom: 40px;
 }
 
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 25px 0;
+}
+
+.section-title {
+  margin: 25px 0;
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* ===== 로딩 & 에러 상태 ===== */
 .loading-state {
   text-align: center;
   padding: 40px;
@@ -407,8 +439,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
 }
 
 .error-message {
@@ -434,33 +470,20 @@ onMounted(() => {
   background: #6d28d9;
 }
 
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.sort-options select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #e5e7eb;
-}
-
+/* ===== 카테고리 탭 ===== */
 .category-tabs {
   display: flex;
   gap: 0px;
   overflow-x: auto;
   padding: 16px 0;
   margin: 0 0 32px 0;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   position: sticky;
   top: 0;
   min-width: 100%;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .category-tabs::-webkit-scrollbar {
   display: none;
 }
@@ -494,76 +517,98 @@ onMounted(() => {
   background-color: #6d28d9;
 }
 
-.section-title {
-  margin: 20px 0;
-  font-size: 1.5rem;
-  font-weight: bold;
+/* ===== 정렬 옵션 ===== */
+.sort-options select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
 }
 
+/* ===== 캠페인 그리드 & 카드 ===== */
 .campaign-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
   margin-bottom: 40px;
+  width: 100%;
 }
 
 .campaign-card {
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
   background: white;
+  min-height: 420px;
+  width: 100%;
 }
 
 .campaign-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .campaign-card img {
   width: 100%;
-  height: 200px;
+  height: 260px;
   object-fit: cover;
 }
 
 .campaign-info {
-  padding: 15px;
+  padding: 20px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .campaign-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+  font-size: 1.25rem;
   color: #111827;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: keep-all;
 }
 
 .campaign-info p {
-  margin: 0 0 12px 0;
+  margin: 0 0 15px 0;
   color: #6b7280;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.5;
+  flex-grow: 1;
+  word-break: keep-all;
 }
 
 .campaign-meta-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .campaign-category {
   display: inline-block;
   background: #f3f4f6;
   color: #374151;
-  border-radius: 8px;
-  padding: 4px 14px;
-  font-size: 15px;
-  font-weight: 700;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .deadline {
   color: #7c3aed;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
+/* ===== 페이지네이션 ===== */
 .pagination {
   display: flex;
   justify-content: center;
@@ -655,9 +700,125 @@ onMounted(() => {
   font-size: 14px;
 }
 
+/* ===== 반응형 디자인 ===== */
+@media (max-width: 1200px) {
+  .campaign-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+  
+  .campaign-card {
+    min-height: 400px;
+  }
+  
+  .campaign-card img {
+    height: 240px;
+  }
+  
+  .section-title {
+    font-size: 1.6rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .campaign-list {
+    padding: 15px 20px;
+  }
+  
   .campaign-grid {
     grid-template-columns: 1fr;
+    max-width: 500px;
+    gap: 20px;
+  }
+  
+  .campaign-card {
+    min-height: 350px;
+  }
+  
+  .campaign-card img {
+    height: 200px;
+  }
+  
+  .campaign-info {
+    height: 130px;
+    padding: 18px;
+  }
+  
+  .list-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    margin: 20px 0;
+  }
+  
+  .category-tabs {
+    padding: 12px 0;
+  }
+  
+  .category-tab {
+    font-size: 18px;
+    padding: 6px 16px;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .page-numbers {
+    margin: 0 5px;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    margin: 20px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .campaign-list {
+    padding: 15px;
+  }
+  
+  .campaign-grid {
+    gap: 15px;
+    max-width: 100%;
+  }
+  
+  .campaign-card {
+    min-height: 320px;
+  }
+  
+  .campaign-card img {
+    height: 180px;
+  }
+  
+  .campaign-info {
+    padding: 15px;
+    height: 120px;
+  }
+  
+  .campaign-info h3 {
+    font-size: 1.1rem;
+  }
+  
+  .campaign-info p {
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+    margin: 15px 0;
+  }
+  
+  .category-tab {
+    font-size: 16px;
+    padding: 5px 12px;
+  }
+  
+  .popular-section,
+  .all-campaigns-section {
+    margin-bottom: 30px;
   }
 }
 </style> 

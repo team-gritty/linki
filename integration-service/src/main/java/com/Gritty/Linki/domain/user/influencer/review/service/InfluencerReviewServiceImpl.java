@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -92,7 +93,20 @@ public class InfluencerReviewServiceImpl implements InfluencerReviewService {
         String influencerId = authenticationUtil.getInfluencerIdFromUserDetails(userDetails);
 
         // 2. 해당 인플루언서의 정산 완료된 계약 목록 조회
-        return contractRepository.findReviewableContractsByInfluencerId(influencerId);
+
+        List<ReviewableContractResponseDTO> list = contractRepository.findReviewableContractsByInfluencerId(influencerId).stream()
+                .filter(contract -> contract.getContractStatus().equals(ContractStatus.COMPLETED))
+                .filter(contract -> contract.getSettlementStatus().equals(SettlementStatus.COMPLETED))
+                .toList();
+
+        List<ReviewableContractResponseDTO> result = new ArrayList<>();
+
+        for (ReviewableContractResponseDTO review : list) {
+            if(!infAdvertiserReviewRepository.existsByContract_ContractId(review.getContractId())){
+                result.add(review);
+            }
+        }
+        return result;
     }
 
     @Override

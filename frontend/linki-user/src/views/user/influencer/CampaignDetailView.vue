@@ -15,7 +15,21 @@
     <!-- 캠페인 상세 정보 -->
     <div v-else-if="campaign" class="campaign-content">
       <div class="campaign-header">
-        <img :src="campaign.campaignImg" :alt="campaign.campaignName" class="campaign-image">
+        <div class="campaign-image-container">
+          <div v-if="campaign.campaignImg">
+            <img 
+              :src="campaign.campaignImg" 
+              :alt="campaign.campaignName" 
+              class="campaign-image"
+              @load="onImageLoad"
+              @error="onImageError"
+            >
+          </div>
+          <div v-else class="no-image">
+            <i class="fas fa-image"></i>
+            <p>이미지가 없습니다</p>
+          </div>
+        </div>
         <div class="campaign-info">
           <div class="campaign-meta">
             <span class="category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
@@ -109,28 +123,57 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { campaignAPI } from '@/api/campaign'
 import { reviewApi } from '@/api/review'
+import { useCampaignAccessStore } from '@/stores/campaignAccess'
 
 const route = useRoute()
 const router = useRouter()
 const campaign = ref(null)
 const loading = ref(false)
 const error = ref(null)
+const campaignAccessStore = useCampaignAccessStore()
 
 // 리뷰 관련 상태
 const reviews = ref([])
 const loadingReviews = ref(false)
 const reviewError = ref(null)
 
+// 접근 권한 체크
+const checkAccess = () => {
+  const accessResult = campaignAccessStore.attemptCampaignAccess()
+  
+  if (!accessResult.success) {
+    if (accessResult.reason === 'NOT_LOGGED_IN') {
+      alert(accessResult.message)
+      router.push('/login')
+      return false
+    } else if (accessResult.reason === 'LIMIT_EXCEEDED') {
+      alert(accessResult.message + '\n프리미엄 회원으로 업그레이드하면 무제한으로 이용하실 수 있습니다.')
+      router.back()
+      return false
+    }
+  } else {
+    // 접근 성공 시 남은 횟수 알림 (일반회원인 경우)
+    if (accessResult.reason === 'ACCESS_ALLOWED' && accessResult.remainingCount !== undefined) {
+      console.log(accessResult.message)
+    }
+  }
+  
+  return true
+}
+
 const fetchCampaignDetail = async () => {
   try {
     loading.value = true
     error.value = null
+    console.log('Fetching campaign detail for ID:', route.params.id)
     const data = await campaignAPI.getCampaignDetail(route.params.id)
+    console.log('Campaign detail API response:', data)
     campaign.value = data
     console.log('Campaign detail - Full data:', JSON.stringify(data, null, 2))
     console.log('Available keys:', Object.keys(data))
     console.log('CreatedAt:', data.createdAt, typeof data.createdAt)
     console.log('CampaignDeadline:', data.campaignDeadline, typeof data.campaignDeadline)
+    console.log('Campaign Image URL:', data.campaignImg)
     // 캠페인 정보를 가져온 후 광고주 리뷰를 가져옴
     if (data?.campaignId) {
       await fetchAdvertiserReviews()
@@ -236,13 +279,29 @@ const goBack = () => {
   router.back()
 }
 
+// 이미지 로드 관련 함수들
+const onImageLoad = () => {
+  console.log('이미지 로드 성공:', campaign.value?.campaignImg)
+}
+
+const onImageError = (event) => {
+  console.error('이미지 로드 실패:', campaign.value?.campaignImg)
+  console.error('Error event:', event)
+}
+
 onMounted(() => {
-  fetchCampaignDetail()
+  // 접근 권한 체크 후 캠페인 상세 정보 로드
+  if (checkAccess()) {
+    fetchCampaignDetail()
+  }
 })
 
 // route.params.id가 바뀔 때마다 캠페인 상세 재조회
 watch(() => route.params.id, () => {
-  fetchCampaignDetail()
+  // 접근 권한 체크 후 캠페인 상세 정보 로드
+  if (checkAccess()) {
+    fetchCampaignDetail()
+  }
 })
 </script>
 
@@ -303,11 +362,43 @@ watch(() => route.params.id, () => {
   margin-bottom: 40px;
 }
 
-.campaign-image {
+.campaign-image-container {
+  position: relative;
   width: 100%;
   height: 400px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.campaign-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 12px;
+  display: block;
+}
+
+.no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #f3f4f6;
+  border-radius: 12px;
+  color: #6b7280;
+}
+
+.no-image i {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.no-image p {
+  margin: 0;
+  font-size: 1rem;
 }
 
 .campaign-info {
@@ -459,7 +550,7 @@ watch(() => route.params.id, () => {
     grid-template-columns: 1fr;
   }
 
-  .campaign-image {
+  .campaign-image-container {
     height: 300px;
   }
 
