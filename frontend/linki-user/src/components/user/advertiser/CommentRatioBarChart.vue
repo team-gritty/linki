@@ -195,41 +195,65 @@ const series = computed(() => [
 ])
 
 // 차트 옵션 계산
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'bar',
-    height: 320,
-    toolbar: { show: false }
-  },
-  xaxis: {
-    categories: ['내 채널', '상위 50개 채널 평균'],
-    labels: {
-      style: {
-        fontSize: '12px',
-        fontWeight: 500
+const chartOptions = computed(() => {
+  // 데이터의 최대값 계산
+  const maxValue = Math.max(myChannelCommentRatio.value, overallCommentRatio.value)
+  
+  // y축 최대값을 더 작게 설정하여 그래프가 높게 보이도록
+  let yAxisMax
+  if (maxValue === 0) {
+    yAxisMax = 0.001 // 데이터가 없을 때 최소값
+  } else if (maxValue < 0.001) {
+    yAxisMax = maxValue * 2 // 매우 작은 값일 때는 2배
+  } else {
+    yAxisMax = maxValue * 1.2 // 일반적인 경우 20% 여유만 둠
+  }
+  
+  return {
+    chart: {
+      type: 'bar',
+      height: 320,
+      toolbar: { show: false }
+    },
+    xaxis: {
+      categories: ['내 채널', '상위 50개 채널 평균'],
+      labels: {
+        style: {
+          fontSize: '12px',
+          fontWeight: 500
+        }
+      }
+    },
+    yaxis: {
+      min: 0,
+      max: yAxisMax,
+      tickAmount: 8, // 틱 개수를 늘려서 y축을 더 촘촘하게
+      labels: { 
+        formatter: val => {
+          // 값이 매우 작을 때는 더 많은 소수점 표시
+          if (val < 0.001) {
+            return val.toFixed(5)
+          } else {
+            return val.toFixed(3)
+          }
+        }
+      }
+    },
+    colors: ['#6B46C1', '#9F7AEA'],
+    dataLabels: { enabled: false },
+    grid: { borderColor: '#eee' },
+    tooltip: {
+      y: { formatter: val => (val * 100).toFixed(3) + '%' }
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 5,
+        columnWidth: '40%',
+        distributed: true
       }
     }
-  },
-  yaxis: {
-    min: 0,
-    max: Math.max(Math.max(myChannelCommentRatio.value, overallCommentRatio.value) * 1.5, 0.01),
-    tickAmount: 5,
-    labels: { formatter: val => val.toFixed(3) }
-  },
-  colors: ['#6B46C1', '#9F7AEA'],
-  dataLabels: { enabled: false },
-  grid: { borderColor: '#eee' },
-  tooltip: {
-    y: { formatter: val => (val * 100).toFixed(3) + '%' }
-  },
-  plotOptions: {
-    bar: {
-      borderRadius: 5,
-      columnWidth: '40%',
-      distributed: true
-    }
   }
-}))
+})
 
 const chartKey = computed(() => `${props.channelId}-${myChannelCommentRatio.value}-${overallCommentRatio.value}`)
 
