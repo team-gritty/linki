@@ -20,7 +20,7 @@ public class BillingRegisteredHandlerImpl implements BillingRegisteredHandler {
     public void handle(BillingRegisteredEvent event) {
         //이벤트에서 유저 아이디 가져옴
         String userId = event.userId();
-        log.info("✅ [billing.registered] handling for userId={}", userId);
+        log.info("[billing.registered] handling for userId={}", userId);
 
         //존재하면
         userSubscribeRepository.findById(userId).ifPresentOrElse(

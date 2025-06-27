@@ -4,6 +4,8 @@ package com.ssg.subscribeservice.kafka.event;
 //Topic: subscription.created
 public record SubscriptionCreatedEvent(
         String userId,
+        String userName,
+        String userEmail,
         Integer subscribeAmount,
         String subscribeId,
         String subscribeName

@@ -20,11 +20,14 @@ public class BillingDto {
     private LocalDateTime lastPaidAt;
     private LocalDateTime nextBillingAt;
     private Integer failCount;
-
     private String cardCompany;
     private String cardNumber;
     private String cardType;
     private String cardOwnerType;
     private String issuerCode;
     private String acquirerCode;
+    private String customerName;
+    private String customerEmail;
+    private String orderName;
+    private Integer amount;
 }

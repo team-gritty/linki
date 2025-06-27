@@ -58,4 +58,5 @@ public class IdGeneratorImpl implements IdGenerator {
     // 유저 결제키 ID 생성 (빌링)
     public String billingId() { return "BIL-" + nextId(); }
     public String paymentHistoryId() { return "PHT-" + nextId(); }
+    public String OrderId() { return "ORD-" + nextId(); }
 }

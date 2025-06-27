@@ -1,10 +1,15 @@
 package com.ssg.paymentservice.controller;
 
+import com.ssg.paymentservice.common.util.SecurityUtil;
+import com.ssg.paymentservice.dto.dto.BillingInfoDto;
 import com.ssg.paymentservice.dto.requestdto.AuthCardRequestDto;
+import com.ssg.paymentservice.dto.responsedto.BillingInfoResponseDto;
 import com.ssg.paymentservice.dto.responsedto.BillingKeyResponseDto;
-import com.ssg.paymentservice.service.BillingService;
+import com.ssg.paymentservice.service.PaymentService;
+import com.ssg.paymentservice.service.TossBillingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class BillingController {
 
-    private final BillingService tossBillingService;   // billing 키 발급 서비스
+    private final TossBillingService tossBillingService;   // billing 키 발급 서비스
+    private final SecurityUtil securityUtil;
+    private final PaymentService paymentService;
+    private final ModelMapper modelMapper;
+
 
     /**
      * 토스 빌링 성공 콜백
@@ -27,6 +36,14 @@ public class BillingController {
                 authCardRequestDto.getAuthKey(),
                 authCardRequestDto.getCustomerKey()
         );
+    }
+
+    @GetMapping("/user/billing-info")
+    public ResponseEntity<BillingInfoResponseDto> billingInfo() {
+        String currentUserId = securityUtil.getCurrentUserId();
+        BillingInfoDto billingInfoDto = paymentService.getBillingInfoDto(currentUserId);
+        BillingInfoResponseDto billingInfoResponseDto = modelMapper.map(billingInfoDto, BillingInfoResponseDto.class);
+        return ResponseEntity.ok(billingInfoResponseDto);
     }
 
 //    @GetMapping("/fail")

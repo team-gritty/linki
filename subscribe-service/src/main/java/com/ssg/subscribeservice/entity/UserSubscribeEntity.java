@@ -25,7 +25,7 @@ public class UserSubscribeEntity {
 
     /** 어떤 플랜(SubscribeEntity)인지 */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscribe_id")                        // ← FK 컬럼은 예외 (그대로)
+    @JoinColumn(name = "subscribe_id")
     private SubscribeEntity subscribe;
 
     /** 첫 결제 성공 시각 */

@@ -16,6 +16,4 @@ public class KafkaTopicConfig {
     @Bean NewTopic subscriptionCreated() { return topic("subscription.created"); }
     @Bean NewTopic paymentSuccess()      { return topic("payment.success"); }
     @Bean NewTopic paymentFailed()       { return topic("payment.failed"); }
-
-
 }

@@ -21,9 +21,11 @@ public class PaymentHistoryEntity {
     @Column(name = "user_id", length = 50, nullable = false)
     private String userId;
 
-    /* 이 테이블 고유 데이터 – prefix 적용 */
-    @Column(name = "payment_history_subscribe_code", length = 15, nullable = false)
-    private String subscribeCode;
+    @Column(name = "payment_history_order_id")
+    private String orderId;
+
+    @Column(name = "payment_history_subscribe_id", length = 100, nullable = false)
+    private String subscribeId;
 
     @Column(name = "payment_history_amount", nullable = false)
     private Integer amount;
@@ -34,16 +36,12 @@ public class PaymentHistoryEntity {
     @Column(name = "payment_history_success", nullable = false)
     private Boolean success;
 
-    @Column(name = "payment_history_tx_key")
-    private String transactionKey;
+    @Column(name = "payment_history_payment_key")
+    private String paymentKey;
 
     @Column(name = "payment_history_fail_code")
     private String failCode;
 
     @Column(name = "payment_history_fail_msg")
     private String failMessage;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "billing_id", updatable = false)
-    private BillingEntity billing;
 }

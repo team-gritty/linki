@@ -1,4 +1,4 @@
-package com.ssg.paymentservice.common.kafka.event;
+package com.ssg.subscribeservice.kafka.event;
 
 import java.time.LocalDateTime;
 

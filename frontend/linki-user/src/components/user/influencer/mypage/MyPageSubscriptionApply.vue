@@ -122,9 +122,16 @@ export default {
         this.isBillingRegistered = false // 에러 발생 시 기본값
       }
     },
-    startSubscription() {
-      // TODO: 카드가 등록된 유저가 실제 구독을 시작하는 로직 구현
-      alert('구독을 시작합니다! (실제 API 연동 필요)')
+    async startSubscription() {
+      try {
+        await httpClient.post('/v1/subscribe-service/api/subscribe');
+        alert('구독이 완료되었습니다!');
+        // 구독 상태 갱신 (필요시)
+        this.checkBillingStatus();
+      } catch (e) {
+        console.error('구독 신청 실패:', e);
+        alert('구독 신청에 실패했습니다. 다시 시도해주세요.');
+      }
     },
     async fetchProducts() {
       this.loading = true

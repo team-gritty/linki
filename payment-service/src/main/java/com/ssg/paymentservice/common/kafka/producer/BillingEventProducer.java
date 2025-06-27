@@ -24,9 +24,4 @@ public class BillingEventProducer {
         }
     }
 }
-//    public void paymentSuccess(PaymentSuccessEvent e){
-//        kafka.send("payment.success", e.userId(), e);
-//    }
-//    public void paymentFailed(PaymentFailedEvent e){
-//        kafka.send("payment.failed", e.userId(), e);
-//    }
+

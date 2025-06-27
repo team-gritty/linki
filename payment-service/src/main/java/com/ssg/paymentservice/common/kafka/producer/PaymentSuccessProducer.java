@@ -1,31 +1,27 @@
-package com.ssg.subscribeservice.kafka.producer;
+package com.ssg.paymentservice.common.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssg.subscribeservice.kafka.event.SubscriptionCreatedEvent;
+import com.ssg.paymentservice.common.kafka.event.BillingRegisteredEvent;
+import com.ssg.paymentservice.common.kafka.event.PaymentSuccessEvent;
+import com.ssg.paymentservice.common.kafka.event.SubscriptionCreatedEvent;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class SubscriptionProducer {
+public class PaymentSuccessProducer {
 
     private final KafkaTemplate<String,String> kafka;
     private final ObjectMapper objectMapper;
 
-    //구독 요청 생성
-    public void sendCreated(String topic, SubscriptionCreatedEvent event) {
+    public void sendPaymentSuccessEvent(String topic, PaymentSuccessEvent event) {
         try {
-            log.info("Created subscription: {}", event);
-            log.info("231231231231231313123123");
             kafka.send(topic, objectMapper.writeValueAsString(event));
-            log.info("Created subscription: {}", event);
-            log.info("231231231231231313123123");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 }
+

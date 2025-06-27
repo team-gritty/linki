@@ -18,7 +18,7 @@ public class BillingRegisteredConsumer {
     private final ObjectMapper objectMapper;
     private final BillingRegisteredHandler billingRegisteredHandler;
 
-    @KafkaListener(topics = "billing.registered", groupId = "subscribe-service-group")
+    @KafkaListener(topics = "billing.registered", groupId = "subscription-group")
     public void consumeBillingRegistered(String message) {
         log.info("Consuming billing registered event: {}", message);
         try {

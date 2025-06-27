@@ -34,7 +34,7 @@ public class BillingEntity {
     @Column(name = "billing_next_billing_at")
     private LocalDateTime nextBillingAt; // 다음 결제 예정일
 
-    @Column(name = "billing_fail_count", nullable = false)
+    @Column(name = "billing_fail_count")
     private Integer failCount; // 실패 횟수
 
     @Column(name = "billing_card_company")
@@ -54,6 +54,19 @@ public class BillingEntity {
 
     @Column(name = "billing_acquirer_code")
     private String acquirerCode;
+
+    //toss 결제 요청에 실제 필요한 값들
+    @Column(name = "billing_customer_name")
+    private String customerName;
+
+    @Column(name = "billing_customer_email")
+    private String customerEmail;
+
+    @Column(name = "billing_order_name")
+    private String orderName;
+
+    @Column(name = "billing_amount")
+    private Integer amount;
 }
 
 

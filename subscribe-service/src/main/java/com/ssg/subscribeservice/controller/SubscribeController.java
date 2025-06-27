@@ -18,12 +18,16 @@ public class SubscribeController {
     private final SecurityUtil securityUtil;
     private final SubscribeService subscribeService;
 
+    //구독신청
     @PostMapping("/subscribe")
-    public void confirmSubscribe(){
+    public ResponseEntity<Void> confirmSubscribe(){
         String userId = securityUtil.getCurrentUserId();
         String role = securityUtil.getCurrentUserRole();
+        subscribeService.createSubscription(userId, role);
+        return ResponseEntity.noContent().build();
     }
 
+    //카드 등록 체크
     @GetMapping("/subscribe/billing-registered")
     public ResponseEntity<BillingRegisteredDto> isBillingRegistered(){
         BillingRegisteredDto billingRegisteredDto = BillingRegisteredDto.builder()
