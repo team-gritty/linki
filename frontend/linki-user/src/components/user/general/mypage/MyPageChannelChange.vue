@@ -78,16 +78,17 @@
           :disabled="isLoading"
         >
           <option value="">카테고리를 선택하세요</option>
-          <option value="패션">패션</option>
-          <option value="뷰티">뷰티</option>
-          <option value="푸드/먹방">푸드/먹방</option>
-          <option value="엔터테이먼트">엔터테이먼트</option>
-          <option value="여행">여행</option>
-          <option value="스포츠">스포츠</option>
-          <option value="전자기기">전자기기</option>
-          <option value="Vlog/라이프스타일">Vlog/라이프스타일</option>
-          <option value="교육">교육</option>
-          <option value="동물/펫">동물/펫</option>
+          <option value="FASHION">패션</option>
+          <option value="BEAUTY">뷰티</option>
+          <option value="FOOD">음식</option>
+          <option value="VLOG">브이로그</option>
+          <option value="ENTERTAINMENT">엔터테이먼트</option>
+          <option value="TRAVEL">여행</option>
+          <option value="MUSIC">음악</option>
+          <option value="SPORTS">스포츠</option>
+          <option value="ELECTRONICS">전자기기</option>
+          <option value="EDUCATION">교육</option>
+          <option value="ANIMAL">동물</option>
         </select>
       </div>
       <div class="button-group" v-if="influencerData.channelName">
