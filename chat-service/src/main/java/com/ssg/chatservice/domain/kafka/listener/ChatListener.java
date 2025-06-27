@@ -14,17 +14,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
+
 import org.springframework.stereotype.Component;
 
 /**
  * Kafka 리스너 클래스 - 채팅방 생성 요청을 처리하는 Consumer
  *
- * - 수신 대상: Kafka 토픽 (chat.create)
- * - 처리 데이터: ChatCreatDTO (JSON → 객체 자동 변환)
- * - 오프셋 커밋 방식: 수동 커밋 (MANUAL_IMMEDIATE)
+ * - 수신 대상: Kafka 토픽 (chat)
+ * - 처리 데이터: Event (JSON → 객체 자동 변환)
+ * - 오프셋 커밋 방식: 자동 커밋 (AUTO)
  *
- * 수동 커밋을 사용함으로써, 메시지를 정확히 처리한 후에만 커밋
+ * 자동 커밋을 사용하여 메시지 처리 완료 시 자동으로 오프셋 커밋
  */
 @Slf4j
 @Component
@@ -41,18 +41,16 @@ public class ChatListener {
      * Kafka에서 chat.create 토픽 메시지를 수신하여 처리하는 메서드
      *
      * @param consumerRecord Kafka에서 받은 전체 메시지 객체 (Key, Value, Offset 등 포함)
-     * @param acknowledgment 수동 커밋을 수행하기 위한 객체
      * @KafkaListener - topics: 수신할 Kafka 토픽 (설정 파일에서 주입받음)
      * - groupId: 컨슈머 그룹 식별자. 같은 그룹 내에서는 메시지를 분산 처리함
-     * - containerFactory: 수동 커밋 전략이 적용된 KafkaListenerContainerFactory 빈 이름
+     * - containerFactory: 자동 커밋 전략이 적용된 KafkaListenerContainerFactory 빈 이름
      */
     @KafkaListener(
-            topics = "${kafka.setting.topic}",            // application.yml에 정의된 토픽명
-            groupId = "${kafka.setting.group}",        // Kafka consumer group
+            topics = "chat",            // application.yml에 정의된 토픽명
+            groupId = "chat-service",        // Kafka consumer group
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void receiveEvent(ConsumerRecord<String, String> consumerRecord,
-                             Acknowledgment acknowledgment) {
+    public void receiveEvent(ConsumerRecord<String, String> consumerRecord) {
         try {
             //수신 받은 이벤트를 객체로 변경
             Event event = mapper.readValue(consumerRecord.value(), Event.class);
@@ -66,10 +64,6 @@ public class ChatListener {
                     .eventType(event.getEventType())
                     .build();
             //채팅방 계약상태 변경
-
-            // 수동 커밋 수행 → 이 시점 이후에만 메시지가 "정상 소비됨"으로 간주됨
-            // acknowledgment.acknowledge()를 호출하지 않으면 메시지는 다시 재시도됨
-            acknowledgment.acknowledge();
 
             //메일 발송
             mailService.sendPostNotification(event.getUserEmail(), notificationDto.getMessage());
