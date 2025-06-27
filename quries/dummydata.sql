@@ -295,8 +295,6 @@ WHERE seq < 1000;
 
 -- subscriber_history 테이블을 위한 더미 데이터 생성
 -- 각 채널당 7일간의 구독자 수 히스토리 데이터를 생성
--- 1. 기존 subscriber_history 데이터 삭제 (있다면)
-DELETE FROM subscriber_history;
 -- 2. 각 채널의 현재 구독자 수를 기준으로 7일간 히스토리 생성
 INSERT INTO subscriber_history (id, channel_id, subscriber_count, collected_at)
 SELECT CONCAT('SH-', LPAD(FLOOR(RAND() * 1000000000), 16, '0')) as id,
