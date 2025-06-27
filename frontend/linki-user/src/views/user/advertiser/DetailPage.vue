@@ -17,16 +17,18 @@
         :campaign-id="campaignId"
       />
       
-      <!-- 계약서 목록 -->
-      <DetailContractList 
-        v-if="(currentTab === 'contract.list' || mapTabFromQuery(route.query.tab) === 'contract.list') && !route.query.contractId"
-        :campaign-id="campaignId"
-      />
-      
-      <!-- 계약서 상세 -->
-      <DetailContract 
-        v-if="(currentTab === 'contract.list' || mapTabFromQuery(route.query.tab) === 'contract.list') && route.query.contractId"
-      />
+      <!-- 계약서 관련 -->
+      <template v-if="currentTab === 'contract.list'">
+        <!-- 계약서 상세 (contractId가 있을 때만) -->
+        <DetailContract 
+          v-if="route.query.contractId"
+        />
+        <!-- 계약서 목록 (contractId가 없을 때만) -->
+        <DetailContractList 
+          v-else
+          :campaign-id="campaignId"
+        />
+      </template>
       
       <!-- 채팅 -->
       <DetailChat 
@@ -40,7 +42,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import DetailHeader from '@/components/user/advertiser/detail/DetailHeader.vue'
 import DetailCampaign from '@/components/user/advertiser/detail/DetailCampaign.vue'
 import DetailProposalList from '@/components/user/advertiser/detail/DetailProposalList.vue'
@@ -49,6 +51,7 @@ import DetailContract from '@/components/user/advertiser/detail/DetailContract.v
 import DetailChat from '@/components/user/advertiser/detail/DetailChat.vue'
 
 const route = useRoute()
+const router = useRouter()
 const campaignId = computed(() => route.params.id)
 const currentTab = ref('campaign.info')
 const chatId = ref(null)

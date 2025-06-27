@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -271,7 +273,7 @@ public class ChannelService {
         }
 
         /**
-         * 채널의 좋아요, 댓글 수 평균 통계를 계산하고 데이터베이스에 업데이트 (Youtube API 호출)
+         * 채널의 모든 통계 정보를 YouTube API를 통해 업데이트 (구독자 수, 영상 수, 조회수, 평균 통계 등)
          * 채널 수집 후 필요에 따라 통계를 재계산할 때 사용하는 유틸리티 메서드
          * 
          * @param channelId  채널 ID
@@ -279,7 +281,7 @@ public class ChannelService {
          */
         @Transactional
         public void updateChannelStatistics(String channelId, int maxResults) {
-                log.info("채널 통계 업데이트 시작 - channelId: {}", channelId);
+                log.info("채널 전체 통계 업데이트 시작 - channelId: {}", channelId);
 
                 // 1. 데이터베이스에서 채널 정보 조회
                 Channel channel = channelRepository.findById(channelId)
@@ -291,44 +293,48 @@ public class ChannelService {
                 }
 
                 try {
-                        // 2. YouTube API를 통해 평균 좋아요/댓글 수 계산
-                        long[] averages = youTubeApiService.getChannelVideoAverages(channel.getYoutubeChannelId(),
+                        // 2. YouTube API를 통해 채널 전체 정보 조회
+                        long[] channelDetails = youTubeApiService.getChannelFullDetails(channel.getYoutubeChannelId(),
                                         maxResults);
 
-                        long avgLikeCount = averages[0];
-                        long avgCommentCount = averages[1];
+                        long subscriberCount = channelDetails[0];
+                        int videoCount = (int) channelDetails[1];
+                        long viewCount = channelDetails[2];
+                        long avgLikeCount = channelDetails[3];
+                        long avgCommentCount = channelDetails[4];
 
-                        log.info("YouTube API 통계 조회 완료 - channelId: {}, avgLikes: {}, avgComments: {}",
-                                        channelId, avgLikeCount, avgCommentCount);
+                        log.info("YouTube API 전체 통계 조회 완료 - channelId: {}, subscribers: {}, videos: {}, views: {}, avgLikes: {}, avgComments: {}",
+                                        channelId, subscriberCount, videoCount, viewCount, avgLikeCount,
+                                        avgCommentCount);
 
                         // 3. 총 좋아요/댓글 수 계산 (평균 * 영상 수)
-                        long totalLikeCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
-                                        ? avgLikeCount * channel.getVideoCount()
-                                        : avgLikeCount;
+                        long totalLikeCount = videoCount > 0 ? avgLikeCount * videoCount : avgLikeCount;
+                        long totalCommentCount = videoCount > 0 ? avgCommentCount * videoCount : avgCommentCount;
 
-                        long totalCommentCount = channel.getVideoCount() != null && channel.getVideoCount() > 0
-                                        ? avgCommentCount * channel.getVideoCount()
-                                        : avgCommentCount;
-
-                        // 4. 채널 엔티티 업데이트
+                        // 4. 채널 엔티티 업데이트 (모든 동적 통계 정보)
+                        channel.setSubscriberCount(subscriberCount);
+                        channel.setVideoCount(videoCount);
+                        channel.setViewCount(viewCount);
                         channel.setLikeCount(totalLikeCount);
                         channel.setCommentCount(totalCommentCount);
+                        channel.setCollectedAt(LocalDateTime.now());
 
                         // 5. 데이터베이스 저장
                         channelRepository.save(channel);
 
-                        log.info("채널 통계 업데이트 완료 - channelId: {}, totalLikes: {}, totalComments: {}",
-                                        channelId, totalLikeCount, totalCommentCount);
+                        log.info("채널 전체 통계 업데이트 완료 - channelId: {}, subscribers: {}, videos: {}, views: {}, totalLikes: {}, totalComments: {}, updatedAt: {}",
+                                        channelId, subscriberCount, videoCount, viewCount, totalLikeCount,
+                                        totalCommentCount, LocalDateTime.now());
 
                 } catch (Exception e) {
-                        log.error("채널 통계 업데이트 실패 - channelId: {}, error: {}", channelId, e.getMessage());
+                        log.error("채널 전체 통계 업데이트 실패 - channelId: {}, error: {}", channelId, e.getMessage());
                         throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
-                                        "채널 통계 업데이트에 실패했습니다: " + e.getMessage());
+                                        "채널 전체 통계 업데이트에 실패했습니다: " + e.getMessage());
                 }
         }
 
         /**
-         * 채널의 YouTube API 평균 통계를 계산하고 데이터베이스에 업데이트 (기본 30개 영상)
+         * 채널의 모든 통계 정보를 YouTube API를 통해 업데이트 (구독자 수, 영상 수, 조회수, 평균 통계 등) - 기본 30개 영상
          * 채널 수집 후 필요에 따라 통계를 재계산할 때 사용하는 유틸리티 메서드
          * 
          * @param channelId 채널 ID
@@ -339,25 +345,26 @@ public class ChannelService {
         }
 
         /**
-         * 여러 채널의 통계를 한 번에 업데이트
+         * 여러 채널의 전체 통계를 한 번에 업데이트 (구독자 수, 영상 수, 조회수, 평균 통계 등)
          * 채널 수집 후 필요에 따라 통계를 재계산할 때 사용하는 유틸리티 메서드
          *
          * @param channelIds 채널 ID 목록
          */
         @Transactional
         public void updateChannelStatisticsBatch(List<String> channelIds) {
-                log.info("채널 통계 일괄 업데이트 시작 - 대상 채널 수: {}", channelIds.size());
+                log.info("채널 전체 통계 일괄 업데이트 시작 - 대상 채널 수: {}", channelIds.size());
 
                 for (String channelId : channelIds) {
                         try {
                                 updateChannelStatistics(channelId);
                         } catch (Exception e) {
-                                log.error("채널 통계 업데이트 실패 (건너뛰기) - channelId: {}, error: {}", channelId, e.getMessage());
+                                log.error("채널 전체 통계 업데이트 실패 (건너뛰기) - channelId: {}, error: {}", channelId,
+                                                e.getMessage());
                                 // 다른 채널 처리를 위해 계속 진행
                         }
                 }
 
-                log.info("채널 통계 일괄 업데이트 완료 - 대상 채널 수: {}", channelIds.size());
+                log.info("채널 전체 통계 일괄 업데이트 완료 - 대상 채널 수: {}", channelIds.size());
         }
 
         /**
@@ -406,6 +413,12 @@ public class ChannelService {
                         }
                 }
 
+                // 4. 인플루언서 소개글 조회
+                String influencerIntro = null;
+                if (channel.getInfluencer() != null) {
+                        influencerIntro = channel.getInfluencer().getInfluencerIntro();
+                }
+
                 // 데이터가 없는 경우 경고 로그만 남기고 계속 진행
                 if (avgLikeCount == 0 && avgViewCount > 0) {
                         log.warn("좋아요 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channelId);
@@ -415,7 +428,7 @@ public class ChannelService {
                         log.warn("댓글 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channelId);
                 }
 
-                // 4. Response DTO 생성
+                // 5. Response DTO 생성
                 ChannelDetailResponse response = ChannelDetailResponse.builder()
                                 .channelId(channel.getChannelId())
                                 .name(channel.getChannelName())
@@ -432,6 +445,7 @@ public class ChannelService {
                                 .youtubeUrl(channel.getChannelUrl())
                                 .bannerUrl(bannerUrl)
                                 .collectedAt(channel.getCollectedAt())
+                                .influencerIntro(influencerIntro)
                                 .build();
 
                 log.info("채널 상세 정보 조회 완료 - channelId: {}", channelId);
@@ -455,5 +469,21 @@ public class ChannelService {
                 log.info("모든 채널 ID 조회 완료 - 총 {}개 채널", channelIds.size());
 
                 return channelIds;
+        }
+
+        /**
+         * 모든 채널의 통계 정보를 정기적으로 업데이트하는 스케줄러
+         * 매주 일요일 새벽 2시에 실행
+         */
+        @Scheduled(cron = "0 0 2 * * 0")
+        public void scheduledChannelStatisticsUpdate() {
+                log.info("=== 주간 채널 통계 업데이트 스케줄러 시작 ===");
+
+                List<String> allChannelIds = getAllChannelIds();
+                log.info("업데이트 대상 채널 수: {}", allChannelIds.size());
+
+                updateChannelStatisticsBatch(allChannelIds);
+
+                log.info("=== 주간 채널 통계 업데이트 스케줄러 완료 ===");
         }
 }

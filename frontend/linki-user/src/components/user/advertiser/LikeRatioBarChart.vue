@@ -4,7 +4,7 @@
       <div class="no-data-icon">📊</div>
       <div class="no-data-title">좋아요 데이터 부족</div>
       <div class="no-data-description">
-        현재 채널과 전체 채널 모두 <br>
+        현재 채널과 상위 50개 채널 모두 <br>
         평균 좋아요 수 데이터가 부족하여 비율 분석이 불가능합니다.
       </div>
       <div class="no-data-note">
@@ -142,12 +142,12 @@ const myChannelLikeRatio = computed(() => {
 
 // 전체 채널의 평균 좋아요/조회수 비율 계산
 const overallLikeRatio = computed(() => {
-  console.log('=== 전체 채널 좋아요 비율 계산 ===')
+  console.log('=== 상위 50개 채널 좋아요 비율 계산 ===')
   const allChannels = props.channels || []
-  console.log('전체 채널 수:', allChannels.length)
+  console.log('상위 50개 채널 수:', allChannels.length)
   
   if (allChannels.length === 0) {
-    console.log('전체 채널 데이터 없음')
+    console.log('상위 50개 채널 데이터 없음')
     return 0
   }
 
@@ -192,7 +192,7 @@ const overallLikeRatio = computed(() => {
   
   const ratio = totalViews > 0 ? totalLikes / totalViews : 0
   console.log('전체 평균 좋아요 비율:', ratio)
-  console.log('=== 전체 채널 좋아요 비율 계산 끝 ===')
+  console.log('=== 상위 50개 채널 좋아요 비율 계산 끝 ===')
   
   return ratio
 })
@@ -206,36 +206,42 @@ const series = computed(() => [
 ])
 
 // ApexCharts의 옵션을 computed로 정의
-const chartOptions = computed(() => {
-  // 데이터의 최대값에 따라 Y축 범위 동적 조정
-  const maxValue = Math.max(myChannelLikeRatio.value, overallLikeRatio.value)
-  const yAxisMax = maxValue > 0 ? Math.max(maxValue * 1.5, 0.01) : 0.1 // 최소 0.01, 여유공간 50%
-  
-  return {
-    chart: { id: 'like-ratio-bar', toolbar: { show: false } }, // 차트 ID, 툴바 숨김
-    xaxis: { categories: ['내 채널', '전체'] },                // X축 레이블
-    yaxis: {
-      min: 0, // y축 최소값 0 설정 - 막대가 아래로 내려가지 않게 
-      max: yAxisMax, // y축 최대값을 동적으로 설정
-      tickAmount: 5, // y축 간격을 5개로 유지
-      // y축 - 소수점 3자리까지 표시 (더 정밀하게)
-      labels: { formatter: val => val.toFixed(3) }
-    },
-    colors: ['#6B46C1', '#9F7AEA'],                          // 색상 배열
-    dataLabels: { enabled: false },                          // 데이터 라벨 숨김
-    grid: { borderColor: '#eee' },                           // 차트 격자선 색
-    tooltip: {
-      y: { formatter: val => (val * 100).toFixed(3) + '%' }  // 툴팁 숫자 % 형식 (더 정밀하게)
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 5,                                      // 막대 둥근 정도
-        columnWidth: '40%',                                   // 막대 너비
-        distributed: true                                     // 각 막대에 다른 색
+const chartOptions = computed(() => ({
+  chart: {
+    type: 'bar',
+    height: 320,
+    toolbar: { show: false }
+  },
+  xaxis: {
+    categories: ['내 채널', '상위 50개 채널 평균'],
+    labels: {
+      style: {
+        fontSize: '12px',
+        fontWeight: 500
       }
     }
+  },
+  yaxis: {
+    min: 0, // y축 최소값 0 설정 - 막대가 아래로 내려가지 않게 
+    max: Math.max(Math.max(myChannelLikeRatio.value, overallLikeRatio.value) * 1.5, 0.01), // y축 최대값을 동적으로 설정
+    tickAmount: 5, // y축 간격을 5개로 유지
+    // y축 - 소수점 3자리까지 표시 (더 정밀하게)
+    labels: { formatter: val => val.toFixed(3) }
+  },
+  colors: ['#6B46C1', '#9F7AEA'],                          // 색상 배열
+  dataLabels: { enabled: false },                          // 데이터 라벨 숨김
+  grid: { borderColor: '#eee' },                           // 차트 격자선 색
+  tooltip: {
+    y: { formatter: val => (val * 100).toFixed(3) + '%' }  // 툴크 숫자 % 형식 (더 정밀하게)
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 5,                                      // 막대 둥근 정도
+      columnWidth: '40%',                                   // 막대 너비
+      distributed: true                                     // 각 막대에 다른 색
+    }
   }
-})
+}))
 
 // 차트 데이터 유효성 검증
 const chartData = computed(() => {

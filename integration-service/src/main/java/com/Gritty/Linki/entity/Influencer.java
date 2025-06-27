@@ -23,6 +23,9 @@ public class Influencer {
     @Column(name = "influencer_img")
     private String influencerImg;
 
+    @Column(name = "influencer_intro", columnDefinition = "TEXT")
+    private String influencerIntro; // 인플루언서 소개 글
+
     // User와의 연관관계 추가
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
