@@ -65,9 +65,20 @@ export default {
       // 일반 사용자(ROLE_USER)인 경우에만 현재 페이지에 머무름
     }
 
+    const updateMenuFromRoute = () => {
+      if (route.name === 'user-register') {
+        currentMenu.value = 'profile.channel'
+      }
+    }
+
     onMounted(() => {
       checkUserRoleAndRedirect()
+      updateMenuFromRoute()
       updateMenuFromQuery()
+    })
+
+    watch(() => route.name, () => {
+      updateMenuFromRoute()
     })
 
     watch(() => route.query.currentMenu, (newVal) => {

@@ -1,6 +1,8 @@
 package com.Gritty.Linki.domain.user.advertiser.proposal.service;
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.domain.kafka.chat.enums.EventType;
+import com.Gritty.Linki.domain.kafka.chat.producer.ChatProducer;
 import com.Gritty.Linki.domain.user.advertiser.proposal.dto.ProposalDto;
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.entity.Proposal;
@@ -28,6 +30,7 @@ public class ProposalService {
 
     private final ProposalRepository proposalRepository;
     private final AuthenticationUtil authenticationUtil;
+    private final ChatProducer chatProducer;
 
     /**
      * 캠페인에 속한 제안서 목록 조회
@@ -121,6 +124,9 @@ public class ProposalService {
         Proposal acceptedProposal = proposalRepository.save(proposal);
         log.info("제안서 {} 수락 완료", proposalId);
 
+        //제안서 승인 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_ACTIVE,proposal.getProposalId());
+
         return mapToDto(acceptedProposal);
     }
 
@@ -164,6 +170,11 @@ public class ProposalService {
         Proposal rejectedProposal = proposalRepository.save(proposal);
         log.info("제안서 {} 거절 완료", proposalId);
 
+
+        //제안서 거절 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_REJECT,proposalId);
+
+
         return mapToDto(rejectedProposal);
     }
 
@@ -197,6 +208,10 @@ public class ProposalService {
 
         Proposal updatedProposal = proposalRepository.save(proposal);
         log.info("제안서 {} 수정 완료", proposalId);
+
+
+        //제안서 수정 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_MODIFY,proposalId);
 
         return mapToDto(updatedProposal);
     }
