@@ -94,19 +94,6 @@ CREATE TABLE `subscribe` (
 	`subscribe_name`	VARCHAR(25)	NOT NULL
 );
 
-DROP TABLE if exists channel_stats;
-
-CREATE TABLE `channel_stats` (
-	`stats_id`	VARCHAR(25)	NOT NULL,
-	`subscriber_count`	INT	NULL	COMMENT '구독자수',
-	`num_of_videos`	INT	NULL	COMMENT '업로드한 총 비디오 개수',
-	`views_per_video`	INT	NULL	COMMENT '누적 조회수',
-	`data_fetched_at`	DATETIME	NOT NULL	COMMENT '해당 데이터가 수집된 시간(youtube api 기준)',
-	`likes_per_video`	INT	NULL	COMMENT '영상 별 좋아요 수',
-	`comments_per_video`	INT	NULL	COMMENT '영상 별 댓글 수',
-	`channel_id`	VARCHAR(25)	NOT NULL	COMMENT '채널 식별 아이디'
-);
-
 DROP TABLE IF EXISTS notice_view;
 
 CREATE TABLE `notice_view` (
@@ -259,6 +246,14 @@ CREATE TABLE `channel` (
 	`influencer_id` varchar(25) NOT NULL COMMENT '인플루언서 식별 아이디'
 );
 
+drop table if exists subscriber_history;
+
+CREATE TABLE subscriber_history (
+                                    id VARCHAR(25) NOT NULL PRIMARY KEY COMMENT '구독자 히스토리 ID',
+                                    channel_id VARCHAR(25) NOT NULL COMMENT '채널 ID',
+                                    subscriber_count BIGINT NOT NULL COMMENT '구독자 수',
+                                    collected_at DATETIME NOT NULL COMMENT '수집 일시'
+);
 
 DROP TABLE IF EXISTS redirect_click;
 
@@ -386,9 +381,8 @@ ALTER TABLE `subscribe` ADD CONSTRAINT `PK_SUBSCRIBE` PRIMARY KEY (
 	`subscribe_id`
 );
 
-ALTER TABLE `channel_stats` ADD CONSTRAINT `PK_CHANNEL_STATS` PRIMARY KEY (
-	`stats_id`
-);
+
+ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
 
 ALTER TABLE `notice_view` ADD CONSTRAINT `PK_NOTICE_VIEW` PRIMARY KEY (
 	`notice_view_id`
