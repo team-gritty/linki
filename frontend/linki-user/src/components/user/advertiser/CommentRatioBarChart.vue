@@ -212,7 +212,7 @@ const chartOptions = computed(() => ({
   },
   yaxis: {
     min: 0,
-    max: 1,
+    max: Math.max(Math.max(myChannelCommentRatio.value, overallCommentRatio.value) * 1.5, 0.01),
     tickAmount: 5,
     labels: { formatter: val => val.toFixed(3) }
   },
