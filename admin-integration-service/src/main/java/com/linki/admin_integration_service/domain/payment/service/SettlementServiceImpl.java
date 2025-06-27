@@ -1,13 +1,18 @@
 package com.linki.admin_integration_service.domain.payment.service;
 
 import com.linki.admin_integration_service.domain.payment.dto.*;
+import com.linki.admin_integration_service.domain.payment.repository.jpa.SettlementRepository;
 import com.linki.admin_integration_service.domain.payment.repository.myBatis.SettlementMapper;
+import com.linki.admin_integration_service.entity.Settlement;
 import com.linki.admin_integration_service.util.excel.ExcelUtil;
+import com.linki.admin_integration_service.vo.enums.SettlementStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,6 +26,7 @@ public class SettlementServiceImpl implements SettlementService {
     private final SettlementMapper settlementMapper;
     private final ExcelUtil excelUtil;
     private final ModelMapper modelMapper;
+    private final SettlementRepository settlementRepository;
 
 
     @Override
@@ -95,7 +101,18 @@ public class SettlementServiceImpl implements SettlementService {
 
     // TODO : 정산 처리 메소드(구현 필요)
     @Override
+    @Transactional
     public Boolean approveSettlement(SettlementRequestDTO settlementRequestDTO) {
+
+        Settlement settlement = settlementRepository.findByContract_ContractId(settlementRequestDTO.getContractId());
+
+        if (settlement == null) {
+            throw new RuntimeException("존재하지 않는 계약 ID입니다.");
+        }
+
+        settlement.setSettlementDate(LocalDate.now());
+        settlement.setSettlementStatus(SettlementStatus.COMPLETED);
+
         return true;
     }
 
