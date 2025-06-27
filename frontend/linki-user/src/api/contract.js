@@ -26,7 +26,7 @@ export const contractApi = {
     }
   },
 
-  // 계약서 조회
+  // 계약서 문서 조회
   async getContractDocument(contractId) {
     try {
       const response = await httpClient.get(`/v1/api/influencer/mypage/contracts/${contractId}/document`);

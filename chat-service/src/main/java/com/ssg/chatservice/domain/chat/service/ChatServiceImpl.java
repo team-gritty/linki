@@ -83,6 +83,7 @@ public class ChatServiceImpl implements ChatService{
                 .chatDate(Instant.now())
                 .chatStatus(ChatStatus.PENDING)
                 .proposalId(proposalId)
+                .negoStatus(NegoStatus.PENDING)
                 .build();
         chatRepository.save(chat);
 
@@ -211,6 +212,7 @@ public class ChatServiceImpl implements ChatService{
     //이벤트 수신 후 계약상태 변경
     public void updateNegoStatus(String proposalId, EventType eventType) {
         ChatDetailDTO chat = modelMapper.map(findByProposalId(proposalId), ChatDetailDTO.class);
+        if(eventType==EventType.PROPOSAL_CREATE)return;
         NegoStatus newStatus = eventType.getNegoStatus();
         chat.setNegoStatus(newStatus);
     }
