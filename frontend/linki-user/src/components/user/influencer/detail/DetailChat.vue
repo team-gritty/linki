@@ -6,8 +6,8 @@
       <div class="chat-header">
         <div class="chat-header-info">
           <span class="header-date">{{ new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
-          <span :class="['nego-status-badge', `nego-status-${chatRoom?.negoStatus?.replace(/ /g, '-')}`]">
-            {{ chatRoom?.negoStatus }}
+          <span :class="['nego-status-badge', `nego-status-${getNegoStatusClass(chatRoom?.negoStatus)}`]">
+            {{ getNegoStatusText(chatRoom?.negoStatus) }}
           </span>
         </div>
         <div class="chat-header-actions">
@@ -27,16 +27,26 @@
               <span>{{ formatDate(message?.messageDate) }}</span>
             </div>
             <!-- 알람 메시지 -->
-            <div v-if="message.messageType === 'alarm'" class="alarm-wrapper">
+            <div v-if="message.messageType ===  'NOTIFICATION'" class="alarm-wrapper">
               <div class="alarm-datetime">{{ formatDate(message.messageDate) }} {{ formatMessageTime(message.messageDate) }}</div>
               <div class="alarm-message">
                 {{ message.content }}
               </div>
             </div>
             <!-- 일반 메시지 -->
-            <div v-else :class="['message', { 'my-message': message.senderId === currentUserId }]">
+            <div 
+              v-else 
+              :id="`message-${message.messageId}`"
+              :class="['message', { 
+                'my-message': message.senderId === currentUserId, 
+                'unread-message': !message.messageRead && message.senderId !== currentUserId 
+              }]"
+            >
               <div class="message-content">{{ message.content }}</div>
-              <div class="message-time">{{ formatMessageTime(message.messageDate) }}</div>
+              <div class="message-time">
+                {{ formatMessageTime(message.messageDate) }}
+                <span v-if="!message.messageRead && message.senderId !== currentUserId" class="unread-indicator">●</span>
+              </div>
             </div>
           </template>
         </template>
@@ -68,9 +78,10 @@ if (typeof global === 'undefined') {
   window.global = window;
 }
 
-import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
+import {ref, onMounted, watch, computed, onUnmounted, nextTick} from 'vue'
 import {chatApi} from '@/api/chat'
 import {useAccountStore} from '@/stores/user'
+import {useChatStore} from '@/stores/chat'
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
@@ -79,6 +90,7 @@ const props = defineProps({
 })
 
 const accountStore = useAccountStore()
+const chatStore = useChatStore()
 const currentUserId = computed(() => {
   return accountStore.getUser?.userId || accountStore.getUser?.id || null
 })
@@ -159,7 +171,7 @@ const connectSocket = (chatId) => {
       isConnected.value = true
       error.value = null
 
-      stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+      stompClient.value.subscribe(`/topic/chat/${chatId}`, async (msg) => {
         const message = JSON.parse(msg.body)
 
         // 현재 사용자가 보낸 메시지는 수신하지 않음
@@ -176,6 +188,55 @@ const connectSocket = (chatId) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
+
+          
+          // 전역 chat store 직접 업데이트 (드롭다운용)
+          console.log('🔄 [WEBSOCKET-INFLUENCER] 전역 chat store 업데이트 시작')
+          
+          try {
+            // chatStore 직접 사용
+            chatStore.updateChatMessage(
+              message.chatId, 
+              message.content, 
+              message.messageDate || new Date().toISOString(), 
+              false // 현재 채팅방이므로 읽음 상태
+            )
+            chatStore.moveChatsToTop(message.chatId)
+            
+            console.log('✅ [WEBSOCKET-INFLUENCER] chatStore 직접 업데이트 완료')
+          } catch (storeError) {
+            console.error('❌ [WEBSOCKET-INFLUENCER] chatStore 업데이트 실패:', storeError)
+            
+            // fallback: window 함수 사용
+            if (window.updateChatMessage) {
+              window.updateChatMessage(
+                message.chatId, 
+                message.content, 
+                message.messageDate || new Date().toISOString(), 
+                false
+              )
+              window.moveChatsToTop(message.chatId)
+              console.log('✅ [WEBSOCKET-INFLUENCER] window 함수로 fallback 성공')
+            }
+          }
+          
+          // 즉시 읽음 처리
+          try {
+            await chatApi.markMessagesAsRead(message.chatId)
+            if (window.markChatAsRead) {
+              window.markChatAsRead(message.chatId)
+            }
+          } catch (readError) {
+            console.error('Failed to mark message as read:', readError)
+          }
+          
+          // 스크롤을 최하단으로 이동 (새 메시지 수신 시)
+          setTimeout(() => {
+            if (messagesContainer.value) {
+              messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+              console.log('✅ [WEBSOCKET-INFLUENCER] 메시지 수신 후 스크롤 완료')
+            }
+          }, 200)
         }
       })
     }, (connectionError) => {
@@ -207,7 +268,7 @@ const connectWithNativeWebSocket = (chatId, token) => {
       isConnected.value = true
       error.value = null
 
-      stompClient.value.subscribe(`/topic/chat/${chatId}`, (msg) => {
+      stompClient.value.subscribe(`/topic/chat/${chatId}`, async (msg) => {
         const message = JSON.parse(msg.body)
 
         // 현재 사용자가 보낸 메시지는 수신하지 않음
@@ -223,6 +284,14 @@ const connectWithNativeWebSocket = (chatId, token) => {
 
         if (!isDuplicate) {
           chatMessages.value.push(message)
+          
+          // 스크롤을 최하단으로 이동 (fallback WebSocket 메시지 수신 시)
+          setTimeout(() => {
+            if (messagesContainer.value) {
+              messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+              console.log('✅ [WEBSOCKET-FALLBACK-INFLUENCER] 메시지 수신 후 스크롤 완료')
+            }
+          }, 200)
         }
       })
     }, (error) => {
@@ -270,12 +339,17 @@ const sendMessage = async () => {
   const messageContent = newMessage.value.trim()
 
   try {
+  // 한국 시간으로 LocalDateTime 형태로 전송
+  const now = new Date()
+  const koreanTime = new Date(now.getTime() + (9 * 60 * 60 * 1000))
+  const messageDate = koreanTime.toISOString().slice(0, 19) // YYYY-MM-DDTHH:mm:ss
+  
   const msgObj = {
     chatId: props.chatRoom.chatId,
     senderId: currentUserId.value,
     content: messageContent,
     messageType: 'message',
-    messageDate: new Date().toISOString()
+    messageDate: messageDate
   }
 
   // 웹소켓으로 메시지 전송
@@ -292,7 +366,7 @@ const sendMessage = async () => {
     senderId: currentUserId.value,
     content: messageContent,
     messageType: 'message',
-    messageDate: new Date().toISOString()
+    messageDate: messageDate
   }
 
   // 반응형 배열 업데이트를 위해 새 배열 생성
@@ -302,11 +376,101 @@ const sendMessage = async () => {
 
     // 에러 메시지 초기화
     error.value = null
+    
+    // 스크롤 최하단으로 이동 (메시지 전송 시)
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        console.log('✅ [SEND-INFLUENCER] 메시지 전송 후 스크롤 완료')
+      }
+    }, 200)
+
+    // 전역 chat store 직접 업데이트 (자신의 메시지는 읽음 상태)
+    try {
+      chatStore.updateChatMessage(
+        props.chatRoom.chatId, 
+        messageContent, 
+        messageDate, 
+        false // 자신이 보낸 메시지는 읽음 상태
+      )
+      chatStore.moveChatsToTop(props.chatRoom.chatId)
+      console.log('✅ [SEND-INFLUENCER] chatStore 직접 업데이트 완료')
+    } catch (storeError) {
+      console.error('❌ [SEND-INFLUENCER] chatStore 업데이트 실패:', storeError)
+      
+      // fallback: window 함수 사용
+      if (window.updateChatMessage) {
+        window.updateChatMessage(
+          props.chatRoom.chatId, 
+          messageContent, 
+          messageDate, 
+          false
+        )
+        window.moveChatsToTop(props.chatRoom.chatId)
+        console.log('✅ [SEND-INFLUENCER] window 함수로 fallback 성공')
+      }
+    }
 
   } catch (error) {
     console.error('Error sending message:', error)
     error.value = '메시지 전송에 실패했습니다.'
   }
+}
+
+// 메시지 읽음 처리
+const markChatAsRead = async (chatId) => {
+  try {
+    await chatApi.markMessagesAsRead(chatId)
+    console.log('Messages marked as read for chatId:', chatId)
+    
+    // 드롭다운 채팅 목록에도 읽음 상태 반영
+    if (window.markChatAsRead) {
+      window.markChatAsRead(chatId)
+    }
+  } catch (err) {
+    console.error('Error marking messages as read:', err)
+  }
+}
+
+// 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
+const scrollToUnreadOrBottom = async () => {
+  
+  // Vue의 DOM 업데이트가 완료될 때까지 기다림
+  await nextTick()
+  
+  if (!messagesContainer.value) {
+    return
+  }
+
+
+  // 현재 사용자가 받은 안읽은 메시지 중 첫 번째 찾기
+  const firstUnreadMessage = chatMessages.value.find(message => 
+    !message.messageRead && 
+    message.senderId !== currentUserId.value &&
+    message.messageType !== 'NOTIFICATION'
+  )
+
+
+  // 추가적인 DOM 렌더링 대기
+  setTimeout(() => {
+    if (firstUnreadMessage) {
+      const messageElement = document.getElementById(`message-${firstUnreadMessage.messageId}`)
+      
+      if (messageElement) {
+        messageElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        })
+      } else {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    } else {
+      // 안읽은 메시지가 없으면 맨 밑으로 스크롤
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    }
+  }, 300) // 더 충분한 시간을 줌
 }
 
 const loadChatInfo = async () => {
@@ -328,7 +492,7 @@ const loadChatInfo = async () => {
     console.log('Loading chat messages for chatId:', props.chatRoom.chatId)
 
     // 메시지 로드
-    const messagesResponse = await chatApi.getMessages(props.chatRoom.chatId)
+    const messagesResponse = await chatApi.getMessagesWithoutRead(props.chatRoom.chatId)
 
     // API 응답이 배열인지 확인하고 안전하게 처리
     let messages = []
@@ -346,6 +510,14 @@ const loadChatInfo = async () => {
 
     // 메시지를 날짜순으로 정렬
     chatMessages.value = messages.sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
+
+    // 스마트 스크롤: 안읽은 메시지가 있으면 첫 번째 안읽은 메시지로, 없으면 맨 밑으로
+    setTimeout(async () => {
+      await scrollToUnreadOrBottom()
+    }, 200)
+
+    // 읽음 처리 (채팅방 입장 시)
+    await markChatAsRead(props.chatRoom.chatId)
 
     error.value = null
   } catch (err) {
@@ -400,23 +572,68 @@ watch(
     {immediate: true}
 )
 
-// 메시지 자동 스크롤
+// 메시지 자동 스크롤 (새 메시지 수신 시에만)
 const messagesContainer = ref(null)
-watch(chatMessages, () => {
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
-  }, 0)
+watch(chatMessages, (newMessages, oldMessages) => {
+  // 새 메시지가 추가된 경우에만 맨 밑으로 스크롤
+  if (newMessages.length > oldMessages.length) {
+    console.log('📊 [INFLUENCER] 새 메시지 감지, 스크롤 이동')
+    setTimeout(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        console.log('✅ [INFLUENCER] 새 메시지로 인한 스크롤 완료')
+      }
+    }, 200)
+  }
 })
 
 onUnmounted(() => {
-  // Cleanup WebSocket connection when component unmounts
-  if (stompClient.value) {
-    stompClient.value.disconnect()
-    console.log('WebSocket connection disconnected')
-  }
+  disconnectSocket()
+  
+  // 채팅 상태 초기화 (다른 탭으로 갔다가 다시 올 때 초기 상태로)
+  chatMessages.value = []
+  newMessage.value = ''
+  error.value = null
+  loading.value = false
+  
+  console.log('💫 인플루언서 채팅 컴포넌트 언마운트: 모든 상태 초기화 완료')
 })
+
+// 소켓 연결 해제
+const disconnectSocket = () => {
+  if (stompClient.value && isConnected.value) {
+    stompClient.value.disconnect()
+    stompClient.value = null
+    isConnected.value = false
+    console.log('Stomp connection disconnected')
+  }
+}
+
+// 영어 상태를 한글로 변환하는 함수
+const getNegoStatusText = (status) => {
+  const statusMap = {
+    'PENDING': '제안서 대기',
+    'ACCEPTED': '제안서 승인', 
+    'REJECTED': '제안서 거절',
+    'PENDING_SIGN': '계약 서명대기',
+    'ONGOING': '계약 진행중',
+    'COMPLETED': '계약 완료'
+  }
+  return statusMap[status] || status
+}
+
+// 영어 상태를 CSS 클래스로 변환하는 함수
+const getNegoStatusClass = (status) => {
+  const statusMap = {
+    'PENDING': 'pending',
+    'ACCEPTED': 'accepted', 
+    'REJECTED': 'rejected',
+    'PENDING_SIGN': 'pending-sign',
+    'ONGOING': 'ongoing',
+    'COMPLETED': 'completed'
+  }
+  return statusMap[status] || 'pending'
+}
 
 </script>
 

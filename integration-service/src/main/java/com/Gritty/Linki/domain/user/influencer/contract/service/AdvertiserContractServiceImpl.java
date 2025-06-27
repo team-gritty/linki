@@ -2,6 +2,8 @@ package com.Gritty.Linki.domain.user.influencer.contract.service;
 
 
 import com.Gritty.Linki.config.security.CustomUserDetails;
+import com.Gritty.Linki.domain.kafka.chat.enums.EventType;
+import com.Gritty.Linki.domain.kafka.chat.producer.ChatProducer;
 import com.Gritty.Linki.domain.user.advertiser.proposal.repository.ProposalRepository;
 import com.Gritty.Linki.domain.user.influencer.contract.UcanSign.UcanSignClient;
 import com.Gritty.Linki.domain.user.influencer.contract.repository.jpa.ContractRepository;
@@ -46,6 +48,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     String templateId = "1937344712655597570";
     private final AuthenticationUtil authenticationUtil;
     private final ContractWebhookService contractWebhookService;
+    private final ChatProducer chatProducer;
 
 
 
@@ -143,6 +146,10 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
         log.info(contract.getDocumentId());
 
         contractRepository.save(contract);
+
+
+        //계약서 생성 이벤트 발행
+        chatProducer.sendEvent(user, EventType.CONTRACT_CREATE,proposal.getProposalId());
 
         return contractId;
     }

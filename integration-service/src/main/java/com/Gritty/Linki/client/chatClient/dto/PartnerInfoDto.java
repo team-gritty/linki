@@ -14,5 +14,5 @@ public class PartnerInfoDto {
     private String partnerName;
     private String proposalId;
     private String profileImage;
-    private String negoStatus;
+    private String channelName;
 }

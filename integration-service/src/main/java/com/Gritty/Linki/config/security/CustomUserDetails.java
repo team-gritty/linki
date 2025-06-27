@@ -31,6 +31,13 @@ public class CustomUserDetails implements UserDetails {
         this.role = role;
     }
 
+    public CustomUserDetails(User user) {
+        this.userId = user.getUserId();
+        this.userLoginId = user.getUserLoginId();
+        this.password = user.getUserLoginPw();
+        this.role = user.getUserRole();
+    }
+
     @Override
     public String getPassword() {
         return password;

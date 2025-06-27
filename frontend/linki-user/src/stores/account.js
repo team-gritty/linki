@@ -64,7 +64,26 @@ export const useAccountStore = defineStore('account', {
         getAccessToken: (state) => state.accessToken,
         
         // 사용자 타입 반환 (확장성을 위해 유지)
-        getUserType: (state) => state.userType,
+        getUserType: (state) => {
+            // userType이 명시적으로 설정되어 있으면 그것을 사용
+            if (state.userType) {
+                return state.userType
+            }
+            
+            // userRole을 기반으로 userType 계산 (대소문자 구분 없이)
+            if (state.user?.userRole) {
+                const userRole = state.user.userRole.toUpperCase()
+                if (userRole === 'ROLE_INFLUENCER') {
+                    return 'influencer'
+                } else if (userRole === 'ROLE_ADVERTISER') {
+                    return 'advertiser'
+                } else if (userRole === 'ROLE_USER') {
+                    return 'general'
+                }
+            }
+            
+            return null
+        },
         
         // 인증 상태 확인 완료 여부
         // 앱 초기화 시 로딩 상태 관리를 위해 필요
@@ -78,19 +97,19 @@ export const useAccountStore = defineStore('account', {
         
         // 일반회원 확인 (5회 제한 대상)
         // channelAccess.js에서 접근 제한 로직의 핵심 조건
-        isRegularUser: (state) => state.user?.userRole === 'ROLE_USER',
+        isRegularUser: (state) => state.user?.userRole?.toUpperCase() === 'ROLE_USER',
         
         // 인플루언서 확인 (무제한 접근)
         // 채널 상세 분석에 제한 없이 접근 가능
-        isInfluencer: (state) => state.user?.userRole === 'ROLE_INFLUENCER',
+        isInfluencer: (state) => state.user?.userRole?.toUpperCase() === 'ROLE_INFLUENCER',
         
         // 광고주 확인 (무제한 접근)
         // 채널 상세 분석에 제한 없이 접근 가능
-        isAdvertiser: (state) => state.user?.userRole === 'ROLE_ADVERTISER',
+        isAdvertiser: (state) => state.user?.userRole?.toUpperCase() === 'ROLE_ADVERTISER',
         
         // 관리자 확인 (모든 권한)
         // 향후 관리자 기능 구현 시 사용
-        isAdmin: (state) => state.user?.userRole === 'ROLE_ADMIN'
+        isAdmin: (state) => state.user?.userRole?.toUpperCase() === 'ROLE_ADMIN'
     },
 
     actions: {
@@ -139,11 +158,21 @@ export const useAccountStore = defineStore('account', {
         },
 
         setLoginInfo(token, user, userType) {
+            console.log('=== setLoginInfo 디버깅 ===')
+            console.log('Token:', token)
+            console.log('User:', user)
+            console.log('UserType:', userType)
+            
             this.accessToken = token
             this.user = user
             this.userType = userType
             this.loggedIn = true
             this.checked = true
+            
+            console.log('설정 후 상태:')
+            console.log('User Role:', this.user?.userRole)
+            console.log('User Type:', this.userType)
+            console.log('GetUserType:', this.getUserType)
         },
 
         /**

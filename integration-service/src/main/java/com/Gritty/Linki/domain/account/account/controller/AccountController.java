@@ -127,7 +127,7 @@ public class AccountController {
                         .body(Map.of("message", "유효하지 않은 토큰입니다."));
             }
 
-            String accessToken = jwtUtil.createJwtToken(userId, role, 60 * 60L);
+            String accessToken = jwtUtil.createJwtToken(userId, role, 60*60*10L);
 
             return ResponseEntity.ok(Map.of("accessToken", accessToken));
         } catch (Exception e) {

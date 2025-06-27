@@ -13,6 +13,7 @@ public class InfluencerDto {
     private String influencerId;
     private String userId;
     private User user;
+    private String profileImage;
     public String getInfluencerName() {
         return user != null ? user.getUserName() : null;
     }

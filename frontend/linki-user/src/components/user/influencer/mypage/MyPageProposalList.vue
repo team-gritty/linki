@@ -19,7 +19,7 @@
               class="thumb"
             >
             <div class="info">
-              <div class="name">{{ proposal.campaignTitle || '캠페인 정보 없음' }}</div>
+              <div class="name">{{ proposal.campaignName || '캠페인 정보 없음' }}</div>
               <div class="meta">
                 <span>제출일: {{ formatDate(proposal.submittedAt) }}</span>
                 <div class="status-container">
