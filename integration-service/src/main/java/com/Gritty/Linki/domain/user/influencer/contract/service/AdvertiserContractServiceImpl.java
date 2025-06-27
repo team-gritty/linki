@@ -62,6 +62,16 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     public String CreateContract(ContractCreateRequestDTO dto, @AuthenticationPrincipal CustomUserDetails user) {
 
         Proposal proposal = proposalRepository.findById(dto.getProposalId()).orElse(null);
+
+        if (proposal == null) {
+            throw new EntityNotFoundException("제안서를 찾을 수 없습니다.");
+        }
+
+        boolean exists = contractRepository.existsByProposal_ProposalId(dto.getProposalId());
+        if (exists) {
+            throw new IllegalStateException("이미 해당 제안서에 대한 계약이 존재합니다.");
+        }
+
         String youtubeChannelId = "testYoutubeChannelId";
 
                 log.info(proposal);
