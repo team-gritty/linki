@@ -7,53 +7,66 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 @Table(name = "billing")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class BillingEntity {
 
     @Id
     @Column(name = "billing_id", length = 36)
-    private String billingId;
+    private String billingId; // UUID
 
     @Column(name = "billing_key", length = 100, nullable = false)
-    private String billingKey;
+    private String billingKey; // Toss 빌링키
 
-    @Column(name = "user_id", length = 50, nullable = false)
-    private String userId;
+    @Column(name = "user_id", length = 50, nullable = false, unique = true)
+    private String userId; // 소유 사용자
 
-    @Column(name = "billing_createat", nullable = false)
-    private LocalDateTime billingCreateAt;
+    @Column(name = "billing_active", nullable = false)
+    private Boolean active; // 빌링키 유효 여부
 
-    @Column(name = "billing_status", nullable = false)
-    private Boolean billingStatus;
+    @Column(name = "billing_auto_billing_activated", nullable = false)
+    private Boolean autoBillingActivated; // 자동결제 ON/OFF
 
-    @Column(name = "payment_approve_status", nullable = false)
-    private Boolean paymentApproveStatus;
+    @Column(name = "billing_last_paid_at")
+    private LocalDateTime lastPaidAt; // 마지막 결제일시
 
-    // 카드 관련 필드 추가
-    @Column(name = "card_company", length = 20)
+    @Column(name = "billing_next_billing_at")
+    private LocalDateTime nextBillingAt; // 다음 결제 예정일
+
+    @Column(name = "billing_fail_count")
+    private Integer failCount; // 실패 횟수
+
+    @Column(name = "billing_card_company")
     private String cardCompany;
 
-    @Column(name = "card_number", length = 30)
+    @Column(name = "billing_card_number")
     private String cardNumber;
 
-    @Column(name = "card_type", length = 10)
+    @Column(name = "billing_card_type")
     private String cardType;
 
-    @Column(name = "card_owner_type", length = 10)
+    @Column(name = "billing_card_owner_type")
     private String cardOwnerType;
 
-    @Column(name = "issuer_code", length = 10)
+    @Column(name = "billing_issuer_code")
     private String issuerCode;
 
-    @Column(name = "acquirer_code", length = 10)
+    @Column(name = "billing_acquirer_code")
     private String acquirerCode;
 
-    /* 연관 관계 */
-    @OneToMany(mappedBy = "billingEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PaymentEntity> payments = new ArrayList<>();
+    //toss 결제 요청에 실제 필요한 값들
+    @Column(name = "billing_customer_name")
+    private String customerName;
+
+    @Column(name = "billing_customer_email")
+    private String customerEmail;
+
+    @Column(name = "billing_order_name")
+    private String orderName;
+
+    @Column(name = "billing_amount")
+    private Integer amount;
 }
 
 
