@@ -131,7 +131,7 @@ CREATE TABLE `campaign` (
 	`campaign_id`	VARCHAR(25)	NOT NULL	COMMENT '제품 식별 ID',
 	`campaign_name`	VARCHAR(100)	NOT NULL	COMMENT '제품의 이름',
 	`campaign_desc`	LONGTEXT	NULL	COMMENT '제품 설명',
-	`campaign_condition`	LONGTEXT	NULL	COMMENT '조건 요약(포함 문구, 영상 길이 등)',
+	`campaign_condition`	LONGTEXT	NOT NULL	COMMENT '조건 요약(포함 문구, 영상 길이 등)',
 	`campaign_img`	LONGTEXT	NOT NULL	COMMENT '광고 제품 이미지',
 	`created_at`	DATETIME	NOT NULL	COMMENT '등록일',
 	`campaign_deadline`	DATETIME	NOT NULL	COMMENT '광고 신청  마감일',
