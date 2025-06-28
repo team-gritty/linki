@@ -222,25 +222,6 @@ FROM (
     ) numbers
 WHERE seq < 1000;
 
--- 채널 통계 데이터 생성
-INSERT INTO `channel_stats` (`stats_id`, `subscriber_count`, `num_of_videos`, `views_per_video`, `data_fetched_at`, `likes_per_video`, `comments_per_video`, `channel_id`)
-SELECT
-    CONCAT('STD-', LPAD(seq, 16, '0')),
-    FLOOR(RAND() * 1000000),
-    FLOOR(RAND() * 1000),
-    FLOOR(RAND() * 100000),
-    DATE_ADD('2023-01-01', INTERVAL FLOOR(RAND() * TIMESTAMPDIFF(DAY, '2023-01-01', '2025-05-31')) DAY),
-    FLOOR(RAND() * 10000),
-    FLOOR(RAND() * 1000),
-    CONCAT('CHN-', LPAD(seq, 16, '0'))
-FROM (
-    SELECT a.N + b.N * 10 + c.N * 100 AS seq
-    FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-         (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c
-) numbers
-WHERE seq < 1000;
-
 -- 인플루언서 인증 데이터 생성
 INSERT INTO `influencer_auth` (`inf_auth_id`, `inf_auth_token`, `inf_auth_email`, `inf_auth_date`, `channel_id`)
 SELECT
