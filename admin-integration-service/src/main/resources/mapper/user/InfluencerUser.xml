@@ -18,7 +18,9 @@
                  JOIN influencer
                       ON user.user_id = influencer.user_id
                  JOIN channel
-                      ON channel.influencer_id = influencer.influencer_id;
+                      ON channel.influencer_id = influencer.influencer_id
+        ORDER BY influencer.influencer_id DESC
+        LIMIT 30000
     </select>
 
     <select id="searchInfluencerUser"  resultType="com.linki.admin_integration_service.domain.user.dto.InfluencerUserDTO">

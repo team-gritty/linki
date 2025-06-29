@@ -17,6 +17,8 @@
             review,
             contractId
         FROM advertiser_reviews_view
+        ORDER BY advertiserReviewId DESC
+        LIMIT 30000
     </select>
     
     
