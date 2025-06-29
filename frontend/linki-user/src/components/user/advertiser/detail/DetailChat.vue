@@ -1131,7 +1131,6 @@ const handleAcceptProposal = (proposalId) => {
               <div class="message-content">{{ message.content }}</div>
               <div class="message-time">
                 {{ formatMessageTime(message.messageDate) }}
-                <span v-if="!isMessageClientRead(message)" class="unread-dot">●</span>
               </div>
             </div>
           </template>
