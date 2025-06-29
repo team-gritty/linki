@@ -15,11 +15,15 @@ import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractCreateRequestD
 import com.Gritty.Linki.domain.user.influencer.requestDTO.ContractSignRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.contract.ContractListResponseDTO;
+import com.Gritty.Linki.domain.user.influencer.settlement.repository.jpa.InfSettlementRepository;
 import com.Gritty.Linki.entity.Contract;
+import com.Gritty.Linki.entity.Influencer;
 import com.Gritty.Linki.entity.Proposal;
+import com.Gritty.Linki.entity.Settlement;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.ContractStatus;
+import com.Gritty.Linki.vo.enums.SettlementStatus;
 import jakarta.persistence.EntityNotFoundException;
 import jdk.jfr.Label;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +54,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     private final AuthenticationUtil authenticationUtil;
     private final ContractWebhookService contractWebhookService;
     private final ChatProducer chatProducer;
+    private final InfSettlementRepository infSettlementRepository;
 
 
 
@@ -229,6 +234,25 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
         if (updated == 0) {
             throw new IllegalStateException("광고 이행 상태 변경 실패");
         }
+
+        // 5. contract 로 인플루언서 아이디 가져오기
+        Influencer influencer = contract.getProposal().getInfluencer();
+
+        // 6. 정산 엔티티 생성
+        //pending, updateAt = null create
+        Settlement settlement = Settlement.builder()
+                .settlementId(IdGenerator.settlementId())
+                .settlementAmount(contract.getContractAmount())
+                .settlementStatus(SettlementStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .contract(contract)
+                .influencer(influencer)
+                .build();
+
+        log.info(settlement.toString());
+
+        // 7. 저장
+        infSettlementRepository.save(settlement);
 
         log.info("광고주 [{}] → 계약 [{}] 광고 이행 완료 처리", advertiserId, contractId);
     }
