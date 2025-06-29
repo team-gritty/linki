@@ -197,6 +197,7 @@ public class CampaignService {
                                 .campaignPublishStatus(campaign.getCampaignPublishStatus())
                                 .campaignCategory(campaign.getCampaignCategory())
                                 .advertiserId(campaign.getAdvertiser().getAdvertiserId())
+                                .companyName(campaign.getAdvertiser().getCompanyName())
                                 .build();
         }
 }
