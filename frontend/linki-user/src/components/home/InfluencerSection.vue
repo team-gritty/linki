@@ -60,6 +60,52 @@ const CATEGORY_MAPPING = {
   'nonprofit': '비영리'
 }
 
+// 구독자 수 포맷팅 함수
+const formatSubscriberCount = (count) => {
+  // 이미 문자열로 포맷된 경우 (예: "2.1만명")
+  if (typeof count === 'string' && (count.includes('만') || count.includes('천') || count.includes('백만') || count.includes('명'))) {
+    return count
+  }
+  
+  // 숫자인 경우 포맷팅
+  const number = typeof count === 'string' ? parseInt(count) : count
+  if (isNaN(number) || number === 0) {
+    return '0명'
+  }
+  
+  // 100만 이상
+  if (number >= 1000000) {
+    const formatted = number / 1000000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}백만명`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}백만명`
+    }
+  }
+  // 1만 이상
+  else if (number >= 10000) {
+    const formatted = number / 10000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}만명`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}만명`
+    }
+  }
+  // 1천 이상
+  else if (number >= 1000) {
+    const formatted = number / 1000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}천명`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}천명`
+    }
+  }
+  // 1천 미만
+  else {
+    return `${number.toLocaleString()}명`
+  }
+}
+
 // 카테고리 변환 함수
 const translateCategory = (englishCategory) => {
   if (!englishCategory) return '일반'
@@ -203,7 +249,7 @@ onUnmounted(() => {
               <span class="review-count">({{ influencer.reviews }})</span>
             </div>
             <div class="influencer-stats">
-              <span class="subscribers">구독자 {{ influencer.subscribers }}</span>
+              <span class="subscribers">{{ formatSubscriberCount(influencer.subscribers) }}</span>
             </div>
           </div>
         </div>
