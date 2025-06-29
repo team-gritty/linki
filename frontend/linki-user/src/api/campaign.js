@@ -180,20 +180,16 @@ export const campaignAPI = {
   submitProposal: async (id, contents) => {
     return await httpClient.post(`/v1/api/influencer/campaigns/${id}/proposal`, { contents })
   },
-  // 광고주 리뷰 조회
-  // getAdvertiserReviews: async (advertiserId) => {
-  //   try {
-  //     const response = await httpClient.get(`/api/influencer/advertiser-reviews`, {
-  //       params: {
-  //         advertiser_id: String(advertiserId)
-  //       }
-  //     })
-  //     return response.data
-  //   } catch (error) {
-  //     console.error('Error fetching advertiser reviews:', error)
-  //     return []
-  //   }
-  // },
+  // 캠페인별 광고주 리뷰 조회
+  getAdvertiserReviewsByCampaign: async (campaignId) => {
+    try {
+      const response = await httpClient.get(`/v1/api/nonuser/reviews/advertiser/campaign/${campaignId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching advertiser reviews by campaign:', error)
+      return []
+    }
+  },
 
  
 

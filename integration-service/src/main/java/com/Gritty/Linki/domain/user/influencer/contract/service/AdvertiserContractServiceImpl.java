@@ -102,7 +102,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
                 .advertiserName(AdName) // 광고주 이름
                 .influencerName(InflName) // 인플 이름
                 .contractStartDateYear(String.valueOf(dto.getContractStartDate().getYear())) //계약시작연도
-                .contractStartDateMonth(String.valueOf(dto.getContractStartDate().getMonth()))//계약시작월
+                .contractStartDateMonth(String.valueOf(dto.getContractStartDate().getMonth().getValue()))//계약시작월
                 .contractStartDateDay(String.valueOf(dto.getContractStartDate().getDayOfMonth()))// 계약시작일
                 .contractEndDateYear(String.valueOf(dto.getContractEndDate().getYear())) //계약종료연도
                 .contractEndDateMonth(String.valueOf(dto.getContractEndDate().getMonth())) //계약종료월
