@@ -10,10 +10,7 @@ import com.Gritty.Linki.domain.user.influencer.requestDTO.ProposalRequestDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalResponseDTO;
-import com.Gritty.Linki.entity.Campaign;
-import com.Gritty.Linki.entity.Contract;
-import com.Gritty.Linki.entity.Influencer;
-import com.Gritty.Linki.entity.Proposal;
+import com.Gritty.Linki.entity.*;
 import com.Gritty.Linki.util.AuthenticationUtil;
 import com.Gritty.Linki.util.IdGenerator;
 import com.Gritty.Linki.vo.enums.ContractStatus;
@@ -48,6 +45,12 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
 
         Influencer influencer = influencerUtilRepository.findById(influencerId)
                 .orElseThrow(()->new EntityNotFoundException("인플루언서를 찾을 수 없습니다"));
+
+        //  인플루언서의 User 엔티티에서 결제 여부 확인
+        User user = influencer.getUser(); // 연관관계가 설정되어 있다고 가정
+        if (user == null || user.getUserPayStatus() == null || user.getUserPayStatus() != 1) {
+            throw new IllegalStateException("결제 완료한 사용자만 제안서를 제출할 수 있습니다.");
+        }
 
         // 캠페인 중복 제출 방지
         boolean exists = proposalRepository.existsByCampaign_CampaignIdAndInfluencer_InfluencerId(

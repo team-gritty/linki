@@ -13,12 +13,12 @@
       <h1>제안서 작성</h1>
       
       <div v-if="campaign" class="campaign-info">
-        <div class="campaign-info-row">
+        <div class="campaign-header">
           <h2>{{ campaign.campaignName }}</h2>
-          <div class="campaign-meta">
-            <span class="category">{{ campaign.campaignCategory }}</span>
-            <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
-          </div>
+        </div>
+        <div class="campaign-details">
+          <span class="category">{{ campaign.campaignCategory }}</span>
+          <span class="deadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
         </div>
       </div>
 
@@ -120,8 +120,17 @@ const submitProposal = async () => {
   } catch (err) {
     console.error('제안서 제출 에러:', err)
 
-    // 인증 에러인 경우
-    if (err.response?.status === 401 || err.response?.status === 403) {
+    // 결제 미완료 에러 처리 (403 Forbidden) - 가장 먼저 확인
+    if (err.response?.status === 403 && 
+       (err.response?.data?.message?.includes('결제 완료한 사용자만') ||
+        err.response?.data?.message?.includes('결제') && err.response?.data?.message?.includes('완료'))) {
+      alert('제안서 제출은 구독 결제를 완료한 인플루언서만 이용할 수 있습니다.\n구독 신청 페이지로 이동합니다.')
+      // 구독 신청 페이지로 이동
+      router.push('/mypage/influencer?currentMenu=subscription.apply')
+    }
+    // 인증 에러인 경우 (일반적인 로그인 필요)
+    else if (err.response?.status === 401 || 
+             (err.response?.status === 403 && !err.response?.data?.message?.includes('결제'))) {
       error.value = '로그인이 필요합니다. 다시 로그인해주세요.'
       setTimeout(() => {
         router.push('/login')
@@ -134,10 +143,17 @@ const submitProposal = async () => {
       // 인플루언서 마이페이지의 제안서 관리 탭으로 이동
       router.push('/mypage/influencer?currentMenu=campaign.proposals')
     }
-    // 명시적인 중복 제출 에러 메시지가 온 경우
-    else if ((err.response?.status === 400 || err.response?.status === 500) && 
-             (err.response?.data?.message?.includes('이미 이 캠페인에 제안서를 제출하셨습니다') ||
-              err.response?.data?.message?.includes('이미') && err.response?.data?.message?.includes('제안서'))) {
+    // Entity not found 에러 처리 (캠페인이나 인플루언서를 찾을 수 없는 경우)
+    else if ((err.response?.status === 404 || err.response?.status === 500) && 
+             (err.response?.data?.message?.includes('Entity not found') ||
+              err.response?.data?.message?.includes('찾을 수 없습니다') ||
+              err.response?.data?.includes('Entity not found'))) {
+      alert('캠페인 정보를 찾을 수 없습니다. 캠페인이 삭제되었거나 접근 권한이 없을 수 있습니다.')
+      router.push('/campaigns')
+    }
+    // 중복 제출 에러 처리 (409 Conflict)
+    else if (err.response?.status === 409 && 
+             (err.response?.data?.message?.includes('이미') && err.response?.data?.message?.includes('제안서'))) {
       alert('이미 이 캠페인에 제안서를 제출하셨습니다.\n마이페이지에서 제출한 제안서를 확인할 수 있습니다.')
       // 인플루언서 마이페이지의 제안서 관리 탭으로 이동
       router.push('/mypage/influencer?currentMenu=campaign.proposals')
@@ -179,11 +195,8 @@ h1 {
   gap: 8px;
 }
 
-.campaign-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+.campaign-header {
+  margin-bottom: 16px;
 }
 
 .campaign-info h2 {
@@ -192,10 +205,11 @@ h1 {
   font-weight: 700;
 }
 
-.campaign-meta {
+.campaign-details {
   display: flex;
-  gap: 12px;
+  gap: 20px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .category {
@@ -333,6 +347,16 @@ h1 {
   
   .form-section {
     padding: 20px;
+  }
+  
+  .campaign-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .campaign-info h2 {
+    font-size: 1.3rem;
   }
 }
 </style> 
