@@ -13,6 +13,66 @@ const currentIndex = ref(0)
 const visibleCount = 4 // 한 번에 보여줄 카드 수
 const autoSlideInterval = ref(null)
 
+// 카테고리 매핑 객체
+const CATEGORY_MAPPING = {
+  // 대문자 버전
+  'ENTERTAINMENT': '엔터테인먼트',
+  'FASHION': '패션',
+  'BEAUTY': '뷰티',
+  'SPORTS': '스포츠',
+  'FOOD': '푸드/맛집',
+  'TRAVEL': '여행',
+  'GAMING': '게임',
+  'TECH': '기술',
+  'MUSIC': '음악',
+  'FITNESS': '피트니스',
+  'LIFESTYLE': '라이프스타일',
+  'EDUCATION': '교육',
+  'NEWS': '뉴스',
+  'COMEDY': '코미디',
+  'ANIMATION': '애니메이션',
+  'PETS': '반려동물',
+  'AUTO': '자동차',
+  'SCIENCE': '과학',
+  'HOWTO': '하우투',
+  'NONPROFIT': '비영리',
+  
+  // 소문자 버전
+  'entertainment': '엔터테인먼트',
+  'fashion': '패션',
+  'beauty': '뷰티',
+  'sports': '스포츠',
+  'food': '푸드/맛집',
+  'travel': '여행',
+  'gaming': '게임',
+  'tech': '기술',
+  'music': '음악',
+  'fitness': '피트니스',
+  'lifestyle': '라이프스타일',
+  'education': '교육',
+  'news': '뉴스',
+  'comedy': '코미디',
+  'animation': '애니메이션',
+  'pets': '반려동물',
+  'auto': '자동차',
+  'science': '과학',
+  'howto': '하우투',
+  'nonprofit': '비영리'
+}
+
+// 카테고리 변환 함수
+const translateCategory = (englishCategory) => {
+  if (!englishCategory) return '일반'
+  
+  // 이미 한국어인지 확인 (한글 포함 여부로 판단)
+  if (/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(englishCategory)) {
+    return englishCategory
+  }
+  
+  // 매핑된 한국어 카테고리 반환, 없으면 '일반' 반환
+  return CATEGORY_MAPPING[englishCategory.trim()] || '일반'
+}
+
 const displayedInfluencers = computed(() => {
   return influencers.value.slice(currentIndex.value, currentIndex.value + visibleCount)
 })
@@ -128,7 +188,7 @@ onUnmounted(() => {
           @click="handleInfluencerClick(influencer)"
           style="cursor: pointer;"
         >
-          <span class="category">{{ influencer.category }}</span>
+          <span class="category">{{ translateCategory(influencer.category) }}</span>
           <div class="influencer-info">
             <h4 class="influencer-name">{{ influencer.name }}</h4>
             <div class="rating">
