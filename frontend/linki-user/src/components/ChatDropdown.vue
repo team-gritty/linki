@@ -17,10 +17,23 @@ const currentUserId = computed(() => {
 
 const userType = computed(() => accountStore.getUserType)
 
-// chat store의 computed 값들 사용
+// chat store의 정렬된 채팅 목록 사용
 const sortedChatList = computed(() => chatStore.sortedChatList)
-const hasNewMessages = computed(() => chatStore.hasNewMessages)
+// 서버 상태 기반 새 메시지 여부 계산
+const hasNewMessages = computed(() => {
+  return sortedChatList.value.some(chat => shouldShowNewBadge(chat))
+})
 const loading = computed(() => chatStore.loading)
+
+// 서버 상태 기반 NEW 배지 표시
+const shouldShowNewBadge = (chat) => {
+  if (chat.chatStatus === 'DELETE') {
+    return false
+  }
+  
+  // 서버의 new 상태 사용
+  return chat.new === true
+}
 
 const loadUserChatList = async () => {
   try {
@@ -49,10 +62,20 @@ const toggleDropdown = () => {
 
 const goToChat = (chat) => {
   if (userType.value === 'influencer') {
-    router.push({
-      path: `/proposal/${chat.proposalId}`,
-      query: { tab: 'chat' }
-    })
+    // 현재 같은 제안서 페이지에 있으면 강제로 채팅 탭으로 이동
+    const currentPath = router.currentRoute.value.path
+    if (currentPath === `/proposal/${chat.proposalId}`) {
+      // 같은 페이지에서 탭만 변경하는 경우 replace 사용
+      router.replace({
+        path: `/proposal/${chat.proposalId}`,
+        query: { tab: 'chat' }
+      })
+    } else {
+      router.push({
+        path: `/proposal/${chat.proposalId}`,
+        query: { tab: 'chat' }
+      })
+    }
   } else if (userType.value === 'advertiser') {
     router.push({
       path: `/mypage/campaign-detail/${chat.campaignId}`,
@@ -149,15 +172,18 @@ onUnmounted(() => {
         </div>
         <div v-else v-for="chat in sortedChatList" 
              :key="chat.chatId" 
-             class="chat-item" 
+             :class="['chat-item', { 'deleted-chat': chat.chatStatus === 'DELETE' }]" 
              @click="goToChat(chat)">
           <div class="chat-info">
-            <div class="chat-name">{{ chat.opponentName || '알 수 없는 사용자' }}</div>
+            <div class="chat-name">
+              {{ chat.opponentName || '알 수 없는 사용자' }}
+              <span v-if="chat.chatStatus === 'DELETE'" class="rejected-badge">거절됨</span>
+            </div>
             <div class="chat-message">{{ chat.lastMessage || '메시지가 없습니다' }}</div>
           </div>
           <div class="chat-meta">
             <div class="chat-time">{{ formatTime(chat.lastMessageTime || new Date()) }}</div>
-            <div v-if="chat.new" class="new-badge">NEW</div>
+            <div v-if="shouldShowNewBadge(chat)" class="new-badge">NEW</div>
           </div>
         </div>
       </div>
@@ -355,5 +381,37 @@ onUnmounted(() => {
 .error-message p {
   margin: 0;
   line-height: 1.5;
+}
+
+/* 삭제된 채팅방 스타일 */
+.deleted-chat {
+  opacity: 0.6;
+  background-color: rgba(248, 249, 250, 0.7);
+}
+
+.deleted-chat:hover {
+  background-color: rgba(233, 236, 239, 0.8);
+}
+
+.rejected-badge {
+  background: #dc3545;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.deleted-chat .chat-name {
+  color: #6c757d;
+}
+
+.deleted-chat .chat-message {
+  color: #adb5bd;
+}
+
+.deleted-chat .chat-time {
+  color: #adb5bd;
 }
 </style> 

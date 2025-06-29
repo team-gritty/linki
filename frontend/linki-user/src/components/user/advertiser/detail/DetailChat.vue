@@ -31,6 +31,7 @@ const selectedChatId = ref(null)
 const newMessage = ref('')
 const loading = ref(false)
 const error = ref(null)
+const isCurrentChatRejected = ref(false) // 현재 채팅방이 거절되었는지 추적
 const currentUserId = computed(() => {
   return accountStore.getUser?.userId || accountStore.getUser?.id || null
 })
@@ -77,6 +78,70 @@ const selectedChatMessages = computed(() => {
     .filter(msg => msg.chatId === selectedChatId.value)
     .sort((a, b) => new Date(a.messageDate) - new Date(b.messageDate))
 })
+
+// 현재 채팅방이 삭제된 상태인지 (computed로 반응성 강화)
+const isCurrentChatDeleted = computed(() => {
+  return isCurrentChatRejected.value || isChatDeleted(selectedChat.value?.chatId)
+})
+
+// 메시지 입력 비활성화 여부
+const isMessageInputDisabled = computed(() => {
+  const chatDetail = getChatDetail(selectedChat.value?.chatId)
+  return chatDetail?.chatStatus === 'PENDING' || isCurrentChatDeleted.value
+})
+
+// 입력창 플레이스홀더 텍스트
+const getInputPlaceholder = () => {
+  const chatDetail = getChatDetail(selectedChat.value?.chatId)
+  if (chatDetail?.chatStatus === 'PENDING') {
+    return '제안서 승인 후 채팅 가능합니다'
+  } else if (isCurrentChatDeleted.value) {
+    return '제안서가 거절되어 메시지를 보낼 수 없습니다'
+  } else {
+    return '메시지를 입력하세요...'
+  }
+}
+
+// 메시지가 클라이언트에서 읽혔는지 확인
+const isMessageClientRead = (message) => {
+  // 내가 보낸 메시지는 항상 읽음 상태
+  if (message.senderId === currentUserId.value) {
+    return true
+  }
+  
+  // 서버에서 읽음 처리되지 않은 메시지만 클라이언트 읽음 상태 확인
+  if (!message.messageRead) {
+    // 현재 채팅방을 방문한 시간과 메시지 시간 비교
+    try {
+      const visitKey = `linki_chat_visited_${selectedChatId.value}`
+      const lastVisited = localStorage.getItem(visitKey)
+      if (lastVisited) {
+        const lastVisitTime = new Date(lastVisited)
+        const messageTime = new Date(message.messageDate)
+        
+        // 마지막 방문 시간 이후의 메시지면 안읽음
+        return messageTime <= lastVisitTime
+      }
+    } catch (error) {
+      console.error('방문 시간 확인 실패:', error)
+    }
+  }
+  
+  // 서버에서 읽음 처리된 메시지는 읽음 상태
+  return message.messageRead
+}
+
+// 채팅방이 삭제된 상태인지 확인 (현재 채팅방 거절 상태 + 서버 상태)
+const isChatDeleted = (chatId) => {
+  // 현재 선택된 채팅방이 거절된 경우
+  if (selectedChatId.value === chatId && isCurrentChatRejected.value) {
+    return true
+  }
+  
+  // 서버 상태 확인
+  const chatDetail = getChatDetail(chatId)
+  return chatDetail?.chatStatus === 'DELETE'
+}
 
 // 채팅 목록 시간 포맷 함수 (원래 버전으로 복구)
 const formatTime = (dateString) => {
@@ -210,6 +275,9 @@ const loadInitialData = async () => {
 const selectChat = async (chatId) => {
   console.log('Selecting chat:', chatId)
   
+  // 새로운 채팅방 선택 시 거절 상태 초기화
+  isCurrentChatRejected.value = false
+  
   // 이전에 선택된 채팅방이 없었을 때만 정렬 수행
   if (!selectedChatId.value) {
     sortChats()
@@ -268,8 +336,8 @@ const selectChat = async (chatId) => {
       console.error('Failed to mark messages as read:', readError)
     }
     
-    // 소켓 연결 (채팅방 상태가 PENDING이 아닌 경우에만)
-    if (chatDetail?.chatStatus !== 'PENDING') {
+    // 소켓 연결 (채팅방 상태가 PENDING이나 DELETE가 아닌 경우에만)
+    if (chatDetail?.chatStatus !== 'PENDING' && chatDetail?.chatStatus !== 'DELETE') {
       await connectSocket(chatId)
     }
   } catch (err) {
@@ -284,6 +352,12 @@ const loadMessages = async (chatId) => {
   loading.value = true
   error.value = null
   chatMessages.value = [] // 메시지 초기화
+
+  // DELETE 상태인 경우 메시지를 로드하지 않고 바로 종료
+  if (isCurrentChatDeleted.value) {
+    loading.value = false
+    return
+  }
 
   try {
     console.log('Debug: About to call chatApi.getMessages with chatId:', chatId)
@@ -405,16 +479,20 @@ const connectSocket = (chatId) => {
               return
             }
 
-            // 새 메시지를 채팅 메시지 목록에 추가
-            chatMessages.value.push({
+            // 현재 채팅방의 메시지인지 확인
+            const isCurrentChat = message.chatId === selectedChatId.value
+
+            // 새 메시지를 채팅 메시지 목록에 추가 (일단 안읽음으로 설정)
+            const newMessageObj = {
               messageId: message.messageId || Date.now(),
               chatId: message.chatId,
               senderId: message.senderId,
               content: message.content,
               messageDate: message.messageDate || new Date().toISOString(),
-              messageRead: false,
+              messageRead: false, // 일단 안읽음 상태로 설정
               messageType: message.messageType || 'message'
-            })
+            }
+            chatMessages.value.push(newMessageObj)
 
             // 채팅 목록의 마지막 메시지 업데이트
             const chatIndex = chatList.value.findIndex(chat => chat.chatId === message.chatId)
@@ -470,25 +548,42 @@ const connectSocket = (chatId) => {
               }
             }
 
-            // 현재 선택된 채팅방이면 즉시 읽음 처리 및 스크롤 이동
+            // 현재 선택된 채팅방이면 스크롤 이동 후 지연된 읽음 처리
             if (isCurrentChat) {
-              // 즉시 읽음 처리
-              try {
-                await chatApi.markMessagesAsRead(message.chatId)
-                if (window.markChatAsRead) {
-                  window.markChatAsRead(message.chatId)
-                }
-              } catch (readError) {
-                console.error('Failed to mark message as read:', readError)
-              }
-              
-              // 스크롤을 최하단으로 이동
+              // 먼저 스크롤을 최하단으로 이동
               setTimeout(() => {
                 if (messagesContainer.value) {
                   messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-                  console.log('웹소켓 메시지 수신 후 스크롤 완료')
                 }
               }, 200)
+              
+              // 1.5초 후 읽음 처리 (사용자가 메시지를 확인할 시간 제공)
+              setTimeout(async () => {
+                // 여전히 같은 채팅방을 보고 있는 경우에만 읽음 처리
+                if (selectedChatId.value === message.chatId) {
+                  try {
+                    await chatApi.markMessagesAsRead(message.chatId)
+                    if (window.markChatAsRead) {
+                      window.markChatAsRead(message.chatId)
+                    }
+                    
+                    // 클라이언트 방문 시간 업데이트 (실시간 메시지 확인)
+                    const now = new Date().toISOString()
+                    localStorage.setItem(`linki_chat_visited_${message.chatId}`, now)
+                    
+                    // 해당 메시지의 읽음 상태 업데이트
+                    const messageIndex = chatMessages.value.findIndex(m => m.messageId === newMessageObj.messageId)
+                    if (messageIndex !== -1) {
+                      chatMessages.value[messageIndex].messageRead = true
+                    }
+                    
+                  } catch (readError) {
+                    console.error('❌ [AUTO READ] 자동 읽음 처리 실패:', readError)
+                  }
+                } else {
+                  console.log('ℹ️ [AUTO READ] 다른 채팅방으로 이동하여 자동 읽음 처리 생략')
+                }
+              }, 1500)
             }
           } catch (parseError) {
             console.error('Error parsing received message:', parseError)
@@ -524,11 +619,20 @@ const connectSocket = (chatId) => {
 
 // 소켓 연결 해제
 const disconnectSocket = () => {
+  console.log('🔌 [DISCONNECT] 웹소켓 연결 해제 시작')
+  console.log('🔌 [DISCONNECT] 현재 상태:', {
+    hasStompClient: !!stompClient.value,
+    isConnected: isConnected.value,
+    selectedChatId: selectedChatId.value
+  })
+  
   if (stompClient.value && isConnected.value) {
     stompClient.value.disconnect()
     stompClient.value = null
     isConnected.value = false
-    console.log('Stomp connection disconnected')
+    console.log('✅ [DISCONNECT] 웹소켓 연결 해제 완료')
+  } else {
+    console.log('ℹ️ [DISCONNECT] 해제할 웹소켓 연결 없음')
   }
 }
 
@@ -536,6 +640,12 @@ const disconnectSocket = () => {
 // 메시지 전송
 const sendMessage = async () => {
   if (!newMessage.value.trim() || !selectedChatId.value) return
+
+  // DELETE 상태인 경우 메시지 전송 차단
+  if (isCurrentChatDeleted.value) {
+    error.value = '제안서가 거절되어 메시지를 보낼 수 없습니다.'
+    return
+  }
 
   if (!stompClient.value || !isConnected.value) {
     error.value = '채팅에 연결되지 않았습니다. 잠시 후 다시 시도해주세요.'
@@ -609,21 +719,108 @@ const sendMessage = async () => {
   }
 }
 
-onMounted(() => {
-  loadInitialData()
+// 탭 전환 감지를 위한 라우트 감시
+watch(() => route.query.tab, (newTab, oldTab) => {
+  console.log('🔄 [TAB CHANGE] 탭 변경 감지:', oldTab, '->', newTab)
+  
+  // 채팅 탭에서 다른 탭으로 이동할 때
+  if (oldTab === 'chat' && newTab !== 'chat') {
+    console.log('🔌 [TAB CHANGE] 채팅 탭에서 나감 - 웹소켓 해제 및 상태 초기화')
+    
+    // 웹소켓 연결 해제
+    disconnectSocket()
+    
+    // 채팅방 선택 상태 초기화
+    selectedChatId.value = null
+    chatMessages.value = []
+    newMessage.value = ''
+    error.value = null
+    isCurrentChatRejected.value = false
+    
+    console.log('✅ [TAB CHANGE] 채팅 상태 초기화 완료')
+  }
+  
+  // 다른 탭에서 채팅 탭으로 이동할 때
+  if (oldTab !== 'chat' && newTab === 'chat') {
+    console.log('🔌 [TAB CHANGE] 채팅 탭으로 진입 - 데이터 재로드')
+    
+    // 채팅 데이터 재로드
+    loadInitialData()
+  }
 })
+
+onMounted(() => {
+  console.log('🚀 [MOUNT] DetailChat 컴포넌트 마운트')
+  loadInitialData()
+  
+  // 전역 SSE에서 알림 메시지 수신 (채팅방에서도 실시간 업데이트)
+  if (window.addEventListener) {
+    window.addEventListener('sse-new-message', handleSSEMessage)
+    window.addEventListener('proposal-reject', handleProposalReject)
+  }
+})
+
+// SSE 메시지 핸들러 (전역 SSE에서 메시지 받음)
+const handleSSEMessage = (event) => {
+  const { chatId, content, messageDate, messageType } = event.detail
+  
+  // 현재 선택된 채팅방의 NOTIFICATION 메시지인 경우
+  if (selectedChatId.value === chatId && messageType === 'NOTIFICATION') {
+    // 채팅방 상태가 DELETE가 아닌 경우에만 메시지 새로고침
+    if (!isCurrentChatDeleted.value) {
+      loadMessages(chatId) // 메시지 목록 새로고침
+      
+      // 현재 채팅방 보고 있으니까 메시지 읽음 처리
+      chatApi.markMessagesAsRead(chatId).then(() => {
+        // 드롭다운에도 읽음 상태 반영
+        if (window.markChatAsRead) {
+          window.markChatAsRead(chatId)
+        }
+      })
+    }
+  }
+}
+
+// 제안서 거절 이벤트 핸들러
+const handleProposalReject = (event) => {
+  const { chatId, proposalId } = event.detail
+  
+  console.log('🚫 [REJECT] 제안서 거절 이벤트 수신:', { chatId, proposalId })
+  
+  // 현재 선택된 채팅방이 거절된 경우
+  if (selectedChatId.value === chatId) {
+    console.log('🚫 [REJECT] 현재 채팅방이 거절됨 - 즉시 UI 업데이트')
+    
+    // 웹소켓 연결 즉시 해제
+    disconnectSocket()
+    
+    // 현재 채팅방 거절 상태로 설정
+    isCurrentChatRejected.value = true
+    
+    console.log('✅ [REJECT] 채팅방 즉시 거절 상태 설정 완료:', chatId)
+  }
+}
 
 // 컴포넌트 언마운트 시 소켓 연결 정리 및 상태 초기화
 onUnmounted(() => {
+  console.log('🔥 [UNMOUNT] DetailChat 컴포넌트 언마운트 시작')
+  
   disconnectSocket()
+  
+  // SSE 이벤트 리스너 제거
+  if (window.removeEventListener) {
+    window.removeEventListener('sse-new-message', handleSSEMessage)
+    window.removeEventListener('proposal-reject', handleProposalReject)
+  }
   
   // 채팅방 선택 상태 초기화 (다른 탭으로 갔다가 다시 올 때 선택 화면 표시)
   selectedChatId.value = null
   chatMessages.value = []
   newMessage.value = ''
   error.value = null
+  isCurrentChatRejected.value = false // 거절 상태 초기화
   
-  console.log('💫 채팅 컴포넌트 언마운트: 모든 상태 초기화 완료')
+  console.log('✅ [UNMOUNT] DetailChat 컴포넌트 언마운트 완료')
 })
 
 // 메시지 자동 스크롤 (새 메시지 수신 시에만)
@@ -749,11 +946,29 @@ const getNegoStatusClass = (status) => {
   return statusMap[status] || 'pending'
 }
 
-// 제안서 거절 핸들러
+// 제안서 거절 핸들러 (광고주가 직접 거절 버튼 클릭)
 const handleRejectProposal = (proposalId) => {
+  console.log('🚫 [DIRECT REJECT] 광고주가 직접 제안서 거절:', proposalId)
+  
   // 채팅 목록에서 해당 채팅방의 상태 업데이트
   const chatIndex = chatList.value.findIndex(chat => chat.proposalId === proposalId)
   if (chatIndex !== -1) {
+    const targetChatId = chatList.value[chatIndex].chatId
+    console.log('🚫 [DIRECT REJECT] 거절된 채팅방 ID:', targetChatId)
+    
+    // 현재 선택된 채팅방이 거절된 경우 즉시 UI 업데이트
+    if (selectedChatId.value === targetChatId) {
+      console.log('🚫 [DIRECT REJECT] 현재 보고 있는 채팅방이 거절됨 - 즉시 UI 변경')
+      
+      // 웹소켓 연결 해제
+      disconnectSocket()
+      
+      // 현재 채팅방 거절 상태로 설정
+      isCurrentChatRejected.value = true
+      
+      console.log('✅ [DIRECT REJECT] 즉시 거절 UI 적용 완료')
+    }
+    
     chatList.value[chatIndex] = {
       ...chatList.value[chatIndex],
       negoStatus: 'REJECTED'
@@ -820,7 +1035,10 @@ const handleAcceptProposal = (proposalId) => {
         <div 
           v-for="chat in filteredChats" 
           :key="chat.chatId"
-          :class="['chat-item', { active: chat.chatId === selectedChatId }]"
+          :class="['chat-item', { 
+            active: chat.chatId === selectedChatId,
+            'deleted-chat': chat.chatStatus === 'DELETE'
+          }]"
           @click="selectChat(chat.chatId)"
         >
           <div class="chat-profile">
@@ -834,13 +1052,16 @@ const handleAcceptProposal = (proposalId) => {
           <div class="chat-item-content">
             <div class="chat-item-header">
               <div class="chat-info">
-                <span class="chat-name">{{ getChatDetail(chat.chatId)?.partnerName }}</span>
+                <span class="chat-name">
+                  {{ getChatDetail(chat.chatId)?.partnerName }}
+                  <span v-if="chat.chatStatus === 'DELETE'" class="rejected-badge">거절됨</span>
+                </span>
               </div>
               <span class="chat-time">{{ formatTime(chat.lastMessageTime) }}</span>
             </div>
             <div class="chat-preview-wrapper">
               <div class="chat-preview">{{ chat.lastMessage }}</div>
-              <div v-if="chat.new" class="new-message-badge"></div>
+              <div v-if="chat.new && chat.chatStatus !== 'DELETE'" class="new-message-badge"></div>
             </div>
           </div>
         </div>
@@ -878,6 +1099,14 @@ const handleAcceptProposal = (proposalId) => {
       <div class="messages-container" ref="messagesContainer">
         <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
+        <!-- 삭제된 채팅방 안내 메시지 -->
+        <div v-else-if="isCurrentChatDeleted" class="delete-notice">
+          <div class="delete-icon">🚫</div>
+          <div class="delete-message">
+            <h3>제안서가 거절되었습니다</h3>
+            <p>해당 제안서가 거절되어 더 이상 메시지를 주고받을 수 없습니다.</p>
+          </div>
+        </div>
         <template v-else>
           <template v-for="(message, index) in selectedChatMessages" :key="message.messageId">
             <!-- 날짜 구분선 -->
@@ -896,14 +1125,13 @@ const handleAcceptProposal = (proposalId) => {
               v-else 
               :id="`message-${message.messageId}`"
               :class="['message', { 
-                'my-message': message.senderId === currentUserId,
-                'unread-message': !message.messageRead && message.senderId !== currentUserId
+                'my-message': message.senderId === currentUserId
               }]"
             >
               <div class="message-content">{{ message.content }}</div>
               <div class="message-time">
                 {{ formatMessageTime(message.messageDate) }}
-                <span v-if="!message.messageRead && message.senderId !== currentUserId" class="unread-dot">●</span>
+                <span v-if="!isMessageClientRead(message)" class="unread-dot">●</span>
               </div>
             </div>
           </template>
@@ -912,19 +1140,19 @@ const handleAcceptProposal = (proposalId) => {
 
       <!-- 메시지 입력 -->
       <div class="message-input-wrapper">
-        <div class="message-input-container" :class="{ 'disabled': getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING' }">
+        <div class="message-input-container" :class="{ 'disabled': isMessageInputDisabled }">
           <input 
             type="text" 
             v-model="newMessage"
             @keyup.enter="sendMessage"
-            :placeholder="getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING' ? '제안서 승인 후 채팅 가능합니다' : '메시지를 입력하세요...'"
+            :placeholder="getInputPlaceholder()"
             class="message-input"
-            :disabled="getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING'"
+            :disabled="isMessageInputDisabled"
           >
           <button 
             @click="sendMessage" 
             class="send-button"
-            :disabled="getChatDetail(selectedChat?.chatId)?.chatStatus === 'PENDING'"
+            :disabled="isMessageInputDisabled"
           >전송</button>
         </div>
       </div>
@@ -959,6 +1187,87 @@ const handleAcceptProposal = (proposalId) => {
 
 <style>
 @import '@/assets/css/detail.css';
+
+/* 삭제된 채팅방 안내 메시지 스타일 */
+.delete-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60%;
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.delete-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.delete-message h3 {
+  color: #dc3545;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.delete-message p {
+  color: #6c757d;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 삭제된 채팅방 목록 스타일 */
+.deleted-chat {
+  opacity: 0.6;
+  background-color: rgba(248, 249, 250, 0.7);
+}
+
+.deleted-chat:hover {
+  background-color: rgba(233, 236, 239, 0.8);
+}
+
+.rejected-badge {
+  background: #dc3545;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.deleted-chat .chat-name {
+  color: #6c757d;
+}
+
+.deleted-chat .chat-preview {
+  color: #adb5bd;
+}
+
+.deleted-chat .chat-time {
+  color: #adb5bd;
+}
+
+/* 메시지 입력창 비활성화 상태 스타일 */
+.message-input-container.disabled .message-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.message-input-container.disabled .send-button {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.message-input-container.disabled .send-button:hover {
+  background-color: #e9ecef;
+}
 </style>
 
 

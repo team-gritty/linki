@@ -7,19 +7,18 @@ export const useChatStore = defineStore('chat', () => {
   const loading = ref(false)
   const sseConnection = ref(null)
   const isSSEConnected = ref(false)
-  
-  // 새로운 메시지가 있는지 여부
-  let previousHasNewMessages = false
+  const hasGlobalNotification = ref(false) // 전역 알림 상태
+
+    // 새로운 메시지가 있는지 여부 (서버의 기본 상태 사용)
   const hasNewMessages = computed(() => {
-    const result = chatList.value.some(chat => chat.new === true)
-    
-    // 값이 변경되었을 때만 로그 출력
-    if (result !== previousHasNewMessages) {
-      console.log(`🟡 [NEW] hasNewMessages: ${previousHasNewMessages} → ${result}`)
-      previousHasNewMessages = result
+    if (hasGlobalNotification.value) {
+      return true
     }
     
-    return result
+    // 서버의 기본 new 상태만 확인
+    return chatList.value.some(chat => {
+      return chat.new && chat.chatStatus !== 'DELETE'
+    })
   })
 
   // 정렬된 채팅 목록
@@ -40,11 +39,13 @@ export const useChatStore = defineStore('chat', () => {
     if (loading.value) {
       return chatList.value
     }
-    
+
     try {
       loading.value = true
       const data = await chatApi.getUserChatList()
       chatList.value = data || []
+      // 채팅 목록 로드 후 전역 알림 상태 체크
+      checkAndClearGlobalNotification()
       return chatList.value
     } catch (error) {
       console.error('Failed to load chat list:', error)
@@ -59,6 +60,8 @@ export const useChatStore = defineStore('chat', () => {
     const chat = chatList.value.find(c => c.chatId === chatId)
     if (chat) {
       chat.new = false
+      // 안읽은 메시지가 없으면 전역 알림 해제
+      checkAndClearGlobalNotification()
     }
   }
 
@@ -67,6 +70,8 @@ export const useChatStore = defineStore('chat', () => {
     const chat = chatList.value.find(c => c.campaignId === campaignId)
     if (chat) {
       chat.new = false
+      // 안읽은 메시지가 없으면 전역 알림 해제
+      checkAndClearGlobalNotification()
     }
   }
 
@@ -75,6 +80,8 @@ export const useChatStore = defineStore('chat', () => {
     const chat = chatList.value.find(c => c.proposalId === proposalId)
     if (chat) {
       chat.new = false
+      // 안읽은 메시지가 없으면 전역 알림 해제
+      checkAndClearGlobalNotification()
     }
   }
 
@@ -83,46 +90,72 @@ export const useChatStore = defineStore('chat', () => {
     return loadChatList()
   }
 
-  // 캐시 무효화
-  const invalidateCache = () => {
-    // No cache management needed
+
+  // 전역 알림 해제
+  const clearGlobalNotification = () => {
+    hasGlobalNotification.value = false
   }
+
+    // 안읽은 메시지가 없으면 전역 알림 자동 해제 (서버의 기본 상태 사용)
+  const checkAndClearGlobalNotification = () => {
+    // 서버의 기본 new 상태만 확인
+    const hasUnreadMessages = chatList.value.some(chat => {
+      return chat.new && chat.chatStatus !== 'DELETE'
+    })
+    
+    if (!hasUnreadMessages && hasGlobalNotification.value) {
+      clearGlobalNotification()
+    }
+  }
+
+
 
   // 채팅 메시지 업데이트 (실시간)
   const updateChatMessage = (chatId, lastMessage, lastMessageTime, isNew = true) => {
-    
     const chatIndex = chatList.value.findIndex(c => c.chatId === chatId)
     if (chatIndex !== -1) {
-      const chat = chatList.value[chatIndex]
-      
-      // Vue 반응성을 위해 새로운 객체로 교체
-      const updatedChat = {
-        ...chat,
+      // 완전히 새로운 배열과 객체로 반응성 확실히 트리거
+      const newChatList = [...chatList.value]
+      newChatList[chatIndex] = {
+        ...newChatList[chatIndex],
         lastMessage: lastMessage,
         lastMessageTime: lastMessageTime,
         new: isNew
       }
-      
-      chatList.value.splice(chatIndex, 1, updatedChat)
-      chatList.value = [...chatList.value] // 반응성 트리거
+      chatList.value = newChatList
     } else {
-      // 채팅 목록이 비어있다면 로드 시도
-      if (chatList.value.length === 0) {
-        loadChatList().then(() => {
-          updateChatMessage(chatId, lastMessage, lastMessageTime, isNew)
-        })
-      }
+      // 새로운 채팅방이거나 채팅 목록이 비어있는 경우 전체 로드
+      loadChatList().then(() => {
+        // 로드 후 다시 한번 업데이트 시도
+        const newChatIndex = chatList.value.findIndex(c => c.chatId === chatId)
+        if (newChatIndex !== -1) {
+          const newChatList = [...chatList.value]
+          newChatList[newChatIndex] = {
+            ...newChatList[newChatIndex],
+            lastMessage: lastMessage,
+            lastMessageTime: lastMessageTime,
+            new: isNew
+          }
+          chatList.value = newChatList
+        } else {
+          console.warn('⚠️ [UPDATE] 채팅 목록 로드 후에도 채팅방을 찾을 수 없음:', chatId)
+        }
+      }).catch(error => {
+        console.error('❌ [UPDATE] 채팅 목록 로드 실패:', error)
+      })
     }
   }
 
   // 채팅을 목록 맨 위로 이동
   const moveChatsToTop = (chatId) => {
     const chatIndex = chatList.value.findIndex(c => c.chatId === chatId)
-    
+
     if (chatIndex > 0) {
-      const chat = chatList.value.splice(chatIndex, 1)[0]
-      chatList.value.unshift(chat)
-      chatList.value = [...chatList.value]
+      // 완전히 새로운 배열로 반응성 확실히 트리거
+      const newChatList = [...chatList.value]
+      const chat = newChatList.splice(chatIndex, 1)[0]
+      newChatList.unshift(chat)
+      chatList.value = newChatList
     }
   }
 
@@ -136,35 +169,83 @@ export const useChatStore = defineStore('chat', () => {
       sseConnection.value = null
       isSSEConnected.value = false
     }
-    
+
     if (!userId) return
 
     console.log('✨ [SSE] 연결 시작:', userId)
-    
+
     try {
       sseConnection.value = chatApi.connectSSE(
         'global', // 전역 연결용 특별한 chatId
         // onMessage
         (event) => {
           console.log('📨 [SSE] 메시지 수신:', event.data)
-          
+
           try {
             if (event.data === 'SSE connection established') {
               return
             }
-            
+
             const data = JSON.parse(event.data)
-            
+
+            // 모든 SSE 메시지에 대해 전역 알림 활성화
+            hasGlobalNotification.value = true
+            console.log('🔔 [SSE] 전역 알림 활성화:', data.type)
+
             if (data.type === 'NEW_MESSAGE') {
-              console.log('💬 [SSE] 새 메시지 처리:', data.chatId)
+              // SSE로 받은 메시지는 무조건 new: true로 설정 (알림 보장)
               updateChatMessage(data.chatId, data.content, data.messageDate, true)
               moveChatsToTop(data.chatId)
-              
+
+              // 채팅방 컴포넌트에도 알림 전송 (실시간 메시지 업데이트용)
+              if (typeof window !== 'undefined' && window.dispatchEvent) {
+                const sseEvent = new CustomEvent('sse-new-message', {
+                  detail: {
+                    chatId: data.chatId,
+                    content: data.content,
+                    messageDate: data.messageDate,
+                    messageType: data.messageType || 'MESSAGE'
+                  }
+                })
+                window.dispatchEvent(sseEvent)
+                console.log('📡 [SSE] 채팅방 컴포넌트로 이벤트 전송:', data.chatId, 'type:', data.messageType)
+              }
+
               if (chatList.value.length === 0) {
                 loadChatList()
               }
-            } else if (data.type === 'CHAT_LIST_UPDATE') {
+            } else if (data.type === 'PROPOSAL_REJECT') {
+              // 제안서 거절 시 특별 처리
+              console.log('🚫 [SSE] 제안서 거절 이벤트:', data)
+
+              // 채팅방 컴포넌트에 제안서 거절 이벤트 전송
+              if (typeof window !== 'undefined' && window.dispatchEvent) {
+                const rejectEvent = new CustomEvent('proposal-reject', {
+                  detail: {
+                    chatId: data.chatId,
+                    proposalId: data.proposalId,
+                    campaignId: data.campaignId
+                  }
+                })
+                window.dispatchEvent(rejectEvent)
+                console.log('📡 [SSE] 제안서 거절 이벤트 전송:', data.chatId)
+              }
+
+              // 채팅 목록도 새로고침
               loadChatList()
+            } else if (data.type === 'CHAT_LIST_UPDATE' ||
+                       data.type === 'PROPOSAL_REQUEST' ||
+                       data.type === 'PROPOSAL_CREATE' ||
+                       data.type === 'PROPOSAL_MODIFY' ||
+                       data.type === 'PROPOSAL_ACCEPT') {
+              // 제안서 관련 기타 이벤트 시 채팅 목록 새로고침
+              console.log('🔄 [SSE] 제안서/채팅 목록 업데이트 이벤트:', data.type)
+
+              // 새로운 채팅방이 생성되었을 수 있으므로 강제 새로고침
+              loadChatList()
+            } else {
+              // 알 수 없는 이벤트 타입도 로그로 기록
+              console.log('🤔 [SSE] 알 수 없는 이벤트 타입:', data.type, data)
             }
           } catch (error) {
             console.error('❌ [SSE] 메시지 파싱 실패:', error)
@@ -197,9 +278,27 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  // SSE 연결 상태 확인 함수
+  const checkSSEStatus = () => {
+    console.log('🔍 [SSE] 연결 상태 확인:')
+    console.log('- 연결됨:', isSSEConnected.value)
+    console.log('- 연결 객체:', sseConnection.value)
+    console.log('- 연결 상태:', sseConnection.value?.readyState)
+    console.log('- 채팅 목록 개수:', chatList.value.length)
+    console.log('- 새 메시지 있음:', hasNewMessages.value)
+
+    return {
+      isConnected: isSSEConnected.value,
+      connection: sseConnection.value,
+      readyState: sseConnection.value?.readyState,
+      chatListLength: chatList.value.length,
+      hasNewMessages: hasNewMessages.value
+    }
+  }
+
   // 전역 함수로 쉽게 접근할 수 있도록 (실시간 업데이트용)
   if (typeof window !== 'undefined' && !window.chatStoreInitialized) {
-    // 전역 함수들 - 다른 컴포넌트에서 쉽게 사용할 수 있도록
+        // 전역 함수들 - 다른 컴포넌트에서 쉽게 사용할 수 있도록
     window.markChatAsRead = markChatAsRead
     window.markChatAsReadByCampaignId = markChatAsReadByCampaignId  
     window.markChatAsReadByProposalId = markChatAsReadByProposalId
@@ -208,7 +307,9 @@ export const useChatStore = defineStore('chat', () => {
     window.moveChatsToTop = moveChatsToTop
     window.startGlobalSSE = startGlobalSSE
     window.stopGlobalSSE = stopGlobalSSE
-    
+    window.checkSSEStatus = checkSSEStatus
+    window.clearGlobalNotification = clearGlobalNotification
+
     window.chatStoreInitialized = true
   }
 
@@ -226,6 +327,8 @@ export const useChatStore = defineStore('chat', () => {
     moveChatsToTop,
     startGlobalSSE,
     stopGlobalSSE,
-    isSSEConnected
+    isSSEConnected,
+    checkSSEStatus,
+    clearGlobalNotification
   }
-}) 
+})
