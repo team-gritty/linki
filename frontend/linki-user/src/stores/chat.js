@@ -24,12 +24,19 @@ export const useChatStore = defineStore('chat', () => {
   // 정렬된 채팅 목록
   const sortedChatList = computed(() => {
     return [...chatList.value].sort((a, b) => {
-      // 먼저 읽지 않은 메시지 우선
-      if (a.new !== b.new) {
-        return b.new - a.new
+      // DELETE 상태가 아닌 채팅방들끼리 비교할 때만 NEW 우선순위 적용
+      const aIsActive = a.chatStatus !== 'DELETE'
+      const bIsActive = b.chatStatus !== 'DELETE'
+      
+      // 둘 다 활성 채팅방인 경우에만 NEW 상태로 우선 정렬
+      if (aIsActive && bIsActive && a.new !== b.new) {
+        return a.new ? -1 : 1  // new가 true인 것을 앞으로
       }
-      // 그 다음 최신 메시지 순
-      return new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+      
+      // 나머지는 모두 시간순으로 정렬 (DELETE 포함)
+      const timeA = new Date(a.lastMessageTime || 0)
+      const timeB = new Date(b.lastMessageTime || 0)
+      return timeB - timeA  // 최신이 위로
     })
   })
 
