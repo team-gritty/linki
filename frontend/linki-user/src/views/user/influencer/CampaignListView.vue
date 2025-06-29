@@ -43,10 +43,22 @@
               <h3>{{ campaign.campaignName }}</h3>
               <p>{{ campaign.campaignCondition }}</p>
               <div class="campaign-meta-row">
-                <span class="campaign-category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
-                <span class="campaign-category" v-else>카테고리 미지정</span>
+                <div class="campaign-tags">
+                  <span class="campaign-category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
+                  <span class="campaign-category" v-else>카테고리 미지정</span>
+                  <span :class="['campaign-status', getStatusClass(campaign.campaignPublishStatus)]">
+                    {{ getStatusText(campaign.campaignPublishStatus) }}
+                  </span>
+                </div>
                 <span class="deadline" v-if="campaign.campaignDeadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
                 <span class="deadline" v-else>마감일 미지정</span>
+              </div>
+              <div class="campaign-rating" v-if="campaign.averageRating">
+                <div class="stars">
+                  <div class="stars-filled" :style="{ width: `${campaign.averageRating * 20}%` }"></div>
+                  <div class="stars-empty"></div>
+                </div>
+                <span class="rating-text">{{ campaign.averageRating.toFixed(1) }} ({{ campaign.reviewCount }})</span>
               </div>
             </div>
           </div>
@@ -77,10 +89,22 @@
               <h3>{{ campaign.campaignName }}</h3>
               <p>{{ campaign.campaignCondition }}</p>
               <div class="campaign-meta-row">
-                <span class="campaign-category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
-                <span class="campaign-category" v-else>카테고리 미지정</span>
+                <div class="campaign-tags">
+                  <span class="campaign-category" v-if="campaign.campaignCategory">{{ campaign.campaignCategory }}</span>
+                  <span class="campaign-category" v-else>카테고리 미지정</span>
+                  <span :class="['campaign-status', getStatusClass(campaign.campaignPublishStatus)]">
+                    {{ getStatusText(campaign.campaignPublishStatus) }}
+                  </span>
+                </div>
                 <span class="deadline" v-if="campaign.campaignDeadline">마감일: {{ formatDate(campaign.campaignDeadline) }}</span>
                 <span class="deadline" v-else>마감일 미지정</span>
+              </div>
+              <div class="campaign-rating" v-if="campaign.averageRating">
+                <div class="stars">
+                  <div class="stars-filled" :style="{ width: `${campaign.averageRating * 20}%` }"></div>
+                  <div class="stars-empty"></div>
+                </div>
+                <span class="rating-text">{{ campaign.averageRating.toFixed(1) }} ({{ campaign.reviewCount }})</span>
               </div>
             </div>
           </div>
@@ -202,7 +226,10 @@ const fetchPopularCampaigns = async () => {
     const response = await campaignAPI.getCampaigns(params)
     
     // 항상 최신 3개만 가져오기 (백엔드에서 limit를 지원하지 않으므로 프론트에서 처리)
-    popularCampaigns.value = response.campaigns.slice(0, 3)
+    const topCampaigns = response.campaigns.slice(0, 3)
+    
+    // 평점 정보 추가
+    popularCampaigns.value = await addRatingsToCampaigns(topCampaigns)
     
     console.log('Fetched popular campaigns:', popularCampaigns.value) // 디버깅용
   } catch (err) {
@@ -239,7 +266,8 @@ const fetchCampaigns = async (additionalParams = {}) => {
       const response = await campaignAPI.getCampaignsWithPagination(params)
       console.log('Pagination response:', response) // 디버깅용
       
-      campaigns.value = response.campaigns
+      // 평점 정보 추가
+      campaigns.value = await addRatingsToCampaigns(response.campaigns)
       totalPages.value = response.totalPages
       
       // 응답받은 currentPage로 현재 페이지 상태 업데이트
@@ -261,7 +289,10 @@ const fetchCampaigns = async (additionalParams = {}) => {
       // 프론트엔드에서 페이지네이션 처리
       const startIndex = (currentPage.value - 1) * itemsPerPage
       const endIndex = startIndex + itemsPerPage
-      campaigns.value = allCampaigns.slice(startIndex, endIndex)
+      const paginatedCampaigns = allCampaigns.slice(startIndex, endIndex)
+      
+      // 평점 정보 추가
+      campaigns.value = await addRatingsToCampaigns(paginatedCampaigns)
       totalPages.value = Math.ceil(allCampaigns.length / itemsPerPage)
       
       console.log(`Fallback pagination: Page ${currentPage.value} of ${totalPages.value}`)
@@ -373,6 +404,96 @@ const formatDate = (dateString) => {
 
 const goToCampaignDetail = (campaignId) => {
   router.push(`/campaign/${campaignId}`)
+}
+
+// 캠페인 상태 텍스트 변환
+const getStatusText = (status) => {
+  switch (status) {
+    case 'ACTIVE':
+      return '활성'
+    case 'HIDDEN':
+      return '비활성'
+    default:
+      return '미지정'
+  }
+}
+
+// 캠페인 상태 CSS 클래스 반환
+const getStatusClass = (status) => {
+  switch (status) {
+    case 'ACTIVE':
+      return 'active'
+    case 'HIDDEN':
+      return 'hidden'
+    default:
+      return 'unknown'
+  }
+}
+
+// 광고주 리뷰 가져오기 및 평균 평점 계산
+const fetchAdvertiserReviews = async (campaignId) => {
+  try {
+    let reviews = await campaignAPI.getAdvertiserReviewsByCampaign(campaignId)
+    
+    console.log(`캠페인 ${campaignId}의 원본 리뷰 데이터:`, reviews)
+    console.log('리뷰 타입:', typeof reviews)
+    
+    // 문자열로 온 경우 JSON 파싱 시도
+    if (typeof reviews === 'string') {
+      try {
+        reviews = JSON.parse(reviews)
+        console.log('파싱 후 리뷰 데이터:', reviews)
+      } catch (parseError) {
+        console.error('JSON 파싱 실패:', parseError)
+        return null
+      }
+    }
+    
+    console.log('최종 리뷰 배열 여부:', Array.isArray(reviews))
+    
+    // 배열이고 길이가 0보다 큰 경우 처리
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      console.log('리뷰 개수:', reviews.length)
+      console.log('첫 번째 리뷰:', reviews[0])
+      
+      // 평균 평점 계산
+      const totalScore = reviews.reduce((sum, review) => {
+        const score = parseFloat(review.advertiserReviewScore || 0)
+        console.log('리뷰 점수:', score)
+        return sum + score
+      }, 0)
+      const averageRating = totalScore / reviews.length
+      
+      console.log('총 점수:', totalScore, '평균 평점:', averageRating)
+      
+      return {
+        averageRating: Math.round(averageRating * 10) / 10, // 소수점 첫째자리까지
+        reviewCount: reviews.length
+      }
+    }
+    
+    // 리뷰가 없거나 잘못된 형태의 데이터인 경우
+    console.log('리뷰 없음 또는 잘못된 형태')
+    return null
+  } catch (err) {
+    console.error('리뷰 로딩 실패:', err)
+    return null
+  }
+}
+
+// 캠페인 목록에 평점 정보 추가
+const addRatingsToCampaigns = async (campaignList) => {
+  const campaignsWithRatings = await Promise.all(
+    campaignList.map(async (campaign) => {
+      const ratingInfo = await fetchAdvertiserReviews(campaign.campaignId)
+      return {
+        ...campaign,
+        averageRating: ratingInfo?.averageRating || null,
+        reviewCount: ratingInfo?.reviewCount || 0
+      }
+    })
+  )
+  return campaignsWithRatings
 }
 
 // URL 쿼리 변경 감지
@@ -590,6 +711,13 @@ onMounted(() => {
   gap: 8px;
 }
 
+.campaign-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .campaign-category {
   display: inline-block;
   background: #f3f4f6;
@@ -599,6 +727,74 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.campaign-status {
+  display: inline-block;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.campaign-status.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.campaign-status.hidden {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.campaign-status.unknown {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.campaign-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.stars {
+  position: relative;
+  display: inline-block;
+  font-size: 16px;
+  line-height: 1;
+  color: #e5e7eb;
+}
+
+.stars-filled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #fbbf24;
+  z-index: 1;
+}
+
+.stars-empty {
+  position: relative;
+  z-index: 0;
+}
+
+.stars-filled::before {
+  content: "★★★★★";
+}
+
+.stars-empty::before {
+  content: "★★★★★";
+}
+
+.rating-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
 }
 
 .deadline {

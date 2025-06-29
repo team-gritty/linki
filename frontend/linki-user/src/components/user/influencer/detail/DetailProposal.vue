@@ -128,6 +128,20 @@ export default {
         console.log('Fetched proposal detail:', response)
       } catch (error) {
         console.error('Failed to fetch proposal detail:', error)
+        
+        // 에러 상태에 따른 처리
+        if (error.response?.status === 404) {
+          alert('해당 제안서를 찾을 수 없습니다.')
+          router.push({ name: 'influencer-mypage', query: { currentMenu: 'campaign.proposals' } })
+        } else if (error.response?.status === 403) {
+          alert('해당 제안서에 접근할 권한이 없습니다.')
+          router.push({ name: 'influencer-mypage', query: { currentMenu: 'campaign.proposals' } })
+        } else if (error.response?.status === 500) {
+          alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+          router.push({ name: 'influencer-mypage', query: { currentMenu: 'campaign.proposals' } })
+        } else {
+          alert('제안서 정보를 불러오는데 실패했습니다.')
+        }
       } finally {
         loading.value = false
       }
