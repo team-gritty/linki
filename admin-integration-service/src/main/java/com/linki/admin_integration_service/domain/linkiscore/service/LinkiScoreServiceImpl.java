@@ -5,6 +5,7 @@ import com.linki.admin_integration_service.domain.linkiscore.repository.LinkiSco
 import com.linki.admin_integration_service.entity.Influencer;
 import com.linki.admin_integration_service.entity.LinkiScore;
 import com.linki.admin_integration_service.util.IdGenerator;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationContext;
@@ -34,7 +35,7 @@ public class LinkiScoreServiceImpl implements LinkiScoreService {
     private final InfluencerRepository influencerRepository;
     private final ApplicationContext context;
 
-//    @PostConstruct
+    @PostConstruct
     public void init(){
         new Thread(() -> {
             try {

@@ -331,7 +331,29 @@ const submitContract = async () => {
     }
   } catch (error) {
     console.error('계약서 저장 중 오류가 발생했습니다:', error)
-    alert('계약서 저장에 실패했습니다. 다시 시도해주세요.')
+    
+    // 중복 계약서 생성 에러 처리
+    if (error.response?.status === 500 && 
+        (error.response?.data?.message?.includes('이미 해당 제안서에 대한 계약이 존재합니다') ||
+         error.response?.data?.message === 'Server error')) {
+      alert('이미 해당 제안서에 대한 계약서가 존재합니다.\n기존 계약서를 확인해주세요.')
+      // 계약 관리 페이지로 이동
+      router.push('/mypage/advertiser/contracts')
+    }
+    // 명시적인 중복 계약 에러 메시지가 온 경우
+    else if ((error.response?.status === 400 || error.response?.status === 500) && 
+             (error.response?.data?.message?.includes('이미 해당 제안서에 대한 계약이 존재합니다') ||
+              error.response?.data?.message?.includes('이미') && error.response?.data?.message?.includes('계약'))) {
+      alert('이미 해당 제안서에 대한 계약서가 존재합니다.\n기존 계약서를 확인해주세요.')
+      // 계약 관리 페이지로 이동
+      router.push('/mypage/advertiser/contracts')
+    }
+    // 기타 에러
+    else {
+      // 백엔드에서 온 구체적인 에러 메시지가 있으면 표시, 없으면 기본 메시지
+      const errorMessage = error.response?.data?.message || '계약서 저장에 실패했습니다. 다시 시도해주세요.'
+      alert(errorMessage)
+    }
   }
 }
 

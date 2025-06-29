@@ -97,6 +97,7 @@ const router = createRouter({
       name: 'influencer-mypage',
       component: InfluencerMyPage
     },
+
     {
       path: '/mypage/advertiser',
       name: 'advertiser-mypage',

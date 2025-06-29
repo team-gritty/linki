@@ -49,7 +49,12 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
         Influencer influencer = influencerUtilRepository.findById(influencerId)
                 .orElseThrow(()->new EntityNotFoundException("인플루언서를 찾을 수 없습니다"));
 
-
+        // 캠페인 중복 제출 방지
+        boolean exists = proposalRepository.existsByCampaign_CampaignIdAndInfluencer_InfluencerId(
+                proposalRequestDTO.getCampaignId(), influencerId);
+        if (exists) {
+            throw new IllegalStateException("이미 이 캠페인에 제안서를 제출하셨습니다.");
+        }
 
        // 2. 새로운 proposal Id 생성
         String newProposalId = idGenerator.proposalId();

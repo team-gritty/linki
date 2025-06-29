@@ -96,6 +96,20 @@ const submitProposal = async () => {
       return
     }
 
+    // 사용자 권한 확인
+    console.log('현재 사용자 정보:', accountStore.user)
+    console.log('사용자 권한:', accountStore.user?.userRole)
+    
+    if (accountStore.user?.userRole !== 'ROLE_INFLUENCER') {
+      alert('제안서 작성은 인플루언서 회원만 가능합니다.')
+      return
+    }
+
+    console.log('제안서 제출 시작:', {
+      campaignId: route.params.id,
+      contents: formData.value.contents
+    })
+
     await proposalAPI.submitProposal(route.params.id, formData.value.contents)
 
     // 성공 알림
@@ -112,8 +126,27 @@ const submitProposal = async () => {
       setTimeout(() => {
         router.push('/login')
       }, 2000)
-    } else {
-      error.value = '제안서 제출 중 오류가 발생했습니다. 다시 시도해주세요.'
+    } 
+    // 중복 제출 에러인 경우 처리
+    else if (err.response?.status === 500 && err.response?.data?.message === 'Server error') {
+      // 500 에러이면서 'Server error' 메시지인 경우, 중복 제출일 가능성이 높음
+      alert('이미 이 캠페인에 제안서를 제출하셨을 수 있습니다.\n마이페이지에서 제출한 제안서를 확인해주세요.')
+      // 인플루언서 마이페이지의 제안서 관리 탭으로 이동
+      router.push('/mypage/influencer?currentMenu=campaign.proposals')
+    }
+    // 명시적인 중복 제출 에러 메시지가 온 경우
+    else if ((err.response?.status === 400 || err.response?.status === 500) && 
+             (err.response?.data?.message?.includes('이미 이 캠페인에 제안서를 제출하셨습니다') ||
+              err.response?.data?.message?.includes('이미') && err.response?.data?.message?.includes('제안서'))) {
+      alert('이미 이 캠페인에 제안서를 제출하셨습니다.\n마이페이지에서 제출한 제안서를 확인할 수 있습니다.')
+      // 인플루언서 마이페이지의 제안서 관리 탭으로 이동
+      router.push('/mypage/influencer?currentMenu=campaign.proposals')
+    }
+    // 기타 에러
+    else {
+      // 백엔드에서 온 구체적인 에러 메시지가 있으면 표시, 없으면 기본 메시지
+      const errorMessage = err.response?.data?.message || '제안서 제출 중 오류가 발생했습니다. 다시 시도해주세요.'
+      error.value = errorMessage
     }
   } finally {
     loading.value = false

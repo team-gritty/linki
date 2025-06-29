@@ -153,11 +153,6 @@ CREATE TABLE `signature` (
 	`contract_id`	VARCHAR(25)	NOT NULL
 );
 
-ALTER TABLE user
-    ADD COLUMN user_oauth_provider VARCHAR(20) COMMENT 'google, naver, kakaod 등',
-    ADD COLUMN user_oauth_id VARCHAR(50) COMMENT '구글에서 제공하는 식별값',
-    ADD COLUMN user_oauth_user BOOLEAN DEFAULT FALSE;
-
 DROP TABLE IF EXISTS user;
 
 CREATE TABLE `user` (
@@ -486,3 +481,10 @@ ALTER TABLE redirect_links DROP COLUMN short_url;
 ALTER TABLE `linki_score`
     ADD CONSTRAINT fk_influencer_id
         FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
+
+
+ALTER TABLE `linki_score`
+    ADD CONSTRAINT fk_influencer_id
+        FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
+
+ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
