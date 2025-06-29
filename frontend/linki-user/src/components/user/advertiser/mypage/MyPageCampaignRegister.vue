@@ -12,8 +12,9 @@
           <div v-if="showError && productName.trim() === ''" class="field-error">캠페인 제품명을 입력해주세요.</div>
         </div>
         <div class="form-group">
-          <label>캠페인 조건</label>
-          <input type="text" placeholder="예) 구독자 1만명 이상, 뷰티 유튜버" v-model="productCondition" />
+          <label>캠페인 조건 <span class="required-asterisk">*</span></label>
+          <input type="text" placeholder="예) 구독자 1만명 이상, 뷰티 유튜버" v-model="productCondition" :class="{'input-error': showError && productCondition.trim() === ''}" />
+          <div v-if="showError && productCondition.trim() === ''" class="field-error">캠페인 조건을 입력해주세요.</div>
         </div>
       </div>
       <div class="form-row">
@@ -131,6 +132,7 @@ const publishStatusDropdownOpen = ref(false)
 const isFormValid = computed(() => {
   return (
     productName.value.trim() !== '' &&
+    productCondition.value.trim() !== '' &&
     productDesc.value.trim() !== '' &&
     selectedCategory.value.trim() !== '' &&
     (imageUrl.value.trim() !== '' || fileName.value.trim() !== '') &&
