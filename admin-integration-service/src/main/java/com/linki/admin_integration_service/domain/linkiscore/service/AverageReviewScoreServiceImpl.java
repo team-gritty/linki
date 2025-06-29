@@ -33,7 +33,7 @@ public class AverageReviewScoreServiceImpl implements AverageReviewScoreService 
     public double getReviewScore(String influencerId) {
 
         if (cachedList.isEmpty()){
-            cachedList = influencerReviewRepository.findAll();
+            cachedList = influencerReviewRepository.findAllWithJoin();
         }
 
 
@@ -47,6 +47,10 @@ public class AverageReviewScoreServiceImpl implements AverageReviewScoreService 
         for (InfluencerReview influencerReview : list) {
             total = total.add(influencerReview.getScore());
             count = count.add(BigDecimal.ONE);
+        }
+
+        if (total.compareTo(BigDecimal.ZERO) == 0 || count.compareTo(BigDecimal.ZERO) == 0){
+            return 60.0 * 0.25;
         }
 
         BigDecimal average = total.divide(count, RoundingMode.HALF_UP);

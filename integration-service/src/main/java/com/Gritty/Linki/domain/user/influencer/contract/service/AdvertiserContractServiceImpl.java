@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolationException;
+import java.net.http.HttpRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,6 +53,7 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
 
 
 
+
     @Override
     @Retryable(
             value = {ConstraintViolationException.class },
@@ -61,13 +63,17 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
     @Transactional
     public String CreateContract(ContractCreateRequestDTO dto, @AuthenticationPrincipal CustomUserDetails user) {
 
+        log.info("계약서 작성 requests dto : {}",dto);
         Proposal proposal = proposalRepository.findById(dto.getProposalId()).orElse(null);
+
+        log.info(proposal);
 
         if (proposal == null) {
             throw new EntityNotFoundException("제안서를 찾을 수 없습니다.");
         }
 
         boolean exists = contractRepository.existsByProposal_ProposalId(dto.getProposalId());
+        log.info(exists);
         if (exists) {
             throw new IllegalStateException("이미 해당 제안서에 대한 계약이 존재합니다.");
         }
