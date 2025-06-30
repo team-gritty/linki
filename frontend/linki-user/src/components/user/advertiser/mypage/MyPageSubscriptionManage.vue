@@ -1,32 +1,29 @@
 <template>
   <div class="subscription-manage-container">
     <h2 class="subscription-manage-title">나의 구독 관리</h2>
-    <div class="subscription-manage-form">  
+    
+    <div class="subscription-manage-form">
       <div v-if="loading" class="manage-loading">구독 정보를 불러오는 중...</div>
       <div v-else-if="error" class="manage-error">{{ error }}</div>
       <div v-else class="manage-info-wrap">
         <div class="manage-info-row">
-          <span class="manage-label">구독 시작일</span>
-          <span class="manage-value">{{ info.startDate }}</span>
-        </div>
-        <div class="manage-info-row">
           <span class="manage-label">다음 결제일</span>
-          <span class="manage-value">{{ info.nextBillingDate }}</span>
+          <span class="manage-value">{{ info.nextBillingAt ? info.nextBillingAt.substring(0, 10) : '-' }}</span>
         </div>
         <div class="manage-info-row">
-          <span class="manage-label">결제수단</span>
-          <span class="manage-value">{{ info.paymentMethod }}</span>
+          <span class="manage-label">카드번호</span>
+          <span class="manage-value">{{ info.cardNumber || '-' }}</span>
         </div>
         <div class="manage-info-row">
-          <span class="manage-label">구독 상태</span>
-          <span class="manage-value status-{{ info.status }}">{{ statusText }}</span>
+          <span class="manage-label">카드 은행명</span>
+          <span class="manage-value">{{ info.cardCompany || '-' }}</span>
         </div>
         <div class="manage-info-row contract-count-row">
-          <span class="manage-label">구독 서비스로 성사한 계약</span>
-          <span class="manage-value contract-count">{{ info.contractCount }}건</span>
+          <span class="manage-label">구독한 개월수</span>
+          <span class="manage-value contract-count">{{ info.monthCount || 0 }}개월</span>
         </div>
         <div class="button-group">
-         <button class="refund-btn" @click="goRefund">구독 환불 신청</button>
+          <button class="refund-btn" @click="goRefund">구독 환불 신청</button>
         </div>
       </div>
     </div>
@@ -47,7 +44,8 @@
 </template>
 
 <script>
-import { getMySubscriptionInfo } from '@/api/subscription'
+import { getMySubscriptionInfo } from '@/api/subscribeInfo'
+import httpClient from '@/utils/httpRequest'
 
 export default {
   name: 'MyPageSubscriptionManage',
@@ -93,7 +91,7 @@ export default {
       this.loading = true
       this.error = null
       try {
-        const res = await getMySubscriptionInfo()
+        const res = await httpClient.get('/v1/payment-service/api/billing/user/billing-info')
         this.info = res.data
       } catch (e) {
         this.error = '구독 정보를 불러오지 못했습니다.'
