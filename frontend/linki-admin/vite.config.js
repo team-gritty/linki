@@ -18,9 +18,10 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: ['admin.linki.kr','www.admin.linki.kr'],
     proxy: {
-      '/v1': {
-        target: 'http://localhost:8000',
-        changeOrigin: true
+      '/v1/api/admin': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

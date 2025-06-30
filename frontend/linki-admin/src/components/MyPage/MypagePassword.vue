@@ -75,8 +75,8 @@ const validatePassword = () => {
   passwordError.value = ''
   confirmError.value = ''
 
-  if (newPassword.value.length < 8) {
-    passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
+  if (newPassword.value.length < 6) {
+    passwordError.value = '비밀번호는 6자 이상이어야 합니다.'
     return false
   }
 
@@ -94,11 +94,16 @@ const handleSubmit = async () => {
   isLoading.value = true
   try {
     // API 엔드포인트는 실제 백엔드 URL로 변경해야 합니다
-    await axios.post('/api/admin/change-password', {
+    await axios.patch('v1/api/admin/mypage/change-password', {
       currentPassword: currentPassword.value,
       newPassword: newPassword.value
+    }, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
     })
-    
+
+
     alert('비밀번호가 성공적으로 변경되었습니다.')
     router.push('/admin/mypage')
   } catch (error) {

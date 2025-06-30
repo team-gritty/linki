@@ -44,6 +44,6 @@ public class Admin {
     private LocalDate adminEnterDay;
 
     @Column(name = "admin_status")
-    private String adminStatus;
+    private String   adminStatus;
 
 }

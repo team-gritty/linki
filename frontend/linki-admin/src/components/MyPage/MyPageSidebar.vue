@@ -1,86 +1,106 @@
 <template>
-  <aside class="sidebar-menu">
+  <div class="mypage-sidebar">
     <div class="sidebar-title">Admin <span class="divider">/</span> <span class="mypage">My Page</span></div>
     <nav class="sidebar-nav">
-      <div class="sidebar-section">내 정보 관리
+      <div class="sidebar-section">
+        내 정보
         <ul>
-          <li>
-            <router-link to="/mypage" exact-active-class="active">프로필</router-link>
-          </li>
-          <li>
-            <router-link to="/mypage/password" exact-active-class="active">비밀번호 변경</router-link>
+          <li v-for="(menu, index) in menuItems"
+              :key="index"
+              :class="{ active: currentMenu === menu.id }"
+              @click="selectMenu(menu.id)">
+            {{ menu.name }}
           </li>
         </ul>
       </div>
     </nav>
-  </aside>
+  </div>
 </template>
 
-<script setup>
-// 추후 props, emits 등 확장 가능
+<script>
+export default {
+  name: 'MyPageSidebar',
+  props: {
+    currentMenu: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props, { emit }) {
+    const menuItems = [
+      { id: 'profile.basic', name: '기본 정보' },
+      { id: 'profile.password', name: '비밀번호 변경' }
+    ];
+
+    const selectMenu = (menuId) => {
+      emit('update:currentMenu', menuId);
+    };
+
+    return {
+      menuItems,
+      selectMenu
+    };
+  }
+};
 </script>
 
-<style scoped>
-.sidebar-menu {
-  width: 260px;
-  padding: 48px 0 0 60px;
-  background: #fff;
-  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+<style>
+.mypage-sidebar {
+  width: 240px;
+  background: white;
+  padding: 40px 0;
+  border-right: 1px solid #eee;
+  height: 100%;
 }
+
 .sidebar-title {
-  color: #bdbdbd;
-  font-size: 16px;
+  padding: 0 32px;
+  font-size: 24px;
   font-weight: 500;
   margin-bottom: 40px;
 }
-.sidebar-title .divider {
-  margin: 0 8px;
+
+.divider {
+  color: #999;
 }
-.sidebar-title .mypage {
-  color: #222;
-  font-weight: 400;
+
+.mypage {
+  color: #d6bcf7;
 }
+
 .sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  padding: 0 16px;
 }
+
 .sidebar-section {
-  color: #222;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 32px;
+  color: #666;
+  font-size: 14px;
 }
+
 .sidebar-section ul {
-  margin: 8px 0 0 0;
-  padding: 0;
   list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
 }
+
 .sidebar-section li {
-  color: #bdbdbd;
-  font-size: 15px;
-  font-weight: 400;
-  margin-bottom: 6px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: color 0.2s;
+  border-radius: 4px;
+  color: #333;
+  font-size: 15px;
+  transition: all 0.2s;
 }
-.sidebar-section li.active,
+
 .sidebar-section li:hover {
-  color: #9B51E0;
-  font-weight: 600;
+  background: rgba(214, 188, 247, 0.1);
+  color: #d6bcf7;
 }
-.sidebar-section li.active > a,
-.sidebar-section li > a {
-  color: inherit;
-  text-decoration: none;
-}
-@media (max-width: 900px) {
-  .sidebar-menu {
-    width: 100%;
-    padding: 24px 0 0 0;
-    border-radius: 0;
-    box-shadow: none;
-    min-width: unset;
-  }
+
+.sidebar-section li.active {
+  background: rgba(214, 188, 247, 0.1);
+  color: #d6bcf7;
+  font-weight: 500;
 }
 </style> 

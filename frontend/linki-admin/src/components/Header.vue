@@ -1,12 +1,20 @@
 <script setup>
 import { defineProps } from 'vue'
+import { useAccountStore } from '@/stores/account'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   openSidebar: Boolean,
   toggleSidebar: Function
 })
 
-// 헤더 컴포넌트 로직
+const accountStore = useAccountStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  accountStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -17,8 +25,17 @@ const props = defineProps({
       </div>
       <router-link to="/" class="header-title">Linki Admin</router-link>
       <div class="header-right">
-        <router-link to="/login" class="header-button">로그인</router-link>
-        <router-link to="/signup" class="header-button">회원가입</router-link>
+        <!-- 로그인된 경우 -->
+        <template v-if="accountStore.isLoggedIn">
+          <span class="user-name">{{ accountStore.getUser?.adminName || '관리자' }}님</span>
+          <button @click="handleLogout" class="header-button logout-btn">로그아웃</button>
+        </template>
+        
+        <!-- 로그인되지 않은 경우 -->
+        <template v-else>
+          <router-link to="/login" class="header-button">로그인</router-link>
+          <router-link to="/signup" class="header-button">회원가입</router-link>
+        </template>
       </div>
     </div>
   </header>
@@ -64,7 +81,13 @@ const props = defineProps({
   flex: 1;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 16px;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  color: #ccc;
 }
 
 .header-button {
@@ -82,6 +105,11 @@ const props = defineProps({
 .header-button:hover {
   background-color: white;
   color: black;
+}
+
+.logout-btn {
+  background: none;
+  font-family: inherit;
 }
 
 .close-sidebar-btn {
@@ -123,6 +151,10 @@ const props = defineProps({
   
   .header-button {
     padding: 4px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .user-name {
     font-size: 0.8rem;
   }
 }
