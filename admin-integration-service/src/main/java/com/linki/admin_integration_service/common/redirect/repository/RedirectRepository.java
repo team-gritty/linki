@@ -10,4 +10,6 @@ public interface RedirectRepository extends JpaRepository<RedirectLinks, String>
 
     @Query("SELECT COUNT(r) FROM RedirectLinks r WHERE r.contract.proposal.influencer.influencerId = :influencerId")
     long countByInfluencerId(@Param("influencerId") String influencerId);
+
+    RedirectLinks findByShortUrl(String shortUrl);
 }
