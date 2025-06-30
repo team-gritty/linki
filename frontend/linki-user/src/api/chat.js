@@ -15,17 +15,6 @@ export const chatApi = {
   }
 },
 
-  // 채팅방 활성화 요청
-  activateRoom: async (proposalId) => {
-    try {
-      const response = await httpClient.post(`/v1/chat-service/api/advertiser/rooms/activate/${proposalId}`)
-      return response.data
-    } catch (error) {
-      console.error('Error activating chat room:', error)
-      throw error
-    }
-  },
-
   // 광고주의 채팅방 목록 조회
   getChatList: async (campaignId) => {
     try {
@@ -104,15 +93,7 @@ export const chatApi = {
     }
   },
 
-  // 제안서 거절
-  rejectChat: async (proposalId) => {
-    try {
-      return await httpClient.post(`/v1/chat-service/api/advertiser/proposals/${proposalId}/reject`)
-    } catch (error) {
-      console.error('Error rejecting proposal:', error)
-      throw error
-    }
-  },
+
 
   // 메시지 전송(소켓이 아닌 프론트 용)
   sendMessage: async (messageData) => {
