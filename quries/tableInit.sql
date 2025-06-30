@@ -479,3 +479,7 @@ ALTER TABLE `linki_score`
         FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
 
 ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
+
+
+ALTER TABLE `redirect_click` ADD COLUMN click_count INTEGER;
+ALTER TABLE `redirect_click` MODIFY COLUMN click_time DATE;
