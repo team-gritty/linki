@@ -50,7 +50,7 @@ instance.interceptors.response.use(
                 console.log('401 에러 발생 - URL:', config.url, 'Method:', config.method);
 
                 // 로그인 요청 실패는 '아이디/비밀번호 불일치'이므로 토큰 재발급 로직을 실행하지 않음
-                if (config.url === 'v1/api/admin/login' || config.url === '/v1/api/admin/login') {
+                if (config.url === 'v1/admin/api/login' || config.url === '/v1/admin/api/login') {
                     console.log('로그인 실패. 토큰 재발급 로직을 건너뜁니다.');
                     return Promise.reject(error);
                 }
@@ -69,7 +69,7 @@ instance.interceptors.response.use(
                 }
                 try {
                     console.log('토큰 재발급 시도 중...');
-                    const res = await axios.get("/v1/api/admin/token", {
+                    const res = await axios.get("/v1/admin/api/token", {
                         withCredentials: true
                     });
                     console.log('토큰 재발급 응답:', res.data);

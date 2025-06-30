@@ -1,22 +1,22 @@
-import httpRequester from '@/libs/httpRequester.js'
+import httpClient from '@/utils/httpRequest'
 
 export const getAdvertiserUserList = async (page, size) => {
-  return await httpRequester.get('/v1/admin/api/advertiserUsers')
+  return await httpClient.get('/v1/admin/api/advertiserUsers')
 }
 
 export const searchAdvertiserUser = async (searchType, keyword) => {
   // 스프링 연동 시 사용할 코드
-  return await httpRequester.post('/v1/admin/api/advertiserUsers/search', {
+  return await httpClient.post('/v1/admin/api/advertiserUsers/search', {
     searchType,
     keyword
   })
 
   // json-server 테스트용 코드
-  // return await httpRequester.get(`/v1/admin/api/advertiserUsers/search/${searchType}?q=${keyword}`)
+  // return await httpClient.get(`/v1/admin/api/advertiserUsers/search/${searchType}?q=${keyword}`)
 }
 
 export async function exportExcel() {
-  const res = await httpRequester.post('/v1/admin/api/advertiserUsers/exportExcel');
+  const res = await httpClient.post('/v1/admin/api/advertiserUsers/exportExcel');
   const downloadUrl = res.data;
   window.open(downloadUrl);
 }
@@ -27,7 +27,7 @@ export const getAdvertiserUserListWithKeyset = async (cursor = null, size = 10) 
   if (cursor) {
     params.cursor = cursor
   }
-  return await httpRequester.get('/v1/admin/api/advertiserUsers', { params })
+  return await httpClient.get('/v1/admin/api/advertiserUsers', params)
 }
 
 // Keyset 페이지네이션 검색
@@ -38,5 +38,5 @@ export const searchAdvertiserUserWithKeyset = async (searchType, keyword, cursor
     cursor,
     size
   }
-  return await httpRequester.post('/v1/admin/api/advertiserUsers/search', requestBody)
+  return await httpClient.post('/v1/admin/api/advertiserUsers/search', requestBody)
 }

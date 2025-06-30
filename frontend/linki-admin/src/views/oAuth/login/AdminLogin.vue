@@ -134,7 +134,7 @@ const handleLogin = async () => {
 
   try {
     isLoading.value = true
-    const response = await httpClient.post('v1/api/admin/login', {
+    const response = await httpClient.post('v1/admin/api/login', {
       adminLoginId: userId.value.trim(),
       adminLoginPw: password.value
     })
@@ -152,6 +152,9 @@ const handleLogin = async () => {
 
         // Store에 로그인 정보 저장
         accountStore.setLoginInfo(accessToken, { userId, userRole }, 'admin')
+        
+        // localStorage에도 토큰 저장 (호환성)
+        localStorage.setItem('accessToken', accessToken)
 
         // 콘솔에 사용자 정보 출력
         console.log('=== 관리자 로그인 성공 디버깅 ===')
@@ -194,7 +197,7 @@ const handleLogin = async () => {
 const handleGoogleLogin = async () => {
   try {
     isLoading.value = true
-    const response = await httpClient.get('v1/api/admin/auth/google')
+    const response = await httpClient.get('v1/admin/api/auth/google')
     
     if (response.data.success) {
       // Google OAuth URL로 리다이렉트

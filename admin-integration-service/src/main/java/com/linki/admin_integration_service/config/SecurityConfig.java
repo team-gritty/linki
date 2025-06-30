@@ -46,7 +46,7 @@ public class SecurityConfig {
                 //권한별 설정
                 .requestMatchers("v1/api/**").permitAll()
                 .requestMatchers("v1/admin/api/redirect/{shortUrl}").permitAll()
-                .requestMatchers("/v1/api/admin/**").permitAll()
+                .requestMatchers("/v1/admin/api/**").permitAll()
 
                 .anyRequest().permitAll());
 
