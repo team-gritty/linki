@@ -246,8 +246,8 @@ const formatDate = (dateString) => {
 const getStatusText = (status) => {
   if (!status) return '';
   const statusMap = {
-    'ACTIVE': '활성',
-    'HIDDEN': '비활성'
+    'ACTIVE': '모집중',
+    'HIDDEN': '지원불가'
   }
   return statusMap[status] || status
 }

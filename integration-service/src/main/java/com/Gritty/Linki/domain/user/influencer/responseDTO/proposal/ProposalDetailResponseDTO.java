@@ -19,6 +19,7 @@ public class ProposalDetailResponseDTO {
     private LocalDateTime respondedAt;
     private String influencerId;
     private String campaignId;
+    private String contractId;
     private ContractStatus contractStatus;
 
 
@@ -31,6 +32,7 @@ public class ProposalDetailResponseDTO {
             LocalDateTime respondedAt,
             String influencerId,
             String campaignId,
+            String contractId,
             ContractStatus contractStatus
     ) {
         this.campaignName = campaignName;
@@ -41,6 +43,7 @@ public class ProposalDetailResponseDTO {
         this.respondedAt = respondedAt;
         this.influencerId = influencerId;
         this.campaignId = campaignId;
+        this.contractId = contractId;
         this.contractStatus = contractStatus;
     }
 }

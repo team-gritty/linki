@@ -139,7 +139,7 @@ const submitProposal = async () => {
     // 중복 제출 에러인 경우 처리
     else if (err.response?.status === 500 && err.response?.data?.message === 'Server error') {
       // 500 에러이면서 'Server error' 메시지인 경우, 중복 제출일 가능성이 높음
-      alert('이미 이 캠페인에 제안서를 제출하셨을 수 있습니다.\n마이페이지에서 제출한 제안서를 확인해주세요.')
+      alert('이미 이 캠페인에 제출한 제안서가 있을 수 있습니다.\n마이페이지에서 제출한 제안서를 확인해주세요.\n\n※ 거절된 제안서가 있다면 해당 제안서 상세 페이지에서 재제출할 수 있습니다.')
       // 인플루언서 마이페이지의 제안서 관리 탭으로 이동
       router.push('/mypage/influencer?currentMenu=campaign.proposals')
     }
@@ -154,7 +154,7 @@ const submitProposal = async () => {
     // 중복 제출 에러 처리 (409 Conflict)
     else if (err.response?.status === 409 && 
              (err.response?.data?.message?.includes('이미') && err.response?.data?.message?.includes('제안서'))) {
-      alert('이미 이 캠페인에 제안서를 제출하셨습니다.\n마이페이지에서 제출한 제안서를 확인할 수 있습니다.')
+      alert('이미 이 캠페인에 제출한 제안서가 있습니다.\n마이페이지에서 제출한 제안서를 확인할 수 있습니다.\n\n※ 거절된 제안서가 있다면 해당 제안서 상세 페이지에서 재제출할 수 있습니다.')
       // 인플루언서 마이페이지의 제안서 관리 탭으로 이동
       router.push('/mypage/influencer?currentMenu=campaign.proposals')
     }
