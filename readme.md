@@ -194,6 +194,11 @@ npm install
 npm run dev
 # http://localhost:3001
 ```
+persistedstate API 추가
+```bash
+cd frontend/linki-user
+npm install pinia-plugin-persistedstate@3
+```
 
 #### 4.2 관리자 웹 앱
 ```bash
