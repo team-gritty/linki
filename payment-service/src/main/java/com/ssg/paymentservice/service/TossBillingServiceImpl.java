@@ -2,9 +2,11 @@ package com.ssg.paymentservice.service;
 
 import com.ssg.paymentservice.common.entity.BillingEntity;
 import com.ssg.paymentservice.common.entity.PaymentHistoryEntity;
+import com.ssg.paymentservice.common.kafka.event.AutoPaymentSuccessEvent;
 import com.ssg.paymentservice.common.kafka.event.BillingRegisteredEvent;
 import com.ssg.paymentservice.common.kafka.event.PaymentSuccessEvent;
 import com.ssg.paymentservice.common.kafka.event.SubscriptionCreatedEvent;
+import com.ssg.paymentservice.common.kafka.producer.AutoPaymentSuccessProducer;
 import com.ssg.paymentservice.common.kafka.producer.BillingEventProducer;
 import com.ssg.paymentservice.common.kafka.producer.PaymentSuccessProducer;
 import com.ssg.paymentservice.common.toss.TossConfig;
@@ -24,10 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +49,12 @@ public class TossBillingServiceImpl implements TossBillingService {
     private final PaymentSuccessProducer paymentSuccessProducer;
     private final PaymentService paymentService;
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final AutoPaymentSuccessProducer autoPaymentSuccessProducer;
 
 
     //인증키 , userId(customerKey)
     @Override
+    @Transactional
     public BillingKeyResponseDto confirmBilling(String authKey, String customerKey) {
 
         // 1. Basic 인증 헤더
@@ -62,18 +69,39 @@ public class TossBillingServiceImpl implements TossBillingService {
         // 3. 빌링키 응답 dto
         BillingKeyResponseDto billingResponse = feignGetBillingKey.getBillingKey(authorizationHeader, authCardRequestDto).getBody();
 
-        // 4. 응답객체 엔티티 저장
-        BillingEntity billingEntity = saveBillingResponse(billingResponse);
+        // 4. 기존 BillingEntity 여부 확인 후 업데이트 또는 신규 저장
+        Optional<BillingEntity> existing = billingRepository.findByUserId(billingResponse.getCustomerKey());
+        BillingEntity billingEntity;
+        // 빌링키 이미 존재하면 업데이트
+        if (existing.isPresent()) {
+            changeBillingKey(existing, billingResponse);
+        } else {
+            //없으면 생성
+            billingEntity = saveBillingResponse(billingResponse);
+            billingRepository.save(billingEntity);
 
-        // 5. 저장
-        billingRepository.save(billingEntity);
+            // 6. 이벤트 발행
+            billingEventProducer.billingRegistered("billing.registered", new BillingRegisteredEvent(customerKey));
+        }
 
-        // 6. 이벤트 발행
-        billingEventProducer.billingRegistered("billing.registered", new BillingRegisteredEvent(customerKey));
         return billingResponse;
     }
 
+    private static void changeBillingKey(Optional<BillingEntity> existing, BillingKeyResponseDto billingResponse) {
+        BillingEntity billingEntity;
+        billingEntity = existing.get();
+        billingEntity.setBillingKey(billingResponse.getBillingKey());
+        billingEntity.setCardCompany(billingResponse.getCardCompany());
+        billingEntity.setCardNumber(billingResponse.getCardNumber());
+        billingEntity.setCardType(billingResponse.getCard().getCardType());
+        billingEntity.setCardOwnerType(billingResponse.getCard().getOwnerType());
+        billingEntity.setIssuerCode(billingResponse.getCard().getIssuerCode());
+        billingEntity.setAcquirerCode(billingResponse.getCard().getAcquirerCode());
+        billingEntity.setActive(true);
+    }
+
     @Override
+    @Transactional
     public void firstPayment(String userId, SubscriptionCreatedEvent subscriptionCreatedEvent) {
         // 1. 유저 아이디로 확인
         BillingDto billingDto = paymentService.getBillingDtoByUserId(userId);
@@ -120,6 +148,84 @@ public class TossBillingServiceImpl implements TossBillingService {
             //결제 실패 처리
             doPaymentFail(billingDto, autoPaymentResponseDto);
         }
+    }
+
+    @Override
+    @Transactional
+    public List<BillingDto> processAutoBilling(List<BillingDto> billingDtoList) {
+        //Basic 인증 헤더
+        String authorizationHeader = tossBasicAuthHeaderUtil.createBasicAuth(tossConfig.getSecretKey());
+
+        // 결제 결과를 저장할 리스트
+        List<BillingDto> processedBillings = new java.util.ArrayList<>();
+
+        billingDtoList.forEach(billingDto -> {
+            // 결제 요청 DTO 생성
+            AutoPaymentRequestDto autoPaymentRequestDto = AutoPaymentRequestDto.builder()
+                    .customerKey(billingDto.getUserId())
+                    .amount(billingDto.getAmount())
+                    .orderId(idGenerator.OrderId())
+                    .orderName(billingDto.getOrderName())
+                    .customerEmail(billingDto.getCustomerEmail())
+                    .customerName(billingDto.getCustomerName())
+                    .taxFreeAmount(0)
+                    .build();
+
+            try {
+                //토스 결제 요청 with billingKey
+                ResponseEntity<AutoPaymentResponseDto> response = feignRequestTossPayment.requestPayment(
+                        billingDto.getBillingKey(),
+                        authorizationHeader,
+                        autoPaymentRequestDto
+                );
+
+                //응답값 저장
+                AutoPaymentResponseDto responseBody = response.getBody();
+
+                //성공처리
+                if (response.getStatusCode().is2xxSuccessful()
+                        && responseBody != null
+                        && "DONE".equalsIgnoreCase(responseBody.getStatus())
+                        && responseBody.getApprovedAt() != null) {
+                    //다음 결제일 업데이트
+                    billingDto.setNextBillingAt(responseBody.getApprovedAt().toLocalDateTime().plusMonths(1));
+
+                    BillingEntity billingEntity = new ModelMapper().map(billingDto, BillingEntity.class);
+
+                    billingRepository.save(billingEntity);
+                    processedBillings.add(billingDto);
+
+                    //성공 이벤트 생성
+                    AutoPaymentSuccessEvent autoPaymentSuccessEvent = new AutoPaymentSuccessEvent(billingDto.getUserId(), billingDto.getNextBillingAt());
+                    log.info(autoPaymentSuccessEvent.toString());
+
+                    // Kafka 이벤트 발행 (예: 결제 성공 이벤트) to subscribe service
+                    autoPaymentSuccessProducer.autoSendPaymentSuccessEvent("autoPayment.success", autoPaymentSuccessEvent);
+
+                    //history 저장
+                    PaymentHistoryEntity paymentHistoryEntity = PaymentHistoryEntity.builder()
+                            .paymentHistoryId(idGenerator.OrderId())
+                            .userId(billingDto.getUserId())
+                            .orderId(autoPaymentRequestDto.getOrderId())
+                            .amount(autoPaymentRequestDto.getAmount())
+                            .paidAt(responseBody.getApprovedAt().toLocalDateTime().plusMonths(1))
+                            .success(true)
+                            .paymentKey(responseBody.getPaymentKey())
+                            .build();
+                    paymentHistoryRepository.save(paymentHistoryEntity);
+
+                } else { //실패처리
+                    updateFailCountWhenTossPayRequest(billingDto);
+                    billingRepository.save(new org.modelmapper.ModelMapper().map(billingDto, BillingEntity.class));
+                }
+            } catch (Exception e) {
+                updateFailCountWhenTossPayRequest(billingDto);
+                billingRepository.save(new org.modelmapper.ModelMapper().map(billingDto, BillingEntity.class));
+                log.error("자동결제 요청 중 오류 발생: userId={}, message={}", billingDto.getUserId(), e.getMessage());
+            }
+        });
+
+        return processedBillings;
     }
 
     private PaymentHistoryEntity createPaymentHistoryDto(String userId, SubscriptionCreatedEvent subscriptionCreatedEvent, String orderId, AutoPaymentResponseDto autoPaymentResponseDto) {
@@ -214,6 +320,4 @@ public class TossBillingServiceImpl implements TossBillingService {
                 .acquirerCode(billingResponse.getCard().getAcquirerCode())
                 .build();
     }
-
-
 }
