@@ -1,5 +1,6 @@
 package com.ssg.chatservice.domain.chat.dto.respone;
 
+import com.ssg.chatservice.domain.chat.enums.ChatStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,4 +19,5 @@ public class ChatResponeDTO {
     private boolean isNew;
     private String proposalId;
     private String campaignId;
+    private ChatStatus chatStatus; // 채팅방 상태 추가
 }
