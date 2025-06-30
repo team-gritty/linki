@@ -14,9 +14,10 @@ import java.util.stream.Collectors;
 @Builder
 public class RecommendedInfluencerResponse {
 
+    // 추천 인플루언서 카드 리스트
     private List<InfluencerCard> influencerCards;
-    private int totalCount;
-    private String period; // "이번 달"
+    private int totalCount; // 추천 인플루언서 카드 개수
+    private String period; // 이번 주
 
     @Getter
     @Setter
@@ -35,6 +36,12 @@ public class RecommendedInfluencerResponse {
         private String channelUrl; // 채널 URL
     }
 
+    /**
+     * 개별 카드 기반으로 추천 인플루언서 카드 리스트 생성
+     * @param influencers
+     * 
+     * @return
+     */
     public static RecommendedInfluencerResponse of(List<RecommendedInfluencerDTO> influencers) {
         List<InfluencerCard> cards = influencers.stream()
                 .map(RecommendedInfluencerResponse::createCard)
@@ -47,6 +54,12 @@ public class RecommendedInfluencerResponse {
                 .build();
     }
 
+    /**
+     * 추천 인플루언서 카드를 dto 기반으로 생성
+     * @param dto
+     * 
+     * @return
+     */
     private static InfluencerCard createCard(RecommendedInfluencerDTO dto) {
         return InfluencerCard.builder()
                 .influencerId(dto.getInfluencerId())
@@ -61,6 +74,12 @@ public class RecommendedInfluencerResponse {
                 .build();
     }
 
+    /**
+     * 구독자 수 읽기 편하게 포맷팅
+     * @param subscriberCount
+     * 
+     * @return
+     */
     private static String formatSubscriberCount(Long subscriberCount) {
         if (subscriberCount == null || subscriberCount == 0) {
             return "0명";

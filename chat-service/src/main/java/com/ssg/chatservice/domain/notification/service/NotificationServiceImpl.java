@@ -110,7 +110,7 @@ public class NotificationServiceImpl implements NotificationService {
             userSseEmitters.forEach((connectedUserId, emitter) -> {
                 try {
                     String messageData = String.format(
-                        "{\"type\":\"NEW_MESSAGE\",\"chatId\":\"%s\",\"content\":\"%s\",\"messageDate\":\"%s\"}",
+                        "{\"type\":\"NEW_MESSAGE\",\"chatId\":\"%s\",\"content\":\"%s\",\"messageDate\":\"%s\",\"messageType\":\"NOTIFICATION\"}",
                         chatId, content, messageDate
                     );
                     
@@ -132,7 +132,7 @@ public class NotificationServiceImpl implements NotificationService {
                 try {
                     // JSON 형태로 새 메시지 정보 전송
                     String messageData = String.format(
-                        "{\"type\":\"NEW_MESSAGE\",\"chatId\":\"%s\",\"content\":\"%s\",\"messageDate\":\"%s\"}",
+                        "{\"type\":\"NEW_MESSAGE\",\"chatId\":\"%s\",\"content\":\"%s\",\"messageDate\":\"%s\",\"messageType\":\"NOTIFICATION\"}",
                         chatId, content, messageDate
                     );
                     
@@ -161,7 +161,7 @@ public class NotificationServiceImpl implements NotificationService {
             if (!connectedUserId.equals(excludeUserId)) {
                 try {
                     String messageData = String.format(
-                        "{\"type\":\"NEW_MESSAGE\",\"chatId\":\"%s\",\"content\":\"%s\",\"messageDate\":\"%s\"}",
+                        "{\"type\":\"NEW_MESSAGE\",\"chatId\":\"%s\",\"content\":\"%s\",\"messageDate\":\"%s\",\"messageType\":\"MESSAGE\"}",
                         chatId, content, messageDate
                     );
                     

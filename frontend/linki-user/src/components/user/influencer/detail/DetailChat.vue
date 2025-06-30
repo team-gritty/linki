@@ -18,6 +18,14 @@
       <div class="messages-container" ref="messagesContainer">
         <div v-if="loading" class="loading">메시지를 불러오는 중...</div>
         <div v-else-if="error" class="error">{{ error }}</div>
+        <!-- 삭제된 채팅방 안내 메시지 -->
+        <div v-else-if="chatRoom?.chatStatus === 'DELETE'" class="delete-notice">
+          <div class="delete-icon">🚫</div>
+          <div class="delete-message">
+            <h3>제안서가 거절되었습니다</h3>
+            <p>해당 제안서가 거절되어 더 이상 메시지를 주고받을 수 없습니다.</p>
+          </div>
+        </div>
         <template v-else>
           <div v-if="chatMessages.length === 0" class="no-message">메시지가 없습니다.</div>
 
@@ -37,15 +45,13 @@
             <div 
               v-else 
               :id="`message-${message.messageId}`"
-              :class="['message', { 
-                'my-message': message.senderId === currentUserId, 
-                'unread-message': !message.messageRead && message.senderId !== currentUserId 
+                            :class="['message', { 
+                'my-message': message.senderId === currentUserId
               }]"
             >
               <div class="message-content">{{ message.content }}</div>
               <div class="message-time">
                 {{ formatMessageTime(message.messageDate) }}
-                <span v-if="!message.messageRead && message.senderId !== currentUserId" class="unread-indicator">●</span>
               </div>
             </div>
           </template>
@@ -53,19 +59,19 @@
       </div>
 
       <!-- 메시지 입력 -->
-      <div class="message-input-container" :class="{ 'disabled': chatRoom?.chatStatus === 'PENDING' }">
+      <div class="message-input-container" :class="{ 'disabled': isMessageInputDisabled }">
         <input 
           type="text" 
           v-model="newMessage"
           @keyup.enter="sendMessage"
-          :placeholder="chatRoom?.chatStatus === 'PENDING' ? '제안서 승인 후 채팅 가능합니다' : '메시지를 입력하세요...'"
+          :placeholder="getInputPlaceholder()"
           class="message-input"
-          :disabled="chatRoom?.chatStatus === 'PENDING'"
+          :disabled="isMessageInputDisabled"
         >
         <button 
           class="send-button" 
           @click="sendMessage"
-          :disabled="chatRoom?.chatStatus === 'PENDING'"
+          :disabled="isMessageInputDisabled"
         >전송</button>
       </div>
     </div>
@@ -94,6 +100,22 @@ const chatStore = useChatStore()
 const currentUserId = computed(() => {
   return accountStore.getUser?.userId || accountStore.getUser?.id || null
 })
+
+// 메시지 입력 비활성화 여부
+const isMessageInputDisabled = computed(() => {
+  return props.chatRoom?.chatStatus === 'PENDING' || props.chatRoom?.chatStatus === 'DELETE'
+})
+
+// 입력창 플레이스홀더 텍스트
+const getInputPlaceholder = () => {
+  if (props.chatRoom?.chatStatus === 'PENDING') {
+    return '제안서 승인 후 채팅 가능합니다'
+  } else if (props.chatRoom?.chatStatus === 'DELETE') {
+    return '제안서가 거절되어 메시지를 보낼 수 없습니다'
+  } else {
+    return '메시지를 입력하세요...'
+  }
+}
 
 const newMessage = ref('')
 const loading = ref(false)
@@ -187,7 +209,12 @@ const connectSocket = (chatId) => {
         )
 
         if (!isDuplicate) {
-          chatMessages.value.push(message)
+          // 현재 채팅방이므로 메시지를 읽음 상태로 설정
+          const newMessageObj = {
+            ...message,
+            messageRead: true // 현재 채팅방에서 수신한 메시지는 읽음 상태로 설정
+          }
+          chatMessages.value.push(newMessageObj)
 
           
           // 전역 chat store 직접 업데이트 (드롭다운용)
@@ -220,7 +247,7 @@ const connectSocket = (chatId) => {
             }
           }
           
-          // 즉시 읽음 처리
+          // 백그라운드에서 읽음 처리 (UI는 이미 읽음 상태로 표시됨)
           try {
             await chatApi.markMessagesAsRead(message.chatId)
             if (window.markChatAsRead) {
@@ -283,7 +310,12 @@ const connectWithNativeWebSocket = (chatId, token) => {
         )
 
         if (!isDuplicate) {
-          chatMessages.value.push(message)
+          // 현재 채팅방이므로 메시지를 읽음 상태로 설정
+          const newMessageObj = {
+            ...message,
+            messageRead: true // 현재 채팅방에서 수신한 메시지는 읽음 상태로 설정
+          }
+          chatMessages.value.push(newMessageObj)
           
           // 스크롤을 최하단으로 이동 (fallback WebSocket 메시지 수신 시)
           setTimeout(() => {
@@ -309,6 +341,13 @@ const connectWithNativeWebSocket = (chatId, token) => {
 const sendMessage = async () => {
   if (!newMessage.value.trim()) {
     console.warn('Empty message cannot be sent')
+    return
+  }
+
+  // DELETE 상태인 경우 메시지 전송 차단
+  if (props.chatRoom?.chatStatus === 'DELETE') {
+    console.warn('Cannot send message to deleted chat room')
+    error.value = '제안서가 거절되어 메시지를 보낼 수 없습니다.'
     return
   }
 
@@ -489,6 +528,14 @@ const loadChatInfo = async () => {
       return
     }
 
+    // DELETE 상태인 경우 메시지를 로드하지 않고 바로 종료
+    if (props.chatRoom.chatStatus === 'DELETE') {
+      console.log('Chat room is deleted, skipping message load')
+      chatMessages.value = []
+      loading.value = false
+      return
+    }
+
     console.log('Loading chat messages for chatId:', props.chatRoom.chatId)
 
     // 메시지 로드
@@ -546,14 +593,16 @@ const loadChatInfo = async () => {
   } finally {
     loading.value = false
   }
-  // 소켓 연결은 별도 try/catch로 분리
+  // 소켓 연결은 별도 try/catch로 분리 (DELETE 상태가 아닌 경우에만)
   try {
-    if (props.chatRoom && props.chatRoom.chatId) {
+    if (props.chatRoom && props.chatRoom.chatId && props.chatRoom.chatStatus !== 'DELETE') {
       console.log('Attempting WebSocket connection for chatId:', props.chatRoom.chatId)
       // WebSocket 연결은 백그라운드에서 시도하고, 실패해도 메시지 조회는 계속 가능
       setTimeout(() => {
         connectSocket(props.chatRoom.chatId)
       }, 1000) // 1초 후 연결 시도
+    } else if (props.chatRoom.chatStatus === 'DELETE') {
+      console.log('Chat room is deleted, skipping WebSocket connection')
     }
   } catch (e) {
     console.error('소켓 연결 에러:', e)
@@ -572,16 +621,59 @@ watch(
     {immediate: true}
 )
 
+// SSE 메시지 핸들러 (전역 SSE에서 메시지 받음)
+const handleSSEMessage = (event) => {
+  const { chatId, content, messageDate, messageType } = event.detail
+  
+  // 현재 채팅방의 NOTIFICATION 메시지인 경우
+  if (props.chatRoom?.chatId === chatId && messageType === 'NOTIFICATION') {
+    loadChatInfo() // 채팅 정보 새로고침
+    
+    // 현재 채팅방 보고 있으니까 메시지 읽음 처리
+    chatApi.markMessagesAsRead(chatId).then(() => {
+      // 드롭다운에도 읽음 상태 반영
+      if (window.markChatAsRead) {
+        window.markChatAsRead(chatId)
+      }
+    })
+  }
+}
+
+// 제안서 거절 이벤트 핸들러
+const handleProposalReject = (event) => {
+  const { chatId, proposalId } = event.detail
+
+  // 현재 채팅방이 거절된 경우
+  if (props.chatRoom?.chatId === chatId) {
+    console.log('🚫 [REJECT-INFLUENCER] 현재 채팅방이 거절됨 - UI 업데이트')
+    
+    // props는 직접 수정할 수 없으므로 부모 컴포넌트에 이벤트 발생
+    // 대신 웹소켓 연결 해제하고 상태를 업데이트
+    disconnectSocket()
+    
+    // 채팅 메시지 클리어
+    chatMessages.value = []
+    
+    console.log('✅ [REJECT-INFLUENCER] 채팅방 상태 업데이트 완료')
+  }
+}
+
+// 이벤트 리스너 등록
+onMounted(() => {
+  if (window.addEventListener) {
+    window.addEventListener('sse-new-message', handleSSEMessage)
+    window.addEventListener('proposal-reject', handleProposalReject)
+  }
+})
+
 // 메시지 자동 스크롤 (새 메시지 수신 시에만)
 const messagesContainer = ref(null)
 watch(chatMessages, (newMessages, oldMessages) => {
   // 새 메시지가 추가된 경우에만 맨 밑으로 스크롤
   if (newMessages.length > oldMessages.length) {
-    console.log('📊 [INFLUENCER] 새 메시지 감지, 스크롤 이동')
     setTimeout(() => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-        console.log('✅ [INFLUENCER] 새 메시지로 인한 스크롤 완료')
       }
     }, 200)
   }
@@ -590,13 +682,17 @@ watch(chatMessages, (newMessages, oldMessages) => {
 onUnmounted(() => {
   disconnectSocket()
   
+  // SSE 이벤트 리스너 제거
+  if (window.removeEventListener) {
+    window.removeEventListener('sse-new-message', handleSSEMessage)
+    window.removeEventListener('proposal-reject', handleProposalReject)
+  }
+  
   // 채팅 상태 초기화 (다른 탭으로 갔다가 다시 올 때 초기 상태로)
   chatMessages.value = []
   newMessage.value = ''
   error.value = null
   loading.value = false
-  
-  console.log('💫 인플루언서 채팅 컴포넌트 언마운트: 모든 상태 초기화 완료')
 })
 
 // 소켓 연결 해제
@@ -639,4 +735,53 @@ const getNegoStatusClass = (status) => {
 
 <style>
 @import '@/assets/css/detail.css';
+
+/* 삭제된 채팅방 안내 메시지 스타일 */
+.delete-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60%;
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.delete-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.delete-message h3 {
+  color: #dc3545;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.delete-message p {
+  color: #6c757d;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 메시지 입력창 비활성화 상태 스타일 */
+.message-input-container.disabled .message-input {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.message-input-container.disabled .send-button {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.message-input-container.disabled .send-button:hover {
+  background-color: #e9ecef;
+}
 </style> 

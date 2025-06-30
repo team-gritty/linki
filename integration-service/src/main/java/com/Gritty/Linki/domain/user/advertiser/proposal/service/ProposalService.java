@@ -124,8 +124,8 @@ public class ProposalService {
         Proposal acceptedProposal = proposalRepository.save(proposal);
         log.info("제안서 {} 수락 완료", proposalId);
 
-        //제안서 승인 이벤트 발행
-        chatProducer.sendEvent(user, EventType.PROPOSAL_ACTIVE,proposal.getProposalId());
+        // 제안서 승인 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_ACTIVE, proposal.getProposalId());
 
         return mapToDto(acceptedProposal);
     }
@@ -170,10 +170,8 @@ public class ProposalService {
         Proposal rejectedProposal = proposalRepository.save(proposal);
         log.info("제안서 {} 거절 완료", proposalId);
 
-
-        //제안서 거절 이벤트 발행
-        chatProducer.sendEvent(user, EventType.PROPOSAL_REJECT,proposalId);
-
+        // 제안서 거절 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_REJECT, proposalId);
 
         return mapToDto(rejectedProposal);
     }
@@ -209,9 +207,8 @@ public class ProposalService {
         Proposal updatedProposal = proposalRepository.save(proposal);
         log.info("제안서 {} 수정 완료", proposalId);
 
-
-        //제안서 수정 이벤트 발행
-        chatProducer.sendEvent(user, EventType.PROPOSAL_MODIFY,proposalId);
+        // 제안서 수정 이벤트 발행
+        chatProducer.sendEvent(user, EventType.PROPOSAL_MODIFY, proposalId);
 
         return mapToDto(updatedProposal);
     }
@@ -223,6 +220,13 @@ public class ProposalService {
      * @return 제안서 DTO
      */
     private ProposalDto mapToDto(Proposal proposal) {
+        // 인플루언서의 첫 번째 채널명 가져오기 (없으면 기본값 사용)
+        String channelName = "채널 정보 없음";
+        if (proposal.getInfluencer().getChannels() != null &&
+                !proposal.getInfluencer().getChannels().isEmpty()) {
+            channelName = proposal.getInfluencer().getChannels().get(0).getChannelName();
+        }
+
         return ProposalDto.builder()
                 .proposalId(proposal.getProposalId())
                 .contents(proposal.getContents())
@@ -233,6 +237,7 @@ public class ProposalService {
                 .campaignId(proposal.getCampaign().getCampaignId())
                 .campaignName(proposal.getCampaign().getCampaignName())
                 .influencerName(proposal.getInfluencer().getInfluencerName())
+                .channelName(channelName) // 인플루언서 채널명 추가
                 .build();
     }
 }

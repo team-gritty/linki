@@ -29,13 +29,13 @@ public class Settlement {
     @Column(name = "settlement_status", nullable = false)
     private SettlementStatus settlementStatus; // 정산 상태 (PENDING, COMPLETED)
 
-    @Column(name = "settlement_date", nullable = false)
-    private LocalDate settlementDate; // 정산 예정일
+    @Column(name = "settlement_date")
+    private LocalDate settlementDate; // 정산 일
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt; // 생성일시
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt; // 수정일시
 
     // 🔗 연관 관계

@@ -28,4 +28,5 @@ public class ProposalDto {
     private String campaignId; // 캠페인 ID
     private String campaignName; // 캠페인명 (조회 시 편의를 위해)
     private String influencerName; // 인플루언서명 (조회 시 편의를 위해)
+    private String channelName; // 인플루언서 채널명 추가
 }

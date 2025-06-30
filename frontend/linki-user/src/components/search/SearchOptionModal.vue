@@ -8,15 +8,21 @@
             <label class="section-label">카테고리</label>
             <div class="category-dropdown-modal" @click="toggleCategoryDropdown">
               <span class="category-label-modal">{{ selectedCategoryLabel }}</span>
-              <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="dropdown-icon" :class="{ 'rotated': categoryDropdownOpen }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <div v-if="categoryDropdownOpen" class="dropdown-menu custom-category-dropdown" @click.stop>
-                <div class="category-list">
-                  <label v-for="cat in categories" :key="cat" class="category-item">
-                    <input type="radio" name="category-radio" v-model="selectedCategory" :value="cat" />
-                    <span>{{ cat }}</span>
-                  </label>
+              <div v-if="categoryDropdownOpen" class="dropdown-menu google-style-dropdown" @click.stop>
+                <div class="category-option" 
+                     :class="{ 'selected': selectedCategory === '' }"
+                     @click="selectCategory('')">
+                  <span>전체</span>
+                </div>
+                <div v-for="cat in categories" 
+                     :key="cat" 
+                     class="category-option"
+                     :class="{ 'selected': selectedCategory === cat }"
+                     @click="selectCategory(cat)">
+                  <span>{{ cat }}</span>
                 </div>
               </div>
             </div>
@@ -113,7 +119,7 @@ const selectedCategory = ref(props.initCategory || '')
 const categoryDropdownOpen = ref(false)
 
 const selectedCategoryLabel = computed(() => {
-  return selectedCategory.value || '카테고리'
+  return selectedCategory.value || '전체'
 })
 
 const toggleCategoryDropdown = () => { 
@@ -255,7 +261,7 @@ function handleSearch() {
 
 function onDocumentClick(e) {
   if (categoryDropdownOpen.value) {
-    const dropdown = document.querySelector('.custom-category-dropdown')
+    const dropdown = document.querySelector('.google-style-dropdown')
     if (dropdown && !dropdown.contains(e.target)) closeDropdownAndEmit()
   }
 }
@@ -283,6 +289,11 @@ const clearAll = () => {
   viewMax.value = ''
   selectedCategory.value = ''
 }
+
+function selectCategory(category) {
+  selectedCategory.value = category
+  closeDropdownAndEmit()
+}
 </script>
 
 <style scoped>
@@ -298,27 +309,26 @@ const clearAll = () => {
 .modal-content {
   background: #fff;
   border-radius: 12px;
-  padding: 32px 40px 32px 40px;
+  padding: 24px 32px;
   min-width: 520px;
-  min-height: 380px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+  min-height: 350px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
   position: relative;
-  font-size: 18px;
+  font-size: 14px;
 }
 .modal-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 18px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #202124;
 }
-
 .modal-section {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
-
 .form-row {
   display: flex;
-  gap: 32px;
-  margin-bottom: 18px;
+  gap: 24px;
+  margin-bottom: 16px;
 }
 .form-group {
   display: flex;
@@ -341,21 +351,58 @@ const clearAll = () => {
 .subscriber-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px 24px;
+  gap: 12px 16px;
   margin-top: 4px;
 }
 .subscriber-options label {
-  font-size: 1rem;
-  color: #444;
+  font-size: 14px;
+  color: #5f6368;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.subscriber-options label:hover {
+  background: #f8f9fa;
+}
+.subscriber-options input[type="checkbox"] {
+  accent-color: #8C30F5;
+  width: 16px;
+  height: 16px;
+}
+.section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+.direct-input {
+  width: 120px;
+  height: 40px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.direct-input:focus {
+  outline: none;
+  border-color: #8C30F5;
+  box-shadow: 0 0 0 1px #8C30F5;
 }
 .subscriber-direct-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+.subscriber-direct-row span {
+  color: #5f6368;
+  font-size: 14px;
 }
 .view-checkbox-row {
   margin-top: 0;
@@ -364,146 +411,123 @@ const clearAll = () => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 24px;
-  margin-top: 32px;
-  padding-bottom: 8px;
+  gap: 16px;
+  margin-top: 24px;
+  padding-bottom: 0;
   position: static;
 }
 .clear-btn {
-  background: #eee;
+  background: #fff;
   color: #8C30F5;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 32px;
-  font-weight: 700;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
-  font-size: 1rem;
+  transition: all 0.15s;
+  font-size: 14px;
   margin-right: auto;
   margin-top: 0;
   position: static;
 }
 .clear-btn:hover {
-  background: #f5f0ff;
+  background: #f8f9fa;
+  border-color: #8C30F5;
 }
 .modal-search-btn {
   background: #8C30F5;
   color: #fff;
   border: none;
-  border-radius: 4px;
-  padding: 12px 48px;
-  font-weight: 700;
-  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.15s;
   position: static;
 }
 .modal-search-btn:hover {
-  background: #B18CFF;
-}
-.direct-input {
-  width: 120px;
-  height: 40px;
-  border: 1px solid #E0E0E0;
-  border-radius: 6px;
-  padding: 0 12px;
-  font-size: 18px;
-}
-.section-label {
-  font-size: 1.15em;
-  font-weight: 700;
-  color: #222;
-  margin-bottom: 8px;
-  display: inline-block;
-  border-bottom: 1.5px solid #E0E0E0;
-  padding-bottom: 2px;
-  width: auto;
-}
-.form-group label.section-label {
-  margin-bottom: 12px;
+  background: #7C3AED;
 }
 .category-dropdown-modal {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  color: #23262F;
-  font-size: 17px;
+  justify-content: space-between;
+  font-weight: 500;
+  color: #202124;
+  font-size: 14px;
   cursor: pointer;
   position: relative;
   user-select: none;
   min-width: 180px;
   max-width: 180px;
   width: 180px;
-  border: 1.5px solid #8C30F5;
+  border: 1px solid #dadce0;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 12px 16px;
   background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.category-dropdown-modal:hover {
+  border-color: #8C30F5;
+}
+.category-dropdown-modal:focus-within {
+  border-color: #8C30F5;
+  box-shadow: 0 0 0 1px #8C30F5;
 }
 .category-label-modal {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 100%;
+  flex: 1;
   display: inline-block;
 }
-.custom-category-dropdown {
+.dropdown-icon {
+  transition: transform 0.2s;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.dropdown-icon path {
+  stroke: #5f6368;
+}
+.rotated {
+  transform: rotate(180deg);
+}
+.google-style-dropdown {
   position: absolute;
   top: 110%;
   left: 0;
   background: #fff;
-  border: 1.5px solid #8C30F5;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(140,48,245,0.08);
-  min-width: 260px;
-  width: 260px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  width: 220px;
   z-index: 20;
-  padding: 18px 0 12px 0;
-}
-.select-all-btn {
-  width: auto;
-  min-width: 80px;
-  background: #F5F0FF;
-  color: #8C30F5;
-  border: none;
-  font-weight: 700;
-  font-size: 0.98em;
-  padding: 4px 16px;
-  border-radius: 16px;
-  cursor: pointer;
-  margin-bottom: 8px;
-  transition: background 0.2s, color 0.2s;
-  display: inline-block;
-  margin-left: 28px;
-}
-.select-all-btn.active, .select-all-btn:hover {
-  background: #8C30F5;
-  color: #fff;
-}
-.category-list {
-  max-height: 220px;
+  padding: 4px 0;
+  max-height: 200px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 0 18px;
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
-.category-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.08em;
-  padding: 8px 0;
+.google-style-dropdown::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+.category-option {
+  padding: 10px 16px;
   cursor: pointer;
-  border-radius: 6px;
   transition: background 0.15s;
+  font-size: 14px;
+  color: #202124;
+  white-space: nowrap;
 }
-.category-item:hover {
-  background: #F5F0FF;
+.category-option:hover {
+  background: #f8f9fa;
 }
-.category-item input[type="checkbox"] {
-  accent-color: #8C30F5;
-  width: 18px;
-  height: 18px;
+.category-option.selected {
+  background: #f5f0ff;
+  color: #8C30F5;
+  font-weight: 500;
 }
 </style> 

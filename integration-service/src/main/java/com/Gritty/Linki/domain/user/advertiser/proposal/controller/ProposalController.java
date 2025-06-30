@@ -165,6 +165,7 @@ public class ProposalController {
                 .campaignId(dto.getCampaignId())
                 .campaignName(dto.getCampaignName())
                 .influencerName(dto.getInfluencerName())
+                .channelName(dto.getChannelName())
                 .build();
     }
 }
