@@ -98,4 +98,9 @@ public class ChannelDetailResponse {
      * 인플루언서 소개글
      */
     private String influencerIntro;
+
+    /**
+     * 구독자 상승률 (7일 기준)
+     */
+    private String subscriberGrowthRate7Days;
 }

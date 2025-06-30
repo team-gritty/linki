@@ -622,7 +622,7 @@ function sortByColumn(column) {
   fetchChannels(1, searchKeyword.value, currentFilters.value)
 }
 
-// 숫자 포맷팅 함수
+// 숫자 포맷팅 함수 - 구독자 수를 읽기 쉽게 포맷팅
 function formatNumber(number) {
   if (number == null || number === undefined) {
     return '-'
@@ -630,7 +630,38 @@ function formatNumber(number) {
   if (number === 0) {
     return '0'
   }
-  return number.toLocaleString()
+  
+  // 100만 이상
+  if (number >= 1000000) {
+    const formatted = number / 1000000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}백만`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}백만`
+    }
+  }
+  // 1만 이상
+  else if (number >= 10000) {
+    const formatted = number / 10000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}만`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}만`
+    }
+  }
+  // 1천 이상
+  else if (number >= 1000) {
+    const formatted = number / 1000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}천`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}천`
+    }
+  }
+  // 1천 미만
+  else {
+    return number.toLocaleString()
+  }
 }
 </script>
 

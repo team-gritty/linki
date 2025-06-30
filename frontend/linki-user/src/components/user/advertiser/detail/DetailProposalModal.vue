@@ -10,7 +10,7 @@
         <img :src="proposal.influencerName ? '/default-profile.jpg' : '/default-profile.jpg'" class="proposal-detail-img" />
         <div class="proposal-detail-meta">
           <div>이름 : {{ proposal.influencerName }}</div>
-          <div>채널 : {{ proposal.influencerName + ' 채널' }}</div>
+          <div>채널 : {{ proposal.channelName || '채널 정보 없음' }}</div>
         </div>
       </div>
       <hr class="proposal-detail-divider" />

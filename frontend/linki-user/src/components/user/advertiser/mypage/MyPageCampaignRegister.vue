@@ -12,8 +12,9 @@
           <div v-if="showError && productName.trim() === ''" class="field-error">캠페인 제품명을 입력해주세요.</div>
         </div>
         <div class="form-group">
-          <label>캠페인 조건</label>
-          <input type="text" placeholder="예) 구독자 1만명 이상, 뷰티 유튜버" v-model="productCondition" />
+          <label>캠페인 조건 <span class="required-asterisk">*</span></label>
+          <input type="text" placeholder="예) 구독자 1만명 이상, 뷰티 유튜버" v-model="productCondition" :class="{'input-error': showError && productCondition.trim() === ''}" />
+          <div v-if="showError && productCondition.trim() === ''" class="field-error">캠페인 조건을 입력해주세요.</div>
         </div>
       </div>
       <div class="form-row">
@@ -26,14 +27,16 @@
           <label>카테고리 <span class="required-asterisk">*</span></label>
           <div class="category-dropdown" @click="toggleCategoryDropdown">
             <span class="category-label">{{ selectedCategory || '카테고리 선택' }}</span>
-            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="dropdown-icon" :class="{ 'rotated': categoryDropdownOpen }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 6L8 10L12 6" stroke="#5f6368" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <div v-if="categoryDropdownOpen" class="dropdown-menu compact-dropdown-menu" @click.stop>
-              <div class="category-list">
-                <div v-for="cat in categories" :key="cat" class="category-item compact-category-item" @click="selectCategory(cat)">
-                  {{ cat }}
-                </div>
+            <div v-if="categoryDropdownOpen" class="dropdown-menu google-style-dropdown" @click.stop>
+              <div v-for="cat in categories" 
+                   :key="cat"
+                   class="category-option"
+                   :class="{ 'selected': selectedCategory === cat }"
+                   @click="selectCategory(cat)">
+                <span>{{ cat }}</span>
               </div>
             </div>
           </div>
@@ -43,14 +46,16 @@
           <label>공개 상태 <span class="required-asterisk">*</span></label>
           <div class="publish-status-dropdown" @click="togglePublishStatusDropdown">
             <span class="status-label">{{ getPublishStatusLabel(selectedPublishStatus) || '공개 상태 선택' }}</span>
-            <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="dropdown-icon" :class="{ 'rotated': publishStatusDropdownOpen }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 6L8 10L12 6" stroke="#5f6368" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>    
             </svg>
-            <div v-if="publishStatusDropdownOpen" class="dropdown-menu compact-dropdown-menu" @click.stop>
-              <div class="status-list">
-                <div v-for="status in publishStatuses" :key="status.value" class="status-item compact-status-item" @click="selectPublishStatus(status)">
-                  {{ status.label }}
-                </div>
+            <div v-if="publishStatusDropdownOpen" class="dropdown-menu google-style-dropdown" @click.stop>
+              <div v-for="status in publishStatuses" 
+                   :key="status.value" 
+                   class="category-option"
+                   :class="{ 'selected': selectedPublishStatus === status.value }"
+                   @click="selectPublishStatus(status)">
+                <span>{{ status.label }}</span>
               </div>
             </div>
           </div>
@@ -127,6 +132,7 @@ const publishStatusDropdownOpen = ref(false)
 const isFormValid = computed(() => {
   return (
     productName.value.trim() !== '' &&
+    productCondition.value.trim() !== '' &&
     productDesc.value.trim() !== '' &&
     selectedCategory.value.trim() !== '' &&
     (imageUrl.value.trim() !== '' || fileName.value.trim() !== '') &&
@@ -178,7 +184,7 @@ function selectPublishStatus(status) {
 
 function onDocumentClick(e) {
   if (categoryDropdownOpen.value || publishStatusDropdownOpen.value) {
-    const dropdown = document.querySelector('.dropdown-menu')
+    const dropdown = document.querySelector('.google-style-dropdown')
     if (dropdown && !dropdown.contains(e.target)) {
       categoryDropdownOpen.value = false
       publishStatusDropdownOpen.value = false
@@ -356,63 +362,87 @@ function getPublishStatusLabel(value) {
   position: relative;
   width: 100%;
   padding: 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
   background: white;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-size: 14px;
+  color: #202124;
 }
 
 .category-dropdown:hover,
 .publish-status-dropdown:hover {
-  border-color: #7B21E8;
+  border-color: #8C30F5;
+}
+
+.category-dropdown:focus-within,
+.publish-status-dropdown:focus-within {
+  border-color: #8C30F5;
+  box-shadow: 0 0 0 1px #8C30F5;
 }
 
 .category-label,
 .status-label {
-  font-size: 16px;
-  color: #333;
+  font-size: 14px;
+  color: #202124;
+  font-weight: 400;
+  flex: 1;
+  text-align: left;
 }
 
 .dropdown-icon {
-  transition: transform 0.2s ease;
+  transition: transform 0.2s;
+  margin-left: 8px;
+  flex-shrink: 0;
 }
 
-.dropdown-menu {
+.rotated {
+  transform: rotate(180deg);
+}
+
+.google-style-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: 110%;
   left: 0;
   right: 0;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
+  padding: 4px 0;
   max-height: 200px;
   overflow-y: auto;
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
 
-.category-list,
-.status-list {
-  padding: 8px 0;
+.google-style-dropdown::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
-.category-item,
-.status-item {
-  padding: 12px 16px;
+.category-option {
+  padding: 10px 16px;
   cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 16px;
-  color: #333;
+  transition: background 0.15s;
+  font-size: 14px;
+  color: #202124;
+  white-space: nowrap;
 }
 
-.category-item:hover,
-.status-item:hover {
+.category-option:hover {
   background: #f8f9fa;
-  color: #7B21E8;
+}
+
+.category-option.selected {
+  background: #f5f0ff;
+  color: #8C30F5;
+  font-weight: 500;
 }
 
 .image-preview {
