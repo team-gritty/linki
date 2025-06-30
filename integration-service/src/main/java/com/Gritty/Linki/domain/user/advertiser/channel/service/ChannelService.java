@@ -1,25 +1,30 @@
 package com.Gritty.Linki.domain.user.advertiser.channel.service;
 
-import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
-import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
-import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelPageResponse;
-import com.Gritty.Linki.entity.Channel;
-import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
-import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelDetailResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.Gritty.Linki.domain.user.advertiser.channel.dto.SubscriberHistoryDto;
+import com.Gritty.Linki.domain.user.advertiser.channel.request.ChannelSearchRequest;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelDetailResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelListResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.response.ChannelPageResponse;
+import com.Gritty.Linki.domain.user.advertiser.channel.repository.jpa.ChannelJpaRepository;
+import com.Gritty.Linki.entity.Channel;
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 채널 검색 서비스
@@ -33,6 +38,7 @@ public class ChannelService {
 
         private final ChannelJpaRepository channelRepository;
         private final YouTubeApiService youTubeApiService;
+        private final SubscriberHistoryService subscriberHistoryService;
 
         /**
          * 채널 검색
@@ -419,6 +425,16 @@ public class ChannelService {
                         influencerIntro = channel.getInfluencer().getInfluencerIntro();
                 }
 
+                // 5. 7일 기준 구독자 상승률 계산
+                String subscriberGrowthRate7Days = "0%";
+                try {
+                        List<SubscriberHistoryDto> history = subscriberHistoryService.getSubscriberHistory(channelId,
+                                        7);
+                        subscriberGrowthRate7Days = calculateGrowthRate(history);
+                } catch (Exception e) {
+                        log.warn("구독자 상승률 계산 실패 - channelId: {}, error: {}", channelId, e.getMessage());
+                }
+
                 // 데이터가 없는 경우 경고 로그만 남기고 계속 진행
                 if (avgLikeCount == 0 && avgViewCount > 0) {
                         log.warn("좋아요 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channelId);
@@ -428,7 +444,7 @@ public class ChannelService {
                         log.warn("댓글 데이터가 없습니다. 채널 ID: {} (0으로 처리)", channelId);
                 }
 
-                // 5. Response DTO 생성
+                // 6. Response DTO 생성
                 ChannelDetailResponse response = ChannelDetailResponse.builder()
                                 .channelId(channel.getChannelId())
                                 .name(channel.getChannelName())
@@ -446,6 +462,7 @@ public class ChannelService {
                                 .bannerUrl(bannerUrl)
                                 .collectedAt(channel.getCollectedAt())
                                 .influencerIntro(influencerIntro)
+                                .subscriberGrowthRate7Days(subscriberGrowthRate7Days)
                                 .build();
 
                 log.info("채널 상세 정보 조회 완료 - channelId: {}", channelId);
@@ -485,5 +502,36 @@ public class ChannelService {
                 updateChannelStatisticsBatch(allChannelIds);
 
                 log.info("=== 주간 채널 통계 업데이트 스케줄러 완료 ===");
+        }
+
+        /**
+         * 구독자 히스토리 데이터를 기반으로 상승률 계산
+         * 
+         * @param history 구독자 히스토리 목록
+         * @return 상승률 문자열 (예: "+3.1%", "-1.5%", "0%")
+         */
+        private String calculateGrowthRate(List<SubscriberHistoryDto> history) {
+                if (history == null || history.size() < 2) {
+                        return "0%";
+                }
+
+                // 날짜순 정렬 (오래된 것부터)
+                history.sort((a, b) -> a.getCollectedAt().compareTo(b.getCollectedAt()));
+
+                SubscriberHistoryDto earliest = history.get(0);
+                SubscriberHistoryDto latest = history.get(history.size() - 1);
+
+                if (earliest.getSubscriberCount() == null || latest.getSubscriberCount() == null
+                                || earliest.getSubscriberCount() == 0) {
+                        return "0%";
+                }
+
+                // 증가율 계산: ((최신 - 최초) / 최초) * 100
+                double growthRate = ((double) (latest.getSubscriberCount() - earliest.getSubscriberCount())
+                                / earliest.getSubscriberCount()) * 100;
+
+                // 부호와 소수점 1자리로 포맷팅
+                String sign = growthRate >= 0 ? "+" : "";
+                return String.format("%s%.1f%%", sign, growthRate);
         }
 }

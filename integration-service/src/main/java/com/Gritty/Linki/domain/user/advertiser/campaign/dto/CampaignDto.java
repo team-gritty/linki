@@ -28,4 +28,5 @@ public class CampaignDto {
     private CampaignPublishStatus campaignPublishStatus;
     private Category campaignCategory;
     private String advertiserId;
+    private String companyName;
 }

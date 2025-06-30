@@ -3,16 +3,16 @@
   <div class="search-bar">
     <div class="category-dropdown" @click="toggleDropdown">
       <span class="category-label">{{ selectedCategoryLabel }}</span>
-      <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 6L8 10L12 6" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="dropdown-icon" :class="{ 'rotated': dropdownOpen }" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 6L8 10L12 6" stroke="#5f6368" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <div v-if="dropdownOpen" class="dropdown-menu custom-category-dropdown" @click.stop>
-        <div class="category-list">
-          <div v-for="cat in categories" :key="cat" 
-               class="category-item"
-               @click="() => { selectedCategory = cat; closeDropdownAndEmit(); }">
-            {{ cat }}
-          </div>
+      <div v-if="dropdownOpen" class="dropdown-menu google-style-dropdown" @click.stop>
+        <div v-for="cat in categories" 
+             :key="cat" 
+             class="category-option"
+             :class="{ 'selected': selectedCategory === cat }"
+             @click="() => { selectedCategory = cat; closeDropdownAndEmit(); }">
+          <span>{{ cat }}</span>
         </div>
       </div>
     </div>
@@ -75,7 +75,7 @@ watch(() => props.selectedCategoryProp, (newCategory) => {
 }, { immediate: true })
 
 const selectedCategoryLabel = computed(() => {
-  return selectedCategory.value || '카테고리'
+  return selectedCategory.value || '전체'
 })
 
 const toggleDropdown = () => { dropdownOpen.value = !dropdownOpen.value }
@@ -95,7 +95,7 @@ function handleSearch() {
 
 function onDocumentClick(e) {
   if (dropdownOpen.value) {
-    const dropdown = document.querySelector('.custom-category-dropdown')
+    const dropdown = document.querySelector('.google-style-dropdown')
     if (dropdown && !dropdown.contains(e.target)) closeDropdownAndEmit()
   }
 }
@@ -133,86 +133,77 @@ onBeforeUnmount(() => {
 .category-dropdown {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  color: #23262F;
-  font-size: 17px;
+  justify-content: space-between;
+  font-weight: 500;
+  color: #202124;
+  font-size: 14px;
   cursor: pointer;
   position: relative;
   user-select: none;
   min-width: 180px;
   max-width: 180px;
   width: 180px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+.category-dropdown:hover {
+  background-color: #f8f9fa;
 }
 .category-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 100%;
+  flex: 1;
   display: inline-block;
 }
-.custom-category-dropdown {
+.dropdown-icon {
+  transition: transform 0.2s;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.dropdown-icon path {
+  stroke: #5f6368;
+}
+.rotated {
+  transform: rotate(180deg);
+}
+.google-style-dropdown {
   position: absolute;
   top: 110%;
   left: 0;
   background: #fff;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  z-index: 1000;
-}
-.select-all-btn {
-  width: auto;
-  min-width: 80px;
-  background: #F5F0FF;
-  color: #8C30F5;
   border: none;
-  font-weight: 700;
-  font-size: 0.98em;
-  padding: 4px 16px;
-  border-radius: 16px;
-  cursor: pointer;
-  margin-bottom: 8px;
-  transition: background 0.2s, color 0.2s;
-  display: inline-block;
-  margin-left: 28px;
-}
-.select-all-btn.active, .select-all-btn:hover {
-  background: #8C30F5;
-  color: #fff;
-}
-.category-list {
-  max-height: 192px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  width: 220px;
+  z-index: 1000;
+  padding: 4px 0;
+  max-height: 200px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
-.category-item {
-  width: 100%;
-  border-radius: 0px;
-  box-sizing: border-box;
-  height: 32px;
-  min-height: 32px;
-  padding: 0 8px;
+.google-style-dropdown::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+.category-option {
+  padding: 10px 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  color: #333;
-  font-size: 13px;
-  text-align: left;
-  line-height: 0.5;
-  display: flex;
-  align-items: center;
+  transition: background 0.15s;
+  font-size: 14px;
+  color: #202124;
+  white-space: nowrap;
 }
-.category-item:hover {
-  background-color: #F5F0FF;
+.category-option:hover {
+  background: #f8f9fa;
+}
+.category-option.selected {
+  background: #f5f0ff;
   color: #8C30F5;
-}
-.category-item input[type="checkbox"] {
-  accent-color: #8C30F5;
-  width: 18px;
-  height: 18px;
+  font-weight: 500;
 }
 .divider {
   width: 1px;
