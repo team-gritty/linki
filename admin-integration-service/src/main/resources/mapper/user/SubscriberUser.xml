@@ -13,7 +13,9 @@
             user_email AS email,
             user_phone AS phone
         FROM user
-        WHERE user_pay_status = 1;
+        WHERE user_pay_status = 1
+        ORDER BY userId DESC
+        LIMIT 30000
     </select>
 
     <select id="searchSubscriberUser"  resultType="com.linki.admin_integration_service.domain.user.dto.SubscriberUserDTO">
