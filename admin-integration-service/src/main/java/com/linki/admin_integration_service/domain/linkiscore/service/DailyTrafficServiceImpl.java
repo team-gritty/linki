@@ -1,6 +1,7 @@
 package com.linki.admin_integration_service.domain.linkiscore.service;
 
-import com.linki.admin_integration_service.domain.linkiscore.repository.RedirectClickRepository;
+
+import com.linki.admin_integration_service.common.redirect.repository.RedirectClickRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
