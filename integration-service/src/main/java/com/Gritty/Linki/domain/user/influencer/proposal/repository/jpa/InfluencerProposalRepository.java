@@ -40,7 +40,26 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
     )
     FROM Proposal p
     LEFT JOIN Contract c ON c.proposal.proposalId = p.proposalId
+    WHERE p.proposalId = :proposalId AND p.influencer.influencerId = :influencerId
+""")
+    Optional<ProposalDetailResponseDTO> findDetailByProposalIdAndInfluencerId(@Param("proposalId") String proposalId, @Param("influencerId") String influencerId);
+    
+    @Query("""
+    SELECT new com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO(
+        p.campaign.campaignName,
+        p.proposalId,
+        p.contents,
+        p.status,
+        p.submittedAt,
+        p.respondedAt,
+        p.influencer.influencerId,
+        p.campaign.campaignId,
+        c.contractStatus
+    )
+    FROM Proposal p
+    LEFT JOIN Contract c ON c.proposal.proposalId = p.proposalId
     WHERE p.proposalId = :proposalId
 """)
     Optional<ProposalDetailResponseDTO> findDetailByProposalId(@Param("proposalId") String proposalId);
+    boolean existsByCampaign_CampaignIdAndInfluencer_InfluencerId(String campaignId, String influencerId);
 }

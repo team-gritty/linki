@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -72,13 +70,12 @@ public class YoutubeService {
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         ResponseEntity<YoutubeApiResponse> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, YoutubeApiResponse.class
-        );
+                url, HttpMethod.GET, entity, YoutubeApiResponse.class);
         return response.getBody().getItems().get(0); // 첫 번째 채널 정보 리턴
     }
 
     @Transactional
-    public void registerChannel(CustomUserDetails userDetails, YoutubeChannelInfo channelInfo){
+    public String registerChannel(CustomUserDetails userDetails, YoutubeChannelInfo channelInfo) {
         String influencerId = IdGenerator.influencerId();
 
         Influencer influencer = Influencer.builder()
@@ -86,31 +83,30 @@ public class YoutubeService {
                 .userId(userDetails.getUserId())
                 .build();
 
-                influencerRepository.save(influencer);
+        influencerRepository.save(influencer);
 
         User user = accountRepository.findById(userDetails.getUserId()).orElseThrow();
         user.setUserRole("ROLE_INFLUENCER");
-        accountRepository.save(user);
 
-                Channel channel = Channel.builder()
-                        .channelId(IdGenerator.channelId())
-                        .youtubeChannelId(channelInfo.getId())
-                        .channelName(channelInfo.getTitle())
-                        .channelUrl("http://www.youtube.com/channel/" + channelInfo.getId())
-                        .channelCountry(channelInfo.getCountry())
-                        .channelCategory(channelInfo.getCategory())
-                        .channelCreatedAt(LocalDateTime.parse(channelInfo.getPublishedAt()))
-                        .channelDescription(channelInfo.getDescription())
-                        .channelThumbnailUrl(channelInfo.getThumbnailUrl())
-                        .influencer(influencer)
-                        .build();
+        String channelId = IdGenerator.channelId();
+        Channel channel = Channel.builder()
+                .channelId(channelId)
+                .youtubeChannelId(channelInfo.getId())
+                .channelName(channelInfo.getTitle())
+                .channelUrl("http://www.youtube.com/channel/" + channelInfo.getId())
+                .channelCountry(channelInfo.getCountry())
+                .channelCategory(channelInfo.getCategory())
+                .channelCreatedAt(LocalDateTime.parse(channelInfo.getPublishedAt()))
+                .channelDescription(channelInfo.getDescription())
+                .channelThumbnailUrl(channelInfo.getThumbnailUrl())
+                .influencer(influencer)
+                .build();
 
-                log.info("채널아이디" + channelInfo.getId());
-                channelRepository.save(channel);
+        log.info("채널아이디" + channelInfo.getId());
+        channelRepository.save(channel);
+
+        return channelId;
+
     }
-
-
-
-
 
 }

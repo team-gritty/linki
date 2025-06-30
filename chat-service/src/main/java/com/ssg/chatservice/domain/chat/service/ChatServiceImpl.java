@@ -83,6 +83,7 @@ public class ChatServiceImpl implements ChatService{
                 .chatDate(Instant.now())
                 .chatStatus(ChatStatus.PENDING)
                 .proposalId(proposalId)
+                .negoStatus(NegoStatus.PENDING)
                 .build();
         chatRepository.save(chat);
 
@@ -95,9 +96,8 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public List<ChatDTO> campaignToChatList (String token, String campaignId){
         List<ChatInfoResponse> chatInfos = campaignToChatInfo(token, campaignId);
-        //삭제된 채팅방 필터링
-        List<Chat> chats = chatInfoGetChat(chatInfos).stream().filter(chat ->
-                chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
+        // 캠페인별 조회에서도 DELETE 상태 포함 (광고주가 거절 상황을 볼 수 있도록)
+        List<Chat> chats = chatInfoGetChat(chatInfos);
         //마지막 메세지 조회 (데이트 타입 때문에 DTO 매핑)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessage(chats);
         return chatDTOs(chats,chatInfos,lastMessages);
@@ -107,8 +107,8 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public List<ChatDTO> userToChatList (String token, String userId){
         List<ChatInfoResponse> chatInfos = userChatinfo(token);
-        List<Chat> chats = chatInfoGetChat(chatInfos).stream()
-                .filter(chat->chat.getChatStatus() != ChatStatus.DELETE).collect(Collectors.toList());
+        // 유저별 조회에서는 DELETE 상태도 포함 (인플루언서가 거절 알림을 볼 수 있도록)
+        List<Chat> chats = chatInfoGetChat(chatInfos);
         //마지막 메세지 및 읽지 않은 메시지 여부 조회 (사용자별)
         Map<String, ChatMessageDTO> lastMessages = messageService.lastMessageWithUnreadStatus(chats, userId);
         
@@ -153,15 +153,19 @@ public class ChatServiceImpl implements ChatService{
                 return null;
             }
 
+            // DELETE 상태 채팅방도 읽지 않은 메시지가 있으면 NEW 표시
+            boolean isNewMessage = !lastMessage.isMessageRead();
+            
             return ChatDTO.builder()
                     .chatId(chat.getChatId())
                     .opponentId(chatInfo.getOpponentId())
                     .opponentName(chatInfo.getOpponentName())
                     .lastMessage(lastMessage.getContent())
                     .lastMessageTime(lastMessage.getMessageDate())
-                    .isNew(!lastMessage.isMessageRead())  // 읽지 않은 메시지가 있으면 새 메시지
+                    .isNew(isNewMessage)  // DELETE 상태와 관계없이 읽지 않은 메시지면 NEW
                     .proposalId(chat.getProposalId())
                     .campaignId(chatInfo.getCampaignId()) // Map에서 가져온 chatInfo 객체 사용
+                    .chatStatus(chat.getChatStatus()) // 채팅방 상태 추가
                     .build();
         }).filter(Objects::nonNull) // null이 아닌 객체만 필터링
           .collect(Collectors.toList());
@@ -208,11 +212,20 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
+    @Transactional
     //이벤트 수신 후 계약상태 변경
     public void updateNegoStatus(String proposalId, EventType eventType) {
-        ChatDetailDTO chat = modelMapper.map(findByProposalId(proposalId), ChatDetailDTO.class);
+        if(eventType==EventType.PROPOSAL_CREATE) return;
+        
+        Chat chat = findByProposalId(proposalId);
         NegoStatus newStatus = eventType.getNegoStatus();
-        chat.setNegoStatus(newStatus);
+        
+        if(newStatus != null) {
+            chat.setNegoStatus(newStatus);
+            chatRepository.save(chat); // DB에 저장
+            log.info("nego status 업데이트 완료: proposalId={}, eventType={}, newStatus={}", 
+                    proposalId, eventType, newStatus);
+        }
     }
 
 

@@ -28,7 +28,7 @@ public class Proposal {
 
     // 🔗 연관 관계
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "influencer_id", nullable = false)
     private Influencer influencer; // 제안자 (인플루언서)
 

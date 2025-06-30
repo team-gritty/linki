@@ -93,4 +93,14 @@ public class ChannelDetailResponse {
      * 데이터 수집 날짜
      */
     private LocalDateTime collectedAt;
+
+    /**
+     * 인플루언서 소개글
+     */
+    private String influencerIntro;
+
+    /**
+     * 구독자 상승률 (7일 기준)
+     */
+    private String subscriberGrowthRate7Days;
 }

@@ -14,7 +14,8 @@
             CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
             contract.contract_start_date AS adStartDate,
             contract.contract_end_date AS adEndDate,
-            contract.contract_amount AS adAmount
+            contract.contract_amount AS adAmount,
+            settlement.settlement_status AS settlementStatus
         FROM contract
                  LEFT JOIN proposal
                            ON contract.proposal_id = proposal.proposal_id
@@ -30,6 +31,11 @@
                            ON influencer.user_id = influencer_user.user_id
                  LEFT JOIN channel
                            ON channel.influencer_id = influencer.influencer_id
+                LEFT JOIN settlement
+                           ON contract.contract_id = settlement.contract_id
+        WHERE settlement.settlement_status = 'PENDING'
+        ORDER BY contract.contract_id DESC
+        LIMIT 30000
     </select>
 
     <select id="searchSettlement"  resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">
@@ -55,8 +61,9 @@
         ON influencer.user_id = influencer_user.user_id
         JOIN channel
         ON channel.influencer_id = influencer.influencer_id
-
+        LEFT JOIN settlement ON contract.contract_id = settlement.contract_id
         WHERE 1 = 1
+        AND settlement.settlement_status = 'PENDING'
 
         <choose>
             <when test="searchType != null and searchType.toLowerCase() eq 'contractid'">
@@ -92,7 +99,8 @@
             CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
             contract.contract_start_date AS adStartDate,
             contract.contract_end_date AS adEndDate,
-            contract.contract_amount AS adAmount
+            contract.contract_amount AS adAmount,
+            settlement.settlement_status AS settlementStatus
         FROM (
             SELECT DISTINCT contract.contract_id
             FROM contract
@@ -103,10 +111,12 @@
             JOIN influencer ON influencer.influencer_id = proposal.influencer_id
             JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
             JOIN channel ON channel.influencer_id = influencer.influencer_id
+            LEFT JOIN settlement ON contract.contract_id = settlement.contract_id
             <where>
                 <if test="cursor != null and cursor != ''">
                     contract.contract_id &gt; #{cursor}
                 </if>
+                AND settlement.settlement_status = 'PENDING'
             </where>
             ORDER BY contract.contract_id ASC
             LIMIT #{size}
@@ -119,6 +129,7 @@
         LEFT JOIN influencer ON influencer.influencer_id = proposal.influencer_id
         LEFT JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
         LEFT JOIN channel ON channel.influencer_id = influencer.influencer_id
+        LEFT JOIN settlement ON contract.contract_id = settlement.contract_id
     </select>
 
     <!-- Keyset 검색 조회 -->
@@ -129,7 +140,8 @@
             CONCAT(IFNULL(channel.channel_name, '없음'),'(', IFNULL(influencer_user.user_name, '없음'), ')') AS influencerName,
             contract.contract_start_date AS adStartDate,
             contract.contract_end_date AS adEndDate,
-            contract.contract_amount AS adAmount
+            contract.contract_amount AS adAmount,
+            settlement.settlement_status AS settlementStatus
         FROM (
             SELECT DISTINCT contract.contract_id
             FROM contract
@@ -140,6 +152,7 @@
             JOIN influencer ON influencer.influencer_id = proposal.influencer_id
             JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
             JOIN channel ON channel.influencer_id = influencer.influencer_id
+            LEFT JOIN settlement ON contract.contract_id = settlement.contract_id
             <where>
                 <choose>
                     <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'contractid'">
@@ -155,6 +168,7 @@
                 <if test="cursor != null and cursor != ''">
                     AND contract.contract_id &gt; #{cursor}
                 </if>
+                AND settlement.settlement_status = 'PENDING'
             </where>
             ORDER BY contract.contract_id ASC
             LIMIT #{size}
@@ -167,6 +181,7 @@
         LEFT JOIN influencer ON influencer.influencer_id = proposal.influencer_id
         LEFT JOIN user AS influencer_user ON influencer.user_id = influencer_user.user_id
         LEFT JOIN channel ON channel.influencer_id = influencer.influencer_id
+        LEFT JOIN settlement ON contract.contract_id = settlement.contract_id
     </select>
 
 </mapper>

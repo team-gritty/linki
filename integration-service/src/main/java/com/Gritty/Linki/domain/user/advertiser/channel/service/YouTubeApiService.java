@@ -379,6 +379,81 @@ public class YouTubeApiService {
     }
 
     /**
+     * YouTube 채널의 완전한 정보 조회 (구독자 수, 영상 수, 조회수, 평균 통계 등)
+     * 
+     * @param youtubeChannelId YouTube 채널 ID
+     * @param maxResults       평균 계산을 위한 최근 영상 수 (기본: 30개)
+     * @return 채널의 모든 통계 정보를 담은 배열 [subscriberCount, videoCount, viewCount,
+     *         avgLikeCount, avgCommentCount]
+     */
+    public long[] getChannelFullDetails(String youtubeChannelId, int maxResults) {
+        log.info("한개 YouTube 채널의 전체 정보 조회 시작 - channelId: {}", youtubeChannelId);
+
+        try {
+            // 1. 채널 기본 통계 조회 (구독자 수, 영상 수, 조회수)
+            String url = UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_BASE_URL + "/channels")
+                    .queryParam("part", "statistics")
+                    .queryParam("id", youtubeChannelId)
+                    .queryParam("key", youTubeApiConfig.getYoutubeApiKey())
+                    .toUriString();
+
+            String response = restTemplate.getForObject(url, String.class);
+            if (response == null) {
+                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "YouTube API 응답이 null입니다");
+            }
+
+            JsonNode rootNode = objectMapper.readTree(response);
+            JsonNode itemsNode = rootNode.get("items");
+
+            if (itemsNode == null || itemsNode.size() == 0) {
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "채널 정보를 찾을 수 없습니다");
+            }
+
+            JsonNode statisticsNode = itemsNode.get(0).get("statistics");
+            if (statisticsNode == null) {
+                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "채널 통계 정보를 찾을 수 없습니다");
+            }
+
+            // 기본 통계 정보 추출
+            long subscriberCount = statisticsNode.get("subscriberCount") != null
+                    ? statisticsNode.get("subscriberCount").asLong()
+                    : 0;
+            int videoCount = statisticsNode.get("videoCount") != null
+                    ? statisticsNode.get("videoCount").asInt()
+                    : 0;
+            long viewCount = statisticsNode.get("viewCount") != null
+                    ? statisticsNode.get("viewCount").asLong()
+                    : 0;
+
+            log.info("YouTube API 기본 통계 조회 완료 - channelId: {}, subscribers: {}, videos: {}, views: {}",
+                    youtubeChannelId, subscriberCount, videoCount, viewCount);
+
+            // 2. 평균 좋아요/댓글 수 계산
+            long avgLikeCount = 0;
+            long avgCommentCount = 0;
+
+            try {
+                long[] averages = getChannelVideoAverages(youtubeChannelId, maxResults);
+                avgLikeCount = averages[0];
+                avgCommentCount = averages[1];
+
+                log.info("YouTube API 평균 통계 조회 완료 - channelId: {}, avgLikes: {}, avgComments: {}",
+                        youtubeChannelId, avgLikeCount, avgCommentCount);
+            } catch (Exception e) {
+                log.warn("평균 통계 계산 실패, 기본값 사용 - channelId: {}, error: {}", youtubeChannelId, e.getMessage());
+                // 평균 통계 실패 시 기본값 0 사용
+            }
+
+            return new long[] { subscriberCount, videoCount, viewCount, avgLikeCount, avgCommentCount };
+
+        } catch (Exception e) {
+            log.error("YouTube 채널 전체 정보 조회 실패 - channelId: {}", youtubeChannelId, e);
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
+                    "YouTube 채널 전체 정보 조회에 실패했습니다: " + e.getMessage());
+        }
+    }
+
+    /**
      * YouTube 채널의 배너 URL 가져오기
      * 
      * @param youtubeChannelId YouTube 채널 ID
@@ -412,4 +487,6 @@ public class YouTubeApiService {
             return null;
         }
     }
+
+
 }

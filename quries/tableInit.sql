@@ -28,6 +28,19 @@ CREATE TABLE `influencer` (
     `influencer_img` LONGTEXT NULL COMMENT '인플루언서 프로필 사진'
 );
 
+DROP TABLE IF EXISTS linki_score;
+
+CREATE TABLE linki_score
+(
+    score_id VARCHAR(25) primary key ,
+    cost_per_click DECIMAL(10, 2),
+    daily_traffic DECIMAL(10, 2),
+    average_review_score DECIMAL(10, 2),
+    contract_count DECIMAL(10, 2),
+    influencer_id VARCHAR(25)
+);
+
+
 DROP TABLE IF EXISTS settlement;
 
 CREATE TABLE `settlement` (
@@ -94,19 +107,6 @@ CREATE TABLE `subscribe` (
 	`subscribe_name`	VARCHAR(25)	NOT NULL
 );
 
-DROP TABLE if exists channel_stats;
-
-CREATE TABLE `channel_stats` (
-	`stats_id`	VARCHAR(25)	NOT NULL,
-	`subscriber_count`	INT	NULL	COMMENT '구독자수',
-	`num_of_videos`	INT	NULL	COMMENT '업로드한 총 비디오 개수',
-	`views_per_video`	INT	NULL	COMMENT '누적 조회수',
-	`data_fetched_at`	DATETIME	NOT NULL	COMMENT '해당 데이터가 수집된 시간(youtube api 기준)',
-	`likes_per_video`	INT	NULL	COMMENT '영상 별 좋아요 수',
-	`comments_per_video`	INT	NULL	COMMENT '영상 별 댓글 수',
-	`channel_id`	VARCHAR(25)	NOT NULL	COMMENT '채널 식별 아이디'
-);
-
 DROP TABLE IF EXISTS notice_view;
 
 CREATE TABLE `notice_view` (
@@ -131,7 +131,7 @@ CREATE TABLE `campaign` (
 	`campaign_id`	VARCHAR(25)	NOT NULL	COMMENT '제품 식별 ID',
 	`campaign_name`	VARCHAR(100)	NOT NULL	COMMENT '제품의 이름',
 	`campaign_desc`	LONGTEXT	NULL	COMMENT '제품 설명',
-	`campaign_condition`	LONGTEXT	NULL	COMMENT '조건 요약(포함 문구, 영상 길이 등)',
+	`campaign_condition`	LONGTEXT	NOT NULL	COMMENT '조건 요약(포함 문구, 영상 길이 등)',
 	`campaign_img`	LONGTEXT	NOT NULL	COMMENT '광고 제품 이미지',
 	`created_at`	DATETIME	NOT NULL	COMMENT '등록일',
 	`campaign_deadline`	DATETIME	NOT NULL	COMMENT '광고 신청  마감일',
@@ -212,15 +212,6 @@ CREATE TABLE `notice` (
 	`notice_created_at`	DATETIME	NOT NULL,
 	`notice_status`	TINYINT	NOT NULL	DEFAULT 1	COMMENT '1 = 게시 , 0 = 미게시'
 );
-DROP TABLE IF EXISTS chat;
-
-CREATE TABLE `chat` (
-	`chat_id`	varchar(25)	NOT NULL,
-	`chat_date`	datetime	NOT NULL,
-	`chat_status`	Enum('PENDING','ACTIVE','INACTIVE','DELETE')	NOT NULL	COMMENT '대기/활성/비활성/삭제',
-	`proposal_id`	VARCHAR(25)	NOT NULL	COMMENT '제안서 식별 ID',
-    `nego_status` Enum('PENDING','ACCEPTED','REJECTED','PENDING_SIGN','ONGOING','COMPLETED') NOT NULL COMMENT'제안서 대기/수락/거절/계약서 생성 후 서명 대기/서명 완료 후 계약 이행 중 / 광고 이행 및 정산 완료 상태 '
-);
 
 DROP TABLE IF EXISTS advertiser;
 
@@ -252,6 +243,16 @@ CREATE TABLE `channel` (
 	`channel_createdAt` DATETIME NOT NULL COMMENT '채널 생성 일자',
 	`collected_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '데이터 수집 시간',
 	`influencer_id` varchar(25) NOT NULL COMMENT '인플루언서 식별 아이디'
+);
+
+
+drop table if exists subscriber_history;
+
+CREATE TABLE subscriber_history (
+                                    id VARCHAR(25) NOT NULL PRIMARY KEY COMMENT '구독자 히스토리 ID',
+                                    channel_id VARCHAR(25) NOT NULL COMMENT '채널 ID',
+                                    subscriber_count BIGINT NOT NULL COMMENT '구독자 수',
+                                    collected_at DATETIME NOT NULL COMMENT '수집 일시'
 );
 
 
@@ -381,9 +382,8 @@ ALTER TABLE `subscribe` ADD CONSTRAINT `PK_SUBSCRIBE` PRIMARY KEY (
 	`subscribe_id`
 );
 
-ALTER TABLE `channel_stats` ADD CONSTRAINT `PK_CHANNEL_STATS` PRIMARY KEY (
-	`stats_id`
-);
+
+ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
 
 ALTER TABLE `notice_view` ADD CONSTRAINT `PK_NOTICE_VIEW` PRIMARY KEY (
 	`notice_view_id`
@@ -468,3 +468,18 @@ ALTER TABLE `admin` ADD CONSTRAINT `PK_ADMIN` PRIMARY KEY (
 ALTER TABLE admin MODIFY COLUMN admin_status ENUM('PENDING','AGREEMENT','REJECTED') NOT NULL DEFAULT 'PENDING';
 
 ALTER TABLE redirect_links DROP COLUMN short_url;
+
+ALTER TABLE `linki_score`
+    ADD CONSTRAINT fk_influencer_id
+        FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
+
+
+ALTER TABLE `linki_score`
+    ADD CONSTRAINT fk_influencer_id
+        FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
+
+ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
+
+
+ALTER TABLE `redirect_click` ADD COLUMN click_count INTEGER;
+ALTER TABLE `redirect_click` MODIFY COLUMN click_time DATE;

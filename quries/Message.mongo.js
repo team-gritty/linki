@@ -11,13 +11,7 @@
 
 use.admin;
 
-db.createUser({
-    user: "linki",
-    pwd:  "linki1234",
-    roles: [
-        { role: "dbOwner", db: "linkidb" }
-    ]
-});
+db.createUser({user: "linki", pwd:  "linki1234", roles: [{ role: "dbOwner", db: "linkidb" }]});
 
 use.linkidb;
 

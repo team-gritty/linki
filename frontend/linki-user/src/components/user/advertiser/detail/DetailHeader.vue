@@ -66,6 +66,34 @@ const fetchCampaignInfo = async () => {
 }
 
 const updateTab = (tab) => {
+  // 새로운 쿼리 객체 생성
+  const newQuery = { ...route.query }
+  
+  // 탭에 따른 쿼리 파라미터 매핑
+  const tabQueryMapping = {
+    'campaign.info': 'info',
+    'proposal.list': 'proposal', 
+    'contract.list': 'contract',
+    'chat.room': 'chat'
+  }
+  
+  // tab 쿼리 파라미터 설정
+  newQuery.tab = tabQueryMapping[tab] || 'info'
+  
+  // 각 탭에 맞지 않는 쿼리 파라미터 정리
+  if (tab !== 'contract.list') {
+    delete newQuery.contractId
+  }
+  if (tab !== 'chat.room') {
+    delete newQuery.chatId
+  }
+  
+  // URL 업데이트
+  router.push({
+    path: route.path,
+    query: newQuery
+  })
+  
   emit('update:currentTab', tab)
 }
 

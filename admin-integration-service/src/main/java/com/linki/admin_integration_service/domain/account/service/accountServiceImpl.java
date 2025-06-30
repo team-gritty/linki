@@ -1,13 +1,16 @@
 package com.linki.admin_integration_service.domain.account.service;
 
+
 import com.linki.admin_integration_service.domain.account.dto.AdminMypageRequestDto;
 import com.linki.admin_integration_service.domain.account.dto.AdminMypageResponseDto;
 import com.linki.admin_integration_service.domain.account.dto.AdminPasswordChangeRequestDto;
+
 import com.linki.admin_integration_service.domain.account.dto.JoinDTO;
 import com.linki.admin_integration_service.domain.account.repository.AccountRepository;
 import com.linki.admin_integration_service.entity.Admin;
 import com.linki.admin_integration_service.util.IdGenerator;
 import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
+
 public class accountServiceImpl implements AccountService{
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -33,13 +37,16 @@ public class accountServiceImpl implements AccountService{
                 .adminPhone(joinDTO.getAdminPhone())
                 .adminEmail(joinDTO.getAdminEmail())
                 .adminAddress(joinDTO.getAdminAddress())
+
                 .adminEnterDay(LocalDate.now())  // 현재 날짜로 설정
                 .adminStatus("PENDING")  // 기본 상태는 승인 대기
+
                 .build();
 
         accountRepository.save(admin);
 
     }
+
 
     @Override
     public Admin find(String adminLoginId) {
@@ -129,4 +136,5 @@ public class accountServiceImpl implements AccountService{
         
         log.info("관리자 비밀번호 변경 완료 - adminId: {}", adminId);
     }
+
 }

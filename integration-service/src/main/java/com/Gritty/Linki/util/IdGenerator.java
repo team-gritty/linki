@@ -123,5 +123,8 @@ public class IdGenerator {
     // redirect Url 생성
     public static String redirectId() { return "RDR-" + nextId(); }
 
+    //settlement 아이디 생성
+    public static String settlementId() { return "SET-" + nextId(); }
+
 
 }

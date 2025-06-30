@@ -1,3 +1,4 @@
+
 package com.linki.admin_integration_service.config;
 
 
@@ -50,6 +51,7 @@ public class SecurityConfig {
                 .anyRequest().permitAll());
 
         // ✅ OAuth2 로그인 추가
+
 //        http.oauth2Login(oauth2 -> oauth2
 //                .userInfoEndpoint(userInfo -> userInfo
 //                        .userService(oAuthService))

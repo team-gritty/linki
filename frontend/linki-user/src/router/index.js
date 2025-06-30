@@ -162,6 +162,11 @@ const router = createRouter({
       component: () => import('../views/common/PaymentSuccess.vue')
     },
     {
+      path: '/fail',
+      name: 'payment-fail',
+      component: () => import('@/views/common/Fail.vue')
+    },
+    {
       path: '/google-callback',
       name: 'GoogleCallback',
       component: () => import('@/views/common/GoogleCallback.vue')

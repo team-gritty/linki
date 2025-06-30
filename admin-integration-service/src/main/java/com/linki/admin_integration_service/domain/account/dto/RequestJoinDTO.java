@@ -1,5 +1,6 @@
 package com.linki.admin_integration_service.domain.account.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class RequestJoinDTO {
     private String adminPhone;
     private String adminEmail;
     private String adminAddress;
+
 }

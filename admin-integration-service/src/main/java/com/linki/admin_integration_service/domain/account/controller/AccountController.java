@@ -1,3 +1,4 @@
+
 package com.linki.admin_integration_service.domain.account.controller;
 
 import com.linki.admin_integration_service.config.CustomUserDetails;
@@ -129,3 +130,4 @@ public class AccountController {
         }
     }
 }
+

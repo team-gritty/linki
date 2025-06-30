@@ -13,12 +13,16 @@ const fetchCategories = async () => {
   try {
     loading.value = true
     const response = await campaignAPI.getCategories()
+    console.log('홈 카테고리 API 응답:', response); // 디버깅용
+
     categories.value = response.map(category => ({
-      id: category.id || category.name.toUpperCase().replace('/', '_'),
-      name: category.name,
+      id: category.id, // 백엔드 enum 값 (BEAUTY, FASHION 등)
+      name: category.name, // 한국어 표시명 (뷰티, 패션 등)
       icon: getCategoryIcon(category.name),
       active: false
     }))
+
+    console.log('매핑된 카테고리:', categories.value); // 디버깅용
   } catch (err) {
     console.error('카테고리 로딩 실패:', err)
     error.value = '카테고리를 불러오는데 실패했습니다.'
@@ -52,12 +56,17 @@ const handleViewAll = () => {
   })
 }
 
-// 카테고리 클릭 핸들러 추가
+// 카테고리 클릭 핸들러 수정
 const handleCategoryClick = (category) => {
+  console.log('카테고리 클릭:', category); // 디버깅용
+
+  // 카테고리 ID를 전달 (백엔드 enum 값과 매칭)
   router.push({
     name: 'campaigns',
-    query: { category: category.name }
-  })
+    query: { category: category.id }
+  });
+
+  console.log('라우터 이동:', { name: 'campaigns', query: { category: category.id } }); // 디버깅용
 }
 
 onMounted(async () => {

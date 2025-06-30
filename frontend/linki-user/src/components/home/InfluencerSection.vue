@@ -13,6 +13,112 @@ const currentIndex = ref(0)
 const visibleCount = 4 // 한 번에 보여줄 카드 수
 const autoSlideInterval = ref(null)
 
+// 카테고리 매핑 객체
+const CATEGORY_MAPPING = {
+  // 대문자 버전
+  'ENTERTAINMENT': '엔터테인먼트',
+  'FASHION': '패션',
+  'BEAUTY': '뷰티',
+  'SPORTS': '스포츠',
+  'FOOD': '푸드/맛집',
+  'TRAVEL': '여행',
+  'GAMING': '게임',
+  'TECH': '기술',
+  'MUSIC': '음악',
+  'FITNESS': '피트니스',
+  'LIFESTYLE': '라이프스타일',
+  'EDUCATION': '교육',
+  'NEWS': '뉴스',
+  'COMEDY': '코미디',
+  'ANIMATION': '애니메이션',
+  'PETS': '반려동물',
+  'AUTO': '자동차',
+  'SCIENCE': '과학',
+  'HOWTO': '하우투',
+  'NONPROFIT': '비영리',
+  
+  // 소문자 버전
+  'entertainment': '엔터테인먼트',
+  'fashion': '패션',
+  'beauty': '뷰티',
+  'sports': '스포츠',
+  'food': '푸드/맛집',
+  'travel': '여행',
+  'gaming': '게임',
+  'tech': '기술',
+  'music': '음악',
+  'fitness': '피트니스',
+  'lifestyle': '라이프스타일',
+  'education': '교육',
+  'news': '뉴스',
+  'comedy': '코미디',
+  'animation': '애니메이션',
+  'pets': '반려동물',
+  'auto': '자동차',
+  'science': '과학',
+  'howto': '하우투',
+  'nonprofit': '비영리'
+}
+
+// 구독자 수 포맷팅 함수
+const formatSubscriberCount = (count) => {
+  // 이미 문자열로 포맷된 경우 (예: "2.1만명")
+  if (typeof count === 'string' && (count.includes('만') || count.includes('천') || count.includes('백만') || count.includes('명'))) {
+    return count
+  }
+  
+  // 숫자인 경우 포맷팅
+  const number = typeof count === 'string' ? parseInt(count) : count
+  if (isNaN(number) || number === 0) {
+    return '0명'
+  }
+  
+  // 100만 이상
+  if (number >= 1000000) {
+    const formatted = number / 1000000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}백만명`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}백만명`
+    }
+  }
+  // 1만 이상
+  else if (number >= 10000) {
+    const formatted = number / 10000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}만명`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}만명`
+    }
+  }
+  // 1천 이상
+  else if (number >= 1000) {
+    const formatted = number / 1000
+    if (formatted >= 10) {
+      return `${Math.round(formatted)}천명`
+    } else {
+      return `${(Math.round(formatted * 10) / 10)}천명`
+    }
+  }
+  // 1천 미만
+  else {
+    return `${number.toLocaleString()}명`
+  }
+}
+
+// 카테고리 변환 함수
+const translateCategory = (englishCategory) => {
+  if (!englishCategory) return '일반'
+  
+  // 이미 한국어인지 확인 (한글 포함 여부로 판단)
+  if (/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(englishCategory)) {
+    return englishCategory
+  }
+  
+  // 매핑된 한국어 카테고리 반환, 없으면 '일반' 반환
+  return CATEGORY_MAPPING[englishCategory.trim()] || '일반'
+}
+
 const displayedInfluencers = computed(() => {
   return influencers.value.slice(currentIndex.value, currentIndex.value + visibleCount)
 })
@@ -128,7 +234,7 @@ onUnmounted(() => {
           @click="handleInfluencerClick(influencer)"
           style="cursor: pointer;"
         >
-          <span class="category">{{ influencer.category }}</span>
+          <span class="category">{{ translateCategory(influencer.category) }}</span>
           <div class="influencer-info">
             <h4 class="influencer-name">{{ influencer.name }}</h4>
             <div class="rating">
@@ -143,7 +249,7 @@ onUnmounted(() => {
               <span class="review-count">({{ influencer.reviews }})</span>
             </div>
             <div class="influencer-stats">
-              <span class="subscribers">구독자 {{ influencer.subscribers }}</span>
+              <span class="subscribers">{{ formatSubscriberCount(influencer.subscribers) }}</span>
             </div>
           </div>
         </div>

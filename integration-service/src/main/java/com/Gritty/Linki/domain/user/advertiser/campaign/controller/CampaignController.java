@@ -100,18 +100,16 @@ public class CampaignController {
             // JSON 문자열을 CampaignRequest 객체로 변환
             CampaignRequest request = objectMapper.readValue(campaignData, CampaignRequest.class);
 
-
-           String imageUrl = "";
-                try {
-                    // ObjectStorage에 이미지 업로드
-                  imageUrl = objectStorage.uploadFile(campaignImage);
-                    log.info("이미지 업로드 성공: {}", imageUrl);
-                } catch (Exception e) {
-                    log.error("이미지 업로드 실패: {}", e.getMessage());
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(null);
-                }
-
+            String imageUrl = "";
+            try {
+                // ObjectStorage에 이미지 업로드
+                imageUrl = objectStorage.uploadFile(campaignImage);
+                log.info("이미지 업로드 성공: {}", imageUrl);
+            } catch (Exception e) {
+                log.error("이미지 업로드 실패: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(null);
+            }
 
             // Request를 DTO로 변환하고 이미지 URL 설정
             CampaignDto campaignDto = CampaignDto.builder()
@@ -286,6 +284,7 @@ public class CampaignController {
                 .campaignPublishStatus(dto.getCampaignPublishStatus())
                 .campaignCategory(dto.getCampaignCategory())
                 .advertiserId(dto.getAdvertiserId())
+                .companyName(dto.getCompanyName())
                 .build();
     }
 }
