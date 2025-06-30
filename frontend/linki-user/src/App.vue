@@ -84,6 +84,9 @@ const checkAccount = async () => {
 
 onMounted(() => {
   initializeAuth()
+  
+  // 페이지 가시성 변화 이벤트 리스너 등록
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 // 로그인 상태에 따른 전역 SSE 관리
@@ -110,9 +113,22 @@ watch(
   { immediate: true }
 )
 
+// 페이지 가시성 변화에 따른 SSE 재연결
+const handleVisibilityChange = () => {
+  if (!document.hidden && accountStore.isLoggedIn) {
+    const userId = accountStore.getUser?.userId || accountStore.getUser?.id
+    
+    if (userId && !chatStore.isSSEConnected) {
+      console.log('[APP] 페이지 활성화 - SSE 재연결:', userId)
+      chatStore.startGlobalSSE(userId)
+    }
+  }
+}
+
 // 컴포넌트 언마운트 시 SSE 정리
 onUnmounted(() => {
   chatStore.stopGlobalSSE()
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 // 라우터 변경 감지

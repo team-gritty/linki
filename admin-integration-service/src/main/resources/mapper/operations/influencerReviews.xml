@@ -17,6 +17,8 @@
             visibility,
             contractId
         FROM influencer_reviews_view
+        ORDER BY influencerReviewId DESC
+        LIMIT 30000
     </select>
     
     

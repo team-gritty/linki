@@ -28,4 +28,5 @@ public class CampaignResponse {
     private CampaignPublishStatus campaignPublishStatus;
     private Category campaignCategory;
     private String advertiserId; // 캠페인을 등록한 광고주 아이디
+    private String companyName; // 광고주 회사명 추가
 }

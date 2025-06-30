@@ -16,6 +16,8 @@
         FROM advertiser
                  JOIN user
                       ON advertiser.user_id = user.user_id
+        ORDER BY advertiser.advertiser_id DESC
+        LIMIT 30000
     </select>
 
     <select id="searchAdvertiserUser"  resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">

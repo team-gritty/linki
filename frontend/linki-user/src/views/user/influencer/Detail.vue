@@ -104,8 +104,12 @@ const fetchData = async () => {
   }
 };
 
-// route.query가 변경될 때마다 tab 초기화
-watch(() => route.query, initializeTab)
+// route.query.tab이 변경될 때마다 탭 변경 (즉시 반영)
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && tabs.some(tab => tab.id === newTab)) {
+    currentTab.value = newTab
+  }
+}, { immediate: true })
 
 
 

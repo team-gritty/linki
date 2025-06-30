@@ -177,6 +177,12 @@ const reviewAvg = ref(0)
 
 // 구독자 상승률 계산
 const subscriberGrowthRate = computed(() => {
+  // 백엔드에서 계산된 상승률 사용
+  if (channel.value && channel.value.subscriberGrowthRate7Days) {
+    return channel.value.subscriberGrowthRate7Days
+  }
+  
+  // 백엔드 값이 없을 경우 기존 로직 사용 (fallback)
   if (!subscriberHistory.value || subscriberHistory.value.length < 2) {
     return '0%'
   }

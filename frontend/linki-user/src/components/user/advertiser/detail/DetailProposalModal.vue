@@ -10,7 +10,7 @@
         <img :src="proposal.influencerName ? '/default-profile.jpg' : '/default-profile.jpg'" class="proposal-detail-img" />
         <div class="proposal-detail-meta">
           <div>이름 : {{ proposal.influencerName }}</div>
-          <div>채널 : {{ proposal.influencerName + ' 채널' }}</div>
+          <div>채널 : {{ proposal.channelName || '채널 정보 없음' }}</div>
         </div>
       </div>
       <hr class="proposal-detail-divider" />
@@ -116,8 +116,6 @@ async function handleRejectConfirm() {
     emit('reject', props.proposal.proposalId)
     rejectModalOpen.value = false
     alert('제안서가 거절되었습니다.')
-    //채팅방 삭제
-    await chatApi.rejectChat(props.proposal.proposalId)
   } catch (error) {
     console.error('제안서 거절 실패:', error)
     alert('제안서 거절에 실패했습니다.')
@@ -130,9 +128,6 @@ async function handleAcceptClick() {
     await proposalAPI.acceptProposal(props.proposal.proposalId, props.campaignId)
     emit('accept', props.proposal.proposalId)
     alert('제안서가 승낙되었습니다.')
-    //채팅방 활성
-    await chatApi.activateRoom(props.proposal.proposalId)
-
   } catch (error) {
     console.error('제안서 승낙 실패:', error)
     alert('제안서 승낙에 실패했습니다.')

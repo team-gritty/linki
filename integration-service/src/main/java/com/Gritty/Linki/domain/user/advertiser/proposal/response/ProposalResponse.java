@@ -28,4 +28,5 @@ public class ProposalResponse {
     private String campaignId; // 캠페인 ID
     private String campaignName; // 캠페인명
     private String influencerName; // 인플루언서명
+    private String channelName; // 인플루언서 채널명
 }

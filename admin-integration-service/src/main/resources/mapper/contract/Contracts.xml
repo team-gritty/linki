@@ -18,6 +18,8 @@
             contractStatus,
             contractLink
         FROM contract_view
+        ORDER BY contractId DESC
+        LIMIT 30000
     </select>
 
     <select id="searchContract"  resultType="com.linki.admin_integration_service.domain.contract.dto.ContractDTO">
