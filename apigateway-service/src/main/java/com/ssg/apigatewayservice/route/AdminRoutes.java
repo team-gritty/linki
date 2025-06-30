@@ -12,7 +12,7 @@ public class AdminRoutes {
     public RouteLocator adminRoute(RouteLocatorBuilder b) {
         return b.routes()
                 .route("admin-integration-service", route -> route
-                        .path("/v1/admin/api/**")
+                        .path("/v1/api/admin/**")
                         .uri("lb://ADMIN-INTEGRATION-SERVICE"))
                 .build();
     }

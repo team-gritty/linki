@@ -67,7 +67,7 @@
             <button
               class="user-resend-button"
               @click="resendCode"
-              :disabled="isLoading || timeLeft > 0"
+              :disabled="isLoading"
             >
               인증번호 재발송
             </button>

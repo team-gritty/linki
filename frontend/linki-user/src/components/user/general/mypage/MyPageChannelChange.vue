@@ -25,34 +25,37 @@
           유튜브 인증
         </button>
       </div>
+      
+      <!-- 인증 완료 후에만 채널 정보 표시 -->
+      <div v-if="influencerData.channelName" class="channel-info-section">
       <div v-if="influencerData.thumbnail" class="info-group">
         <label>프로필 이미지</label>
         <img :src="influencerData.thumbnail" alt="프로필 이미지" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" />
       </div>
       <div class="info-group">
         <label>채널명</label>
-        <span>{{ influencerData.channelName || '없음' }}</span>
+          <span>{{ influencerData.channelName }}</span>
       </div>
       <div class="info-group">
         <label>채널 ID</label>
-        <span>{{ influencerData.channelId || '없음' }}</span>
+          <span>{{ influencerData.channelId }}</span>
       </div>
       <div class="info-group">
         <label>채널 URL</label>
-        <span>{{ influencerData.channelUrl || '없음' }}</span>
+          <span>{{ influencerData.channelUrl }}</span>
       </div>
-<!--      <div class="info-group">-->
-<!--        <label>이름</label>-->
-<!--        <span>{{ influencerData.name || '없음' }}</span>-->
-<!--      </div>-->
-<!--      <div class="info-group">-->
-<!--        <label>이메일</label>-->
-<!--        <span>{{ influencerData.email || '없음' }}</span>-->
-<!--      </div>-->
-<!--      <div class="info-group">-->
-<!--        <label>생성 날짜</label>-->
-<!--        <span>{{ influencerData.creationDate || '없음' }}</span>-->
-<!--      </div>-->
+<!--        <div class="info-group">-->
+<!--          <label>이름</label>-->
+<!--          <span>{{ influencerData.name || '없음' }}</span>-->
+<!--        </div>-->
+<!--        <div class="info-group">-->
+<!--          <label>이메일</label>-->
+<!--          <span>{{ influencerData.email || '없음' }}</span>-->
+<!--        </div>-->
+<!--        <div class="info-group">-->
+<!--          <label>생성 날짜</label>-->
+<!--          <span>{{ influencerData.creationDate || '없음' }}</span>-->
+<!--        </div>-->
       <div class="info-group">
         <label>설명</label>
         <span>{{ influencerData.description || '없음' }}</span>
@@ -91,10 +94,11 @@
           <option value="ANIMAL">동물</option>
         </select>
       </div>
-      <div class="button-group" v-if="influencerData.channelName">
+        <div class="button-group">
         <button class="submit-button" @click="handleRegistration" :disabled="isLoading">
           등록
         </button>
+        </div>
       </div>
 
     </div>
@@ -574,6 +578,24 @@ const registerBusiness = async () => {
 .category-select:disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
+}
+
+.channel-info-section {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .file-info {
