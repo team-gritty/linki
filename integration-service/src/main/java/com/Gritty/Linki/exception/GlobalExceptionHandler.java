@@ -137,6 +137,40 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(response);
     }
+
+    /**
+     * IllegalStateException 처리
+     * 비즈니스 로직에서 발생하는 상태 예외를 처리 (예: 결제 미완료, 중복 제출 등)
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(
+            IllegalStateException e,
+            HttpServletRequest request
+    ) {
+        log.warn("Illegal state: {}", e.getMessage());
+        
+        // 에러 메시지에 따라 적절한 HTTP 상태 코드 결정
+        HttpStatus status = HttpStatus.BAD_REQUEST; // 기본값
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE; // 기본값
+        
+        if (e.getMessage().contains("결제 완료한 사용자만")) {
+            status = HttpStatus.FORBIDDEN;
+            errorCode = ErrorCode.FORBIDDEN;
+        } else if (e.getMessage().contains("이미") && e.getMessage().contains("제안서")) {
+            status = HttpStatus.CONFLICT;
+            errorCode = ErrorCode.DUPLICATE_RESOURCE;
+        }
+        
+        ErrorResponse response = ErrorResponse.builder()
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .code(errorCode.name())
+                .message(e.getMessage()) // 원본 메시지 그대로 전달
+                .path(request.getRequestURI())
+                .build();
+                
+        return ResponseEntity.status(status).body(response);
+    }
 }
 
 /*

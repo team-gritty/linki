@@ -13,41 +13,9 @@ import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 
-@Service
-@RequiredArgsConstructor
-@Log4j2
-public class MailService {
+public interface MailService {
 
-    private final JavaMailSender mailSender;
-    private final SpringTemplateEngine templateEngine;
-
-    @Async
-    public void sendPostNotification(String to, String message) {
-
-        PostDTO post = PostDTO.builder()
-                .title("LINKI 알림")
-                .content(message)
-                .author("Linki notification")
-                .template("mail/Notification")
-                .createdAt(LocalDateTime.now())
-                .writeId(1)
-                .build();
-
-        try {
-            MimeMessage mime = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
-            helper.setTo(to);
-            helper.setSubject(post.getTitle());
-            Context ctx = new Context();
-            ctx.setVariable("post", post);
-            String html = templateEngine.process(post.getTemplate(), ctx);
-            helper.setText(html, true);
-            mailSender.send(mime);
-            log.info("메일 전송 완료: to={}, title={}", to, post.getTitle());
-        } catch (MessagingException e) {
-            e.printStackTrace(); // or use a logger
-        }
-    }
+  void sendPostNotification(String to, String message);
 
 
 }

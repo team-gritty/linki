@@ -34,6 +34,8 @@
                 LEFT JOIN settlement
                            ON contract.contract_id = settlement.contract_id
         WHERE settlement.settlement_status = 'PENDING'
+        ORDER BY contract.contract_id DESC
+        LIMIT 30000
     </select>
 
     <select id="searchSettlement"  resultType="com.linki.admin_integration_service.domain.payment.dto.SettlementDTO">

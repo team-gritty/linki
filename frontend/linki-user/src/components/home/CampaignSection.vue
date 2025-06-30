@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { homeAPI } from '@/api/home'
+import { campaignAPI } from '@/api/campaign'
 
 const router = useRouter()
 const campaignProducts = ref([])
@@ -79,11 +80,15 @@ const fetchCampaigns = async () => {
     loading.value = true
     const data = await homeAPI.getEndingTodayCampaigns()
     console.log('Campaign response:', data)
+    
     // 각 캠페인에 timeLeft 추가
-    campaignProducts.value = data.map(campaign => ({
+    const campaignsWithTime = data.map(campaign => ({
       ...campaign,
       timeLeft: calculateTimeLeft(campaign.campaignDeadline)
     }))
+    
+    // 평점 정보 추가
+    campaignProducts.value = await addRatingsToCampaigns(campaignsWithTime)
     console.log('Set campaign products:', campaignProducts.value)
   } catch (err) {
     console.error('캠페인 상품 로딩 실패:', err)
@@ -121,6 +126,58 @@ const handleCampaignClick = (campaign) => {
   console.log('Campaign ID:', campaign.campaignId)
   console.log('Navigating to:', `/campaign/${campaign.campaignId}`)
   router.push(`/campaign/${campaign.campaignId}`)
+}
+
+// 광고주 리뷰 가져오기 및 평균 평점 계산
+const fetchAdvertiserReviews = async (campaignId) => {
+  try {
+    let reviews = await campaignAPI.getAdvertiserReviewsByCampaign(campaignId)
+    
+    // 문자열로 온 경우 JSON 파싱 시도
+    if (typeof reviews === 'string') {
+      try {
+        reviews = JSON.parse(reviews)
+      } catch (parseError) {
+        console.error('JSON 파싱 실패:', parseError)
+        return null
+      }
+    }
+    
+    // 배열이고 길이가 0보다 큰 경우 처리
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      // 평균 평점 계산
+      const totalScore = reviews.reduce((sum, review) => {
+        const score = parseFloat(review.advertiserReviewScore || 0)
+        return sum + score
+      }, 0)
+      const averageRating = totalScore / reviews.length
+      
+      return {
+        averageRating: Math.round(averageRating * 10) / 10, // 소수점 첫째자리까지
+        reviewCount: reviews.length
+      }
+    }
+    
+    return null
+  } catch (err) {
+    console.error('리뷰 로딩 실패:', err)
+    return null
+  }
+}
+
+// 캠페인 목록에 평점 정보 추가
+const addRatingsToCampaigns = async (campaignList) => {
+  const campaignsWithRatings = await Promise.all(
+    campaignList.map(async (campaign) => {
+      const ratingInfo = await fetchAdvertiserReviews(campaign.campaignId)
+      return {
+        ...campaign,
+        averageRating: ratingInfo?.averageRating || null,
+        reviewCount: ratingInfo?.reviewCount || 0
+      }
+    })
+  )
+  return campaignsWithRatings
 }
 
 onMounted(async () => {
@@ -206,6 +263,13 @@ onUnmounted(() => {
               <h4 class="campaign-name">{{ campaign.campaignName }}</h4>
               <div class="campaign-condition">
                 <span class="condition-text">{{ campaign.campaignCondition }}</span>
+              </div>
+              <div class="campaign-rating" v-if="campaign.averageRating">
+                <div class="stars">
+                  <div class="stars-filled" :style="{ width: `${campaign.averageRating * 20}%` }"></div>
+                  <div class="stars-empty"></div>
+                </div>
+                <span class="rating-text">{{ campaign.averageRating.toFixed(1) }} ({{ campaign.reviewCount }})</span>
               </div>
             </div>
           </div>

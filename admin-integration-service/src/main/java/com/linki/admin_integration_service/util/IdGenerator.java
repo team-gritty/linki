@@ -126,4 +126,7 @@ public class IdGenerator {
     // linkiScore 생성
     public static String linkiScoreId() { return "SCR-" + nextId(); }
 
+    // 리다이렉트 클릭 생성
+    public static String clickId() { return "CLI-" + nextId(); }
+
 }

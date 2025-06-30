@@ -44,22 +44,10 @@ public class ChatController {
         }).collect(Collectors.toList());
     }
 
-    //광고주의 제안서 수락 시 채팅방 활성화
-    @PostMapping("/advertiser/rooms/activate/{proposalId}")
-    public ChatResponeDTO activateRoomByProposal(@PathVariable String proposalId){
-        return modelMapper.map(chatService.activateRoomByProposal(proposalId),ChatResponeDTO.class);
-    }
-
     //광고주가 채팅목록에서 특정 채팅방 조회
     @GetMapping("/advertiser/chat-detail/{chatId}")
     public ChatDetailResponeDTO chatRoomByCampaign(@RequestHeader("Authorization")String token,@PathVariable String chatId){
         return modelMapper.map(chatService.getChatDtoByChatId(token,chatId),ChatDetailResponeDTO.class);
-    }
-
-    //광고주의 제안서 거절 시 채팅방 소프트 삭제
-    @PostMapping("/advertiser/proposals/{proposalId}/reject")
-    public ChatResponeDTO rejectProposal(@PathVariable String proposalId){
-        return modelMapper.map(chatService.softDeleteChat(proposalId),ChatResponeDTO.class);
     }
 
     //인증유저의 참여 채팅방 조회
