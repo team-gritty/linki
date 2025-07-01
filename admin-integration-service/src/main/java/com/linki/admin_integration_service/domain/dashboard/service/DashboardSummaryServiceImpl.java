@@ -4,7 +4,7 @@ import com.linki.admin_integration_service.domain.dashboard.dto.DashBoardSummary
 import com.linki.admin_integration_service.domain.dashboard.repository.myBatis.DashBoardSummaryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ public class DashboardSummaryServiceImpl implements DashboardSummaryService {
 
     @Override
     @Scheduled(cron = "0 0 * * * *")
-    @Cacheable(value = "dashboard", key = "'summary'")
+    @CachePut(value = "dashboard", key = "'summary'")
     public DashBoardSummaryDTO getDashboardSummary() {
         DashBoardSummaryDTO dashboardSummaryDTO = new DashBoardSummaryDTO();
         dashboardSummaryDTO.setTotalAdvertisers(dashBoardSummaryMapper.getAdvertiserCount());
