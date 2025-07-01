@@ -53,8 +53,8 @@ public class InfluencerProposalServiceImpl implements InfluencerProposalService 
         }
 
         // 캠페인 중복 제출 방지
-        boolean exists = proposalRepository.existsByCampaign_CampaignIdAndInfluencer_InfluencerId(
-                proposalRequestDTO.getCampaignId(), influencerId);
+        boolean exists = proposalRepository.existsByCampaign_CampaignIdAndInfluencer_InfluencerIdAndStatusIn(
+                proposalRequestDTO.getCampaignId(), influencerId, List.of(ProposalStatus.ACCEPTED, ProposalStatus.PENDING));
         if (exists) {
             throw new IllegalStateException("이미 이 캠페인에 제안서를 제출하셨습니다.");
         }

@@ -3,9 +3,9 @@ CREATE DATABASE linkiDB;
 
 use linkiDB;
 
-# CREATE USER 'linki'@'%' IDENTIFIED BY 'linki1234';
-# GRANT ALL PRIVILEGES ON linkiDB.* TO 'linki'@'%';
-# FLUSH PRIVILEGES;
+CREATE USER 'linki'@'%' IDENTIFIED BY 'linki1234';
+GRANT ALL PRIVILEGES ON linkiDB.* TO 'linki'@'%';
+FLUSH PRIVILEGES;
 
 DROP TABLE IF EXISTS refund;
 
@@ -383,7 +383,7 @@ ALTER TABLE `subscribe` ADD CONSTRAINT `PK_SUBSCRIBE` PRIMARY KEY (
 );
 
 
-ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
+# ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
 
 ALTER TABLE `notice_view` ADD CONSTRAINT `PK_NOTICE_VIEW` PRIMARY KEY (
 	`notice_view_id`
@@ -474,9 +474,9 @@ ALTER TABLE `linki_score`
         FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
 
 
-ALTER TABLE `linki_score`
-    ADD CONSTRAINT fk_influencer_id
-        FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
+# ALTER TABLE `linki_score`
+#     ADD CONSTRAINT fk_influencer_id
+#         FOREIGN KEY (influencer_id) REFERENCES influencer(influencer_id);
 
 ALTER TABLE `subscriber_history` ADD CONSTRAINT fk_channel_id FOREIGN KEY (channel_id) REFERENCES channel(channel_id);
 
