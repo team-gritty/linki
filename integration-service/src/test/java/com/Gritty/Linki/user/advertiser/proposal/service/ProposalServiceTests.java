@@ -22,10 +22,10 @@ public class ProposalServiceTests {
     @Autowired
     private ProposalService proposalService;
 
-    String testProposalId = "PRP-0000000000000000";
-    String testProposalId2 = "PRP-0000000000000001";
-    String testCampaignId = "CMP-0000000000000000";
-    String testUserId = "USR-0000000000500000"; // 광고주인 USER0500000 사용
+    String testProposalId = "PROP0001";
+    String testProposalId2 = "PROP0002";
+    String testCampaignId = "CAMP0001";
+    String testUserId = "USER0500"; // 광고주인 USER0500 사용
 
     /**
      * CustomUserDetails 실제 객체를 생성하는 메소드

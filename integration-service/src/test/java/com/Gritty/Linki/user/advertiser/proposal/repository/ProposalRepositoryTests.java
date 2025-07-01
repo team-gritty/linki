@@ -17,9 +17,9 @@ import java.util.Optional;
 @Transactional
 public class ProposalRepositoryTests {
 
-    String testProposalId = "PRP-0000000000000000";
-    String testCampaignId = "CMP-0000000000000000";
-    String testAdvertiserId = "ADV-0000000000000000";
+    String testProposalId = "PROP0001";
+    String testCampaignId = "CAMP0001";
+    String testAdvertiserId = "ADV0001";
 
     @Autowired
     private ProposalRepository proposalRepository;

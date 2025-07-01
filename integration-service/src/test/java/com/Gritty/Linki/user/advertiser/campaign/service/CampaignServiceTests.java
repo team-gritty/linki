@@ -23,9 +23,9 @@ public class CampaignServiceTests {
     @Autowired
     private CampaignService campaignService;
 
-    String testCampaignId = "CMP-0000000000000000";
-    String testCampaignId2 = "CMP-0000000000000001";
-    String testAdvertiserId = "ADV-0000000000000000";
+    String testCampaignId = "CAMP0001";
+    String testCampaignId2 = "CAMP0002";
+    String testAdvertiserId = "ADV0000";
 
     @Test
     @DisplayName("캠페인 생성 Service Test")

@@ -18,10 +18,10 @@ import java.util.Optional;
 @Transactional
 public class CampaignRepositoryTests {
 
-    String testCampaignId = "CMP-0000000000000000";
-    String testCampaignId2 = "CMP-0000000000000001";
-    String testCampaignId3 = "CMP-0000000000000002";
-    String testAdvertiserId = "ADV-0000000000000000";
+    String testCampaignId = "CAMP0001";
+    String testCampaignId2 = "CAMP0002";
+    String testCampaignId3 = "CAMP0003";
+    String testAdvertiserId = "ADV0001";
 
     @Autowired
     private CampaignRepository campaignRepository;
