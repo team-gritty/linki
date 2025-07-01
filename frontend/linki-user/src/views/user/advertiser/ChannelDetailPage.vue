@@ -107,19 +107,14 @@
         <div class="subscriber-graph-header">
           <span class="graph-title">채널 구독자 수 변화량</span>
           <div class="graph-tabs">
-            <button
-              v-for="p in ['7일', '30일', '15일']"
-              :key="p"
-              :class="['graph-tab', { active: period === p }]"
-              @click="selectPeriod(p)"
-            >{{ p }}</button>
+            <button class="graph-tab active">7일</button>
           </div>
         </div>
         <div class="graph-rate-row">
           <span class="graph-rate">{{ subscriberGrowthRate }}</span>
           <span class="graph-rate-label">상승률</span>
         </div>
-        <SubscriberHistoryChart v-if="id" :channelId="id" :period="period" />
+        <SubscriberHistoryChart v-if="id" :channelId="id" :period="'7일'" />
         <div v-else>구독자 차트 로딩 중...</div>
       </div>
       
@@ -175,29 +170,46 @@ console.log('초기 id 값:', id.value)
 const reviewCount = ref(0)
 const reviewAvg = ref(0)
 
-// 구독자 상승률 계산
+// 구독자 상승률 - 7일간 데이터 기반 계산
 const subscriberGrowthRate = computed(() => {
-  // 백엔드에서 계산된 상승률 사용
-  if (channel.value && channel.value.subscriberGrowthRate7Days) {
-    return channel.value.subscriberGrowthRate7Days
-  }
-  
-  // 백엔드 값이 없을 경우 기존 로직 사용 (fallback)
   if (!subscriberHistory.value || subscriberHistory.value.length < 2) {
-    return '0%'
+    return '데이터 없음'
   }
   
-  const history = subscriberHistory.value
-  const latest = history[history.length - 1]
-  const earliest = history[0]
+  // 모든 구독자 히스토리 데이터를 날짜순으로 정렬
+  const sortedHistory = [...subscriberHistory.value]
+    .sort((a, b) => new Date(a.collectedAt) - new Date(b.collectedAt))
+  
+  if (sortedHistory.length < 2) {
+    return '데이터 부족'
+  }
+  
+  // 가장 오래된 데이터와 가장 최신 데이터 사용
+  const earliest = sortedHistory[0]
+  const latest = sortedHistory[sortedHistory.length - 1]
   
   if (!latest || !earliest || earliest.subscriberCount === 0) {
-    return '0%'
+    return '데이터 없음'
   }
   
   // 구독자 수 증가율 계산
   const growthRate = ((latest.subscriberCount - earliest.subscriberCount) / earliest.subscriberCount) * 100
   const sign = growthRate >= 0 ? '+' : ''
+  
+  console.log('7일간 구독자 상승률 계산:', {
+    totalDataCount: sortedHistory.length,
+    earliest: {
+      count: earliest.subscriberCount,
+      date: earliest.collectedAt
+    },
+    latest: {
+      count: latest.subscriberCount,
+      date: latest.collectedAt
+    },
+    difference: latest.subscriberCount - earliest.subscriberCount,
+    growthRate: growthRate,
+    formatted: `${sign}${growthRate.toFixed(1)}%`
+  })
   
   return `${sign}${growthRate.toFixed(1)}%`
 })
@@ -338,47 +350,8 @@ onMounted(async () => {
   }
 })
 
-const period = ref('7일')
-const chartOptions = ref({
-  chart: { type: 'line', height: 320, toolbar: { show: false } },
-  xaxis: { categories: [] },
-  stroke: { curve: 'smooth', width: 3 },
-  colors: ['#FF0050'],
-  grid: { borderColor: '#eee' },
-  tooltip: { enabled: true }
-})
-
-const chartData = ref({
-  '7일': {
-    categories: ['오늘-6', '오늘-5', '오늘-4', '오늘-3', '오늘-2', '어제', '오늘'],
-    data: [9800000, 9850000, 9900000, 9950000, 10000000, 10050000, 10100000],
-    rate: '3.1%'
-  },
-  '30일': {
-    categories: ['03-01', '03-05', '03-10', '03-15', '03-20', '03-25', '03-30'],
-    data: [9000000, 9200000, 9500000, 9700000, 10000000, 10500000, 11000000],
-    rate: '4%'
-  },
-  '15일': {
-    categories: ['03-16', '03-18', '03-20', '03-22', '03-24', '03-26', '03-30'],
-    data: [9700000, 9800000, 9900000, 10000000, 10200000, 10500000, 11000000],
-    rate: '2%'
-  }
-})
-
-const series = ref([
-  {
-    name: '구독자 수',
-    data: chartData.value[period.value].data
-  }
-])
-
-function selectPeriod(p) {
-  period.value = p
-  series.value[0].data = chartData.value[p].data
-  chartOptions.value.xaxis.categories = chartData.value[p].categories
-}
-chartOptions.value.xaxis.categories = chartData.value[period.value].categories
+// 7일로 고정
+const period = '7일'
 
 const tab = ref('intro')
 

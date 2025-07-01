@@ -5,11 +5,8 @@
       <div class="data-collection-icon">📈</div>
       <div class="data-collection-title">데이터 수집 중</div>
       <div class="data-collection-description">
-        {{ period }} 구독자 변화 데이터를 수집하고 있습니다.<br>
+        7일간 구독자 변화 데이터를 수집하고 있습니다.<br>
         충분한 데이터가 모이면 그래프를 표시해드리겠습니다.
-      </div>
-      <div class="data-collection-note">
-        * 7일 데이터는 현재 확인 가능합니다.
       </div>
     </div>
     <!-- 실제 차트 -->
@@ -46,45 +43,29 @@ const props = defineProps({
 const history = ref([])
 const hasRealData = ref(false)
 
-// 선택된 기간에 따라 필터링된 히스토리 데이터
+// API에서 온 실제 히스토리 데이터를 모두 사용 (7일 고정)
 const filteredHistory = computed(() => {
   if (!history.value || history.value.length === 0) {
     return []
   }
   
-  const now = new Date()
-  let daysToShow = 7 // 기본값
+  console.log('=== filteredHistory 계산 ===')
+  console.log('원본 history 데이터:', history.value)
   
-  // period에 따라 표시할 일수 결정
-  if (props.period === '7일') {
-    daysToShow = 7
-  } else if (props.period === '15일') {
-    daysToShow = 15
-  } else if (props.period === '30일') {
-    daysToShow = 30
-  }
-  
-  // 최근 N일의 데이터만 필터링
-  const cutoffDate = new Date(now)
-  cutoffDate.setDate(cutoffDate.getDate() - (daysToShow - 1))
-  
-  return history.value
-    .filter(item => new Date(item.collectedAt) >= cutoffDate)
+  // API에서 온 데이터를 날짜순으로 정렬하여 모두 사용
+  const sortedData = history.value
     .sort((a, b) => new Date(a.collectedAt) - new Date(b.collectedAt))
-    .slice(-daysToShow) // 최대 지정된 일수만큼만 표시
+  
+  console.log('정렬된 데이터:', sortedData)
+  console.log('filteredHistory 결과 길이:', sortedData.length)
+  
+  return sortedData
 })
 
-// 데이터 수집 중 메시지 표시 여부
+// 데이터 수집 중 메시지 표시 여부 (7일 고정)
 const showDataCollectionMessage = computed(() => {
-  // 30일, 15일 데이터가 요청되었지만 실제 데이터가 없는 경우
-  if ((props.period === '30일' || props.period === '15일') && !hasRealData.value) {
-    return true
-  }
-  // 7일 데이터도 없는 경우
-  if (props.period === '7일' && history.value.length === 0) {
-    return true
-  }
-  return false
+  // 7일 데이터가 없는 경우에만 메시지 표시
+  return history.value.length === 0
 })
 
 // 컴포넌트가 마운트되면, 구독자 수 변화 그래프를 그리기 위한 데이터를 조회하는 함수
@@ -112,92 +93,63 @@ onMounted(async () => {
       history.value = filteredData
       hasRealData.value = true
       console.log('필터된 구독자 히스토리:', history.value)
+      console.log('데이터 개수:', filteredData.length)
     } else {
       // 실제 데이터가 없는 경우
       console.log('구독자 히스토리 데이터가 없음')
       history.value = []
       hasRealData.value = false
-      
-      // 7일 데이터만 더미로 생성 (7일은 기본 제공)
-      if (props.period === '7일') {
-        history.value = generateDummyHistory(7)
-      }
     }
     
   } catch (error) {
     console.error('구독자 히스토리 데이터 가져오는 중 에러 ', error)
     history.value = []
     hasRealData.value = false
-    
-    // 7일 데이터만 더미로 생성
-    if (props.period === '7일') {
-      history.value = generateDummyHistory(7)
-    }
   }
 })
 
-// 더미 히스토리 데이터 생성 (7일만)
-function generateDummyHistory(daysToGenerate) {
-  const dummyData = []
-  const baseSubscribers = 1000000 // 기본 구독자 수
-  const today = new Date()
-  
-  for (let i = daysToGenerate - 1; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
-    
-    // 약간의 증가 추세를 가진 더미 데이터
-    const growth = Math.floor(Math.random() * 3000) + 1000 // 1000~4000 증가
-    const subscriberCount = baseSubscribers + (daysToGenerate - 1 - i) * growth
-    
-    dummyData.push({
-      channelId: props.channelId,
-      subscriberCount: subscriberCount,
-      collectedAt: date.toISOString()
-    })
-  }
-  
-  return dummyData
-}
 
-// period가 변경될 때 처리
+
+// period가 변경될 때 처리 (현재는 7일 고정이므로 실행되지 않음)
 watch(() => props.period, () => {
   console.log('Period 변경됨:', props.period)
-  
-  // 30일, 15일로 변경되면 실제 데이터가 있는지 확인
-  if ((props.period === '30일' || props.period === '15일') && !hasRealData.value) {
-    // 데이터 수집 중 메시지 표시
-    return
-  }
-  
-  // 7일로 변경되면 더미 데이터라도 표시
-  if (props.period === '7일' && history.value.length === 0) {
-    history.value = generateDummyHistory(7)
-  }
+  // 7일 고정이므로 특별한 처리 불필요
 })
 
 const series = computed(() => {
   console.log('Computing series with filteredHistory:', filteredHistory.value)
+  const subscriberData = filteredHistory.value.map(item => item.subscriberCount)
+  console.log('실제 구독자 수 데이터:', subscriberData)
+  console.log('최소값:', Math.min(...subscriberData))
+  console.log('최대값:', Math.max(...subscriberData))
+  
   return [{
     name: '구독자 수',
-    data: filteredHistory.value.map(item => item.subscriberCount)
+    data: subscriberData
   }]
 })
 
-const chartOptions = computed(() => ({
-  chart: {
-    id: 'subscriber-history',
-    toolbar: { show: false }
-  },
-  xaxis: {
-    categories: filteredHistory.value.map(item => {
-      const date = new Date(item.collectedAt)
-      const today = new Date()
-      const diffTime = today.getTime() - date.getTime()
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-      
-      // 7일 기간에서는 상대적 날짜 우선 표시
-      if (props.period === '7일') {
+const chartOptions = computed(() => {
+  // 실제 구독자 수 데이터 추출
+  const subscriberData = filteredHistory.value.map(item => item.subscriberCount)
+  const minValue = subscriberData.length > 0 ? Math.min(...subscriberData) : 0
+  const maxValue = subscriberData.length > 0 ? Math.max(...subscriberData) : 100
+  
+  console.log('Chart Y축 설정:', { minValue, maxValue, subscriberData })
+  
+  return {
+    chart: {
+      id: 'subscriber-history',
+      toolbar: { show: false }
+    },
+    xaxis: {
+      categories: filteredHistory.value.map(item => {
+        const date = new Date(item.collectedAt)
+        const today = new Date()
+        const diffTime = today.getTime() - date.getTime()
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+        
+        // 7일 고정: 상대적 날짜 표시
         if (diffDays === 0) {
           return '오늘'
         } else if (diffDays === 1) {
@@ -205,77 +157,82 @@ const chartOptions = computed(() => ({
         } else if (diffDays <= 6) {
           return `${diffDays}일 전`
         }
-      }
-      
-      // 다른 기간이거나 7일을 넘으면 월/일 형식
-      return `${date.getMonth() + 1}/${date.getDate()}`
-    }),
-    labels: { 
-      rotate: props.period === '7일' ? 0 : -45, // 7일은 회전 없이, 나머지는 회전
-      style: {
-        fontSize: '12px'
-      }
-    },
-    title: {
-      text: '기간',
-      style: {
-        fontSize: '14px',
-        fontWeight: 600
-      }
-    }
-  },
-  yaxis: {
-    labels: {
-      formatter: val => val.toLocaleString()
-    },
-    title: {
-      text: '구독자 수',
-      style: {
-        fontSize: '14px',
-        fontWeight: 600
-      }
-    }
-  },
-  stroke: {
-    curve: 'smooth',
-    width: 3
-  },
-  colors: ['#ff4d67'],
-  dataLabels: { enabled: false },
-  tooltip: {
-    y: {
-      formatter: val => `${val.toLocaleString()}명`
-    },
-    x: {
-      formatter: (val, { series, seriesIndex, dataPointIndex, w }) => {
-        const item = filteredHistory.value[dataPointIndex]
-        if (item) {
-          const date = new Date(item.collectedAt)
-          return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+        
+        // 7일을 넘으면 월/일 형식
+        return `${date.getMonth() + 1}/${date.getDate()}`
+      }),
+      labels: { 
+        rotate: 0, // 7일 고정이므로 회전 없이 표시
+        style: {
+          fontSize: '12px'
         }
-        return ''
+      },
+      title: {
+        text: '기간',
+        style: {
+          fontSize: '14px',
+          fontWeight: 600
+        }
       }
-    }
-  },
-  grid: {
-    borderColor: '#eee',
-    padding: {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
-    }
-  },
-  markers: {
-    size: 4,
+    },
+    yaxis: {
+      labels: {
+        formatter: val => Math.round(val).toLocaleString()
+      },
+      title: {
+        text: '구독자 수',
+        style: {
+          fontSize: '14px',
+          fontWeight: 600
+        }
+      },
+      min: Math.max(0, Math.floor(minValue * 0.95)), // 최소값 설정 (0 이상)
+      max: Math.ceil(maxValue * 1.05), // 최대값 설정
+      forceNiceScale: false,
+      decimalsInFloat: 0,
+      tickAmount: 6 // Y축 눈금 개수
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
     colors: ['#ff4d67'],
-    strokeColors: '#fff',
-    strokeWidth: 2,
-    hover: {
-      size: 6
+    dataLabels: { enabled: false },
+    tooltip: {
+      y: {
+        formatter: val => `${val.toLocaleString()}명`
+      },
+      x: {
+        formatter: (val, { series, seriesIndex, dataPointIndex, w }) => {
+          const item = filteredHistory.value[dataPointIndex]
+          if (item) {
+            const date = new Date(item.collectedAt)
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+          }
+          return ''
+        }
+      }
+    },
+    grid: {
+      borderColor: '#eee',
+      padding: {
+        top: 10,
+        right: 20,
+        bottom: 10,
+        left: 10
+      }
+    },
+    markers: {
+      size: 4,
+      colors: ['#ff4d67'],
+      strokeColors: '#fff',
+      strokeWidth: 2,
+      hover: {
+        size: 6
+      }
     }
   }
-}))
+})
 </script>
 
 <script>
