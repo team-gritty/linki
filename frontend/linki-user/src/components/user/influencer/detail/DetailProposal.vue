@@ -61,6 +61,7 @@
         <div class="action-buttons" v-if="showActionButtons">
           <button v-if="!isEditing && canEditProposal" class="submit-button" @click="startEdit">수정</button>
           <button v-if="!isEditing && canDeleteProposal" class="delete-button" @click="deleteProposal">삭제</button>
+          <button v-if="!isEditing && canResubmitProposal" class="resubmit-button" @click="resubmitProposal">재제출</button>
           <button v-if="isEditing" class="submit-button" @click="saveProposal">저장</button>
           <button v-if="isEditing" class="cancel-button" @click="cancelEdit">취소</button>
         </div>
@@ -87,7 +88,7 @@
         <div v-if="proposalData && proposalData.status === 'REJECTED'" class="status-message">
           <div class="status-info rejected">
             <i class="icon-close"></i>
-            <span>제안서가 거절되었습니다.</span>
+            <span>제안서가 거절되었습니다. 내용을 수정하여 재제출할 수 있습니다.</span>
           </div>
         </div>
       </div>
@@ -196,10 +197,16 @@ export default {
       return proposalData.value.status === 'PENDING'
     })
 
+    const canResubmitProposal = computed(() => {
+      if (!proposalData.value?.status) return false
+      // REJECTED 상태일 때만 재제출 가능
+      return proposalData.value.status === 'REJECTED'
+    })
+
     const showActionButtons = computed(() => {
       if (!proposalData.value?.status) return false
-      // PENDING, ACCEPTED 상태이거나 편집 중일 때 액션 버튼 표시
-      return proposalData.value.status === 'PENDING' || proposalData.value.status === 'ACCEPTED' || isEditing.value
+      // PENDING, ACCEPTED, REJECTED 상태이거나 편집 중일 때 액션 버튼 표시
+      return proposalData.value.status === 'PENDING' || proposalData.value.status === 'ACCEPTED' || proposalData.value.status === 'REJECTED' || isEditing.value
     })
 
     const startEdit = () => {
@@ -266,6 +273,23 @@ export default {
       }
     }
 
+    const resubmitProposal = async () => {
+      try {
+        if (!proposalData.value?.campaignId) return
+        
+        // 거절된 제안서의 캠페인 ID를 가져와서 새로운 제안서 작성 페이지로 이동
+        const campaignId = proposalData.value.campaignId
+        
+        if (confirm('거절된 제안서를 다시 제출하시겠습니까?\n제안서 작성 페이지로 이동합니다.')) {
+          router.push(`/campaign/${campaignId}/proposal`)
+        }
+        
+      } catch (error) {
+        console.error('Failed to navigate to resubmit proposal:', error)
+        alert('페이지 이동에 실패했습니다.')
+      }
+    }
+
     return {
       loading,
       proposalData,
@@ -276,11 +300,13 @@ export default {
       formatDate,
       canEditProposal,
       canDeleteProposal,
+      canResubmitProposal,
       showActionButtons,
       startEdit,
       cancelEdit,
       saveProposal,
-      deleteProposal
+      deleteProposal,
+      resubmitProposal
     }
   }
 }
@@ -434,7 +460,8 @@ export default {
 
 .submit-button,
 .delete-button,
-.cancel-button {
+.cancel-button,
+.resubmit-button {
   padding: 8px 24px;
   border-radius: 4px;
   font-weight: 500;
@@ -471,6 +498,16 @@ export default {
 
 .cancel-button:hover {
   background: #f5f5f5;
+}
+
+.resubmit-button {
+  background: #28a745;
+  color: white;
+  border: none;
+}
+
+.resubmit-button:hover {
+  background: #218838;
 }
 
 /* 상태 메시지 스타일 */

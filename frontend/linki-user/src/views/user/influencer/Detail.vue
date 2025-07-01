@@ -32,7 +32,8 @@
         :detailData="{
           contractId: proposal?.contractId || route.query.contractId,
           contract: proposal?.contract || {},
-          campaign: campaignDetail
+          campaign: campaignDetail,
+          proposalId: proposal?.proposalId
         }"
       />
     </div>

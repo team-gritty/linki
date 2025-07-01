@@ -3,6 +3,7 @@ package com.Gritty.Linki.domain.user.influencer.proposal.repository.jpa;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalDetailResponseDTO;
 import com.Gritty.Linki.domain.user.influencer.responseDTO.proposal.ProposalListResponseDTO;
 import com.Gritty.Linki.entity.Proposal;
+import com.Gritty.Linki.vo.enums.ProposalStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +37,7 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
         p.respondedAt,
         p.influencer.influencerId,
         p.campaign.campaignId,
+        c.contractId,
         c.contractStatus
     )
     FROM Proposal p
@@ -54,6 +56,7 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
         p.respondedAt,
         p.influencer.influencerId,
         p.campaign.campaignId,
+        c.contractId,
         c.contractStatus
     )
     FROM Proposal p
@@ -61,5 +64,9 @@ public interface InfluencerProposalRepository extends JpaRepository<Proposal, St
     WHERE p.proposalId = :proposalId
 """)
     Optional<ProposalDetailResponseDTO> findDetailByProposalId(@Param("proposalId") String proposalId);
-    boolean existsByCampaign_CampaignIdAndInfluencer_InfluencerId(String campaignId, String influencerId);
+    boolean existsByCampaign_CampaignIdAndInfluencer_InfluencerIdAndStatusIn(
+            String campaignId,
+            String influencerId,
+            List<ProposalStatus> statuses
+    );
 }
