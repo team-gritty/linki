@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.user.repository.myBatis.AdvertiserUserMapper">
+
+
+    <select id="getAllAdvertiserUsers" resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">
+        SELECT advertiser.advertiser_id AS userId,
+               advertiser.business_number AS businessNumber,
+               advertiser.company_name AS businessName,
+               user.user_name AS name,
+               user.user_phone AS phone,
+               user.user_email AS email
+        FROM advertiser
+                 JOIN user
+                      ON advertiser.user_id = user.user_id
+        ORDER BY advertiser.advertiser_id DESC
+        LIMIT 30000
+    </select>
+
+    <select id="searchAdvertiserUser"  resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">
+        SELECT advertiser.advertiser_id AS userId,
+        advertiser.business_number AS businessNumber,
+        advertiser.company_name AS businessName,
+        user.user_name AS name,
+        user.user_phone AS phone,
+        user.user_email AS email
+        FROM advertiser
+        JOIN user
+        ON advertiser.user_id = user.user_id
+
+        WHERE 1 = 1
+
+        <choose>
+            <when test="searchType != null and searchType.toLowerCase() eq 'advertiserid'">
+                AND TRIM(LOWER(advertiser.advertiser_id)) = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'name'">
+                AND TRIM(LOWER(user.user_name)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'email'">
+                AND REPLACE(TRIM(user.user_email), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'phone'">
+                AND REPLACE(TRIM(user.user_phone), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'businessnumber'">
+                AND REPLACE(TRIM(advertiser.business_number), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'businessname'">
+                AND REPLACE(TRIM(advertiser.company_name), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAllAdvertiserUsersWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">
+        SELECT
+            advertiser.advertiser_id AS userId,
+            advertiser.business_number AS businessNumber,
+            advertiser.company_name AS businessName,
+            user.user_name AS name,
+            user.user_phone AS phone,
+            user.user_email AS email,
+            user.user_id AS userCursor
+        FROM (
+            SELECT user_id
+            FROM user
+            WHERE user_role = 'ROLE_ADVERTISER'
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+            ORDER BY user_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN advertiser ON advertiser.user_id = temp.user_id
+        JOIN user ON user.user_id = advertiser.user_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchAdvertiserUserWithKeyset" resultType="com.linki.admin_integration_service.domain.user.dto.AdvertiserUserDTO">
+        SELECT
+            advertiser.advertiser_id AS userId,
+            advertiser.business_number AS businessNumber,
+            advertiser.company_name AS businessName,
+            user.user_name AS name,
+            user.user_phone AS phone,
+            user.user_email AS email,
+            user.user_id AS userCursor
+        FROM (
+            SELECT user_id
+            FROM user
+            WHERE user_role = 'ROLE_ADVERTISER'
+            <choose>
+                <when test="searchDTO.searchType.toLowerCase() eq 'name'">
+                    AND TRIM(LOWER(user_name)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'email'">
+                    AND TRIM(LOWER(user_email)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType.toLowerCase() eq 'phone'">
+                    AND REPLACE(TRIM(user_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+            <if test="cursor != null and cursor != ''">
+                AND user_id &gt; #{cursor}
+            </if>
+            ORDER BY user_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN advertiser ON advertiser.user_id = temp.user_id
+        JOIN user ON user.user_id = advertiser.user_id
+    </select>
+
+
+</mapper>

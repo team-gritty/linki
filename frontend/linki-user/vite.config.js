@@ -13,14 +13,19 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  define: {
+    global: 'globalThis',
+  },
   server: {
-    port: 3001,
+    port: 3002,
+    host: '0.0.0.0',
+    allowedHosts: ['linki.kr', 'www.linki.kr'],
     proxy: {
-      '/': {
-        target: 'http://localhost:3000',
+      '/v1': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        rewrite: (path) => path
-      }
+        ws: true
+      },
     }
   }
 })

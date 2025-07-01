@@ -1,0 +1,102 @@
+{
+	"id": "363d7a70-dd0d-4c6e-83ee-01f2fec74782",
+	"name": "관리자 - 일반 회원 조회",
+	"timestamp": "2025-06-17T05:42:20.034Z",
+	"collection_id": "45491549-9707c8e9-8e87-4973-951c-36affb304301",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-17T05:42:19.247Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "38014300-db7f-4e03-875b-dca570e01224",
+			"name": "일반 회원 조회",
+			"url": "localhost:8080/v1/admin/api/generalUsers",
+			"time": 32,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				78,
+				49,
+				46,
+				34,
+				39,
+				30,
+				33,
+				31,
+				31,
+				32
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "53667538-a16b-45d6-bad9-9676d0617802",
+			"name": "일반 회원 검색",
+			"url": "localhost:8080/v1/admin/api/generalUsers/search",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				6,
+				4,
+				5,
+				5,
+				8,
+				4,
+				5,
+				4,
+				4,
+				12
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 460,
+	"collection": {
+		"requests": [
+			{
+				"id": "38014300-db7f-4e03-875b-dca570e01224",
+				"method": "GET"
+			},
+			{
+				"id": "53667538-a16b-45d6-bad9-9676d0617802",
+				"method": "POST"
+			}
+		]
+	}
+}

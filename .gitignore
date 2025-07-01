@@ -16,7 +16,6 @@ Thumbs.db
 # 🔐 민감 정보 및 설정 파일
 # ========================
 application-secret.properties
-application.yml
 .env
 .env.*
 

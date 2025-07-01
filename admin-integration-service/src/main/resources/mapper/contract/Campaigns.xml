@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.contract.repository.myBatis.CampaignMapper">
+
+    <!-- 기본 조회 쿼리 (호환성 유지) -->
+    <select id="getCampaigns" resultType="com.linki.admin_integration_service.domain.contract.dto.CampaignDTO">
+        SELECT
+            campaign.campaign_id AS campaignId,
+            CONCAT(advertiser.company_name,'(',user.user_name,')') AS advertiserName,
+            advertiser.business_number AS businessNumber,
+            user.user_phone AS phone,
+            campaign.campaign_name AS campaignTitle,
+            campaign.created_at AS registerDate,
+            campaign.campaign_deadline AS applyDeadline
+
+        FROM campaign
+                 JOIN advertiser
+                      ON campaign.advertiser_id = advertiser.advertiser_id
+                 JOIN user
+                      ON advertiser.user_id = user.user_id
+        ORDER BY campaign.campaign_id DESC
+        LIMIT 30000
+    </select>
+
+    <!-- 기본 검색 쿼리 (호환성 유지) -->
+    <select id="searchCampaign"  resultType="com.linki.admin_integration_service.domain.contract.dto.CampaignDTO">
+        SELECT
+        campaign.campaign_id AS campaignId,
+        CONCAT(advertiser.company_name,'(',user.user_name,')') AS advertiserName,
+        advertiser.business_number AS businessNumber,
+        user.user_phone AS phone,
+        campaign.campaign_name AS campaignTitle,
+        campaign.created_at AS registerDate,
+        campaign.campaign_deadline AS applyDeadline
+
+        FROM campaign
+        JOIN advertiser
+        ON campaign.advertiser_id = advertiser.advertiser_id
+        JOIN user
+        ON advertiser.user_id = user.user_id
+        WHERE 1 = 1
+
+        <choose>
+            <when test="searchType != null and searchType.toLowerCase() eq 'campaignid'">
+                AND REPLACE(TRIM(LOWER(campaign.campaign_id)), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'advertisername'">
+                AND TRIM(LOWER(CONCAT(advertiser.company_name,'(',user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'businessnumber'">
+                AND TRIM(LOWER(advertiser.business_number)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'phone'">
+                AND TRIM(LOWER(user.user_phone)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+            <when test="searchType != null and searchType.toLowerCase() eq 'campaigntitle'">
+                AND TRIM(LOWER(campaign.campaign_name)) LIKE CONCAT('%', TRIM(LOWER(#{keyword})), '%')
+            </when>
+
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+        ORDER BY campaign.campaign_id ASC
+    </select>
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+    
+    <!-- Keyset 기본 조회 (성능 최적화: 서브쿼리 기반 Keyset) -->
+    <select id="getCampaignsWithKeyset" resultType="com.linki.admin_integration_service.domain.contract.dto.CampaignDTO">
+        SELECT
+            c.campaign_id AS campaignId,
+            CONCAT(a.company_name,'(',u.user_name,')') AS advertiserName,
+            a.business_number AS businessNumber,
+            u.user_phone AS phone,
+            c.campaign_name AS campaignTitle,
+            c.created_at AS registerDate,
+            c.campaign_deadline AS applyDeadline
+        FROM (
+            SELECT campaign_id
+            FROM campaign
+            <where>
+                <if test="cursor != null and cursor != ''">
+                    campaign_id &gt; #{cursor}
+                </if>
+            </where>
+            ORDER BY campaign_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN campaign c ON c.campaign_id = temp.campaign_id
+        JOIN advertiser a ON c.advertiser_id = a.advertiser_id
+        JOIN user u ON a.user_id = u.user_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchCampaignWithKeyset" resultType="com.linki.admin_integration_service.domain.contract.dto.CampaignDTO">
+        SELECT
+            campaign.campaign_id AS campaignId,
+            CONCAT(advertiser.company_name,'(',user.user_name,')') AS advertiserName,
+            advertiser.business_number AS businessNumber,
+            user.user_phone AS phone,
+            campaign.campaign_name AS campaignTitle,
+            campaign.created_at AS registerDate,
+            campaign.campaign_deadline AS applyDeadline
+
+        FROM campaign
+        JOIN advertiser
+        ON campaign.advertiser_id = advertiser.advertiser_id
+        JOIN user
+        ON advertiser.user_id = user.user_id
+        <where>
+            <!-- 검색 조건 -->
+            <choose>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'campaignid'">
+                    REPLACE(TRIM(LOWER(campaign.campaign_id)), '-', '') = REPLACE(TRIM(LOWER(#{searchDTO.keyword})), '-', '')
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'advertisername'">
+                    TRIM(LOWER(CONCAT(advertiser.company_name,'(',user.user_name,')'))) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'businessnumber'">
+                    TRIM(LOWER(advertiser.business_number)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'phone'">
+                    TRIM(LOWER(user.user_phone)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'campaigntitle'">
+                    TRIM(LOWER(campaign.campaign_name)) LIKE CONCAT('%', TRIM(LOWER(#{searchDTO.keyword})), '%')
+                </when>
+            </choose>
+            
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND campaign.campaign_id > #{cursor}
+            </if>
+        </where>
+        ORDER BY campaign.campaign_id ASC
+        LIMIT #{size}
+    </select>
+
+</mapper>

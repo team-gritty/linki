@@ -1,0 +1,11 @@
+{
+  "campaignId": "CAMP0000",
+  "campaignName": "캠페인0",
+  "campaignCondition": "캠페인 조건0",
+  "campaignImg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80",
+  "createdAt": "2024-05-07T00:00:00",
+  "campaignDeadline": "2024-03-03T00:00:00",
+  "campaignDesc": "캠페인 설명0",
+  "companyName": "회사0",
+  "campaignPublishStatus": "HIDDEN"
+}

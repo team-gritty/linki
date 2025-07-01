@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.dashboard.repository.myBatis.DashBoardSummaryMapper">
+
+    <select id="getAdvertiserCount" resultType="java.lang.Integer">
+    SELECT count(*)
+    FROM advertiser
+    </select>
+    
+    <select id="getInfluencerCount" resultType="java.lang.Integer">
+    SELECT count(*)
+    FROM influencer
+    </select>
+
+    <select id="getActiveCampaignCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) AS endedCount
+        FROM campaign
+        WHERE campaign_deadline > NOW()
+    </select>
+
+    <select id="getOngoingContracts" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM contract
+        WHERE contract.contract_status = 'ONGOING';
+    </select>
+
+    <select id="getCurrentSubscribers" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_pay_status = '1';
+    </select>
+    
+    <select id="getMonthlyRevenue" resultType="com.linki.admin_integration_service.domain.dashboard.dto.MonthlyRevenueDTO">
+        SELECT
+            p.payment_id AS paymentId,
+            p.payed_at AS paymentDate,
+            s.subscribe_amount AS amount
+        FROM payments p
+                 JOIN subscribe s
+                      ON p.subs_detail_id = s.subscribe_id
+        GROUP BY p.payment_id, s.subscribe_amount
+    </select>
+
+    <select id="getEnterDay" resultType="com.linki.admin_integration_service.domain.dashboard.dto.TrendMapperDTO">
+        SELECT
+            user.user_enter_day AS enterDay,
+            user.user_role AS role
+        FROM user
+    </select>
+
+    <select id="getCampaigns" resultType="com.linki.admin_integration_service.domain.dashboard.dto.CampaignDTO">
+        SELECT
+            campaign.campaign_id AS campaignId,
+            CONCAT(advertiser.company_name,'(',user.user_name,')') AS advertiserName,
+            advertiser.business_number AS businessNumber,
+            user.user_phone AS phone,
+            campaign.campaign_name AS campaignTitle,
+            campaign.created_at AS registerDate,
+            campaign.campaign_deadline AS applyDeadline
+
+        FROM campaign
+                 JOIN advertiser
+                      ON campaign.advertiser_id = advertiser.advertiser_id
+                 JOIN user
+                      ON advertiser.user_id = user.user_id
+    </select>
+
+
+
+</mapper>

@@ -15,11 +15,13 @@ export default defineConfig({
   },
   server: {
     port: 3001,
+    host: '0.0.0.0',
+    allowedHosts: ['admin.linki.kr','www.admin.linki.kr'],
     proxy: {
-      '/': {
-        target: 'http://localhost:3000',
+      '/v1/admin/api': {
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path
+        secure: false
       }
     }
   }

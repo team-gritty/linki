@@ -1,0 +1,142 @@
+{
+	"id": "4ca41fb0-1039-441d-b684-35905afae883",
+	"name": "관리자 - 정산 관리",
+	"timestamp": "2025-06-18T08:37:28.631Z",
+	"collection_id": "45491549-c50f4774-8a85-4f8e-8be8-5a7d05ab2cee",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-18T08:37:27.551Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "3a3caaf5-73a4-4a43-b131-8ce702a9a360",
+			"name": "관리자 정산 조회",
+			"url": "localhost:8080/v1/admin/api/settlements",
+			"time": 30,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				46,
+				36,
+				31,
+				30,
+				27,
+				32,
+				27,
+				31,
+				30,
+				30
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "9cf2803c-d573-402a-a8da-95e759e20763",
+			"name": "관리자 - 정산 검색",
+			"url": "localhost:8080/v1/admin/api/settlements/search",
+			"time": 30,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				33,
+				35,
+				30,
+				27,
+				26,
+				64,
+				27,
+				27,
+				28,
+				30
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "5cf98127-ca83-4734-8938-225e8530e763",
+			"name": "관리자 정산 처리",
+			"url": "localhost:8080/v1/admin/api/settlements/process",
+			"time": 2,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				2,
+				2,
+				2,
+				2,
+				2,
+				2,
+				3,
+				2,
+				2,
+				2
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 668,
+	"collection": {
+		"requests": [
+			{
+				"id": "3a3caaf5-73a4-4a43-b131-8ce702a9a360",
+				"method": "GET"
+			},
+			{
+				"id": "9cf2803c-d573-402a-a8da-95e759e20763",
+				"method": "POST"
+			},
+			{
+				"id": "5cf98127-ca83-4734-8938-225e8530e763",
+				"method": "POST"
+			}
+		]
+	}
+}

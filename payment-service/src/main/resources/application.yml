@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: payment-service
+  profiles:
+    active: main
+  config:
+    import: optional:configserver:http://admin:1234@211.188.61.90:9000

@@ -1,0 +1,102 @@
+{
+	"id": "adce1b47-8217-49d1-85b9-39673d767ad8",
+	"name": "관리자 - 인플루언서 회원",
+	"timestamp": "2025-06-17T10:10:16.260Z",
+	"collection_id": "45491549-25a44326-9eb5-4dd1-b7c1-0ff117211d24",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-06-17T10:10:15.482Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "2bd0f4ed-cc83-47b7-8992-657f73645e3d",
+			"name": "관리자 - 인플루언서 회원 조회",
+			"url": "localhost:8080/v1/admin/api/influencerUsers",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				62,
+				31,
+				19,
+				14,
+				17,
+				20,
+				15,
+				15,
+				15,
+				15
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		},
+		{
+			"id": "2c99cb62-10ca-49d9-bcab-66ffd9175ff9",
+			"name": "관리자 - 인플루언서 회원 검색",
+			"url": "localhost:8080/v1/admin/api/influencerUsers/search",
+			"time": 15,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				38,
+				18,
+				21,
+				18,
+				26,
+				21,
+				14,
+				16,
+				18,
+				15
+			],
+			"allTests": [
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{},
+				{}
+			]
+		}
+	],
+	"count": 10,
+	"totalTime": 428,
+	"collection": {
+		"requests": [
+			{
+				"id": "2bd0f4ed-cc83-47b7-8992-657f73645e3d",
+				"method": "GET"
+			},
+			{
+				"id": "2c99cb62-10ca-49d9-bcab-66ffd9175ff9",
+				"method": "POST"
+			}
+		]
+	}
+}

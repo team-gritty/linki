@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linki.admin_integration_service.domain.operations.repository.myBatis.AdminSignUpAgreementMapper">
+
+    
+    <select id="getAdminSignUpList" resultType="com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgreementDTO">
+        SELECT
+            admin_login_id AS adminSignUpId,
+            admin_name AS adminName,
+            admin_email AS adminEmail,
+            admin_phone AS adminPhone,
+            admin_status AS adminStatus
+        FROM admin
+        WHERE admin_status = 'PENDING'
+        ORDER BY adminSignUpId
+        LIMIT 30000
+    </select>
+    
+    
+    <select id="searchAdminSignUp"  resultType="com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgreementDTO">
+        SELECT
+        admin_login_id AS adminSignUpId,
+        admin_name AS adminName,
+        admin_email AS adminEmail,
+        admin_phone AS adminPhone,
+        admin_status AS adminStatus
+        FROM admin
+        WHERE 1 = 1 and admin_status = 'PENDING'
+
+        <choose>
+            <when test="searchType.toLowerCase() eq 'adminname'">
+                AND TRIM(LOWER(admin_name)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType.toLowerCase() eq 'adminemail'">
+                AND TRIM(LOWER(admin_email)) = TRIM(LOWER(#{keyword}))
+            </when>
+            <when test="searchType.toLowerCase() eq 'adminphone'">
+                AND REPLACE(TRIM(admin_phone), '-', '') = REPLACE(TRIM(#{keyword}), '-', '')
+            </when>
+            <otherwise>
+                -- 기본 검색 없음
+            </otherwise>
+
+        </choose>
+
+    </select>
+
+    <!-- ================================= -->
+    <!-- Keyset 페이지네이션 쿼리들 -->
+    <!-- ================================= -->
+
+
+    <select id="getAdminSignUpListWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgreementDTO">
+        SELECT
+            a.admin_login_id AS adminSignUpId,
+            a.admin_name AS adminName,
+            a.admin_email AS adminEmail,
+            a.admin_phone AS adminPhone,
+            a.admin_status AS adminStatus
+        FROM (
+            SELECT admin_login_id
+            FROM admin
+            WHERE admin_status = 'PENDING'
+            <if test="cursor != null and cursor != ''">
+                AND admin_login_id &gt; #{cursor}
+            </if>
+            ORDER BY admin_login_id ASC
+            LIMIT #{size}
+        ) AS temp
+        JOIN admin a ON a.admin_login_id = temp.admin_login_id
+    </select>
+
+    <!-- Keyset 검색 조회 -->
+    <select id="searchAdminSignUpWithKeyset" resultType="com.linki.admin_integration_service.domain.operations.dto.AdminSignUpAgreementDTO">
+        SELECT
+            admin_login_id AS adminSignUpId,
+            admin_name AS adminName,
+            admin_email AS adminEmail,
+            admin_phone AS adminPhone,
+            admin_status AS adminStatus
+        FROM admin
+        <where>
+            admin_status = 'PENDING'
+            
+            <!-- 검색 조건 -->
+            <choose>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'adminname'">
+                    AND TRIM(LOWER(admin_name)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'adminemail'">
+                    AND TRIM(LOWER(admin_email)) = TRIM(LOWER(#{searchDTO.keyword}))
+                </when>
+                <when test="searchDTO.searchType != null and searchDTO.searchType.toLowerCase() eq 'adminphone'">
+                    AND REPLACE(TRIM(admin_phone), '-', '') = REPLACE(TRIM(#{searchDTO.keyword}), '-', '')
+                </when>
+                <otherwise>
+                    -- 기본 검색 없음
+                </otherwise>
+            </choose>
+
+            <!-- Cursor 조건 (AND로 연결) -->
+            <if test="cursor != null and cursor != ''">
+                AND admin_login_id &gt; #{cursor}
+            </if>
+        </where>
+        ORDER BY admin_login_id ASC
+        LIMIT #{size}
+    </select>
+
+
+</mapper>

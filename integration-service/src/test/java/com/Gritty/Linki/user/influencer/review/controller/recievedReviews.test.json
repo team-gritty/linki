@@ -1,0 +1,20 @@
+[
+  {
+    "influencerReviewId": "REV0000",
+    "influencerReviewScore": 0.8,
+    "influencerReviewComment": "리뷰 내용0",
+    "influencerReviewCreatedAt": "2024-07-08T00:00:00",
+    "contractId": "CONT0000",
+    "visibility": false,
+    "campaignName": "캠페인0"
+  },
+  {
+    "influencerReviewId": "REV0001",
+    "influencerReviewScore": 4.6,
+    "influencerReviewComment": "리뷰 내용1",
+    "influencerReviewCreatedAt": "2024-05-03T00:00:00",
+    "contractId": "CONT0001",
+    "visibility": true,
+    "campaignName": "캠페인0"
+  }
+]

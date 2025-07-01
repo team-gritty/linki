@@ -1,0 +1,127 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.Gritty'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+
+	springCloudVersion = '2024.0.1'
+
+	set('springAiVersion', "1.0.0-RC1")
+}
+
+dependencies {
+	// --- Spring Boot Starters (Core Functionalities) ---
+	implementation 'org.springframework.boot:spring-boot-starter-web' // 웹 MVC, REST API
+	implementation 'org.springframework.boot:spring-boot-starter-security' // 인증 및 보안
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // Bean Validation (@Valid 등)
+	implementation 'org.springframework.boot:spring-boot-starter-mail' // 이메일 발송
+
+	// --- Data Access (ORM & Mapper) ---
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA + Hibernate
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4' // MyBatis Mapper 연동
+	implementation("com.mysql:mysql-connector-j:8.1.0") // MySQL 드라이버
+
+	// --- 개발 편의성 ---
+	compileOnly 'org.projectlombok:lombok' // Getter/Setter 등 보일러플레이트 제거
+	annotationProcessor 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools' // 자동 재시작 및 개발 도구
+
+	// --- 테스트 ---
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// --- OK HTTP(http 통신)---
+	implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+	// --- AI 관련 (실제 사용 시 주석 해제) ---
+	implementation("org.springframework.ai:spring-ai-client-chat:1.0.0")
+
+	// --- MSA 관련 eurekaClient ---
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	// health check - SpringBootActuator
+	implementation "org.springframework.boot:spring-boot-starter-actuator"
+
+
+	// --- Google API Client & YouTube Data API ---
+	implementation 'com.google.api-client:google-api-client:2.2.0'
+	implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
+	implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
+
+	// --- Aysnc 비동기 처리 ---
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	implementation 'org.modelmapper:modelmapper:3.1.1'
+
+	//jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	//feign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation group: 'io.github.openfeign', name: 'feign-gson', version: '11.0'
+
+    // object storage
+	implementation platform('software.amazon.awssdk:bom:2.20.56')
+	implementation 'software.amazon.awssdk:s3:'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.13'
+
+
+	// 랜덤한 고유 숏코드 생성
+	implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
+
+	// Spring oAuth2 Client
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	//kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // Json 파싱
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' // ✅ 반드시 포함
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

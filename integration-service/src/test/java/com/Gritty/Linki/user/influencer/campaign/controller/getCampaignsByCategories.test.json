@@ -1,0 +1,1002 @@
+[
+  {
+    "campaignId": "CAMP0015",
+    "campaignName": "캠페인15",
+    "campaignCondition": "캠페인 조건15",
+    "campaignImg": "https://example.com/images/15.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-25T00:00:00",
+    "campaignDeadline": "2024-11-20T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0020",
+    "campaignName": "캠페인20",
+    "campaignCondition": "캠페인 조건20",
+    "campaignImg": "https://example.com/images/20.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-30T00:00:00",
+    "campaignDeadline": "2024-07-23T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0043",
+    "campaignName": "캠페인43",
+    "campaignCondition": "캠페인 조건43",
+    "campaignImg": "https://example.com/images/43.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-23T00:00:00",
+    "campaignDeadline": "2024-12-28T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0045",
+    "campaignName": "캠페인45",
+    "campaignCondition": "캠페인 조건45",
+    "campaignImg": "https://example.com/images/45.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-07-16T00:00:00",
+    "campaignDeadline": "2025-01-16T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0054",
+    "campaignName": "캠페인54",
+    "campaignCondition": "캠페인 조건54",
+    "campaignImg": "https://example.com/images/54.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-21T00:00:00",
+    "campaignDeadline": "2025-01-16T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0065",
+    "campaignName": "캠페인65",
+    "campaignCondition": "캠페인 조건65",
+    "campaignImg": "https://example.com/images/65.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-27T00:00:00",
+    "campaignDeadline": "2024-04-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0068",
+    "campaignName": "캠페인68",
+    "campaignCondition": "캠페인 조건68",
+    "campaignImg": "https://example.com/images/68.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-19T00:00:00",
+    "campaignDeadline": "2024-11-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0069",
+    "campaignName": "캠페인69",
+    "campaignCondition": "캠페인 조건69",
+    "campaignImg": "https://example.com/images/69.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-14T00:00:00",
+    "campaignDeadline": "2024-08-14T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0074",
+    "campaignName": "캠페인74",
+    "campaignCondition": "캠페인 조건74",
+    "campaignImg": "https://example.com/images/74.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-26T00:00:00",
+    "campaignDeadline": "2024-07-16T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0083",
+    "campaignName": "캠페인83",
+    "campaignCondition": "캠페인 조건83",
+    "campaignImg": "https://example.com/images/83.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-07T00:00:00",
+    "campaignDeadline": "2024-02-01T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0086",
+    "campaignName": "캠페인86",
+    "campaignCondition": "캠페인 조건86",
+    "campaignImg": "https://example.com/images/86.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-07T00:00:00",
+    "campaignDeadline": "2024-11-26T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0097",
+    "campaignName": "캠페인97",
+    "campaignCondition": "캠페인 조건97",
+    "campaignImg": "https://example.com/images/97.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-15T00:00:00",
+    "campaignDeadline": "2024-11-20T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0102",
+    "campaignName": "캠페인102",
+    "campaignCondition": "캠페인 조건102",
+    "campaignImg": "https://example.com/images/102.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-21T00:00:00",
+    "campaignDeadline": "2025-01-07T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0109",
+    "campaignName": "캠페인109",
+    "campaignCondition": "캠페인 조건109",
+    "campaignImg": "https://example.com/images/109.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-26T00:00:00",
+    "campaignDeadline": "2025-01-15T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0112",
+    "campaignName": "캠페인112",
+    "campaignCondition": "캠페인 조건112",
+    "campaignImg": "https://example.com/images/112.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-07T00:00:00",
+    "campaignDeadline": "2024-11-28T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0115",
+    "campaignName": "캠페인115",
+    "campaignCondition": "캠페인 조건115",
+    "campaignImg": "https://example.com/images/115.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-17T00:00:00",
+    "campaignDeadline": "2024-06-27T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0137",
+    "campaignName": "캠페인137",
+    "campaignCondition": "캠페인 조건137",
+    "campaignImg": "https://example.com/images/137.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-12T00:00:00",
+    "campaignDeadline": "2024-07-02T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0140",
+    "campaignName": "캠페인140",
+    "campaignCondition": "캠페인 조건140",
+    "campaignImg": "https://example.com/images/140.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-17T00:00:00",
+    "campaignDeadline": "2024-04-27T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0155",
+    "campaignName": "캠페인155",
+    "campaignCondition": "캠페인 조건155",
+    "campaignImg": "https://example.com/images/155.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-01-24T00:00:00",
+    "campaignDeadline": "2024-02-16T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0158",
+    "campaignName": "캠페인158",
+    "campaignCondition": "캠페인 조건158",
+    "campaignImg": "https://example.com/images/158.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-08T00:00:00",
+    "campaignDeadline": "2024-05-11T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0163",
+    "campaignName": "캠페인163",
+    "campaignCondition": "캠페인 조건163",
+    "campaignImg": "https://example.com/images/163.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-18T00:00:00",
+    "campaignDeadline": "2025-01-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0175",
+    "campaignName": "캠페인175",
+    "campaignCondition": "캠페인 조건175",
+    "campaignImg": "https://example.com/images/175.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-22T00:00:00",
+    "campaignDeadline": "2024-03-06T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0188",
+    "campaignName": "캠페인188",
+    "campaignCondition": "캠페인 조건188",
+    "campaignImg": "https://example.com/images/188.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-29T00:00:00",
+    "campaignDeadline": "2024-07-30T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0190",
+    "campaignName": "캠페인190",
+    "campaignCondition": "캠페인 조건190",
+    "campaignImg": "https://example.com/images/190.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-02T00:00:00",
+    "campaignDeadline": "2024-02-14T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0201",
+    "campaignName": "캠페인201",
+    "campaignCondition": "캠페인 조건201",
+    "campaignImg": "https://example.com/images/201.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-07-22T00:00:00",
+    "campaignDeadline": "2025-01-20T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0213",
+    "campaignName": "캠페인213",
+    "campaignCondition": "캠페인 조건213",
+    "campaignImg": "https://example.com/images/213.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-19T00:00:00",
+    "campaignDeadline": "2024-05-27T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0214",
+    "campaignName": "캠페인214",
+    "campaignCondition": "캠페인 조건214",
+    "campaignImg": "https://example.com/images/214.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-03T00:00:00",
+    "campaignDeadline": "2024-08-23T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0216",
+    "campaignName": "캠페인216",
+    "campaignCondition": "캠페인 조건216",
+    "campaignImg": "https://example.com/images/216.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-12T00:00:00",
+    "campaignDeadline": "2024-11-12T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0235",
+    "campaignName": "캠페인235",
+    "campaignCondition": "캠페인 조건235",
+    "campaignImg": "https://example.com/images/235.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-17T00:00:00",
+    "campaignDeadline": "2024-02-24T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0244",
+    "campaignName": "캠페인244",
+    "campaignCondition": "캠페인 조건244",
+    "campaignImg": "https://example.com/images/244.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-12T00:00:00",
+    "campaignDeadline": "2024-08-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0254",
+    "campaignName": "캠페인254",
+    "campaignCondition": "캠페인 조건254",
+    "campaignImg": "https://example.com/images/254.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-21T00:00:00",
+    "campaignDeadline": "2024-08-06T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0275",
+    "campaignName": "캠페인275",
+    "campaignCondition": "캠페인 조건275",
+    "campaignImg": "https://example.com/images/275.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-29T00:00:00",
+    "campaignDeadline": "2024-04-14T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0277",
+    "campaignName": "캠페인277",
+    "campaignCondition": "캠페인 조건277",
+    "campaignImg": "https://example.com/images/277.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-08T00:00:00",
+    "campaignDeadline": "2024-06-26T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0283",
+    "campaignName": "캠페인283",
+    "campaignCondition": "캠페인 조건283",
+    "campaignImg": "https://example.com/images/283.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-26T00:00:00",
+    "campaignDeadline": "2024-03-17T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0287",
+    "campaignName": "캠페인287",
+    "campaignCondition": "캠페인 조건287",
+    "campaignImg": "https://example.com/images/287.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-14T00:00:00",
+    "campaignDeadline": "2024-08-28T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0305",
+    "campaignName": "캠페인305",
+    "campaignCondition": "캠페인 조건305",
+    "campaignImg": "https://example.com/images/305.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-24T00:00:00",
+    "campaignDeadline": "2024-12-02T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0306",
+    "campaignName": "캠페인306",
+    "campaignCondition": "캠페인 조건306",
+    "campaignImg": "https://example.com/images/306.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-23T00:00:00",
+    "campaignDeadline": "2024-03-16T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0330",
+    "campaignName": "캠페인330",
+    "campaignCondition": "캠페인 조건330",
+    "campaignImg": "https://example.com/images/330.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-09T00:00:00",
+    "campaignDeadline": "2024-12-14T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0342",
+    "campaignName": "캠페인342",
+    "campaignCondition": "캠페인 조건342",
+    "campaignImg": "https://example.com/images/342.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-24T00:00:00",
+    "campaignDeadline": "2024-02-24T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0353",
+    "campaignName": "캠페인353",
+    "campaignCondition": "캠페인 조건353",
+    "campaignImg": "https://example.com/images/353.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-23T00:00:00",
+    "campaignDeadline": "2024-05-04T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0374",
+    "campaignName": "캠페인374",
+    "campaignCondition": "캠페인 조건374",
+    "campaignImg": "https://example.com/images/374.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-01T00:00:00",
+    "campaignDeadline": "2024-09-08T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0398",
+    "campaignName": "캠페인398",
+    "campaignCondition": "캠페인 조건398",
+    "campaignImg": "https://example.com/images/398.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-01-01T00:00:00",
+    "campaignDeadline": "2024-07-31T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0399",
+    "campaignName": "캠페인399",
+    "campaignCondition": "캠페인 조건399",
+    "campaignImg": "https://example.com/images/399.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-07-22T00:00:00",
+    "campaignDeadline": "2024-10-29T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0411",
+    "campaignName": "캠페인411",
+    "campaignCondition": "캠페인 조건411",
+    "campaignImg": "https://example.com/images/411.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-27T00:00:00",
+    "campaignDeadline": "2024-02-12T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0414",
+    "campaignName": "캠페인414",
+    "campaignCondition": "캠페인 조건414",
+    "campaignImg": "https://example.com/images/414.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-29T00:00:00",
+    "campaignDeadline": "2024-05-13T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0421",
+    "campaignName": "캠페인421",
+    "campaignCondition": "캠페인 조건421",
+    "campaignImg": "https://example.com/images/421.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-07-18T00:00:00",
+    "campaignDeadline": "2024-09-06T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0437",
+    "campaignName": "캠페인437",
+    "campaignCondition": "캠페인 조건437",
+    "campaignImg": "https://example.com/images/437.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-17T00:00:00",
+    "campaignDeadline": "2024-08-25T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0440",
+    "campaignName": "캠페인440",
+    "campaignCondition": "캠페인 조건440",
+    "campaignImg": "https://example.com/images/440.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-11T00:00:00",
+    "campaignDeadline": "2024-02-12T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0441",
+    "campaignName": "캠페인441",
+    "campaignCondition": "캠페인 조건441",
+    "campaignImg": "https://example.com/images/441.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-24T00:00:00",
+    "campaignDeadline": "2024-05-01T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0458",
+    "campaignName": "캠페인458",
+    "campaignCondition": "캠페인 조건458",
+    "campaignImg": "https://example.com/images/458.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-01-07T00:00:00",
+    "campaignDeadline": "2024-04-27T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0489",
+    "campaignName": "캠페인489",
+    "campaignCondition": "캠페인 조건489",
+    "campaignImg": "https://example.com/images/489.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-09T00:00:00",
+    "campaignDeadline": "2024-12-17T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0513",
+    "campaignName": "캠페인513",
+    "campaignCondition": "캠페인 조건513",
+    "campaignImg": "https://example.com/images/513.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-01-31T00:00:00",
+    "campaignDeadline": "2024-07-19T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0514",
+    "campaignName": "캠페인514",
+    "campaignCondition": "캠페인 조건514",
+    "campaignImg": "https://example.com/images/514.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-26T00:00:00",
+    "campaignDeadline": "2024-02-21T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0522",
+    "campaignName": "캠페인522",
+    "campaignCondition": "캠페인 조건522",
+    "campaignImg": "https://example.com/images/522.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-12T00:00:00",
+    "campaignDeadline": "2024-12-03T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0529",
+    "campaignName": "캠페인529",
+    "campaignCondition": "캠페인 조건529",
+    "campaignImg": "https://example.com/images/529.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-22T00:00:00",
+    "campaignDeadline": "2024-07-01T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0536",
+    "campaignName": "캠페인536",
+    "campaignCondition": "캠페인 조건536",
+    "campaignImg": "https://example.com/images/536.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-28T00:00:00",
+    "campaignDeadline": "2024-10-12T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0550",
+    "campaignName": "캠페인550",
+    "campaignCondition": "캠페인 조건550",
+    "campaignImg": "https://example.com/images/550.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-04T00:00:00",
+    "campaignDeadline": "2024-04-30T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0565",
+    "campaignName": "캠페인565",
+    "campaignCondition": "캠페인 조건565",
+    "campaignImg": "https://example.com/images/565.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-04-26T00:00:00",
+    "campaignDeadline": "2024-05-23T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0567",
+    "campaignName": "캠페인567",
+    "campaignCondition": "캠페인 조건567",
+    "campaignImg": "https://example.com/images/567.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-08T00:00:00",
+    "campaignDeadline": "2024-05-15T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0577",
+    "campaignName": "캠페인577",
+    "campaignCondition": "캠페인 조건577",
+    "campaignImg": "https://example.com/images/577.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-28T00:00:00",
+    "campaignDeadline": "2025-01-29T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0592",
+    "campaignName": "캠페인592",
+    "campaignCondition": "캠페인 조건592",
+    "campaignImg": "https://example.com/images/592.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-07T00:00:00",
+    "campaignDeadline": "2024-06-22T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0633",
+    "campaignName": "캠페인633",
+    "campaignCondition": "캠페인 조건633",
+    "campaignImg": "https://example.com/images/633.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-07T00:00:00",
+    "campaignDeadline": "2025-01-02T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0644",
+    "campaignName": "캠페인644",
+    "campaignCondition": "캠페인 조건644",
+    "campaignImg": "https://example.com/images/644.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-27T00:00:00",
+    "campaignDeadline": "2024-03-15T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0651",
+    "campaignName": "캠페인651",
+    "campaignCondition": "캠페인 조건651",
+    "campaignImg": "https://example.com/images/651.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-14T00:00:00",
+    "campaignDeadline": "2024-10-29T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0654",
+    "campaignName": "캠페인654",
+    "campaignCondition": "캠페인 조건654",
+    "campaignImg": "https://example.com/images/654.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-05T00:00:00",
+    "campaignDeadline": "2024-05-25T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0655",
+    "campaignName": "캠페인655",
+    "campaignCondition": "캠페인 조건655",
+    "campaignImg": "https://example.com/images/655.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-05T00:00:00",
+    "campaignDeadline": "2024-06-16T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0666",
+    "campaignName": "캠페인666",
+    "campaignCondition": "캠페인 조건666",
+    "campaignImg": "https://example.com/images/666.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-29T00:00:00",
+    "campaignDeadline": "2024-09-18T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0713",
+    "campaignName": "캠페인713",
+    "campaignCondition": "캠페인 조건713",
+    "campaignImg": "https://example.com/images/713.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-02T00:00:00",
+    "campaignDeadline": "2024-05-07T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0720",
+    "campaignName": "캠페인720",
+    "campaignCondition": "캠페인 조건720",
+    "campaignImg": "https://example.com/images/720.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-12T00:00:00",
+    "campaignDeadline": "2024-04-06T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0727",
+    "campaignName": "캠페인727",
+    "campaignCondition": "캠페인 조건727",
+    "campaignImg": "https://example.com/images/727.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-07-17T00:00:00",
+    "campaignDeadline": "2024-12-31T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0731",
+    "campaignName": "캠페인731",
+    "campaignCondition": "캠페인 조건731",
+    "campaignImg": "https://example.com/images/731.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-16T00:00:00",
+    "campaignDeadline": "2024-10-04T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0763",
+    "campaignName": "캠페인763",
+    "campaignCondition": "캠페인 조건763",
+    "campaignImg": "https://example.com/images/763.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-01T00:00:00",
+    "campaignDeadline": "2024-02-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0789",
+    "campaignName": "캠페인789",
+    "campaignCondition": "캠페인 조건789",
+    "campaignImg": "https://example.com/images/789.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-02T00:00:00",
+    "campaignDeadline": "2025-01-05T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0791",
+    "campaignName": "캠페인791",
+    "campaignCondition": "캠페인 조건791",
+    "campaignImg": "https://example.com/images/791.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-02T00:00:00",
+    "campaignDeadline": "2024-11-10T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0800",
+    "campaignName": "캠페인800",
+    "campaignCondition": "캠페인 조건800",
+    "campaignImg": "https://example.com/images/800.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-15T00:00:00",
+    "campaignDeadline": "2024-10-04T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0802",
+    "campaignName": "캠페인802",
+    "campaignCondition": "캠페인 조건802",
+    "campaignImg": "https://example.com/images/802.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-07T00:00:00",
+    "campaignDeadline": "2024-12-03T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0811",
+    "campaignName": "캠페인811",
+    "campaignCondition": "캠페인 조건811",
+    "campaignImg": "https://example.com/images/811.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-04T00:00:00",
+    "campaignDeadline": "2024-12-02T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0814",
+    "campaignName": "캠페인814",
+    "campaignCondition": "캠페인 조건814",
+    "campaignImg": "https://example.com/images/814.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-01-17T00:00:00",
+    "campaignDeadline": "2024-06-07T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0828",
+    "campaignName": "캠페인828",
+    "campaignCondition": "캠페인 조건828",
+    "campaignImg": "https://example.com/images/828.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-01T00:00:00",
+    "campaignDeadline": "2024-06-09T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0846",
+    "campaignName": "캠페인846",
+    "campaignCondition": "캠페인 조건846",
+    "campaignImg": "https://example.com/images/846.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-06T00:00:00",
+    "campaignDeadline": "2024-09-28T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0851",
+    "campaignName": "캠페인851",
+    "campaignCondition": "캠페인 조건851",
+    "campaignImg": "https://example.com/images/851.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-10-13T00:00:00",
+    "campaignDeadline": "2024-04-19T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0861",
+    "campaignName": "캠페인861",
+    "campaignCondition": "캠페인 조건861",
+    "campaignImg": "https://example.com/images/861.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-07T00:00:00",
+    "campaignDeadline": "2024-06-20T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0863",
+    "campaignName": "캠페인863",
+    "campaignCondition": "캠페인 조건863",
+    "campaignImg": "https://example.com/images/863.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-12T00:00:00",
+    "campaignDeadline": "2024-12-29T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0865",
+    "campaignName": "캠페인865",
+    "campaignCondition": "캠페인 조건865",
+    "campaignImg": "https://example.com/images/865.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-28T00:00:00",
+    "campaignDeadline": "2024-05-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0873",
+    "campaignName": "캠페인873",
+    "campaignCondition": "캠페인 조건873",
+    "campaignImg": "https://example.com/images/873.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-05T00:00:00",
+    "campaignDeadline": "2024-11-16T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0880",
+    "campaignName": "캠페인880",
+    "campaignCondition": "캠페인 조건880",
+    "campaignImg": "https://example.com/images/880.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-15T00:00:00",
+    "campaignDeadline": "2024-09-26T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0895",
+    "campaignName": "캠페인895",
+    "campaignCondition": "캠페인 조건895",
+    "campaignImg": "https://example.com/images/895.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-01-24T00:00:00",
+    "campaignDeadline": "2024-02-16T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0902",
+    "campaignName": "캠페인902",
+    "campaignCondition": "캠페인 조건902",
+    "campaignImg": "https://example.com/images/902.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-11T00:00:00",
+    "campaignDeadline": "2024-05-05T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0905",
+    "campaignName": "캠페인905",
+    "campaignCondition": "캠페인 조건905",
+    "campaignImg": "https://example.com/images/905.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-12-04T00:00:00",
+    "campaignDeadline": "2024-11-23T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0918",
+    "campaignName": "캠페인918",
+    "campaignCondition": "캠페인 조건918",
+    "campaignImg": "https://example.com/images/918.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-02-05T00:00:00",
+    "campaignDeadline": "2024-08-08T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0923",
+    "campaignName": "캠페인923",
+    "campaignCondition": "캠페인 조건923",
+    "campaignImg": "https://example.com/images/923.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-20T00:00:00",
+    "campaignDeadline": "2024-08-06T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0925",
+    "campaignName": "캠페인925",
+    "campaignCondition": "캠페인 조건925",
+    "campaignImg": "https://example.com/images/925.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-03-20T00:00:00",
+    "campaignDeadline": "2024-07-19T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0932",
+    "campaignName": "캠페인932",
+    "campaignCondition": "캠페인 조건932",
+    "campaignImg": "https://example.com/images/932.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-09-16T00:00:00",
+    "campaignDeadline": "2024-07-09T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0947",
+    "campaignName": "캠페인947",
+    "campaignCondition": "캠페인 조건947",
+    "campaignImg": "https://example.com/images/947.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-30T00:00:00",
+    "campaignDeadline": "2024-06-16T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0952",
+    "campaignName": "캠페인952",
+    "campaignCondition": "캠페인 조건952",
+    "campaignImg": "https://example.com/images/952.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-05-09T00:00:00",
+    "campaignDeadline": "2024-09-08T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0954",
+    "campaignName": "캠페인954",
+    "campaignCondition": "캠페인 조건954",
+    "campaignImg": "https://example.com/images/954.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-17T00:00:00",
+    "campaignDeadline": "2024-12-02T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0961",
+    "campaignName": "캠페인961",
+    "campaignCondition": "캠페인 조건961",
+    "campaignImg": "https://example.com/images/961.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-06-08T00:00:00",
+    "campaignDeadline": "2024-02-26T00:00:00",
+    "campaignPublishStatus": "HIDDEN"
+  },
+  {
+    "campaignId": "CAMP0977",
+    "campaignName": "캠페인977",
+    "campaignCondition": "캠페인 조건977",
+    "campaignImg": "https://example.com/images/977.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-18T00:00:00",
+    "campaignDeadline": "2024-04-28T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0980",
+    "campaignName": "캠페인980",
+    "campaignCondition": "캠페인 조건980",
+    "campaignImg": "https://example.com/images/980.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-11-10T00:00:00",
+    "campaignDeadline": "2024-03-04T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  },
+  {
+    "campaignId": "CAMP0991",
+    "campaignName": "캠페인991",
+    "campaignCondition": "캠페인 조건991",
+    "campaignImg": "https://example.com/images/991.jpg",
+    "campaignCategory": "BEAUTY",
+    "createdAt": "2024-08-17T00:00:00",
+    "campaignDeadline": "2024-06-03T00:00:00",
+    "campaignPublishStatus": "ACTIVE"
+  }
+]
