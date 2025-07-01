@@ -7,7 +7,7 @@ spring:
   config:
     import: "optional:classpath:application-secret.properties"
   jwt:
-    secret: ${secret-HS256}
+    secret: asdfoscnvkjwrnvojanviodfnvlmaenvkjonfbanvknofsnskjjn123r423@#$%%!@#
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

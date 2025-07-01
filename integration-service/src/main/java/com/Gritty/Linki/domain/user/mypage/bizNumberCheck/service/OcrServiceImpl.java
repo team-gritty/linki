@@ -21,13 +21,13 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class OcrServiceImpl implements OcrService {
-    @Value("${ocr-url}")
+    @Value("${ocr.url}")
     private String apiUrl;
 
-    @Value("${ocr-client-id}")
+    @Value("${ocr.client-id}")
     String clientID;
 
-    @Value("${ocr-key}")
+    @Value("${ocr.key}")
     String secretKey;
 
     @Override
