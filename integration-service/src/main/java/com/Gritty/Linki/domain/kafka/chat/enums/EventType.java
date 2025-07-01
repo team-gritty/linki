@@ -11,6 +11,7 @@ public enum EventType {
     PROPOSAL_DELETE("제안서를 삭제"),
     CONTRACT_CREATE("계약서를 생성"),
     CONTRACT_SIGN("계약서 서명을 완료"),
+    CONTRACT_ADVERTISE("광고 이행을  완료"),
     CONTRACT_COMPLETED("정산을 완료");
 
     private final String label;

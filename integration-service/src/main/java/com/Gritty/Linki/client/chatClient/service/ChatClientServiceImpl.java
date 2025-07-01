@@ -105,7 +105,7 @@ public class ChatClientServiceImpl implements ChatClientService {
         for(InterfaceChatInfoDto InterfaceChatInfoDto : findChatInfos){
             ChatInfoDto chatInfoDto = ChatInfoDto.builder()
                     .opponentId(InterfaceChatInfoDto.getUserId())
-                    .opponentName(InterfaceChatInfoDto.getUserLoginId())
+                    .opponentName(InterfaceChatInfoDto.getUserName())
                     .proposalId(InterfaceChatInfoDto.getProposalId())
                     .build();
             chatInfoDtos.add(chatInfoDto);
@@ -133,7 +133,7 @@ public class ChatClientServiceImpl implements ChatClientService {
         return interfaceChatInfoDtos.stream().map(interfaceChatInfoDto ->
             ChatInfoDto.builder()
                     .opponentId(interfaceChatInfoDto.getUserId())
-                    .opponentName(interfaceChatInfoDto.getUserLoginId())
+                    .opponentName(interfaceChatInfoDto.getUserName())
                     .proposalId(interfaceChatInfoDto.getProposalId())
                     .campaignId(interfaceChatInfoDto.getCampaignId())
                     .build()
