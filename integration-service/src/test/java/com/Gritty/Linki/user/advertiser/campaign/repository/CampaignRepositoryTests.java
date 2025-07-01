@@ -18,11 +18,10 @@ import java.util.Optional;
 @Transactional
 public class CampaignRepositoryTests {
 
-
-    String testCampaignId = "CAMP0001";
-    String testCampaignId2 = "CAMP0002";
-    String testCampaignId3 = "CAMP0003";
-    String testAdvertiserId = "ADV0001";
+    String testCampaignId = "CMP-0000000000000000";
+    String testCampaignId2 = "CMP-0000000000000001";
+    String testCampaignId3 = "CMP-0000000000000002";
+    String testAdvertiserId = "ADV-0000000000000000";
 
     @Autowired
     private CampaignRepository campaignRepository;
@@ -60,7 +59,6 @@ public class CampaignRepositoryTests {
     public void findByCampaignIdAndAdvertiserId() {
         log.info("캠페인 ID와 광고주 ID로 캠페인 조회 테스트 시작");
 
-
         Optional<Campaign> campaign = campaignRepository.findByCampaignIdAndAdvertiserId(testCampaignId,
                 testAdvertiserId);
 
@@ -77,7 +75,6 @@ public class CampaignRepositoryTests {
         log.info("여러 캠페인 ID와 광고주 ID로 캠페인 조회 테스트 시작");
 
         List<String> campaignIds = Arrays.asList(testCampaignId, testCampaignId2, testCampaignId3);
-
 
         List<Campaign> campaigns = campaignRepository.findByCampaignIdsAndAdvertiserId(campaignIds, testAdvertiserId);
         log.info("조회된 캠페인 수: {} / 요청된 ID 수: {}", campaigns.size(), campaignIds.size());
@@ -118,7 +115,6 @@ public class CampaignRepositoryTests {
     @DisplayName("캠페인 ID로 단일 캠페인 조회 Repository Test")
     public void findById() {
         log.info("캠페인 ID로 단일 캠페인 조회 테스트 시작");
-
 
         Optional<Campaign> campaign = campaignRepository.findById(testCampaignId);
 

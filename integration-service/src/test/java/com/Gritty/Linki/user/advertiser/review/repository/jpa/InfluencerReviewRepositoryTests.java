@@ -16,8 +16,8 @@ import java.util.List;
 @Transactional
 public class InfluencerReviewRepositoryTests {
 
-    String testAdvertiserId = "ADV0001";
-    String testInfluencerId = "INF0001";
+    String testAdvertiserId = "ADV-0000000000000000";
+    String testInfluencerId = "INF-0000000000000000";
 
     @Autowired
     private InfluencerReviewRepository influencerReviewRepository;

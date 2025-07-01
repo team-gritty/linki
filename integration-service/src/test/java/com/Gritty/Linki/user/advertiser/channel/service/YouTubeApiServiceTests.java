@@ -23,8 +23,8 @@ public class YouTubeApiServiceTests {
     @Autowired
     private YouTubeApiService youTubeApiService;
 
-    String testChannelId = "CH0001";
-    String testChannelId2 = "CH0002";
+    String testChannelId = "CHN-0000000000000000";
+    String testChannelId2 = "CHN-0000000000000001";
     String testYouTubeChannelId = "UCX6OQ3DkcsbYNE6H8uQQuVA"; // 실제 유튜브 채널 ID 예시
     String testYouTubeChannelId2 = "UC_x5XG1OV2P6uZZ5FSM9Ttw"; // 구글 개발자 채널
     String testKeyword = "개발";

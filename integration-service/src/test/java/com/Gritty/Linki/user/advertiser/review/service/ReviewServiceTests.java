@@ -24,9 +24,9 @@ public class ReviewServiceTests {
     @Autowired
     private ReviewService reviewService;
 
-    String testContractId = "CONT0001";
-    String testInfluencerId = "INF0001";
-    String testUserId = "USER0500"; // 광고주인 USER0500 사용
+    String testContractId = "CTR-0000000000000000";
+    String testInfluencerId = "INF-0000000000000000";
+    String testUserId = "USR-0000000000500000"; // 광고주인 USER0500000 사용
 
     /**
      * CustomUserDetails 실제 객체를 생성하는 메소드

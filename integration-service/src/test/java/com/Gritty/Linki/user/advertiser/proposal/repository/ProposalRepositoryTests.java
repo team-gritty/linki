@@ -17,9 +17,9 @@ import java.util.Optional;
 @Transactional
 public class ProposalRepositoryTests {
 
-    String testProposalId = "PROP0001";
-    String testCampaignId = "CAMP0001";
-    String testAdvertiserId = "ADV0001";
+    String testProposalId = "PRP-0000000000000000";
+    String testCampaignId = "CMP-0000000000000000";
+    String testAdvertiserId = "ADV-0000000000000000";
 
     @Autowired
     private ProposalRepository proposalRepository;
@@ -58,7 +58,6 @@ public class ProposalRepositoryTests {
                     proposal.getInfluencer().getUser().getUserName());
         }
     }
-
 
     @Test
     @DisplayName("제안서 ID로 단일 제안서 조회 Repository Test")
