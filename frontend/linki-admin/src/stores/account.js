@@ -1,50 +1,176 @@
 
 import { defineStore } from 'pinia'
 
-export const useAccountStore = defineStore('account', {
+/**
+ * JWT 토큰에서 페이로드를 추출하는 함수
+ * - JWT는 header.payload.signature 구조로 되어 있음
+ * - payload 부분에 사용자 정보가 Base64로 인코딩되어 저장됨
+ */
+function parseJwtPayload(token) {
+  try {
+    if (!token) return null
+    
+    // JWT 토큰을 '.'으로 분리 (header.payload.signature)
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    
+    // payload 부분을 Base64 디코딩하여 JSON 파싱
+    const payload = JSON.parse(atob(parts[1]))
+    return payload
+  } catch (error) {
+    console.error('JWT 토큰 파싱 실패:', error)
+    return null
+  }
+}
+
+export const useAccountStore = defineStore('adminaccount', {
+    // persist: true - localStorage에 상태를 자동 저장
+    // 페이지 새로고침 시에도 로그인 상태 유지를 위해 필요
+    persist: true,
+    
     state: () => ({
+        // JWT 액세스 토큰 저장
+        // API 호출 시 Authorization 헤더에 포함하기 위해 필요
         accessToken: null,
-        user: null
+        
+        // 관리자 정보 객체 (JWT에서 추출된 정보)
+        user: null, // { userId, userRole, userName, userEmail, exp, iat }
+        
+        // 추가 사용자 타입 정보 (필요한 경우)
+        userType: null,
+        
+        // 인증 상태 확인 여부
+        // 앱 초기화 시 토큰 유효성 검사가 완료되었는지 추적하기 위해 필요
+        checked: false,
+        
+        // 로그인 성공 여부
+        // accessToken만으로는 토큰의 유효성을 보장할 수 없으므로 별도 플래그 필요
+        loggedIn: false
     }),
 
     getters: {
-        isLoggedIn: (state) => !!state.accessToken,
+        // 완전한 로그인 상태 확인
+        isLoggedIn: (state) => !!state.accessToken && state.loggedIn && !!state.user,
+        
+        // 사용자 정보 반환
         getUser: (state) => state.user,
-        getAccessToken: (state) => state.accessToken
+        
+        // 액세스 토큰 반환
+        // API 클라이언트에서 Authorization 헤더 설정 시 사용
+        getAccessToken: (state) => state.accessToken,
+        
+        // 사용자 타입 반환 (확장성을 위해 유지)
+        getUserType: (state) => {
+            // userType이 명시적으로 설정되어 있으면 그것을 사용
+            if (state.userType) {
+                return state.userType
+            }
+            
+            // userRole을 기반으로 userType 계산 (대소문자 구분 없이)
+            if (state.user?.userRole) {
+                const userRole = state.user.userRole.toUpperCase()
+                if (userRole === 'ROLE_ADMIN') {
+                    return 'admin'
+                }
+            }
+            
+            return null
+        },
+        
+        // 인증 상태 확인 완료 여부
+        // 앱 초기화 시 로딩 상태 관리를 위해 필요
+        isChecked: (state) => state.checked,
+        
+        // 관리자 확인 (모든 권한)
+        isAdmin: (state) => state.user?.userRole?.toUpperCase() === 'ROLE_ADMIN'
     },
 
     actions: {
+        /**
+         * 액세스 토큰 설정 및 사용자 정보 자동 추출
+         * - 로그인 성공 시 호출되는 핵심 메서드
+         * - JWT에서 사용자 정보를 추출하여 user 객체에 저장
+         */
         setAccessToken(token) {
             this.accessToken = token
+
+            // 토큰이 유효하면
+            if (token) {
+                // JWT에서 사용자 정보 추출
+                const payload = parseJwtPayload(token)
+                if (payload) {
+                    this.user = {
+                        userId: payload.userId,        
+                        userRole: payload.userRole,    
+                        userName: payload.userName,    
+                        userEmail: payload.userEmail,  
+                        exp: payload.exp,             
+                        iat: payload.iat              
+                    }
+                    this.loggedIn = true
+                    this.checked = true
+                    
+                    console.log('관리자 정보 설정 완료:', this.user)
+                } else {
+                    console.error('JWT 토큰에서 사용자 정보 추출 실패')
+                    this.clearAuth()
+                }
+            } else {
+                this.clearAuth()
+            }
         },
 
         setUser(user) {
             this.user = user
         },
 
-        clearAuth() {
-            this.accessToken = null
-            this.user = null
+        setUserType(userType) {
+            this.userType = userType
         },
 
-        async login(credentials) {
-            try {
-                // 실제 로그인 API 호출은 나중에 구현
-                // const response = await axios.post('/api/login', credentials)
-                // this.setAccessToken(response.data.token)
-                // this.setUser(response.data.user)
-            } catch (error) {
-                throw error
-            }
+        setLoginInfo(token, user, userType) {
+            console.log('=== setLoginInfo 디버깅 ===')
+            console.log('Token:', token)
+            console.log('User:', user)
+            console.log('UserType:', userType)
+            
+            this.accessToken = token
+            this.user = user
+            this.userType = userType
+            this.loggedIn = true
+            this.checked = true
+            
+            console.log('설정 후 상태:')
+            console.log('User Role:', this.user?.userRole)
+            console.log('User Type:', this.userType)
+            console.log('GetUserType:', this.getUserType)
+        },
+
+        /**
+         * 인증 정보 완전 초기화
+         * - 로그아웃 시 또는 토큰 만료 시 호출
+         * - 메모리와 localStorage 모두에서 토큰 제거
+         */
+        clearAuth() {
+            this.accessToken = null
+            this.user = null           
+            this.userType = null
+            this.loggedIn = false
+            this.checked = true        // 인증 확인은 완료된 상태로 설정
+            
+            // localStorage에서도 토큰 제거 (보안상 중요)
+            localStorage.removeItem('accessToken')
         },
 
         async logout() {
             try {
                 // 실제 로그아웃 API 호출은 나중에 구현
-                // await axios.post('/api/logout')
+                // const response = await axios.post('/api/logout')
                 this.clearAuth()
             } catch (error) {
-                throw error
+                console.error('로그아웃 에러:', error)
+                // 에러가 발생해도 로컬 상태는 초기화
+                this.clearAuth()
             }
         }
     }

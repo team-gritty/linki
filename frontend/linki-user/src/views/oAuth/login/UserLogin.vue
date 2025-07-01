@@ -163,7 +163,7 @@ const handleLogin = async () => {
         accountStore.setLoginInfo(accessToken, { userId, userRole }, userType)
 
         // localStorage에도 토큰 저장 (앱 재시작 시 복원용)
-        localStorage.setItem('token', accessToken)
+        // localStorage.setItem('token', accessToken)
 
         // 콘솔에 사용자 정보 출력
         console.log('=== 로그인 성공 디버깅 ===')

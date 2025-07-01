@@ -410,9 +410,9 @@ const goToCampaignDetail = (campaignId) => {
 const getStatusText = (status) => {
   switch (status) {
     case 'ACTIVE':
-      return '활성'
+      return '모집중'
     case 'HIDDEN':
-      return '비활성'
+      return '지원 불가'
     default:
       return '미지정'
   }

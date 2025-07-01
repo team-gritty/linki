@@ -48,6 +48,13 @@ public enum EventType {
             //알림만 발송
         }
     },
+
+    CONTRACT_ADVERTISE("광고 이행을  완료",NegoStatus.ONGOING){
+        @Override
+        public void handle(ChatService chatService,String proposalId){
+            //알림만 발송
+        }
+    },
     CONTRACT_COMPLETED("정산을 완료",NegoStatus.COMPLETED){
         @Override
         public void handle(ChatService chatService,String proposalId){
