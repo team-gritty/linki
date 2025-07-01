@@ -4,6 +4,8 @@ import com.ssg.subscribeservice.dto.UserSubscribeDto;
 import com.ssg.subscribeservice.entity.SubscribeEntity;
 import com.ssg.subscribeservice.entity.UserSubscribeEntity;
 import com.ssg.subscribeservice.kafka.event.PaymentSuccessEvent;
+import com.ssg.subscribeservice.kafka.event.SubscribeSuccessEvent;
+import com.ssg.subscribeservice.kafka.producer.SubscribeSuccessProducer;
 import com.ssg.subscribeservice.repository.SubscribeRepository;
 import com.ssg.subscribeservice.repository.UserSubscribeRepository;
 import com.ssg.subscribeservice.subsenum.SubscriptionStatus;
@@ -20,6 +22,7 @@ public class PaymentSuccessHandlerImpl implements PaymentSuccessHandler {
     private final UserSubscribeRepository userSubscribeRepository;
     private final SubscribeRepository subscribeRepository;
     private final ModelMapper modelMapper;
+    private final SubscribeSuccessProducer subscribeSuccessProducer;
 
     public UserSubscribeDto handle(PaymentSuccessEvent paymentSuccessEvent) {
         // 1-1 유저 구독 정보 조회 (없으면 예외)
@@ -36,7 +39,9 @@ public class PaymentSuccessHandlerImpl implements PaymentSuccessHandler {
         // 3. 저장
         userSubscribeRepository.save(entity);
 
-
+        //유저 구독상태 변경 요청 이벤트 발행
+        SubscribeSuccessEvent subscribeSuccessEvent = new SubscribeSuccessEvent(paymentSuccessEvent.userId());
+        subscribeSuccessProducer.sendSuccess("subscribe.success",subscribeSuccessEvent);
 
         // 4. DTO 변환 및 반환
         return modelMapper.map(entity, UserSubscribeDto.class);
