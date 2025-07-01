@@ -75,10 +75,21 @@ const initializeAuth = () => {
 }
 // 계정 체크 함수 정의
 const checkAccount = async () => {
+  // try {
+  //   await check()
+  // } catch (error) {
+  //   console.error('계정 체크 실패:', error)
+  // }
   try {
     await check()
   } catch (error) {
     console.error('계정 체크 실패:', error)
+
+    if (error.response && error.response.status === 401) {
+      console.warn('토큰 만료 또는 인증 실패 → 로그인 페이지로 이동')
+      localStorage.removeItem('token') // 필요 시 토큰 제거
+      router.push('/login') // 또는 window.location.href = '/login'
+    }
   }
 }
 

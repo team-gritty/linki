@@ -128,7 +128,7 @@ watch(rawPhone, (newValue) => {
 const loadUserInfo = async () => {
   try {
     isLoading.value = true
-    const response = await httpClient.get('v1/api/admin/mypage')
+    const response = await httpClient.get('v1/admin/api/mypage')
     profileData.value = {
       name: response.data.adminName || '',
       phone: response.data.adminPhone || '',
@@ -203,7 +203,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const response = await httpClient.patch('v1/api/admin/mypage', {
+    const response = await httpClient.patch('v1/admin/api/mypage', {
       adminName: profileData.value.name,
       adminPhone: profileData.value.phone,
       adminEmail: profileData.value.email,

@@ -363,7 +363,7 @@ const handleSignup = async () => {
     }
 
     console.log('전송할 회원가입 데이터:', signupData)
-    const response = await httpClient.post('v1/api/admin/signup', signupData)
+    const response = await httpClient.post('v1/admin/api/signup', signupData)
     
     if (response.data.success) {
       alert('관리자 등록이 완료되었습니다. 승인 후 로그인이 가능합니다.')

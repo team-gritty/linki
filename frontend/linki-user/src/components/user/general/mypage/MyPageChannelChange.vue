@@ -155,13 +155,13 @@
       </div>
 
       <div class="button-group">
-        <!-- 🔍 디버깅 정보 -->
-        <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
-          <p>result: {{ result }}</p>
-          <p>result.valid: {{ result?.valid }}</p>
-          <p>isLoading: {{ isLoading }}</p>
-          <p>버튼 활성화: {{ !(!result || !result.valid || isLoading) }}</p>
-        </div>
+<!--        &lt;!&ndash; 🔍 디버깅 정보 &ndash;&gt;-->
+<!--        <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">-->
+<!--          <p>result: {{ result }}</p>-->
+<!--          <p>result.valid: {{ result?.valid }}</p>-->
+<!--          <p>isLoading: {{ isLoading }}</p>-->
+<!--          <p>버튼 활성화: {{ !(!result || !result.valid || isLoading) }}</p>-->
+<!--        </div>-->
         
         <button class="submit-button" @click="handleBusinessValidation" :disabled="isLoading">
           {{ isLoading ? '검증 중...' : '검증하기' }}

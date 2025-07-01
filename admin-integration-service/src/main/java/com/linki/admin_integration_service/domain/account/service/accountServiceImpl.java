@@ -110,7 +110,7 @@ public class accountServiceImpl implements AccountService{
 
     @Override
     public void changePassword(String adminId, AdminPasswordChangeRequestDto request) {
-        log.info("관리자 비밀번호 변경 시작 - adminId: {}", adminId);
+        log.info("관리자 비밀번호 변경 서비스 시작 - adminId: {}", adminId);
         
         // adminId로 adminLoginId 조회
         String adminLoginId = accountRepository.findAdminLoginIdByAdminId(adminId)

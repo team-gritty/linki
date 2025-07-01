@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/api/admin")
+@RequestMapping("/v1/admin/api")
 @Slf4j
 
 public class AccountController {
@@ -69,6 +69,7 @@ public class AccountController {
 
     @GetMapping("/mypage")
     public ResponseEntity<?> getAdminMypage(@AuthenticationPrincipal CustomUserDetails admin) {
+
         try {
             if (admin == null) {
                 log.error("관리자 인증 정보가 없습니다.");
@@ -107,9 +108,10 @@ public class AccountController {
         }
     }
 
-    @PatchMapping("/mypage/change-password")
+    @PatchMapping("/password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal CustomUserDetails admin,
                                            @RequestBody AdminPasswordChangeRequestDto request) {
+        log.info("관리자 비밀번호변경 시작");
         try {
             if (admin == null) {
                 log.error("관리자 인증 정보가 없습니다.");

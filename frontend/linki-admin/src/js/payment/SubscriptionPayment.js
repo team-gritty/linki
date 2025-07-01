@@ -1,22 +1,22 @@
-import httpRequester from '@/libs/httpRequester.js'
+import httpClient from '@/utils/httpRequest'
 
 export const getSubscriptionPaymentList = async (page, size) => {
-  return await httpRequester.get('/v1/admin/api/subscriptions')
+  return await httpClient.get('/v1/admin/api/subscriptions')
 }
 
 export const searchSubscriptionPayment = async (searchType, keyword) => {
   // 스프링 연동 시 사용할 코드
-  return await httpRequester.post('/v1/admin/api/subscriptions/search', {
+  return await httpClient.post('/v1/admin/api/subscriptions/search', {
     searchType,
     keyword
   })
 
   // json-server 테스트용 코드
-  // return await httpRequester.get(`/v1/admin/api/subscriptions/search/${searchType}?q=${keyword}`)
+  // return await httpClient.get(`/v1/admin/api/subscriptions/search/${searchType}?q=${keyword}`)
 }
 
 export async function exportExcel() {
-  const res = await httpRequester.post('/v1/admin/api/subscriptions/exportExcel');
+  const res = await httpClient.post('/v1/admin/api/subscriptions/exportExcel');
   const downloadUrl = res.data;
   window.open(downloadUrl);
 }
@@ -28,7 +28,7 @@ export const getSubscriptionPaymentListWithKeyset = async (cursor = null, size =
     params.cursor = cursor
   }
   
-  return await httpRequester.get('/v1/admin/api/subscriptions', { params })
+  return await httpClient.get('/v1/admin/api/subscriptions', params)
 }
 
 // Keyset 페이지네이션 검색 (userId를 커서로 사용)
@@ -40,5 +40,5 @@ export const searchSubscriptionPaymentWithKeyset = async (searchType, keyword, c
     size
   }
   
-  return await httpRequester.post('/v1/admin/api/subscriptions/search', requestBody)
+  return await httpClient.post('/v1/admin/api/subscriptions/search', requestBody)
 }

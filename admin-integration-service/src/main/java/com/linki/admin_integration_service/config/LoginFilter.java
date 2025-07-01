@@ -35,7 +35,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
         this.accountRepository = accountRepository;
         this.refreshTokenService = refreshTokenService;
-        super.setFilterProcessesUrl("/v1/api/admin/login"); //로그인 경로
+        super.setFilterProcessesUrl("/v1/admin/api/login"); //로그인 경로
     }
 
     @Override
@@ -79,8 +79,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         log.info("JWT 토큰 생성 - userId: {}, userRole: {}", userId, userStatus);
 
-        String accesstoken = jwtUtil.createJwtToken(userId, 60*60*10L);
-        String refreshToken = jwtUtil.createJwtToken(userId,7*24*60*60*1000L);
+        String accesstoken = jwtUtil.createJwtToken(userId, userStatus, 60*60*10L);
+        String refreshToken = jwtUtil.createJwtToken(userId, userStatus, 7*24*60*60*1000L);
 
         // Save refresh token to database
         RefreshToken tokenEntity = new RefreshToken();
