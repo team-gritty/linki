@@ -2,7 +2,6 @@ package com.linki.admin_integration_service.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linki.admin_integration_service.config.token.RefreshTokenService;
 import com.linki.admin_integration_service.domain.account.repository.AccountRepository;
 import com.linki.admin_integration_service.entity.RefreshToken;
 import jakarta.servlet.FilterChain;
@@ -10,20 +9,23 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import org.springframework.stereotype.Component;
+import com.linki.admin_integration_service.config.token.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
 
 @Slf4j
-//form 로그인 비활성화 하여 직접 커스텀
+//form 로그인 비활성화 하여 직접 커스텀]
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -35,7 +37,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
         this.accountRepository = accountRepository;
         this.refreshTokenService = refreshTokenService;
-        super.setFilterProcessesUrl("/v1/admin/api/login"); //로그인 경로
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 
-@FeignClient(name = "feignGetEmailNameByUserId", url = "http://localhost:8000/v1/api")
+@FeignClient(name = "feignGetEmailNameByUserId", url = "http://211.188.61.90:8000/v1/api")
 public interface FeignGetEmailNameByToken {
     //토큰값으로 이름 , 이메일 가져옴
     @GetMapping("/user/email-name")
