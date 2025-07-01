@@ -86,16 +86,17 @@ export default {
         
         if (route.query.contractId) {
           contractId = route.query.contractId;
-        } else if (props.detailData?.contract?.contractId) {
-          contractId = props.detailData.contract.contractId;
         } else if (props.detailData?.contractId) {
           contractId = props.detailData.contractId;
+        } else if (props.detailData?.contract?.contractId) {
+          contractId = props.detailData.contract.contractId;
         }
         
         console.log('Contract ID sources:', {
           queryContractId: route.query.contractId,
-          detailDataContract: props.detailData?.contract?.contractId,
           detailDataContractId: props.detailData?.contractId,
+          detailDataContract: props.detailData?.contract?.contractId,
+          proposalId: props.detailData?.proposalId,
           finalContractId: contractId
         });
         

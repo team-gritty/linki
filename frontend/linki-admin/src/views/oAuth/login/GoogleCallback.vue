@@ -10,7 +10,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import httpClient from '../../../libs/httpRequester'
+import httpClient from '../../../utils/httpRequest'
 import { useAccountStore } from '../../../stores/account'
 
 const router = useRouter();

@@ -3,7 +3,7 @@ import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import VueECharts from 'vue-echarts'
 import * as echarts from 'echarts'
 import { getDashboard } from '@/js/Dashboard'
-
+console.log('accessToken:', localStorage.getItem('accessToken'))
 const allData = ref([])
 
 const viewType = ref('month') // 'month' 또는 'week'

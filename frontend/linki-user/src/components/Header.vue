@@ -27,10 +27,12 @@ const goToMyPage = () => {
 const handleLogout = async () => {
   try {
     await accountStore.logout()
+    localStorage.removeItem('accessToken')
     router.push('/login')
   } catch (error) {
     console.error('로그아웃 실패:', error)
     // 에러가 발생해도 로컬 상태는 클리어
+    localStorage.removeItem('accessToken')
     accountStore.clearAuth()
     router.push('/login')
   }

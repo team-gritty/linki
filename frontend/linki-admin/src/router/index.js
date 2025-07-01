@@ -8,6 +8,7 @@ const router = createRouter({
       path: '/',
       redirect: '/home',
     },
+
     {
       path: '/home',
       name: 'home',
@@ -26,12 +27,12 @@ const router = createRouter({
     {
       path: '/admin/findid',
       name: 'findid',
-      component: () => import('@/views/oAuth/findId/findId.vue')
+      component: () => import('@/views/oAuth/findId/FindId.vue')
     },
     {
       path: '/admin/findpassword',
       name: 'findpassword',
-      component: () => import('@/views/oAuth/findPassword/findPassword.vue')
+      component: () => import('@/views/oAuth/findPassword/FindPassword.vue')
     },
     {
       path: '/memberList',
@@ -90,19 +91,13 @@ const router = createRouter({
     },
     {
       path: '/mypage',
-      component: () => import('@/views/admin/mypage/MyPage.vue'),
-      children: [
-        {
-          path: '',
-          name: 'MyPageProfile',
-          component: () => import('@/views/admin/mypage/MyPageProfileView.vue')
-        },
-        {
-          path: 'password',
-          name: 'MyPagePassword',
-          component: () => import('@/views/admin/mypage/MyPagePasswordView.vue')
-        }
-      ]
+      name: 'MyPage',
+      component: () => import('@/views/admin/mypage/MyPage.vue')
+    },
+    {
+      path: '/mypage/change-password',
+      name: 'changePassword',
+      component: () => import('@/views/admin/mypage/MyPage.vue')
     }
   ]
 })

@@ -65,7 +65,7 @@ public interface ProposalRepository extends JpaRepository<Proposal, String> {
         //유저 아이디(광고주)로 상대방 chatInfo 조회
         @Query(value = """
                 SELECT u.user_id AS userId,
-              u.user_login_id AS userLoginId,
+              u.user_name AS userName,
               p.proposal_id AS proposalId,
               c.campaign_id AS campaignId
        FROM proposal p

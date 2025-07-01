@@ -1,57 +1,44 @@
 <template>
-  <div :class="$style.parent">
-    <div :class="$style.div">비밀번호 변경</div>
-    <form @submit.prevent="handleSubmit" :class="$style.form">
-      <div :class="$style.frameWrapper">
-        <div :class="$style.group">
-          <div :class="$style.cancel">현재 비밀번호</div>
-          <div :class="$style.placeboxInfo">
-            <input 
-              type="password" 
-              v-model="currentPassword"
-              :class="$style.input"
-              placeholder="현재 비밀번호를 입력하세요"
-              required
-            />
-          </div>
-        </div>
+  <div class="password-container">
+    <h2 class="password-title">비밀번호 변경</h2>
+    
+    <form class="password-form" @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label>현재 비밀번호</label>
+        <input
+            type="password"
+            v-model="passwordData.currentPassword"
+            placeholder="현재 비밀번호를 입력하세요"
+            :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.currentPassword">{{ errors.currentPassword }}</span>
       </div>
-      <div :class="$style.frameContainer">
-        <div :class="$style.group">
-          <div :class="$style.cancel">변경 비밀번호</div>
-          <div :class="$style.placeboxInfo">
-            <input 
-              type="password" 
-              v-model="newPassword"
-              :class="$style.input"
-              placeholder="새 비밀번호를 입력하세요"
-              required
-            />
-          </div>
-          <div v-if="passwordError" :class="$style.error">{{ passwordError }}</div>
-        </div>
+
+      <div class="form-group">
+        <label>새 비밀번호</label>
+        <input
+            type="password"
+            v-model="passwordData.newPassword"
+            placeholder="새 비밀번호를 입력하세요"
+            :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.newPassword">{{ errors.newPassword }}</span>
       </div>
-      <div :class="$style.frameDiv">
-        <div :class="$style.group">
-          <div :class="$style.cancel">변경 비밀번호 확인</div>
-          <div :class="$style.placeboxInfo">
-            <input 
-              type="password" 
-              v-model="confirmPassword"
-              :class="$style.input"
-              placeholder="새 비밀번호를 다시 입력하세요"
-              required
-            />
-          </div>
-          <div v-if="confirmError" :class="$style.error">{{ confirmError }}</div>
-        </div>
+
+      <div class="form-group">
+        <label>새 비밀번호 확인</label>
+        <input
+            type="password"
+            v-model="passwordData.confirmPassword"
+            placeholder="새 비밀번호를 다시 입력하세요"
+            :disabled="isLoading"
+        />
+        <span class="error-message" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</span>
       </div>
-      <div :class="$style.cancelParent">
-        <button type="button" :class="$style.cancel" @click="handleCancel">Cancel</button>
-        <button type="submit" :class="$style.button" :disabled="isLoading">
-          <div :class="$style.viewAllProducts">
-            {{ isLoading ? '변경 중...' : 'Save Changes' }}
-          </div>
+
+      <div class="button-group">
+        <button type="submit" class="save-button" :disabled="isLoading || !isFormValid">
+          {{ isLoading ? '변경 중...' : '변경' }}
         </button>
       </div>
     </form>
@@ -59,29 +46,100 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import httpClient from '@/utils/httpRequest'
 
 const router = useRouter()
-const currentPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
-const passwordError = ref('')
-const confirmError = ref('')
 const isLoading = ref(false)
 
-const validatePassword = () => {
-  passwordError.value = ''
-  confirmError.value = ''
+const passwordData = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
-  if (newPassword.value.length < 8) {
-    passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
+const errors = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+// 실시간 비밀번호 유효성 검사
+watch(() => passwordData.value.newPassword, (newValue) => {
+  if (newValue && newValue.length < 6) {
+    errors.value.newPassword = '비밀번호는 6자 이상이어야 합니다.'
+  } else if (newValue && passwordData.value.currentPassword === newValue) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+  } else {
+    errors.value.newPassword = ''
+  }
+})
+
+watch(() => passwordData.value.confirmPassword, (newValue) => {
+  if (newValue && passwordData.value.newPassword !== newValue) {
+    errors.value.confirmPassword = '비밀번호가 일치하지 않습니다.'
+  } else {
+    errors.value.confirmPassword = ''
+  }
+})
+
+watch(() => passwordData.value.currentPassword, (newValue) => {
+  if (newValue && passwordData.value.newPassword && newValue === passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+  } else if (passwordData.value.newPassword && !errors.value.newPassword.includes('6자 이상')) {
+    errors.value.newPassword = ''
+  }
+})
+
+const isFormValid = computed(() => {
+  return (
+    passwordData.value.currentPassword &&
+    passwordData.value.newPassword &&
+    passwordData.value.confirmPassword &&
+    passwordData.value.newPassword.length >= 6 &&
+    passwordData.value.newPassword === passwordData.value.confirmPassword &&
+    passwordData.value.currentPassword !== passwordData.value.newPassword &&
+    !errors.value.currentPassword &&
+    !errors.value.newPassword &&
+    !errors.value.confirmPassword
+  )
+})
+
+const validateForm = () => {
+  errors.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+
+  if (!passwordData.value.currentPassword) {
+    errors.value.currentPassword = '현재 비밀번호를 입력해주세요.'
     return false
   }
 
-  if (newPassword.value !== confirmPassword.value) {
-    confirmError.value = '비밀번호가 일치하지 않습니다.'
+  if (!passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호를 입력해주세요.'
+    return false
+  }
+
+  if (passwordData.value.newPassword.length < 6) {
+    errors.value.newPassword = '비밀번호는 6자 이상이어야 합니다.'
+    return false
+  }
+
+  if (passwordData.value.currentPassword === passwordData.value.newPassword) {
+    errors.value.newPassword = '새 비밀번호는 현재 비밀번호와 달라야 합니다.'
+    return false
+  }
+
+  if (!passwordData.value.confirmPassword) {
+    errors.value.confirmPassword = '새 비밀번호 확인을 입력해주세요.'
+    return false
+  }
+
+  if (passwordData.value.newPassword !== passwordData.value.confirmPassword) {
+    errors.value.confirmPassword = '비밀번호가 일치하지 않습니다.'
     return false
   }
 
@@ -89,180 +147,118 @@ const validatePassword = () => {
 }
 
 const handleSubmit = async () => {
-  if (!validatePassword()) return
+  if (!validateForm()) return
 
-  isLoading.value = true
   try {
-    // API 엔드포인트는 실제 백엔드 URL로 변경해야 합니다
-    await axios.post('/api/admin/change-password', {
-      currentPassword: currentPassword.value,
-      newPassword: newPassword.value
+    isLoading.value = true
+    const response = await httpClient.patch('v1/admin/api/password', {
+      currentPassword: passwordData.value.currentPassword,
+      newPassword: passwordData.value.newPassword
     })
-    
-    alert('비밀번호가 성공적으로 변경되었습니다.')
-    router.push('/admin/mypage')
-  } catch (error) {
-    if (error.response?.status === 401) {
-      alert('현재 비밀번호가 올바르지 않습니다.')
+
+    if (response.status === 200) {
+      alert('비밀번호가 성공적으로 변경되었습니다.')
+      // 입력 필드 초기화
+      passwordData.value = {
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
     } else {
-      alert('비밀번호 변경 중 오류가 발생했습니다.')
+      alert('비밀번호 변경에 실패했습니다.')
     }
+  } catch (error) {
+    console.error('비밀번호 변경 실패:', error)
+    const errorMessage = error.response?.data?.message || '비밀번호 변경 중 오류가 발생했습니다.'
+    alert(errorMessage)
   } finally {
     isLoading.value = false
   }
 }
-
-const handleCancel = () => {
-  router.push('/admin/mypage')
-}
 </script>
 
-<style module>
-.div {
-  position: absolute;
-  top: 40px;
-  left: 80px;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: 500;
+<style scoped>
+.password-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.form {
-  width: 100%;
-  height: 100%;
-  position: relative;
+.password-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
 }
 
-.input {
-  width: 100%;
-  height: 100%;
-  padding: 0 16px;
-  border: none;
-  background-color: rgba(245, 245, 245, 0.7);
-  border-radius: 4px;
-  font-size: 16px;
-  color: #000;
-}
-
-.input:focus {
-  outline: none;
-  border: 1px solid #d6bcf7;
-}
-
-.error {
-  color: #ff4d4f;
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.placeboxInfo {
-  width: 330px;
-  position: relative;
-  height: 50px;
-}
-
-.group {
+.password-form {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 8px;
+  gap: 1.5rem;
 }
 
-.frameWrapper {
-  position: absolute;
-  top: 84px;
-  left: 80px;
+.form-group {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.frameContainer {
-  position: absolute;
-  top: 190px;
-  left: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.frameDiv {
-  position: absolute;
-  top: 296px;
-  left: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.cancel {
-  position: relative;
-  line-height: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.cancel:hover {
-  color: rgba(0, 0, 0, 0.9);
-}
-
-.viewAllProducts {
-  position: relative;
-  line-height: 24px;
+.form-group label {
+  font-size: 0.9rem;
   font-weight: 500;
+  color: #666;
 }
 
-.button {
-  border: none;
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #d6bcf7;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 48px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
 
-.button:hover {
-  background-color: #c4a1f7;
+.form-group input:focus {
+  outline: none;
+  border-color: #d6bcf7;
 }
 
-.button:disabled {
-  background-color: #e9e9e9;
+.form-group input:disabled {
+  background-color: #f5f5f5;
   cursor: not-allowed;
 }
 
-.cancelParent {
-  position: absolute;
-  top: calc(50% + 219px);
-  right: 80px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 32px;
-  color: #fafafa;
+.error-message {
+  font-size: 0.8rem;
+  color: #ff4444;
 }
 
-.parent {
-  width: 100%;
-  position: relative;
-  box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.05);
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.save-button {
+  min-width: 80px;
+  padding: 0.5rem 1rem;
+  border: none;
   border-radius: 4px;
-  background-color: #fff;
-  height: 630px;
-  overflow: hidden;
-  text-align: left;
-  font-size: 16px;
-  color: #7b21e8;
-  font-family: Poppins;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #7B21E8;
+  color: #ffffff;
+}
+
+.save-button:hover {
+  background-color: #6B21E8;
+}
+
+.save-button:disabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
 }
 </style>
