@@ -47,7 +47,7 @@ const isTokenExpired = (token) => {
   return payload.exp < currentTime
 }
 
-// 앱 초기화 시 토큰 복원
+// 앱 초기화(시작) 토큰정보 확인 및 복원/제거
 const initializeAuth = () => {
   const token = localStorage.getItem('token')
   
@@ -73,13 +73,9 @@ const initializeAuth = () => {
     localStorage.removeItem('token')
   }
 }
-// 계정 체크 함수 정의
+
+// 토큰 유효성 확인
 const checkAccount = async () => {
-  // try {
-  //   await check()
-  // } catch (error) {
-  //   console.error('계정 체크 실패:', error)
-  // }
   try {
     await check()
   } catch (error) {

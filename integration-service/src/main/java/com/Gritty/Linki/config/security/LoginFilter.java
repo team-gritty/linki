@@ -79,9 +79,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         log.info("JWT 토큰 생성 - userId: {}, userRole: {}", userId, userRole);
 
         String accesstoken = jwtUtil.createJwtToken(userId, userRole, 60*60*10L);
-//        String accesstoken = jwtUtil.createJwtToken(userId, userRole, 10L);
         String refreshToken = jwtUtil.createJwtToken(userId, userRole, 7*24*60*60*1000L);
-//        String refreshToken = jwtUtil.createJwtToken(userId, userRole, 20L);
 
         // Save refresh token to database
         RefreshToken tokenEntity = new RefreshToken();
