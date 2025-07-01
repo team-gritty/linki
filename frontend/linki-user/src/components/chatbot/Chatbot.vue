@@ -47,12 +47,17 @@
           </template>
         </div>
         <div v-if="isTyping" class="message bot">
-          <div class="message-content">
+          <div class="message-bot-wrapper">
             <div class="message-avatar"></div>
-            <div class="typing-indicator">
-              <span></span>
-              <span></span>
-              <span></span>
+            <div class="message-bubble-group">
+              <div class="message-content typing-message">
+                <div class="typing-text"></div>
+                <div class="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -78,6 +83,7 @@
 <script>
 import { ref, onMounted, watch, nextTick, computed, onUnmounted } from 'vue'
 import { useChatbotStore } from '@/stores/chatbot'
+import httpRequest from '@/utils/httpRequest'
 
 export default {
   name: 'Chatbot',
@@ -141,33 +147,62 @@ export default {
 
     // 봇 응답 생성
     const generateBotResponse = async (userMessage) => {
-      // 실제 구현에서는 API 호출 등으로 대체
-      const responses = {
-        '안녕': '안녕하세요! 오늘도 좋은 하루 보내세요.',
-        '도움말': '다음과 같은 것들을 물어보실 수 있습니다:\n- 인플루언서 등록 방법\n- 광고주 등록 방법\n- 계정 설정\n- 결제 방법',
-        '광고': '광고주 등록 후 광고를 등록하실 수 있습니다. 자세한 내용은 "광고주 등록 방법"을 참고해 주세요.',
-      }
-
       isTyping.value = true
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      let botResponse = '죄송합니다. 잘 이해하지 못했습니다. "도움말"을 입력하시면 가능한 질문 목록을 보여드립니다.'
       
-      for (const [key, value] of Object.entries(responses)) {
-        if (userMessage.includes(key)) {
-          botResponse = value
-          break
+      try {
+        // /v1/chatbot API 호출
+        const response = await httpRequest.post('/v1/chatbot/request', {
+          msg: userMessage
+        })
+        
+        // 백엔드 응답 처리 (JSON 또는 plain text)
+        let botResponse
+        if (typeof response.data === 'string') {
+          // plain text 응답
+          botResponse = response.data
+        } else if (response.data && typeof response.data === 'object') {
+          // JSON 응답
+          botResponse = response.data.response || response.data.message || response.data.text
         }
+        
+        if (!botResponse) {
+          botResponse = '응답을 받을 수 없습니다.'
+        }
+        
+        messages.value.push({
+          type: 'bot',
+          text: botResponse,
+          timestamp: new Date()
+        })
+      } catch (error) {
+        console.error('Chatbot API Error:', error)
+        
+        // API 실패 시 기본 응답
+        let fallbackResponse = '죄송합니다. 현재 서비스에 문제가 있습니다. 잠시 후 다시 시도해 주세요.'
+        
+        // 간단한 로컬 응답 (백업용)
+        const localResponses = {
+          '안녕': '안녕하세요! Linki Assistant입니다.',
+          '도움말': '다음과 같은 것들을 물어보실 수 있습니다:\n- 인플루언서 등록 방법\n- 광고주 등록 방법\n- 계정 설정\n- 결제 방법',
+          '광고': '광고주 등록 후 광고를 등록하실 수 있습니다.',
+        }
+        
+        for (const [key, value] of Object.entries(localResponses)) {
+          if (userMessage.includes(key)) {
+            fallbackResponse = value
+            break
+          }
+        }
+        
+        messages.value.push({
+          type: 'bot',
+          text: fallbackResponse,
+          timestamp: new Date()
+        })
+      } finally {
+        isTyping.value = false
+        await scrollToBottom()
       }
-
-      messages.value.push({
-        type: 'bot',
-        text: botResponse,
-        timestamp: new Date()
-      })
-
-      isTyping.value = false
-      await scrollToBottom()
     }
 
     // 메시지 전송
@@ -244,7 +279,7 @@ export default {
   position: absolute;
   bottom: 80px;
   right: 0;
-  width: 360px;
+  width: 450px;
   height: 500px;
   background: white;
   border-radius: 12px;
@@ -386,10 +421,22 @@ export default {
   align-self: flex-end;
 }
 
+.typing-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.typing-text {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
 .typing-indicator {
   display: flex;
   gap: 4px;
-  padding: 8px 0;
+  padding: 0;
 }
 
 .typing-indicator span {
