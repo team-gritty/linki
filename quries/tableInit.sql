@@ -283,15 +283,6 @@ CREATE TABLE `billing_id` (
 	`user_id`	VARCHAR(25)	NOT NULL
 );
 
-DROP TABLE IF EXISTS chat_alarm;
-
-CREATE TABLE `chat_alarm` (
-	`chat_alarm_id`	varchar(25)	NOT NULL,
-	`chat_alarm_is_read`	boolean	NOT NULL,
-	`chat_alarm_read_at`	datetime	NULL,
-	`chat_id`	varchar(25)	NOT NULL
-);
-
 DROP TABLE IF EXISTS contract;
 
 CREATE TABLE `contract` (
