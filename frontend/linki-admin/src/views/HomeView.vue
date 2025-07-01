@@ -3,7 +3,7 @@ import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import VueECharts from 'vue-echarts'
 import * as echarts from 'echarts'
 import { getDashboard } from '@/js/Dashboard'
-
+console.log('accessToken:', localStorage.getItem('accessToken'))
 const allData = ref([])
 
 const viewType = ref('month') // 'month' 또는 'week'
@@ -198,8 +198,29 @@ onMounted(async () => {
     }
     // trendChart가 null이 아닐 때만 처리
     if (data && data.trendChart && data.trendChart !== null) {
-      // 2024년과 2025년 데이터 모두 가져오기
-      const years = ['2024', '2025'];
+      console.log('trendChart 원본 데이터:', data.trendChart);
+      
+      // 모든 년도를 동적으로 추출
+      const allYears = new Set();
+      
+      // newMembers에서 년도 추출
+      if (data.trendChart.newMembers) {
+        Object.keys(data.trendChart.newMembers).forEach(year => allYears.add(year));
+      }
+      
+      // newAdvertisers에서 년도 추출
+      if (data.trendChart.newAdvertisers) {
+        Object.keys(data.trendChart.newAdvertisers).forEach(year => allYears.add(year));
+      }
+      
+      // newInfluencers에서 년도 추출
+      if (data.trendChart.newInfluencers) {
+        Object.keys(data.trendChart.newInfluencers).forEach(year => allYears.add(year));
+      }
+      
+      const years = Array.from(allYears).sort();
+      console.log('추출된 년도들:', years);
+      
       const tempData = {};
       
       years.forEach(year => {
@@ -207,20 +228,21 @@ onMounted(async () => {
         const advertisersData = data.trendChart.newAdvertisers?.[year] || {};
         const influencersData = data.trendChart.newInfluencers?.[year] || {};
 
+        // 각 카테고리별로 월 데이터 처리
         Object.keys(membersData).forEach(month => {
-          const key = `${year}-${month}`;
+          const key = `${year}-${month.padStart(2, '0')}`;
           if (!tempData[key]) tempData[key] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
           tempData[key].newMembers = membersData[month];
         });
 
         Object.keys(advertisersData).forEach(month => {
-          const key = `${year}-${month}`;
+          const key = `${year}-${month.padStart(2, '0')}`;
           if (!tempData[key]) tempData[key] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
           tempData[key].newAdvertisers = advertisersData[month];
         });
 
         Object.keys(influencersData).forEach(month => {
-          const key = `${year}-${month}`;
+          const key = `${year}-${month.padStart(2, '0')}`;
           if (!tempData[key]) tempData[key] = { newMembers: 0, newAdvertisers: 0, newInfluencers: 0 };
           tempData[key].newInfluencers = influencersData[month];
         });

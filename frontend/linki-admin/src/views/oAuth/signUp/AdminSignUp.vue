@@ -35,6 +35,11 @@
             <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
           </div>
 
+          <div class="admin-input-group">
+            <input type="text" v-model="address" class="admin-input" placeholder="주소" :disabled="isLoading" />
+            <span class="error-message" v-if="errors.address">{{ errors.address }}</span>
+          </div>
+
           <!-- 약관 동의 섹션 -->
           <div class="terms-section">
             <div class="terms-all">
@@ -160,7 +165,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import httpClient from '../../../libs/httpRequester'
+import httpClient from '../../../utils/httpRequest'
 
 const router = useRouter()
 
@@ -171,6 +176,7 @@ const confirmPassword = ref('')
 const name = ref('')
 const phone = ref('')
 const email = ref('')
+const address = ref('')
 
 // Terms agreement
 const allTermsAgreed = ref(false)
@@ -192,6 +198,7 @@ const errors = ref({
   name: '',
   phone: '',
   email: '',
+  address: '',
   terms: ''
 })
 
@@ -279,6 +286,19 @@ const validateEmail = () => {
   return true
 }
 
+const validateAddress = () => {
+  if (!address.value) {
+    errors.value.address = '주소를 입력해주세요.'
+    return false
+  }
+  if (address.value.length < 5) {
+    errors.value.address = '주소는 5자 이상 입력해주세요.'
+    return false
+  }
+  errors.value.address = ''
+  return true
+}
+
 const validateTerms = () => {
   if (!termsAgreed.value || !privacyAgreed.value) {
     errors.value.terms = '필수 약관에 동의해주세요.'
@@ -295,7 +315,8 @@ const isFormValid = computed(() => {
          validateConfirmPassword() && 
          validateName() && 
          validatePhone() && 
-         validateEmail()
+         validateEmail() &&
+         validateAddress()
 })
 
 const isTermsValid = computed(() => {
@@ -322,6 +343,7 @@ const handleSignup = async () => {
                   validateName() && 
                   validatePhone() && 
                   validateEmail() && 
+                  validateAddress() &&
                   validateTerms()
 
   if (!isValid) {
@@ -337,11 +359,11 @@ const handleSignup = async () => {
       adminName: name.value,
       adminPhone: phone.value,
       adminEmail: email.value,
-      termsAgreed: termsAgreed.value,
-      privacyAgreed: privacyAgreed.value
+      adminAddress: address.value
     }
 
-    const response = await httpClient.post('/admin/auth/signup', signupData)
+    console.log('전송할 회원가입 데이터:', signupData)
+    const response = await httpClient.post('v1/admin/api/signup', signupData)
     
     if (response.data.success) {
       alert('관리자 등록이 완료되었습니다. 승인 후 로그인이 가능합니다.')
@@ -351,11 +373,16 @@ const handleSignup = async () => {
     }
   } catch (error) {
     console.error('Admin signup failed:', error)
+    console.log('Error response:', error.response?.data)
+    console.log('Error status:', error.response?.status)
+    
     if (error.response) {
       if (error.response.status === 409) {
         alert('이미 사용 중인 아이디 또는 이메일입니다.')
       } else if (error.response.status === 400) {
         alert('입력 정보가 올바르지 않습니다.')
+      } else if (error.response.status === 500) {
+        alert(`서버 내부 오류가 발생했습니다.\n상세 정보: ${error.response.data?.message || '알 수 없는 오류'}`)
       } else {
         alert(error.response.data?.message || '등록 중 오류가 발생했습니다.')
       }
@@ -381,6 +408,7 @@ watch(confirmPassword, validateConfirmPassword)
 watch(name, validateName)
 watch(phone, validatePhone)
 watch(email, validateEmail)
+watch(address, validateAddress)
 watch([termsAgreed, privacyAgreed], () => {
   allTermsAgreed.value = termsAgreed.value && privacyAgreed.value
   validateTerms()

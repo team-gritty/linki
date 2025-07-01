@@ -255,6 +255,9 @@ public class AdvertiserContractServiceImpl implements AdvertiserContractService 
         infSettlementRepository.save(settlement);
 
         log.info("광고주 [{}] → 계약 [{}] 광고 이행 완료 처리", advertiserId, contractId);
+
+        //8. 채팅서버 알람 발생
+        chatProducer.sendEvent(userDetails,EventType.CONTRACT_ADVERTISE, contract.getProposal().getProposalId());
     }
 
     @Override

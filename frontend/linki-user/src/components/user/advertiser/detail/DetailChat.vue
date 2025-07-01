@@ -917,7 +917,18 @@ const goToInfluencerDetail = (influencerId) => {
 
 // 계약 작성 페이지로 이동
 const goToContractCreate = (proposal) => {
-  router.push(`/contract/create?proposalId=${proposal.id}`)
+  console.log('🔄 [Contract Create] 계약 작성 페이지로 이동:', proposal)
+  
+  // proposalId 확인 (여러 가능한 속성명 체크)
+  const proposalId = proposal.proposalId || proposal.id
+  
+  if (!proposalId) {
+    console.error('❌ [Contract Create] 제안서 ID를 찾을 수 없음:', proposal)
+    alert('제안서가 존재하지 않습니다. 다시 시도해주세요.')
+    return
+  }
+  
+  router.push(`/contract/create?proposalId=${proposalId}`)
 }
 
 // 영어 상태를 한글로 변환하는 함수

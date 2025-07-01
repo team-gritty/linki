@@ -17,14 +17,16 @@ public class CustomUserDetails implements UserDetails {
     private final String userId;
     private final String userLoginId;
     private final String password;
-    private final String role;
+    private final String status;
+
 
     @Builder
-    public CustomUserDetails(String userId, String userLoginId, String password, String role) {
+    public CustomUserDetails(String userId, String userLoginId, String password, String status) {
         this.userId = userId;
         this.userLoginId = userLoginId;
         this.password = password;
-        this.role = role;
+        this.status = status;
+
     }
 
     @Override
@@ -39,14 +41,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return role;
-            }
-        });
-        return authorities;
+
+        return new ArrayList<>();
     }
 
     // 나머지 true 리턴

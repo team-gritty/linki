@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 public interface InterfaceChatInfoDto {
     String getUserId();
-    String getUserLoginId();
+    String getUserName();
     String getProposalId();
     String getCampaignId();
 }

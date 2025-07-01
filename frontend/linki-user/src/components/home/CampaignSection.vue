@@ -104,7 +104,7 @@ const calculateTimeLeft = (deadline) => {
   const diff = deadlineDate - now
   
   if (diff <= 0) {
-    return '마감'
+    return '마감 임박'
   }
   
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))

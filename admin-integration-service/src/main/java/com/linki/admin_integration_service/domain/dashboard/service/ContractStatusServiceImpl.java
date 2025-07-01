@@ -3,7 +3,7 @@ package com.linki.admin_integration_service.domain.dashboard.service;
 import com.linki.admin_integration_service.domain.dashboard.dto.ContractStatusDTO;
 import com.linki.admin_integration_service.domain.dashboard.repository.myBatis.ContractStatusMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class ContractStatusServiceImpl implements ContractStatusService {
 
 
 
-    @Cacheable(value = "dashboard", key = "'contractStatus'")
+    @CachePut(value = "dashboard", key = "'contractStatus'")
     @Scheduled(cron = "0 0 * * * *")
     @Override
     public ContractStatusDTO getContractStatus() {

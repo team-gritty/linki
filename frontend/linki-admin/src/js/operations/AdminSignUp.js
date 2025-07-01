@@ -1,18 +1,18 @@
-import httpRequester from '@/libs/httpRequester.js'
+import httpClient from '@/utils/httpRequest'
 
 export const getAdminSignUpList = async () => {
-  return await httpRequester.get('/v1/admin/api/adminSignUp')
+  return await httpClient.get('/v1/admin/api/adminSignUp')
 }
 
 export const searchAdminSignUp = async (searchType, keyword) => {
   // 스프링 연동 시 사용할 코드
-  return await httpRequester.post('/v1/admin/api/adminSignUp/search', {
+  return await httpClient.post('/v1/admin/api/adminSignUp/search', {
     searchType,
     keyword
   })
 
   // // json-server 테스트용 코드
-  // return await httpRequester.get(`/v1/admin/api/adminSignUp/search/${searchType}?q=${keyword}`)
+  // return await httpClient.get(`/v1/admin/api/adminSignUp/search/${searchType}?q=${keyword}`)
 }
 
 // Keyset 페이지네이션 기본 조회
@@ -22,7 +22,7 @@ export const getAdminSignUpListWithKeyset = async (cursor = null, size = 10) => 
     params.cursor = cursor
   }
   
-  return await httpRequester.get('/v1/admin/api/adminSignUp', { params })
+  return await httpClient.get('/v1/admin/api/adminSignUp', params)
 }
 
 // Keyset 페이지네이션 검색
@@ -34,23 +34,23 @@ export const searchAdminSignUpWithKeyset = async (searchType, keyword, cursor = 
     size
   }
   
-  return await httpRequester.post('/v1/admin/api/adminSignUp/search', requestBody)
+  return await httpClient.post('/v1/admin/api/adminSignUp/search', requestBody)
 }
 
 export async function exportExcel() {
-  const res = await httpRequester.post('/v1/admin/api/adminSignUp/exportExcel');
+  const res = await httpClient.post('/v1/admin/api/adminSignUp/exportExcel');
   const downloadUrl = res.data;
   window.open(downloadUrl);
 }
 
 export const approveAdmin = async (adminSignUpId) => {
-  return await httpRequester.post(`/v1/admin/api/adminSignUp/approve`, {
+  return await httpClient.post(`/v1/admin/api/adminSignUp/approve`, {
     adminSignUpId: adminSignUpId
   })
 }
 
 export const rejectAdmin = async (adminSignUpId) => {
-  return await httpRequester.post(`/v1/admin/api/adminSignUp/reject`, {
+  return await httpClient.post(`/v1/admin/api/adminSignUp/reject`, {
     adminSignUpId: adminSignUpId
   })
 }

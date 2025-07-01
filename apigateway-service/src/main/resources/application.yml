@@ -20,6 +20,12 @@ spring:
           predicates:
             - Path=/v1/chat-service/api/**
 
+        - id: chatbot-service
+          uri: lb://CHATBOT-SERVICE
+          predicates:
+            - Path=/v1/chatbot/**
+
+
       globalcors:
         add-to-simple-url-handler-mapping: true
         corsConfigurations:

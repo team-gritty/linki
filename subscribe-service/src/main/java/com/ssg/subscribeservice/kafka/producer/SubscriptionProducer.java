@@ -20,10 +20,8 @@ public class SubscriptionProducer {
     public void sendCreated(String topic, SubscriptionCreatedEvent event) {
         try {
             log.info("Created subscription: {}", event);
-            log.info("231231231231231313123123");
             kafka.send(topic, objectMapper.writeValueAsString(event));
             log.info("Created subscription: {}", event);
-            log.info("231231231231231313123123");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
