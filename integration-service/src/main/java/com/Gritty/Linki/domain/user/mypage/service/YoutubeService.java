@@ -33,7 +33,7 @@ public class YoutubeService {
     @Value("${GOOGLE_CLIENT_SECRET}")
     private String clientSecret;
 
-    @Value("http://localhost:3002/google-callback")
+    @Value("${GOOGLE_REDIRECTURI}")
     private String redirectUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
