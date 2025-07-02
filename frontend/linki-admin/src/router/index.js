@@ -25,16 +25,6 @@ const router = createRouter({
       component: () => import('@/views/oAuth/signUp/AdminSignUp.vue')
     },
     {
-      path: '/admin/findid',
-      name: 'findid',
-      component: () => import('@/views/oAuth/findId/FindId.vue')
-    },
-    {
-      path: '/admin/findpassword',
-      name: 'findpassword',
-      component: () => import('@/views/oAuth/findPassword/FindPassword.vue')
-    },
-    {
       path: '/memberList',
       name: 'memberList',
       component: () => import('../views/admin/user/GeneralUserListView.vue')

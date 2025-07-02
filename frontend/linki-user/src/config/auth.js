@@ -8,7 +8,7 @@ export const GOOGLE_CONFIG = {
   RESPONSE_TYPE: 'id_token',
   
   // 리디렉션 URI를 백엔드 설정에 맞춤 (포트 8081)
-  getRedirectUri: () => 'http://localhost:8081/login/oauth2/code/google',
+  getRedirectUri: () => 'http://211.188.61.90:8000/login/oauth2/code/google',
   
   // Google OAuth URL 생성 함수
   getAuthUrl: () => {
@@ -27,6 +27,6 @@ export const GOOGLE_CONFIG = {
 
 // API 설정
 export const API_CONFIG = {
-  BASE_URL: 'http://localhost:8000',
+  BASE_URL: 'http://211.188.61.90:8000',
   GOOGLE_LOGIN_ENDPOINT: '/v1/api/user/auth/google'
 } 

@@ -31,8 +31,15 @@ public class JwtFilter extends OncePerRequestFilter {
         log.info("Authorization 헤더: {}", authorization);
 
         // 로그인 경로는 토큰 검증을 건너뛰기
-        if (request.getRequestURI().equals("/v1/api/nonuser/login")) {
-            log.info("로그인 경로이므로 토큰 검증을 건너뜁니다.");
+//        if (request.getRequestURI().equals("/v1/api/nonuser/login")) {
+//            log.info("로그인 경로이므로 토큰 검증을 건너뜁니다.");
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+
+        String uri = request.getRequestURI();
+        if (uri.equals("/v1/api/nonuser/login") || uri.equals("/v1/api/nonuser/register")) {
+            log.info("로그인 또는 회원가입 경로이므로 토큰 검증을 건너뜁니다.");
             filterChain.doFilter(request, response);
             return;
         }
