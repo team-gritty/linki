@@ -207,7 +207,7 @@ const handleLogin = async () => {
 
 const handleGoogleLogin = () => {
   // OAuth2 인증 시작: 백엔드 스프링 시큐리티가 자동 처리하는 URL로 이동
-  window.location.replace('https://211.188.61.90:8000/oauth2/authorization/google');
+  window.location.replace('http://211.188.61.90:8000/oauth2/authorization/google');
 }
 
 const goToFindId = () => {

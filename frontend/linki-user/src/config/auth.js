@@ -7,7 +7,7 @@ export const GOOGLE_CONFIG = {
   SCOPE: 'openid email profile',
   RESPONSE_TYPE: 'id_token',
   
-  // 리디렉션 URI를 백엔드 설정에 맞춤 (포트 8081)
+  // 리디렉션 URI를 백엔드 설정에 맞춤 (포트 8000)
   getRedirectUri: () => 'http://211.188.61.90:8000/login/oauth2/code/google',
   
   // Google OAuth URL 생성 함수
