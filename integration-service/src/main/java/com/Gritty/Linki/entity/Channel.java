@@ -84,9 +84,6 @@ public class Channel {
     @JoinColumn(name = "influencer_id", nullable = false)
     private Influencer influencer;
 
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<ChannelStats> channelStats = new ArrayList<>();
 
     // 구독자 히스토리와의 일대다 관계
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
