@@ -150,23 +150,19 @@ const chartOptions = computed(() => {
       toolbar: { show: false }
     },
     xaxis: {
-      categories: filteredHistory.value.map(item => {
-        const date = new Date(item.collectedAt)
-        const today = new Date()
-        const diffTime = today.getTime() - date.getTime()
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+      categories: filteredHistory.value.map((item, index) => {
+        // 7일 데이터를 인덱스 기반으로 정확하게 표시
+        // 가장 오래된 데이터부터 최신 데이터 순으로 정렬되어 있다고 가정
+        const totalDays = filteredHistory.value.length
+        const daysAgo = totalDays - 1 - index // 마지막 인덱스가 0일 전(오늘)
         
-        // 7일 고정: 상대적 날짜 표시
-        if (diffDays === 0) {
+        if (daysAgo === 0) {
           return '오늘'
-        } else if (diffDays === 1) {
-          return '어제'
-        } else if (diffDays <= 6) {
-          return `${diffDays}일 전`
+        } else if (daysAgo === 1) {
+          return '1일 전'
+        } else {
+          return `${daysAgo}일 전`
         }
-        
-        // 7일을 넘으면 월/일 형식
-        return `${date.getMonth() + 1}/${date.getDate()}`
       }),
       labels: { 
         rotate: 0, // 7일 고정이므로 회전 없이 표시
