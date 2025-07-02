@@ -15,4 +15,13 @@ public class IntegrationRoutes {
                         .uri("lb://INTEGRATION-SERVICE"))
                 .build();
     }
+
+    @Bean
+    public RouteLocator publicOauthRoute(RouteLocatorBuilder b) {
+        return b.routes()
+                .route("integration-oauth2", r -> r
+                        .path("/oauth2/**")
+                        .uri("lb://INTEGRATION-SERVICE"))
+                .build();
+    }
 }
