@@ -1,39 +1,7 @@
-server:
-  port: 8088
-
 spring:
   application:
     name: chat-service
-  jwt:
-    secret: ${secret-HS256}
-
-  kafka:
-    bootstrap-servers: host.docker.internal:9092
-  jpa:
-    hibernate:
-      #table과 entity 불일치 시 오류
-      ddl-auto: validate          # dev: update / prod: validate
-    open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
-
-eureka:
-  instance:
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
-
+  profiles:
+    active: dev
   config:
-    import: "optional:application-secret.properties"
-
-
-
-logging:
-  level:
-    root: info
-    com.ssg.chatservice: info
+    import: optional:configserver:http://admin:1234@localhost:9000

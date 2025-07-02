@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class YouTubeApiConfig {
 
-    @Value("${YOUTUBE_API_KEY}")
+    @Value("${youtube.api.key}")
     private String youtubeApiKey;
 
     /**

@@ -1,13 +1,7 @@
-server:
-  port: 8761
-
 spring:
   application:
     name: discovery-service
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-
-
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://admin:1234@localhost:9000

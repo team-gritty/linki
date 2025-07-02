@@ -27,10 +27,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class YoutubeService {
-    @Value("${GOOGLE_CLIENT_ID}")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    @Value("${GOOGLE_CLIENT_SECRET}")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
     @Value("${GOOGLE_REDIRECTURI}")

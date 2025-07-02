@@ -21,10 +21,10 @@ import java.util.UUID;
 @Service
 public class OcrClient {
 
-    @Value("${ocr-url}")
+    @Value("${ocr.url}")
     String apiUrl;
 
-    @Value("${ocr-key}")
+    @Value("${ocr.key}")
     String secretKey;
 
     /**
