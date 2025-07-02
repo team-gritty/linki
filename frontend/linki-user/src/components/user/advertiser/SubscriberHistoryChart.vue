@@ -135,7 +135,14 @@ const chartOptions = computed(() => {
   const minValue = subscriberData.length > 0 ? Math.min(...subscriberData) : 0
   const maxValue = subscriberData.length > 0 ? Math.max(...subscriberData) : 100
   
-  console.log('Chart Y축 설정:', { minValue, maxValue, subscriberData })
+  const range = maxValue - minValue
+  console.log('Chart Y축 설정:', { 
+    minValue, 
+    maxValue, 
+    range,
+    rangePercentage: minValue > 0 ? ((range / minValue) * 100).toFixed(3) + '%' : '0%',
+    subscriberData 
+  })
   
   return {
     chart: {
@@ -168,7 +175,7 @@ const chartOptions = computed(() => {
         }
       },
       title: {
-        text: '기간',
+        text: '',
         style: {
           fontSize: '14px',
           fontWeight: 600
@@ -180,27 +187,59 @@ const chartOptions = computed(() => {
         formatter: val => Math.round(val).toLocaleString()
       },
       title: {
-        text: '구독자 수',
-        style: {
-          fontSize: '14px',
-          fontWeight: 600
-        }
+        text: '', // Y축 라벨 제거로 깔끔하게 처리
       },
-      min: Math.max(0, Math.floor(minValue * 0.95)), // 최소값 설정 (0 이상)
-      max: Math.ceil(maxValue * 1.05), // 최대값 설정
+      // 구독자 수 변화를 더 잘 보이도록 Y축 범위 조정
+      min: (() => {
+        if (subscriberData.length === 0) return 0;
+        const range = maxValue - minValue;
+        // 변화폭이 작으면 더 좁은 범위로 설정
+        if (range < minValue * 0.01) { // 1% 미만 변화인 경우
+          return Math.floor(minValue - range * 2); // 변화량의 2배 여유
+        }
+        return Math.max(0, Math.floor(minValue * 0.98));
+      })(),
+      max: (() => {
+        if (subscriberData.length === 0) return 100;
+        const range = maxValue - minValue;
+        // 변화폭이 작으면 더 좁은 범위로 설정
+        if (range < minValue * 0.01) { // 1% 미만 변화인 경우
+          return Math.ceil(maxValue + range * 2); // 변화량의 2배 여유
+        }
+        return Math.ceil(maxValue * 1.02);
+      })(),
       forceNiceScale: false,
       decimalsInFloat: 0,
-      tickAmount: 6 // Y축 눈금 개수
+      tickAmount: 8 // Y축 눈금 개수 증가
     },
     stroke: {
       curve: 'smooth',
-      width: 3
+      width: 4 // 선 두께 증가
     },
     colors: ['#ff4d67'],
-    dataLabels: { enabled: false },
+    dataLabels: { 
+      enabled: false // 데이터 라벨 비활성화로 Y축 레이블과 겹치는 문제 해결
+    },
     tooltip: {
       y: {
-        formatter: val => `${val.toLocaleString()}명`
+        formatter: (val, { series, seriesIndex, dataPointIndex, w }) => {
+          let result = `${val.toLocaleString()}명`
+          
+          // 이전 날짜와 비교해서 변화량 표시
+          if (dataPointIndex > 0) {
+            const prevVal = subscriberData[dataPointIndex - 1]
+            const change = val - prevVal
+            const changePercent = ((change / prevVal) * 100).toFixed(2)
+            const changeSign = change >= 0 ? '+' : ''
+            const changeColor = change >= 0 ? '#22c55e' : '#ef4444'
+            
+            result += `<br/><span style="color: ${changeColor}; font-weight: bold;">
+              전일 대비: ${changeSign}${change.toLocaleString()}명 (${changeSign}${changePercent}%)
+            </span>`
+          }
+          
+          return result
+        }
       },
       x: {
         formatter: (val, { series, seriesIndex, dataPointIndex, w }) => {
@@ -219,17 +258,18 @@ const chartOptions = computed(() => {
         top: 10,
         right: 20,
         bottom: 10,
-        left: 10
+        left: 80 // 왼쪽 패딩 증가로 Y축 레이블 공간 확보
       }
     },
     markers: {
-      size: 4,
+      size: 6, // 마커 크기 증가
       colors: ['#ff4d67'],
       strokeColors: '#fff',
-      strokeWidth: 2,
+      strokeWidth: 3, // 테두리 두께 증가
       hover: {
-        size: 6
-      }
+        size: 8 // 호버 시 크기 증가
+      },
+      discrete: [] // 모든 포인트에 마커 표시
     }
   }
 })
