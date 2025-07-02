@@ -16,7 +16,7 @@ import java.util.List;
 @Transactional
 public class AdvertiserReviewRepositoryTests {
 
-    String testAdvertiserId = "ADV0001";
+    String testAdvertiserId = "ADV-0000000000000000";
 
     @Autowired
     private AdvertiserReviewRepository advertiserReviewRepository;
