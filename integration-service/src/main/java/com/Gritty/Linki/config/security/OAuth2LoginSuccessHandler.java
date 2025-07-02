@@ -82,7 +82,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         // accessToken을 헤더에 추가하고 클라이언트로 전달
         response.setHeader("Authorization", "Bearer " + accessToken);
         String redirectUrl = String.format(
-            "http://localhost:3002/oauth/google/success?accessToken=%s&userId=%s&role=%s",
+            "http://175.45.205.251:3002/oauth/google/success?accessToken=%s&userId=%s&role=%s",
             accessToken, user.getUserId(), user.getUserRole()
         );
         response.sendRedirect(redirectUrl); // ✅ 프론트 페이지로 리디렉션

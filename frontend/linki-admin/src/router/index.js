@@ -24,7 +24,6 @@ const router = createRouter({
       name: 'signup',
       component: () => import('@/views/oAuth/signUp/AdminSignUp.vue')
     },
-
     {
       path: '/memberList',
       name: 'memberList',

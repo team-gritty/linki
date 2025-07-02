@@ -33,7 +33,7 @@ public class YoutubeService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
-    @Value("${GOOGLE_REDIRECTURI}")
+    @Value("http://175.45.205.251:3002/google-callback")
     private String redirectUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
