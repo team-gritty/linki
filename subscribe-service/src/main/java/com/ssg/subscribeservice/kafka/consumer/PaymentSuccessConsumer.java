@@ -23,6 +23,7 @@ public class PaymentSuccessConsumer {
         log.info("Consuming payment success event: {}", message);
         try {
             PaymentSuccessEvent paymentSuccessEvent = objectMapper.readValue(message, PaymentSuccessEvent.class);
+            //구독 처리
             paymentSuccessHandler.handle(paymentSuccessEvent);
         } catch (JsonProcessingException e){
              log.error(e.getMessage());
