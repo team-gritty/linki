@@ -42,8 +42,6 @@ public class CampaignServiceTests {
                 .campaignCategory(Category.BEAUTY)
                 .build();
 
-
-
         try {
             CampaignDto createdCampaign = campaignService.createCampaign(campaignDto, testAdvertiserId);
             log.info("생성된 캠페인: {}", createdCampaign);
@@ -56,7 +54,6 @@ public class CampaignServiceTests {
     @DisplayName("광고주별 캠페인 조회 Service Test")
     public void getCampaignsByAdvertiserId() {
         log.info("광고주별 캠페인 조회 테스트 시작");
-
 
         List<CampaignDto> campaigns = campaignService.getCampaignsByAdvertiserId(testAdvertiserId);
         log.info("조회된 캠페인 수: {}", campaigns.size());
@@ -94,7 +91,6 @@ public class CampaignServiceTests {
     public void deleteCampaign() {
         log.info("캠페인 삭제 테스트 시작");
 
-
         try {
             campaignService.deleteCampaign(testCampaignId, testAdvertiserId);
             log.info("캠페인 삭제 완료");
@@ -109,7 +105,6 @@ public class CampaignServiceTests {
         log.info("캠페인 공개/비공개 전환 테스트 시작");
 
         List<String> campaignIds = Arrays.asList(testCampaignId, testCampaignId2);
-
 
         // 공개로 전환 테스트
         try {
@@ -134,7 +129,6 @@ public class CampaignServiceTests {
     @DisplayName("특정 캠페인 상세 조회 Service Test")
     public void getCampaignById() {
         log.info("특정 캠페인 상세 조회 테스트 시작");
-
 
         try {
             CampaignDto campaign = campaignService.getCampaignById(testCampaignId, testAdvertiserId);
