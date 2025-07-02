@@ -286,7 +286,7 @@ const connectSocket = (chatId) => {
 const connectWithNativeWebSocket = (chatId, token) => {
   try {
     console.log('Connecting with native WebSocket...')
-    const wsUrl = `ws://localhost:8000/v1/chat-service/ws/chat?token=${encodeURIComponent(token)}`
+    const wsUrl = `ws://211.188.61.90:8000/v1/chat-service/ws/chat?token=${encodeURIComponent(token)}`
     const socket = new WebSocket(wsUrl)
     stompClient.value = Stomp.over(socket)
 

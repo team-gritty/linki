@@ -273,7 +273,7 @@ const fetchData = async () => {
 
 const initiateYoutubeAuth = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const redirectUri = 'http://localhost:3002/google-callback';
+  const redirectUri = 'https://linki.kr/google-callback';
   const scope = 'https://www.googleapis.com/auth/youtube.readonly';
   // 유튜브 채널 정보 접근 권한 요청 (필요시 구글 로그인 포함)
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&access_type=offline&prompt=consent`;
