@@ -1,23 +1,7 @@
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka
-
 spring:
+  application:
+    name: integration-service
+  profiles:
+    active: dev
   config:
-    import: "optional:application-secret.properties"
-  jwt:
-    secret: ${secret-HS256}
-
-  # object storage 파일 업로드 설정
-  servlet:
-    multipart:
-      max-file-size: 10MB # 단일 파일 최대 크기
-      max-request-size: 10MB # 전체 요청 최대 크기
-      enabled: true
-
-  jackson:
-    property-naming-strategy: SNAKE_CASE
-
+    import: optional:configserver:http://admin:1234@localhost:9000

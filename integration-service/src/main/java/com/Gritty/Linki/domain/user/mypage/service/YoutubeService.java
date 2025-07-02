@@ -27,13 +27,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class YoutubeService {
-    @Value("${GOOGLE_CLIENT_ID}")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 
-    @Value("${GOOGLE_CLIENT_SECRET}")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
-    @Value("http://localhost:3002/google-callback")
+    @Value("${GOOGLE_REDIRECTURI}")
     private String redirectUri;
 
     private final RestTemplate restTemplate = new RestTemplate();

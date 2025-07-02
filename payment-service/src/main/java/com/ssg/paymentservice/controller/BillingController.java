@@ -46,6 +46,11 @@ public class BillingController {
         return ResponseEntity.ok(billingInfoResponseDto);
     }
 
+    @GetMapping("/check")
+    public String aaaaa() {
+        return "aaaaa";
+    }
+
 //    @GetMapping("/fail")
 //    public ResponseEntity<Void> billingSuccess(
 //            @RequestParam("customerKey") String customerKey,

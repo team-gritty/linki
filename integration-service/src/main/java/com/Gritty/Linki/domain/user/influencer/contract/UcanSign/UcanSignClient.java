@@ -23,7 +23,7 @@ import java.util.Map;
 @Log4j2
 public class UcanSignClient {
 
-    @Value("${uCanSignKey}")
+    @Value("$uCanSignKey")
     private String apiKey;
 
     private final ObjectMapper objectMapper;
