@@ -27,12 +27,12 @@ const router = createRouter({
     {
       path: '/admin/findid',
       name: 'findid',
-      component: () => import('@/views/oAuth/findId/FindId.vue')
+      component: () => import('@/views/oAuth/findId/findId.vue')
     },
     {
       path: '/admin/findpassword',
       name: 'findpassword',
-      component: () => import('@/views/oAuth/findPassword/FindPassword.vue')
+      component: () => import('@/views/oAuth/findPassword/findPassword.vue')
     },
     {
       path: '/memberList',
