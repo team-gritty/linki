@@ -51,7 +51,7 @@ public class SubscribeServiceImpl implements SubscribeService {
 
         // 4. 현재 요청 헤더에서 Authorization 호출하여 토큰 가져옴 (feignClient 에서 담아서 보내야함)
 
-        log.info("---------------------------------===========+++++++++++++++++++++++++++++++++++++++++")
+        log.info("---------------------------------===========+++++++++++++++++++++++++++++++++++++++++");
 
         ResponseEntity<PayInfluencerEmailNameResponseDto> emailNameByToken = feignGetEmailNameByToken
                 .getEmailNameByToken(
