@@ -51,6 +51,8 @@ public class SubscribeServiceImpl implements SubscribeService {
 
         // 4. 현재 요청 헤더에서 Authorization 호출하여 토큰 가져옴 (feignClient 에서 담아서 보내야함)
 
+        log.info("---------------------------------===========+++++++++++++++++++++++++++++++++++++++++")
+
         ResponseEntity<PayInfluencerEmailNameResponseDto> emailNameByToken = feignGetEmailNameByToken
                 .getEmailNameByToken(
                         Optional.ofNullable(request.getHeader("Authorization"))
@@ -61,6 +63,8 @@ public class SubscribeServiceImpl implements SubscribeService {
         // 5. feignClient 호출하여 이메일. 이름값 받아옴
         String userName = emailNameByToken.getBody().getUserName();
         String userEmail = emailNameByToken.getBody().getUserEmail();
+
+        log.info(userName + " " + useremail);
 
         //이벤트 생성
         SubscriptionCreatedEvent subscriptionCreatedEvent = new SubscriptionCreatedEvent(userId,
