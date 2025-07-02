@@ -108,6 +108,8 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' // ✅ 반드시 포함
 
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
 
 }
 

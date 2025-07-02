@@ -13,7 +13,7 @@ import java.util.Date;
 public class JwtUtil {
     private SecretKey secretKey;
 
-    public JwtUtil(@Value("${spring.jwt.secret}")String secret) {
+    public JwtUtil(@Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")String secret) {
         this.secretKey = new SecretKeySpec(secret.getBytes(), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 

@@ -59,7 +59,6 @@ public class ProposalRepositoryTests {
         }
     }
 
-
     @Test
     @DisplayName("제안서 ID로 단일 제안서 조회 Repository Test")
     public void findById() {
