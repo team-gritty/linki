@@ -12,7 +12,7 @@ public interface RedirectClickRepository extends JpaRepository<RedirectClick, Lo
     boolean existsByRedirectLinkAndClickTime(RedirectLinks redirectLinks, LocalDate date);
     List<RedirectClick> findByRedirectLink(RedirectLinks redirectLinks);
     @Query(value = """
-        SELECT AVG(daily_count)
+        SELECT COALESCE(AVG(daily_count), 0)
         FROM (
             SELECT DATE(click_time) AS click_date, COUNT(*) AS daily_count
             FROM redirect_click
