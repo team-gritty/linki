@@ -44,9 +44,9 @@ public class SecurityConfig {
                 //권한별 설정
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/v1/api/nonuser/**").permitAll()
-                .requestMatchers("/v1/api/user/**").permitAll()
-                .requestMatchers("/v1/api/influencer/**").permitAll()
-                .requestMatchers("/v1/api/advertiser/**").permitAll()
+                .requestMatchers("/v1/api/user/**").hasRole("ROLE_USER")
+                .requestMatchers("/v1/api/influencer/**").hasRole("ROLE_INFLUENCER")
+                .requestMatchers("/v1/api/advertiser/**").hasRole("ROLE_ADVERTISER")
                 .requestMatchers("/v1/api/user/auth/login-success").permitAll()
                 .anyRequest().permitAll());
 
