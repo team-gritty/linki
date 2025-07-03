@@ -16,7 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
 //                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 //                .allowedHeaders("*")
 //                .allowCredentials(true);
-//    }
+//     }
 
     /**
      * 인터셉터 등록: JWT 토큰 검증 인터셉터 (현재 미적용)
