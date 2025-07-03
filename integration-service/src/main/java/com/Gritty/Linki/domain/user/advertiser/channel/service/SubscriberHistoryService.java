@@ -9,10 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import com.Gritty.Linki.exception.BusinessException;
 import com.Gritty.Linki.exception.ErrorCode;
@@ -62,7 +61,8 @@ public class SubscriberHistoryService {
 
             if (history.isEmpty()) {
                 log.warn("구독자 히스토리 데이터가 없습니다 - channelId: {}", channelId);
-                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "구독자 히스토리 데이터를 찾을 수 없습니다");
+                return Collections.emptyList();
+//                throw new BusinessException(ErrorCode.ENTITY_NOT_FOUND, "구독자 히스토리 데이터를 찾을 수 없습니다");
             }
 
             log.info("구독자 히스토리 조회 완료 - channelId: {}, 조회된 데이터 수: {}", channelId, history.size());
@@ -70,7 +70,8 @@ public class SubscriberHistoryService {
 
         } catch (Exception e) {
             log.error("구독자 히스토리 조회 중 오류 발생 - channelId: {}", channelId, e);
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "구독자 히스토리 조회 중 오류가 발생했습니다: " + e.getMessage());
+            return Collections.emptyList();
+//            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "구독자 히스토리 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
