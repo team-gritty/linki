@@ -2,6 +2,7 @@
 package com.linki.admin_integration_service.config;
 
 
+
 import com.linki.admin_integration_service.config.token.RefreshTokenService;
 import com.linki.admin_integration_service.domain.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class SecurityConfig {
                 //권한별 설정
                 .requestMatchers("v1/api/**").permitAll()
                 .requestMatchers("v1/admin/api/redirect/{shortUrl}").permitAll()
-                .requestMatchers("/v1/admin/api/**").permitAll()
+                .requestMatchers("/v1/admin/api/**").hasRole("AGREEMENT")
 
                 .anyRequest().permitAll());
 
@@ -84,7 +85,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3001"); // linki-admin 프론트엔드 포트
+        configuration.addAllowedOrigin("http://175.45.205.251:3001"); // linki-admin 프론트엔드 포트
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);

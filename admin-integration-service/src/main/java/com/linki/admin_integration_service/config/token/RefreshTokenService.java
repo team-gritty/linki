@@ -9,7 +9,6 @@ import java.sql.Ref;
 
 @Service
 @RequiredArgsConstructor
-
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;

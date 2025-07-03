@@ -29,7 +29,6 @@ public class ProposalServiceTests {
 
     /**
      * CustomUserDetails 실제 객체를 생성하는 메소드
-     * 
      * @return
      */
     private CustomUserDetails createMockUserDetails() {
@@ -65,7 +64,7 @@ public class ProposalServiceTests {
     public void getProposalDetail() {
         log.info("제안서 상세 조회 테스트 시작");
 
-        //
+        // 
         CustomUserDetails mockUser = createMockUserDetails();
 
         try {
