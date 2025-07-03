@@ -3,7 +3,6 @@ package com.Gritty.Linki.config.security;
 import com.Gritty.Linki.domain.account.account.service.RefreshTokenService;
 import com.Gritty.Linki.domain.account.oAuth.service.oAuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,9 +43,9 @@ public class SecurityConfig {
                 //권한별 설정
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/v1/api/nonuser/**").permitAll()
-                .requestMatchers("/v1/api/user/**").hasRole("ROLE_USER")
-                .requestMatchers("/v1/api/influencer/**").hasRole("ROLE_INFLUENCER")
-                .requestMatchers("/v1/api/advertiser/**").hasRole("ROLE_ADVERTISER")
+                .requestMatchers("/v1/api/user/**").permitAll()
+                .requestMatchers("/v1/api/influencer/**").permitAll()
+                .requestMatchers("/v1/api/advertiser/**").permitAll()
                 .requestMatchers("/v1/api/user/auth/login-success").permitAll()
                 .anyRequest().permitAll());
 
