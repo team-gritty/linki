@@ -8,7 +8,7 @@ spring:
     secret: ${secret-HS256}
 
   kafka:
-    bootstrap-servers: host.docker.internal:9092
+    bootstrap-servers: localhost:9092
   jpa:
     hibernate:
       #table과 entity 불일치 시 오류
