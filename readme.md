@@ -1,3 +1,10 @@
+<div align="center">
+  <img 
+    src="https://capsule-render.vercel.app/api?type=soft&color=7b21e8&height=120&text=LINKI%20PROJECT&animation=fadeIn&fontColor=ffffff&fontSize=60" 
+    width="100%"
+  />
+</div>
+
 # Linki - 인플루언서 마케팅 플랫폼
 
 ## 📝 프로젝트 개요
@@ -9,7 +16,7 @@ Linki는 인플루언서와 광고주를 연결하는 종합 마케팅 플랫폼
 ### [ERD 바로가기](https://www.erdcloud.com/d/tHnS9EZLguhoSFaMD)
 ### [회원 페이지 바로가기](https://www.linki.kr)
 ### [관리자 페이지 바로가기](https://www.admin.linki.kr)
-
+### [TEAM NOTION 바로가기 ](https://shorturl.at/dwkOo)
 ## 🏗️ 시스템 아키텍처
 
 ### 마이크로서비스 구조
