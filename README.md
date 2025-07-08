@@ -52,7 +52,7 @@ Linki는 인플루언서와 광고주를 연결하는 종합 마케팅 플랫폼
 - **Database**: MySQL 8.0
 - **ORM**: JPA/Hibernate + MyBatis
 - **Security**: Spring Security + JWT
-- **Message Queue**: Apache Kafka
+- **Message Oriented middleware**: Apache Kafka
 - **Service Discovery**: Netflix Eureka
 - **API Gateway**: Spring Cloud Gateway
 - **Cache**: Redis
@@ -98,9 +98,8 @@ Linki는 인플루언서와 광고주를 연결하는 종합 마케팅 플랫폼
 
 ### 💳 결제 & 정산
 - Toss Payments 연동 결제
-- 구독 서비스 (인플루언서 전용)
-- 자동 정산 시스템
-- 환불 처리
+- 구독 자동 갱신 서비스
+- 구독 취소 서비스
 
 ### 📈 분석 & 리포팅
 - YouTube 채널 통계 수집
@@ -311,7 +310,8 @@ export OPENAI_API_KEY=your_openai_api_key
 - Redis 캐싱 적용
 - 데이터베이스 인덱스 최적화 (54개 인덱스 적용)
 - Keyset 페이지네이션
-- 비동기 처리 (Kafka 메시징)
+- DB락을 통한 동시성 처리 
+- 비동기 처리(use kafka) 를 통한 트래픽 처리
 - CDN 적용 (이미지/정적 파일)
 
 ## 🤝 기여 방법
@@ -330,7 +330,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [신민혁](https://github.com/minhyeokshin)(팀장) : 데이터 분석/ 플렛폼 관리자 기능
 - [고윤아](https://github.com/kya9505)(부팀장) : notion 및 문서관리 , 채팅
-- [이정섭](https://github.com/dlwjdtjq001) : 네트워크 관리 , 결제 /환불
+- [이정섭](https://github.com/dlwjdtjq001) : 네트워크 관리 , 결제 / 구독 기능 , msa인프라
 - [김성준](https://github.com/kimsj18) : 시큐리티 / 회원 / 챗봇
 - [김선민](https://github.com/seonmin12) : 인플루언서 기능
 - [정난희](https://github.com/Eveieve) : 광고주 기능
